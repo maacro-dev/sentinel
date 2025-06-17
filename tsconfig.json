@@ -5,6 +5,7 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "types": ["./src/app/vite-env.d.ts"], // changed the location of the file
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
