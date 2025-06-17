@@ -10,3 +10,7 @@ export function getRedirectPath(role: Role) {
       return "/";
   }
 }
+
+export function roleHasAccess(role: Role, allowedRoles: Role[]) {
+  return allowedRoles.includes(role);
+}

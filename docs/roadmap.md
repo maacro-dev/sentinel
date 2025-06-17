@@ -12,7 +12,7 @@
 ## Dashboard & Analytics (Data Manager Module)
 
 - [x] Protected route
-- [ ] Basic layout (sidebar, navbar, responsive design)
+- [x] Basic layout (sidebar, navbar, responsive design)
 - [ ] Supabase integration for fetching KPIs and trends
 - [ ] Data visualization components (charts, graphs)
   - [ ] Yield performance over time
@@ -84,8 +84,8 @@
 
 ## Analytics Module
 
-- [ ] Basic layout
-- [ ] Protected route
+- [x] Basic layout
+- [x] Protected route
 - [ ] Yield Analysis
   - [ ] Overall yield
   - [ ] By season (dry/wet)
@@ -115,9 +115,9 @@
 - [x] Routing system using TanStack Router
 - [x] State management via Zustand
 - [x] Authentication system (Supabase Auth + Zustand store)
-- [ ] Form handling with React Hook Form + Zod validation
-- [ ] Login flow with error/loading states
-- [ ] Full dashboard functionality
+- [~] Form handling with React Hook Form + Zod validation
+- [x] Login flow with error/loading states
+- [~] Full dashboard functionality
 - [ ] Complete admin features
 - [ ] Data visualization (charts/graphs)
 - [ ] Real-time sync from mobile app (via Supabase Realtime)

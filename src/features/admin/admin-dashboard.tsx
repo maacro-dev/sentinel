@@ -1,7 +1,7 @@
 import { PageDefinitionOnly } from "@/components/page-definition-only";
 
-const AdminPage = () => {
+const AdminDashboard = () => {
   return <PageDefinitionOnly label="system admin" />;
 };
 
-export default AdminPage;
+export default AdminDashboard;

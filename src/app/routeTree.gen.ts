@@ -10,13 +10,33 @@
 
 import { Route as rootRouteImport } from './../routes/__root'
 import { Route as LoginRouteImport } from './../routes/login'
+import { Route as AdminRouteImport } from './../routes/admin'
+import { Route as ManagerRouteImport } from './../routes/_manager'
 import { Route as IndexRouteImport } from './../routes/index'
-import { Route as DashboardIndexRouteImport } from './../routes/dashboard.index'
-import { Route as AdminIndexRouteImport } from './../routes/admin.index'
+import { Route as AdminDashboardRouteImport } from './../routes/admin.dashboard'
+import { Route as ManagerDashboardRouteImport } from './../routes/_manager/dashboard'
+import { Route as ManagerAnalyticsRouteImport } from './../routes/_manager/analytics'
+import { Route as ManagerFormsRiceNonRiceRouteImport } from './../routes/_manager/_forms/riceNonRice'
+import { Route as ManagerFormsProductionRouteImport } from './../routes/_manager/_forms/production'
+import { Route as ManagerFormsOverviewRouteImport } from './../routes/_manager/_forms/overview'
+import { Route as ManagerFormsNutrientManagementRouteImport } from './../routes/_manager/_forms/nutrientManagement'
+import { Route as ManagerFormsMonitoringRouteImport } from './../routes/_manager/_forms/monitoring'
+import { Route as ManagerFormsFieldProfileRouteImport } from './../routes/_manager/_forms/fieldProfile'
+import { Route as ManagerFormsDamageAssessmentRouteImport } from './../routes/_manager/_forms/damageAssessment'
+import { Route as ManagerFormsCulturalManagementRouteImport } from './../routes/_manager/_forms/culturalManagement'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagerRoute = ManagerRouteImport.update({
+  id: '/_manager',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -24,49 +44,173 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => rootRouteImport,
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+const ManagerDashboardRoute = ManagerDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => ManagerRoute,
 } as any)
+const ManagerAnalyticsRoute = ManagerAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerFormsRiceNonRiceRoute = ManagerFormsRiceNonRiceRouteImport.update({
+  id: '/_forms/riceNonRice',
+  path: '/riceNonRice',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerFormsProductionRoute = ManagerFormsProductionRouteImport.update({
+  id: '/_forms/production',
+  path: '/production',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerFormsOverviewRoute = ManagerFormsOverviewRouteImport.update({
+  id: '/_forms/overview',
+  path: '/overview',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerFormsNutrientManagementRoute =
+  ManagerFormsNutrientManagementRouteImport.update({
+    id: '/_forms/nutrientManagement',
+    path: '/nutrientManagement',
+    getParentRoute: () => ManagerRoute,
+  } as any)
+const ManagerFormsMonitoringRoute = ManagerFormsMonitoringRouteImport.update({
+  id: '/_forms/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerFormsFieldProfileRoute =
+  ManagerFormsFieldProfileRouteImport.update({
+    id: '/_forms/fieldProfile',
+    path: '/fieldProfile',
+    getParentRoute: () => ManagerRoute,
+  } as any)
+const ManagerFormsDamageAssessmentRoute =
+  ManagerFormsDamageAssessmentRouteImport.update({
+    id: '/_forms/damageAssessment',
+    path: '/damageAssessment',
+    getParentRoute: () => ManagerRoute,
+  } as any)
+const ManagerFormsCulturalManagementRoute =
+  ManagerFormsCulturalManagementRouteImport.update({
+    id: '/_forms/culturalManagement',
+    path: '/culturalManagement',
+    getParentRoute: () => ManagerRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
-  '/admin': typeof AdminIndexRoute
-  '/dashboard': typeof DashboardIndexRoute
+  '/analytics': typeof ManagerAnalyticsRoute
+  '/dashboard': typeof ManagerDashboardRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
+  '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
+  '/fieldProfile': typeof ManagerFormsFieldProfileRoute
+  '/monitoring': typeof ManagerFormsMonitoringRoute
+  '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
+  '/overview': typeof ManagerFormsOverviewRoute
+  '/production': typeof ManagerFormsProductionRoute
+  '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
-  '/admin': typeof AdminIndexRoute
-  '/dashboard': typeof DashboardIndexRoute
+  '/analytics': typeof ManagerAnalyticsRoute
+  '/dashboard': typeof ManagerDashboardRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
+  '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
+  '/fieldProfile': typeof ManagerFormsFieldProfileRoute
+  '/monitoring': typeof ManagerFormsMonitoringRoute
+  '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
+  '/overview': typeof ManagerFormsOverviewRoute
+  '/production': typeof ManagerFormsProductionRoute
+  '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_manager': typeof ManagerRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
-  '/admin/': typeof AdminIndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
+  '/_manager/analytics': typeof ManagerAnalyticsRoute
+  '/_manager/dashboard': typeof ManagerDashboardRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/_manager/_forms/culturalManagement': typeof ManagerFormsCulturalManagementRoute
+  '/_manager/_forms/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
+  '/_manager/_forms/fieldProfile': typeof ManagerFormsFieldProfileRoute
+  '/_manager/_forms/monitoring': typeof ManagerFormsMonitoringRoute
+  '/_manager/_forms/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
+  '/_manager/_forms/overview': typeof ManagerFormsOverviewRoute
+  '/_manager/_forms/production': typeof ManagerFormsProductionRoute
+  '/_manager/_forms/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/admin' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/analytics'
+    | '/dashboard'
+    | '/admin/dashboard'
+    | '/culturalManagement'
+    | '/damageAssessment'
+    | '/fieldProfile'
+    | '/monitoring'
+    | '/nutrientManagement'
+    | '/overview'
+    | '/production'
+    | '/riceNonRice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/admin' | '/dashboard'
-  id: '__root__' | '/' | '/login' | '/admin/' | '/dashboard/'
+  to:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/analytics'
+    | '/dashboard'
+    | '/admin/dashboard'
+    | '/culturalManagement'
+    | '/damageAssessment'
+    | '/fieldProfile'
+    | '/monitoring'
+    | '/nutrientManagement'
+    | '/overview'
+    | '/production'
+    | '/riceNonRice'
+  id:
+    | '__root__'
+    | '/'
+    | '/_manager'
+    | '/admin'
+    | '/login'
+    | '/_manager/analytics'
+    | '/_manager/dashboard'
+    | '/admin/dashboard'
+    | '/_manager/_forms/culturalManagement'
+    | '/_manager/_forms/damageAssessment'
+    | '/_manager/_forms/fieldProfile'
+    | '/_manager/_forms/monitoring'
+    | '/_manager/_forms/nutrientManagement'
+    | '/_manager/_forms/overview'
+    | '/_manager/_forms/production'
+    | '/_manager/_forms/riceNonRice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ManagerRoute: typeof ManagerRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
-  AdminIndexRoute: typeof AdminIndexRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,6 +222,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_manager': {
+      id: '/_manager'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -85,28 +243,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/': {
-      id: '/dashboard/'
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_manager/dashboard': {
+      id: '/_manager/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof ManagerDashboardRouteImport
+      parentRoute: typeof ManagerRoute
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_manager/analytics': {
+      id: '/_manager/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof ManagerAnalyticsRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/riceNonRice': {
+      id: '/_manager/_forms/riceNonRice'
+      path: '/riceNonRice'
+      fullPath: '/riceNonRice'
+      preLoaderRoute: typeof ManagerFormsRiceNonRiceRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/production': {
+      id: '/_manager/_forms/production'
+      path: '/production'
+      fullPath: '/production'
+      preLoaderRoute: typeof ManagerFormsProductionRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/overview': {
+      id: '/_manager/_forms/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof ManagerFormsOverviewRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/nutrientManagement': {
+      id: '/_manager/_forms/nutrientManagement'
+      path: '/nutrientManagement'
+      fullPath: '/nutrientManagement'
+      preLoaderRoute: typeof ManagerFormsNutrientManagementRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/monitoring': {
+      id: '/_manager/_forms/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof ManagerFormsMonitoringRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/fieldProfile': {
+      id: '/_manager/_forms/fieldProfile'
+      path: '/fieldProfile'
+      fullPath: '/fieldProfile'
+      preLoaderRoute: typeof ManagerFormsFieldProfileRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/damageAssessment': {
+      id: '/_manager/_forms/damageAssessment'
+      path: '/damageAssessment'
+      fullPath: '/damageAssessment'
+      preLoaderRoute: typeof ManagerFormsDamageAssessmentRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_forms/culturalManagement': {
+      id: '/_manager/_forms/culturalManagement'
+      path: '/culturalManagement'
+      fullPath: '/culturalManagement'
+      preLoaderRoute: typeof ManagerFormsCulturalManagementRouteImport
+      parentRoute: typeof ManagerRoute
     }
   }
 }
 
+interface ManagerRouteChildren {
+  ManagerAnalyticsRoute: typeof ManagerAnalyticsRoute
+  ManagerDashboardRoute: typeof ManagerDashboardRoute
+  ManagerFormsCulturalManagementRoute: typeof ManagerFormsCulturalManagementRoute
+  ManagerFormsDamageAssessmentRoute: typeof ManagerFormsDamageAssessmentRoute
+  ManagerFormsFieldProfileRoute: typeof ManagerFormsFieldProfileRoute
+  ManagerFormsMonitoringRoute: typeof ManagerFormsMonitoringRoute
+  ManagerFormsNutrientManagementRoute: typeof ManagerFormsNutrientManagementRoute
+  ManagerFormsOverviewRoute: typeof ManagerFormsOverviewRoute
+  ManagerFormsProductionRoute: typeof ManagerFormsProductionRoute
+  ManagerFormsRiceNonRiceRoute: typeof ManagerFormsRiceNonRiceRoute
+}
+
+const ManagerRouteChildren: ManagerRouteChildren = {
+  ManagerAnalyticsRoute: ManagerAnalyticsRoute,
+  ManagerDashboardRoute: ManagerDashboardRoute,
+  ManagerFormsCulturalManagementRoute: ManagerFormsCulturalManagementRoute,
+  ManagerFormsDamageAssessmentRoute: ManagerFormsDamageAssessmentRoute,
+  ManagerFormsFieldProfileRoute: ManagerFormsFieldProfileRoute,
+  ManagerFormsMonitoringRoute: ManagerFormsMonitoringRoute,
+  ManagerFormsNutrientManagementRoute: ManagerFormsNutrientManagementRoute,
+  ManagerFormsOverviewRoute: ManagerFormsOverviewRoute,
+  ManagerFormsProductionRoute: ManagerFormsProductionRoute,
+  ManagerFormsRiceNonRiceRoute: ManagerFormsRiceNonRiceRoute,
+}
+
+const ManagerRouteWithChildren =
+  ManagerRoute._addFileChildren(ManagerRouteChildren)
+
+interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ManagerRoute: ManagerRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
-  AdminIndexRoute: AdminIndexRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

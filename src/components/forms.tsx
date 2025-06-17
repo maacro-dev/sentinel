@@ -10,14 +10,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
-import {
-  UseFormReturn,
-  FieldValues,
-  Path,
-  useFormContext,
-} from "react-hook-form";
+import { UseFormReturn, FieldValues, Path, useFormContext } from "react-hook-form";
 import { ReactNode } from "react";
 import { Input } from "./ui/input";
 
@@ -32,7 +27,7 @@ type HumayFormProps<T extends FieldValues> = {
 const HumayForm = <T extends FieldValues>({
   form,
   onSubmit,
-  children,
+  children
 }: HumayFormProps<T>) => {
   return (
     <Form {...form}>
@@ -54,7 +49,7 @@ const HumayTextField = <T extends FieldValues>({
   label,
   name,
   placeholder,
-  type = "text",
+  type = "text"
 }: HumayTextFieldProps<T>) => {
   const form = useFormContext<T>();
 

@@ -10,14 +10,14 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
       routesDirectory: "./src/routes",
-      generatedRouteTree: "./src/app/routeTree.gen.ts",
+      generatedRouteTree: "./src/app/routeTree.gen.ts"
     }),
     react(),
-    tailwindcss(),
+    tailwindcss()
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
+      "@": path.resolve(__dirname, "./src")
+    }
+  }
 });

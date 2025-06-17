@@ -3,8 +3,10 @@ import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {
+    // DONT FORGET TO UNCOMMENT THIS AFTER IMPLEMENTING CORE FEATURES
+    //
     const user = useAuthStore.getState().user;
     if (!user) throw redirect({ to: "/login" });
   },
-  component: () => <Navigate to="/dashboard" />,
+  component: () => <Navigate to="/dashboard" />
 });
