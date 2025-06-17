@@ -4,8 +4,6 @@
 
 🛠️ _This is an internal tool intended for use by partner agricultural organizations and research institutions._
 
----
-
 ## Overview
 
 Humay Web serves as a centralized platform for managing, analyzing, and visualizing rice cultivation data across various stages. It supports seamless integration with mobile clients, enabling real-time monitoring, comprehensive reporting, and informed decision-making for agricultural stakeholders.
@@ -48,112 +46,15 @@ Humay Web serves as a centralized platform for managing, analyzing, and visualiz
 - **System Monitoring & Maintenance**
   Audit logs, manual backups, and system usage reports ensure operational transparency and reliability.
 
----
-
 ## Getting Started
 
-### Prerequisites
+Track feature progress and planned improvements in the [Roadmap](./docs/roadmap.md).
 
-Ensure you have the following installed before proceeding:
+For full setup instructions, including prerequisites, installation steps, and environment configuration, see the [Setup Guide](./docs/setup.md).
 
-- Node.js (v18 or higher)
-- npm (v8 or higher)
-- A modern browser (Chrome, Firefox, Safari)
+## Analytics
 
----
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   cd humay
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Configure environment variables:
-   Create a `.env` file in the root directory with the following content:
-
-   ```
-   VITE_SUPABASE_KEY=your-anon-key
-   ```
-
-4. Run the development server:
-
-   ```bash
-   npm run dev
-   ```
-
-5. Access the app at:
-   [http://localhost:5173](http://localhost:5173)
-
----
-
-## Usage Guide
-
-### Authentication
-
-- Sign in using provided credentials
-- Registration may be restricted based on deployment settings
-
-### Data Collection
-
-- View submitted forms from mobile clients
-- Monitor real-time field data ingestion
-- Import datasets from approved sources
-
-### Data Analysis
-
-- Generate custom reports filtered by season, region, crop stage, etc.
-- Visualize trends such as yield performance, fertilizer usage, and farming practices
-- Export graphs, charts, and summaries for offline analysis
-
-### Profile Management
-
-- Update or delete farmer profiles
-- Manage associated field records and geographic data
-
-### Reporting & Export
-
-- Export compliance reports, damage assessments, and statistical summaries
-- Choose from multiple formats: PDF, CSV
-
----
-
-## System Administration
-
-Administrators have elevated access to manage:
-
-- **User Accounts**: Create, edit, or disable users and assign roles
-- **System Logs**: Review audit trails for logins, updates, and synchronization events
-- **Backups**: Perform manual or scheduled database backups
-- **Notifications**: Set up alerts for missing data, incomplete forms, or sync failures
-
----
-
-## Analytics Module
-
-### Mobile App Integration
-
-- Submit, view, update, and delete collected form data via the mobile client
-
-### Web App Capabilities
-
-- Manage and analyze data on:
-  - Yield performance
-  - Damage assessment
-  - Fertilizer usage
-  - Crop establishment methods
-  - Farmer demographics
-  - Field distribution and land use
-
----
+Explore supported analytics capabilities in detail in the [Analytics Documentation](./docs/analytics.md).
 
 ## License
 
