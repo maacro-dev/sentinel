@@ -1,10 +1,18 @@
+import { cn } from "@/lib/utils";
+
 type CenteredLayoutProps = {
+  className?: string;
   children?: React.ReactNode;
 };
 
-const CenteredLayout = ({ children }: CenteredLayoutProps) => {
+const CenteredLayout = ({ className, children }: CenteredLayoutProps) => {
   return (
-    <div className="h-screen w-screen flex flex-col justify-center items-center">
+    <div
+      className={cn(
+        "h-screen w-screen flex flex-col justify-center items-center",
+        className
+      )}
+    >
       {children}
     </div>
   );

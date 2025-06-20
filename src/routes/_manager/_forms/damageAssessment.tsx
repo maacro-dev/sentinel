@@ -4,6 +4,13 @@ import { ShieldHalf } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/damageAssessment")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Damage Assessment | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Forms",

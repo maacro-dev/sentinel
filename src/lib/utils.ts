@@ -14,6 +14,6 @@ export const mapRole = (role?: Role) => {
     case "data_manager":
       return "Data Manager";
     default:
-      return "User";
+      return "Error";
   }
 };

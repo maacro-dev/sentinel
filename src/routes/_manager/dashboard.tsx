@@ -4,6 +4,13 @@ import { LayoutDashboard } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/dashboard")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Dashboard | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Core",

@@ -4,6 +4,13 @@ import { Folder } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/culturalManagement")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Cultural Management | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Forms",

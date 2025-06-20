@@ -4,6 +4,13 @@ import { PackagePlus } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/production")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Production | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Forms",

@@ -13,7 +13,7 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { UseFormReturn, FieldValues, Path, useFormContext } from "react-hook-form";
-import { ReactNode } from "react";
+import { ReactNode, memo, useMemo } from "react";
 import { Input } from "./ui/input";
 
 type TextFieldTypes = "text" | "password";
@@ -45,7 +45,7 @@ type HumayTextFieldProps<T extends FieldValues> = {
   type?: TextFieldTypes;
 };
 
-const HumayTextField = <T extends FieldValues>({
+const InternalTextField = <T extends FieldValues>({
   label,
   name,
   placeholder,
@@ -61,15 +61,9 @@ const HumayTextField = <T extends FieldValues>({
         name={name}
         render={({ field }) => (
           <>
-            <FormItem>
-              <FormControl>
-                <Input
-                  type={type}
-                  placeholder={placeholder ? placeholder : ""}
-                  {...field}
-                />
-              </FormControl>
-            </FormItem>
+            <FormControl>
+              <Input id={name} type={type} placeholder={placeholder} {...field} />
+            </FormControl>
             <FormMessage />
           </>
         )}
@@ -77,5 +71,7 @@ const HumayTextField = <T extends FieldValues>({
     </div>
   );
 };
+
+const HumayTextField = memo(InternalTextField);
 
 export { HumayForm, HumayTextField };

@@ -1,4 +1,6 @@
-function PlaceholderBody() {
+import { memo } from "react";
+
+const PlaceholderBody = memo(() => {
   return (
     <>
       <div className="grid auto-rows-min gap-4 md:grid-cols-3">
@@ -9,6 +11,6 @@ function PlaceholderBody() {
       <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
     </>
   );
-}
+});
 
 export default PlaceholderBody;

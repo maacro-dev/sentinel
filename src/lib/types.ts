@@ -1,14 +1,11 @@
-export type Role = "data_collector" | "data_manager" | "admin" | "*";
-export type User = {
-  id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  role: Role;
-};
+import z from "zod/v4";
+import { userCredentialsSchema, userSchema, userRoleSchema } from "./schemas/user";
+
+export type Role = z.infer<typeof userRoleSchema>;
+export type User = z.infer<typeof userSchema>;
+export type UserCredentials = z.infer<typeof userCredentialsSchema>;
 
 export type RouteGroup = "Core" | "Forms";
-
 export type RouteMetadata = {
   group: RouteGroup;
   title: string;
@@ -31,4 +28,9 @@ export type SidebarDataItem = {
 export type SidebarDataGroup = {
   title: string;
   items: SidebarDataItem[];
+};
+
+export type Result<T> = {
+  data: T | null;
+  error: Error | null;
 };

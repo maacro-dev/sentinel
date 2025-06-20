@@ -4,6 +4,13 @@ import { Leaf } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/riceNonRice")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Rice-non-Rice | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Forms",

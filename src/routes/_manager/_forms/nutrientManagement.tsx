@@ -4,6 +4,13 @@ import { Cuboid } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/nutrientManagement")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Nutrient Management | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Forms",

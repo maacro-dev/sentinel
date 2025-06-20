@@ -9,13 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './../routes/__root'
-import { Route as LoginRouteImport } from './../routes/login'
 import { Route as AdminRouteImport } from './../routes/admin'
 import { Route as ManagerRouteImport } from './../routes/_manager'
 import { Route as IndexRouteImport } from './../routes/index'
 import { Route as AdminDashboardRouteImport } from './../routes/admin.dashboard'
 import { Route as ManagerDashboardRouteImport } from './../routes/_manager/dashboard'
 import { Route as ManagerAnalyticsRouteImport } from './../routes/_manager/analytics'
+import { Route as appUnauthorizedRouteImport } from './../routes/(app)/unauthorized'
+import { Route as appLoginRouteImport } from './../routes/(app)/login'
+import { Route as app404RouteImport } from './../routes/(app)/404'
 import { Route as ManagerFormsRiceNonRiceRouteImport } from './../routes/_manager/_forms/riceNonRice'
 import { Route as ManagerFormsProductionRouteImport } from './../routes/_manager/_forms/production'
 import { Route as ManagerFormsOverviewRouteImport } from './../routes/_manager/_forms/overview'
@@ -25,11 +27,6 @@ import { Route as ManagerFormsFieldProfileRouteImport } from './../routes/_manag
 import { Route as ManagerFormsDamageAssessmentRouteImport } from './../routes/_manager/_forms/damageAssessment'
 import { Route as ManagerFormsCulturalManagementRouteImport } from './../routes/_manager/_forms/culturalManagement'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -58,6 +55,21 @@ const ManagerAnalyticsRoute = ManagerAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
   getParentRoute: () => ManagerRoute,
+} as any)
+const appUnauthorizedRoute = appUnauthorizedRouteImport.update({
+  id: '/(app)/unauthorized',
+  path: '/unauthorized',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const appLoginRoute = appLoginRouteImport.update({
+  id: '/(app)/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const app404Route = app404RouteImport.update({
+  id: '/(app)/404',
+  path: '/404',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ManagerFormsRiceNonRiceRoute = ManagerFormsRiceNonRiceRouteImport.update({
   id: '/_forms/riceNonRice',
@@ -107,7 +119,9 @@ const ManagerFormsCulturalManagementRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/login': typeof LoginRoute
+  '/404': typeof app404Route
+  '/login': typeof appLoginRoute
+  '/unauthorized': typeof appUnauthorizedRoute
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -123,7 +137,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/login': typeof LoginRoute
+  '/404': typeof app404Route
+  '/login': typeof appLoginRoute
+  '/unauthorized': typeof appUnauthorizedRoute
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -141,7 +157,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_manager': typeof ManagerRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/login': typeof LoginRoute
+  '/(app)/404': typeof app404Route
+  '/(app)/login': typeof appLoginRoute
+  '/(app)/unauthorized': typeof appUnauthorizedRoute
   '/_manager/analytics': typeof ManagerAnalyticsRoute
   '/_manager/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -159,7 +177,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/404'
     | '/login'
+    | '/unauthorized'
     | '/analytics'
     | '/dashboard'
     | '/admin/dashboard'
@@ -175,7 +195,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/404'
     | '/login'
+    | '/unauthorized'
     | '/analytics'
     | '/dashboard'
     | '/admin/dashboard'
@@ -192,7 +214,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_manager'
     | '/admin'
-    | '/login'
+    | '/(app)/404'
+    | '/(app)/login'
+    | '/(app)/unauthorized'
     | '/_manager/analytics'
     | '/_manager/dashboard'
     | '/admin/dashboard'
@@ -210,18 +234,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  LoginRoute: typeof LoginRoute
+  app404Route: typeof app404Route
+  appLoginRoute: typeof appLoginRoute
+  appUnauthorizedRoute: typeof appUnauthorizedRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -263,6 +282,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/analytics'
       preLoaderRoute: typeof ManagerAnalyticsRouteImport
       parentRoute: typeof ManagerRoute
+    }
+    '/(app)/unauthorized': {
+      id: '/(app)/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/unauthorized'
+      preLoaderRoute: typeof appUnauthorizedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(app)/login': {
+      id: '/(app)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof appLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(app)/404': {
+      id: '/(app)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof app404RouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_manager/_forms/riceNonRice': {
       id: '/_manager/_forms/riceNonRice'
@@ -366,7 +406,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ManagerRoute: ManagerRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  LoginRoute: LoginRoute,
+  app404Route: app404Route,
+  appLoginRoute: appLoginRoute,
+  appUnauthorizedRoute: appUnauthorizedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

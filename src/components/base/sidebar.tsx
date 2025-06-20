@@ -10,9 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@/components/ui/sidebar";
-import { SidebarDataGroup } from "@/lib/types";
-import { Link } from "@tanstack/react-router";
-import { memo } from "react";
+import { SidebarDataGroup, User } from "@/lib/types";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { memo, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -23,9 +23,9 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
-import { useAuthStore } from "@/features/auth/store/store";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { mapRole } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
+import HumayLogo from "../logo";
 
 type HumayBaseSidebarProps = {
   data: SidebarDataGroup[];
@@ -38,15 +38,7 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/" className="flex items-center gap-2">
-                <div className="bg-green-600 text-white flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Leaf className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Humay</span>
-                  <span className="truncate text-xs">Sentinel</span>
-                </div>
-              </Link>
+              <HumayLogo />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -58,7 +50,7 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
             <SidebarMenu>
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                  <SidebarMenuButton asChild>
                     <Link
                       to={item.url}
                       className="flex items-center gap-2.5"
@@ -80,8 +72,17 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
 });
 
 const HumaySidebarFooter = memo(() => {
-  const user = useAuthStore((s) => s.user);
-  const isMobile = useIsMobile(); // TODO: remove this
+  const navigate = useNavigate();
+  const { user, handleLogout } = useAuth();
+
+  const handleLogoutClick = useCallback(async () => {
+    try {
+      await handleLogout();
+      await navigate({ to: "/login", replace: true });
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
+  }, [handleLogout, navigate]);
 
   return (
     <SidebarFooter>
@@ -109,47 +110,59 @@ const HumaySidebarFooter = memo(() => {
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-              side={isMobile ? "bottom" : "right"}
-              align="end"
-              sideOffset={4}
-            >
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage
-                      src="https://avatar.iran.liara.run/public/40"
-                      alt={user?.firstName}
-                    />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user?.firstName}</span>
-                    <span className="truncate text-xs">{user?.username}</span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <BadgeCheck />
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Bell />
-                  Notifications
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LogOut />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            <StaticDropdownContent user={user} handleLogoutClick={handleLogoutClick} />
           </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarFooter>
   );
 });
+
+const StaticDropdownContent = memo(
+  ({
+    user,
+    handleLogoutClick
+  }: {
+    user: User | null;
+    handleLogoutClick: () => Promise<void>;
+  }) => (
+    <DropdownMenuContent
+      className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+      align="end"
+      side="right"
+      sideOffset={4}
+    >
+      <DropdownMenuLabel className="p-0 font-normal">
+        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+          <Avatar className="h-8 w-8 rounded-lg">
+            <AvatarImage
+              src="https://avatar.iran.liara.run/public/40"
+              alt={user?.firstName}
+            />
+            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+          </Avatar>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">{user?.firstName}</span>
+            <span className="truncate text-xs">{user?.username}</span>
+          </div>
+        </div>
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <DropdownMenuItem>
+          <BadgeCheck />
+          Account
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Bell />
+          Notifications
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onClick={handleLogoutClick}>
+        <LogOut />
+        Log out
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  )
+);

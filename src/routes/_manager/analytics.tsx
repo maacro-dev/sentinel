@@ -4,6 +4,13 @@ import { ChartArea } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/analytics")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Analytics | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Core",

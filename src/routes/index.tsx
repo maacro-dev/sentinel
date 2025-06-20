@@ -1,12 +1,16 @@
-import { useAuthStore } from "@/features/auth/store/store";
-import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
+import { useAuth } from "@/context/auth-context";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    // DONT FORGET TO UNCOMMENT THIS AFTER IMPLEMENTING CORE FEATURES
-    //
-    const user = useAuthStore.getState().user;
-    if (!user) throw redirect({ to: "/login" });
-  },
-  component: () => <Navigate to="/dashboard" />
+  component: () => {
+    const { role } = useAuth();
+    switch (role) {
+      case "admin":
+        return <Navigate to="/admin" />;
+      case "data_manager":
+        return <Navigate to="/dashboard" />;
+      default:
+        return <Navigate to="/404" />;
+    }
+  }
 });

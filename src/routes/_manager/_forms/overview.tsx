@@ -4,6 +4,13 @@ import PlaceholderBody from "@/components/placeholder-body";
 
 export const Route = createFileRoute("/_manager/_forms/overview")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Overview | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Forms",

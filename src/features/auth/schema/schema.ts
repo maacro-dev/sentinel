@@ -1,11 +1,11 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 const loginFormSchema = z.object({
-  username: z.string().trim().min(1, "Username is required to log in"),
-  password: z.string().trim().min(1, "Password is required to log in"),
+  username: z.string().trim().min(1, { error: "Username is required to log in" }),
+  password: z.string().trim().min(1, { error: "Password is required to log in" })
 });
 
-type LoginFields = z.infer<typeof loginFormSchema>;
+type UserCredentials = z.infer<typeof loginFormSchema>;
 
 export { loginFormSchema };
-export type { LoginFields };
+export type { UserCredentials };

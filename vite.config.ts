@@ -1,8 +1,15 @@
 import { defineConfig } from "vite";
 import path from "path";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+
+const ReactCompilerConfig = {
+  target: "19",
+  sources: (filename: string) => {
+    return filename.indexOf("src/app") !== -1;
+  }
+};
 
 export default defineConfig({
   plugins: [
@@ -12,7 +19,11 @@ export default defineConfig({
       routesDirectory: "./src/routes",
       generatedRouteTree: "./src/app/routeTree.gen.ts"
     }),
-    react(),
+    react({
+      babel: {
+        plugins: [["babel-plugin-react-compiler", ReactCompilerConfig]]
+      }
+    }),
     tailwindcss()
   ],
   resolve: {

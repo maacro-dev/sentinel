@@ -1,21 +1,24 @@
-import { useAuthStore } from "@/features/auth/store/store";
-import { roleHasAccess } from "@/features/auth/utils";
-import { Navigate } from "@tanstack/react-router";
-import { Role } from "@/lib/types";
+// import { useAuth } from "@/context/auth-context";
+// import { roleHasAccess } from "@/features/auth/utils";
+// import { useNavigate } from "@tanstack/react-router";
+// import { Role } from "@/lib/types";
 
-type ProtectedRouteProps = {
-  children: React.ReactNode;
-  allowedRoles: Role[];
-};
+// type ProtectedRouteProps = {
+//   children: React.ReactNode;
+//   allowedRoles: Role[];
+// };
 
-export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  // DONT FORGET TO UNCOMMENT THIS AFTER IMPLEMENTING CORE FEATURES
+// export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+//   const { user, logout } = useAuth();
+//   const navigate = useNavigate();
 
-  const user = useAuthStore((s) => s.user);
+//   if (!user || !roleHasAccess(user.role, allowedRoles)) {
+//     console.log("Protected Route: User not authenticated or role not allowed");
+//     console.log("Logging out...");
+//     logout();
+//     navigate({ to: "/login" });
+//     return null;
+//   }
 
-  if (!user || !roleHasAccess(user.role, allowedRoles)) {
-    return <Navigate to="/login" />;
-  }
-
-  return <>{children}</>;
-}
+//   return <>{children}</>;
+// }

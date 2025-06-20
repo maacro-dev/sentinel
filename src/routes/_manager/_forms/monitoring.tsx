@@ -4,6 +4,13 @@ import { Activity } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/monitoring")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Monitoring | Humay"
+      }
+    ]
+  }),
   staticData: {
     metadata: {
       group: "Forms",
