@@ -1,4 +1,4 @@
-# Humay – Web
+# Sentinel
 
 **The web application component of Hum-i**: A web and mobile-based multi-stage data acquisition and analysis system for rice cultivation.
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Humay Web serves as a centralized platform for managing, analyzing, and visualizing rice cultivation data across various stages. It supports seamless integration with mobile clients, enabling real-time monitoring, comprehensive reporting, and informed decision-making for agricultural stakeholders.
+Sentinel serves as a centralized platform for managing, analyzing, and visualizing rice cultivation data across various stages. It supports seamless integration with mobile clients, enabling real-time monitoring, comprehensive reporting, and informed decision-making for agricultural stakeholders.
 
 ### Key Features:
 

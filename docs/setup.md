@@ -14,7 +14,7 @@ Ensure you have the following installed before proceeding:
 
    ```bash
    git clone <repository-url>
-   cd humay
+   cd sentinel
    ```
 
 2. Install dependencies:
