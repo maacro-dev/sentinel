@@ -1,9 +1,4 @@
-import z from "zod/v4";
-import { userCredentialsSchema, userSchema, userRoleSchema } from "./schemas/user";
-
-export type Role = z.infer<typeof userRoleSchema>;
-export type User = z.infer<typeof userSchema>;
-export type UserCredentials = z.infer<typeof userCredentialsSchema>;
+import { Role } from "./schemas/user";
 
 export type RouteGroup = "Core" | "Forms";
 export type RouteMetadata = {

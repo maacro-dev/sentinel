@@ -1,4 +1,4 @@
-import z from "zod/v4";
+import * as z from "zod/v4";
 
 export const userRoleSchema = z.enum([
   "data_collector",
@@ -29,3 +29,7 @@ export const userCredentialsSchema = z.object({
   username: z.string().min(1, { message: "Username is required to log in" }),
   password: z.string().min(1, { message: "Password is required to log in" })
 });
+
+export type Role = z.infer<typeof userRoleSchema>;
+export type User = z.infer<typeof userSchema>;
+export type UserCredentials = z.infer<typeof userCredentialsSchema>;

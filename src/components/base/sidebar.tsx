@@ -1,4 +1,4 @@
-import { BadgeCheck, Bell, ChevronsUpDown, Leaf, LogOut } from "lucide-react";
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@/components/ui/sidebar";
-import { SidebarDataGroup, User } from "@/lib/types";
+import { SidebarDataGroup } from "@/lib/types";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,9 +23,11 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
-import { mapRole } from "@/lib/utils";
+import { cn, mapRole } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import HumayLogo from "../logo";
+import { Skeleton } from "../ui/skeleton";
+import { User } from "@/lib/schemas/user";
 
 type HumayBaseSidebarProps = {
   data: SidebarDataGroup[];
@@ -166,3 +168,11 @@ const StaticDropdownContent = memo(
     </DropdownMenuContent>
   )
 );
+
+export const SidebarSkeleton = ({className}: {className?: string}) => {
+  return (
+    <div className="h-screen w-(--sidebar-width)">
+      <Skeleton className={cn("h-full w-full", className)} />
+    </div>
+  );
+};

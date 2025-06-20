@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { UserCredentials } from "@/features/auth/schema/schema";
-import { User } from "@/lib/types";
+import { UserCredentials, User } from "@/lib/schemas/user";
 import { fetchUserWithRoles, signInUser } from "@/features/auth/api";
 import { Result } from "@/lib/types";
 

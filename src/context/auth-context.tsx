@@ -6,9 +6,10 @@ import {
   useMemo,
   useCallback
 } from "react";
-import { Result, Role, User, UserCredentials } from "@/lib/types";
+import { Role, User, UserCredentials } from "@/lib/schemas/user";
 import { useSignIn, useSignOut } from "@/features/auth/mutations";
 import { useLocalStorage } from "@/hooks";
+import { Result } from "@/lib/types";
 
 const AUTH_KEY = "humay.sentinel.auth";
 

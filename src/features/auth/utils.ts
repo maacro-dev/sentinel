@@ -1,5 +1,4 @@
-import { Role } from "@/lib/types";
-import { User } from "@/lib/types";
+import { Role, User } from "@/lib/schemas/user";
 import { redirect } from "@tanstack/react-router";
 
 export function roleHasAccess(role: Role, allowedRoles: Role) {
@@ -8,7 +7,7 @@ export function roleHasAccess(role: Role, allowedRoles: Role) {
 
 export function getRedirectPath(role: Role) {
   switch (role) {
-    case "admin":         return "/admin";
+    case "admin":         return "/admin/dashboard";
     case "data_manager":  return "/dashboard";
     default:              return "/";
   }

@@ -4,9 +4,9 @@ import CenteredLayout from "@/components/layouts/centered";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/context/auth-context";
 import LoginForm from "@/features/auth/components/login-form";
-import type { UserCredentials } from "@/features/auth/schema/schema";
 import { showErrorToast, showSuccessToast } from "@/app/toast";
 import { getRedirectPath } from "@/features/auth/utils";
+import { UserCredentials } from "@/lib/schemas/user";
 
 export const Route = createFileRoute("/(app)/login")({
   head: () => ({ meta: [{ title: "Login | Humay" }] }),

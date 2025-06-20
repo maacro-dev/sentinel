@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { userCredentialsSchema } from "@/lib/schemas/user";
 import { HumayForm, HumayTextField } from "@/components/forms";
-import { UserCredentials } from "@/lib/types";
+import { UserCredentials } from "@/lib/schemas/user";
 import HumayLogo from "@/components/logo";
 
 type LoginFormProps = {

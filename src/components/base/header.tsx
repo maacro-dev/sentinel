@@ -11,6 +11,7 @@ import { RouteGroup, RouteMetadata } from "@/lib/types";
 import { useMatches } from "@tanstack/react-router";
 import { Fragment, memo, useMemo } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
+import { Skeleton } from "../ui/skeleton";
 
 const StaticHeaderComponents = memo(() => {
   return (
@@ -82,3 +83,11 @@ export const HumayBaseHeader = memo(() => {
     </header>
   );
 });
+
+export const HeaderSkeleton = () => {
+  return (
+    <div className="flex h-16 shrink-0 items-center gap-2">
+      <Skeleton className="h-full w-full" />
+    </div>
+  );
+};

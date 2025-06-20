@@ -1,18 +1,30 @@
+import { Suspense } from "react";
 import { HumayBaseContent } from "./content";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { HumayBaseHeader } from "./header";
+import { HeaderSkeleton, HumayBaseHeader } from "./header";
+import { SidebarSkeleton } from "./sidebar";
+import { FadeIn } from "@/components/motion";
 
 type HumayBaseLayoutProps = {
-  sidebar: React.ReactNode;
+  sidebar: React.LazyExoticComponent<React.ComponentType>;
   children: React.ReactNode;
 };
-export const HumayBaseLayout = ({ children, sidebar }: HumayBaseLayoutProps) => {
+
+export const HumayBaseLayout = ({ children, sidebar: Sidebar }: HumayBaseLayoutProps) => {
   return (
     <SidebarProvider>
-      {sidebar}
+      <Suspense fallback={<FadeIn direction="down"><SidebarSkeleton /></FadeIn>}>
+        <FadeIn direction="up"><Sidebar /></FadeIn>
+      </Suspense>
       <SidebarInset>
-        <HumayBaseHeader />
-        <HumayBaseContent>{children}</HumayBaseContent>
+        <Suspense fallback={<FadeIn direction="down"><HeaderSkeleton /></FadeIn>}>
+          <FadeIn direction="up"><HumayBaseHeader /></FadeIn>
+        </Suspense>
+        <Suspense fallback={<FadeIn direction="down"><div className="h-screen" /></FadeIn>}>
+          <FadeIn direction="up">
+            <HumayBaseContent>{children}</HumayBaseContent>
+          </FadeIn>
+        </Suspense>
       </SidebarInset>
     </SidebarProvider>
   );

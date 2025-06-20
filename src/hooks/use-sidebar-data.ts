@@ -1,13 +1,13 @@
 import { groupOrderMap } from "@/lib/constants";
 import {
-  Role,
   SidebarDataGroup,
   SidebarDataItem,
   RouteGroup,
-  RouteMetadata
+  RouteMetadata,
 } from "@/lib/types";
 import { useRouter } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { Role } from "@/lib/schemas/user";
 
 export function useSidebarData(role: Role) {
   const { routesByPath } = useRouter();
@@ -51,9 +51,9 @@ export function useSidebarData(role: Role) {
         title,
         items: items
           .sort((a, b) => a.itemOrder - b.itemOrder)
-          .map(({ itemOrder, ...rest }) => rest)
+          .map(({ ...rest }) => rest)
       }));
 
     return groupedSidebarData;
-  }, [role]);
+  }, [role, routesByPath]);
 }
