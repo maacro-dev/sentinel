@@ -50,16 +50,12 @@ const ManagerDashboardRoute = ManagerDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => ManagerRoute,
-} as any).lazy(() =>
-  import('./../routes/_manager/dashboard.lazy').then((d) => d.Route),
-)
+} as any)
 const ManagerAnalyticsRoute = ManagerAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
   getParentRoute: () => ManagerRoute,
-} as any).lazy(() =>
-  import('./../routes/_manager/analytics.lazy').then((d) => d.Route),
-)
+} as any)
 const appUnauthorizedRoute = appUnauthorizedRouteImport.update({
   id: '/(app)/unauthorized',
   path: '/unauthorized',
@@ -79,70 +75,46 @@ const ManagerFormsRiceNonRiceRoute = ManagerFormsRiceNonRiceRouteImport.update({
   id: '/_forms/riceNonRice',
   path: '/riceNonRice',
   getParentRoute: () => ManagerRoute,
-} as any).lazy(() =>
-  import('./../routes/_manager/_forms/riceNonRice.lazy').then((d) => d.Route),
-)
+} as any)
 const ManagerFormsProductionRoute = ManagerFormsProductionRouteImport.update({
   id: '/_forms/production',
   path: '/production',
   getParentRoute: () => ManagerRoute,
-} as any).lazy(() =>
-  import('./../routes/_manager/_forms/production.lazy').then((d) => d.Route),
-)
+} as any)
 const ManagerFormsOverviewRoute = ManagerFormsOverviewRouteImport.update({
   id: '/_forms/overview',
   path: '/overview',
   getParentRoute: () => ManagerRoute,
-} as any).lazy(() =>
-  import('./../routes/_manager/_forms/overview.lazy').then((d) => d.Route),
-)
+} as any)
 const ManagerFormsNutrientManagementRoute =
   ManagerFormsNutrientManagementRouteImport.update({
     id: '/_forms/nutrientManagement',
     path: '/nutrientManagement',
     getParentRoute: () => ManagerRoute,
-  } as any).lazy(() =>
-    import('./../routes/_manager/_forms/nutrientManagement.lazy').then(
-      (d) => d.Route,
-    ),
-  )
+  } as any)
 const ManagerFormsMonitoringRoute = ManagerFormsMonitoringRouteImport.update({
   id: '/_forms/monitoring',
   path: '/monitoring',
   getParentRoute: () => ManagerRoute,
-} as any).lazy(() =>
-  import('./../routes/_manager/_forms/monitoring.lazy').then((d) => d.Route),
-)
+} as any)
 const ManagerFormsFieldProfileRoute =
   ManagerFormsFieldProfileRouteImport.update({
     id: '/_forms/fieldProfile',
     path: '/fieldProfile',
     getParentRoute: () => ManagerRoute,
-  } as any).lazy(() =>
-    import('./../routes/_manager/_forms/fieldProfile.lazy').then(
-      (d) => d.Route,
-    ),
-  )
+  } as any)
 const ManagerFormsDamageAssessmentRoute =
   ManagerFormsDamageAssessmentRouteImport.update({
     id: '/_forms/damageAssessment',
     path: '/damageAssessment',
     getParentRoute: () => ManagerRoute,
-  } as any).lazy(() =>
-    import('./../routes/_manager/_forms/damageAssessment.lazy').then(
-      (d) => d.Route,
-    ),
-  )
+  } as any)
 const ManagerFormsCulturalManagementRoute =
   ManagerFormsCulturalManagementRouteImport.update({
     id: '/_forms/culturalManagement',
     path: '/culturalManagement',
     getParentRoute: () => ManagerRoute,
-  } as any).lazy(() =>
-    import('./../routes/_manager/_forms/culturalManagement.lazy').then(
-      (d) => d.Route,
-    ),
-  )
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute

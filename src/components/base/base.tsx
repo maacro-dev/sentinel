@@ -13,15 +13,37 @@ type HumayBaseLayoutProps = {
 export const HumayBaseLayout = ({ children, sidebar: Sidebar }: HumayBaseLayoutProps) => {
   return (
     <SidebarProvider>
-      <Suspense fallback={<FadeIn direction="down"><SidebarSkeleton /></FadeIn>}>
-        <FadeIn direction="up"><Sidebar /></FadeIn>
+      <Suspense
+        fallback={
+          <FadeIn direction="down">
+            <SidebarSkeleton />
+          </FadeIn>
+        }
+      >
+        <FadeIn direction="up">
+          <Sidebar />
+        </FadeIn>
       </Suspense>
       <SidebarInset>
-        <Suspense fallback={<FadeIn direction="down"><HeaderSkeleton /></FadeIn>}>
-          <FadeIn direction="up"><HumayBaseHeader /></FadeIn>
-        </Suspense>
-        <Suspense fallback={<FadeIn direction="down"><div className="h-screen" /></FadeIn>}>
+        <Suspense
+          fallback={
+            <FadeIn direction="down">
+              <HeaderSkeleton />
+            </FadeIn>
+          }
+        >
           <FadeIn direction="up">
+            <HumayBaseHeader />
+          </FadeIn>
+        </Suspense>
+        <Suspense
+          fallback={
+            <FadeIn direction="down">
+              <div className="h-full" />
+            </FadeIn>
+          }
+        >
+          <FadeIn direction="up" className="h-full">
             <HumayBaseContent>{children}</HumayBaseContent>
           </FadeIn>
         </Suspense>

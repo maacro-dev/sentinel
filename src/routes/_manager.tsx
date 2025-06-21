@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_manager")({
   beforeLoad: ({ context }) => {
     protectRoute(context, { allowedRoles: "data_manager" });
   },
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 const Sidebar = lazy(() => import("@/features/manager/components/sidebar"));

@@ -16,6 +16,12 @@ import "@/styles/global.css";
 
 const rootElement = document.getElementById("root");
 
+if (import.meta.env.DEV) {
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/react-scan/dist/auto.global.js";
+  document.head.appendChild(script);
+}
+
 function App() {
   const auth = useAuth();
   return <RouterProvider router={router} context={{ auth }} />;

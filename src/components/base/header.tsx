@@ -4,7 +4,7 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { RouteGroup, RouteMetadata } from "@/lib/types";
@@ -38,7 +38,7 @@ export const HumayBaseHeader = memo(() => {
           return {
             group: metadata.group,
             title: metadata.title,
-            url: match.pathname
+            url: match.pathname,
           };
         })
         .filter(

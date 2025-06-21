@@ -1,4 +1,3 @@
-import PlaceholderBody from "@/components/placeholder-body";
 import { createFileRoute } from "@tanstack/react-router";
 import { LayoutDashboard } from "lucide-react";
 
@@ -7,9 +6,9 @@ export const Route = createFileRoute("/_manager/dashboard")({
   head: () => ({
     meta: [
       {
-        title: "Dashboard | Humay"
-      }
-    ]
+        title: "Dashboard | Humay",
+      },
+    ],
   }),
   staticData: {
     metadata: {
@@ -18,13 +17,22 @@ export const Route = createFileRoute("/_manager/dashboard")({
       icon: LayoutDashboard,
       sidebarOptions: {
         showInSidebar: true,
-        order: 1
+        order: 1,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {
-  return <PlaceholderBody />;
+  return (
+    <>
+      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+        <div className="bg-muted/50 aspect-video rounded-xl" />
+        <div className="bg-muted/50 aspect-video rounded-xl" />
+        <div className="bg-muted/50 aspect-video rounded-xl" />
+      </div>
+      <div className="bg-muted/50 min-h-full flex-1 rounded-xl md:min-h-min" />
+    </>
+  );
 }

@@ -35,6 +35,7 @@ function LoginPage() {
             error?.message ||
               "Please check your email and password and try again."
           );
+          setIsSubmitting(false);
           return;
         }
 
@@ -42,16 +43,17 @@ function LoginPage() {
           `Welcome back, ${user.firstName}!`,
           "You've been successfully signed in."
         );
+
         navigate({ to: getRedirectPath(user.role) });
       } catch (err) {
         const message =
           err instanceof Error
-            ? `We encountered an issue: ${err.message}`
-            : "Something went wrong. Please try again in a moment.";
+          ? `We encountered an issue: ${err.message}`
+          : "Something went wrong. Please try again in a moment.";
         showErrorToast("Login failed", message);
-      } finally {
         setIsSubmitting(false);
       }
+
     },
     [handleLogin, isSubmitting, navigate]
   );
