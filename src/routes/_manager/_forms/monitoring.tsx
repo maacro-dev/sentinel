@@ -5,11 +5,7 @@ import { Activity } from "lucide-react";
 export const Route = createFileRoute("/_manager/_forms/monitoring")({
   component: RouteComponent,
   head: () => ({
-    meta: [
-      {
-        title: "Monitoring | Humay"
-      }
-    ]
+    meta: [{ title: "Monitoring | Humay" }],
   }),
   staticData: {
     metadata: {
@@ -18,11 +14,11 @@ export const Route = createFileRoute("/_manager/_forms/monitoring")({
       icon: Activity,
       sidebarOptions: {
         showInSidebar: true,
-        order: 4
+        order: 4,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {

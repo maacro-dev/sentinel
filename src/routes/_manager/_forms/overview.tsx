@@ -5,11 +5,7 @@ import PlaceholderBody from "@/components/placeholder-body";
 export const Route = createFileRoute("/_manager/_forms/overview")({
   component: RouteComponent,
   head: () => ({
-    meta: [
-      {
-        title: "Overview | Humay"
-      }
-    ]
+    meta: [{ title: "Overview | Humay" }],
   }),
   staticData: {
     metadata: {
@@ -18,11 +14,11 @@ export const Route = createFileRoute("/_manager/_forms/overview")({
       icon: FormInput,
       sidebarOptions: {
         showInSidebar: true,
-        order: 1
+        order: 1,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {

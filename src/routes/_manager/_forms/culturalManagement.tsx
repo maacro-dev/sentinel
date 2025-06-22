@@ -5,11 +5,7 @@ import { Folder } from "lucide-react";
 export const Route = createFileRoute("/_manager/_forms/culturalManagement")({
   component: RouteComponent,
   head: () => ({
-    meta: [
-      {
-        title: "Cultural Management | Humay"
-      }
-    ]
+    meta: [{ title: "Cultural Management | Humay" }],
   }),
   staticData: {
     metadata: {
@@ -18,11 +14,11 @@ export const Route = createFileRoute("/_manager/_forms/culturalManagement")({
       icon: Folder,
       sidebarOptions: {
         showInSidebar: true,
-        order: 3
+        order: 3,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {

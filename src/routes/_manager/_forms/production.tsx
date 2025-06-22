@@ -5,11 +5,7 @@ import { PackagePlus } from "lucide-react";
 export const Route = createFileRoute("/_manager/_forms/production")({
   component: RouteComponent,
   head: () => ({
-    meta: [
-      {
-        title: "Production | Humay"
-      }
-    ]
+    meta: [{ title: "Production | Humay" }],
   }),
   staticData: {
     metadata: {
@@ -18,11 +14,11 @@ export const Route = createFileRoute("/_manager/_forms/production")({
       icon: PackagePlus,
       sidebarOptions: {
         showInSidebar: true,
-        order: 8
+        order: 8,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {

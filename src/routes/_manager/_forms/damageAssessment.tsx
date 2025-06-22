@@ -5,11 +5,7 @@ import { ShieldHalf } from "lucide-react";
 export const Route = createFileRoute("/_manager/_forms/damageAssessment")({
   component: RouteComponent,
   head: () => ({
-    meta: [
-      {
-        title: "Damage Assessment | Humay"
-      }
-    ]
+    meta: [{ title: "Damage Assessment | Humay" }],
   }),
   staticData: {
     metadata: {
@@ -18,11 +14,11 @@ export const Route = createFileRoute("/_manager/_forms/damageAssessment")({
       icon: ShieldHalf,
       sidebarOptions: {
         showInSidebar: true,
-        order: 8
+        order: 8,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {

@@ -5,11 +5,7 @@ import { Cuboid } from "lucide-react";
 export const Route = createFileRoute("/_manager/_forms/nutrientManagement")({
   component: RouteComponent,
   head: () => ({
-    meta: [
-      {
-        title: "Nutrient Management | Humay"
-      }
-    ]
+    meta: [{ title: "Nutrient Management | Humay" }],
   }),
   staticData: {
     metadata: {
@@ -18,11 +14,11 @@ export const Route = createFileRoute("/_manager/_forms/nutrientManagement")({
       icon: Cuboid,
       sidebarOptions: {
         showInSidebar: true,
-        order: 6
+        order: 6,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {

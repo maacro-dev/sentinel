@@ -5,11 +5,7 @@ import { ChartArea } from "lucide-react";
 export const Route = createFileRoute("/_manager/analytics")({
   component: RouteComponent,
   head: () => ({
-    meta: [
-      {
-        title: "Analytics | Humay"
-      }
-    ]
+    meta: [{ title: "Analytics | Humay" }],
   }),
   staticData: {
     metadata: {
@@ -18,11 +14,11 @@ export const Route = createFileRoute("/_manager/analytics")({
       icon: ChartArea,
       sidebarOptions: {
         showInSidebar: true,
-        order: 2
+        order: 2,
       },
-      for: "data_manager"
-    }
-  }
+      for: "data_manager",
+    },
+  },
 });
 
 function RouteComponent() {
