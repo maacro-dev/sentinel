@@ -13,7 +13,6 @@ export async function fetchUserWithRoles(username: string): Promise<Result<User>
     return { data: null, error: error };
   }
 
-  console.log(data);
   const result = userSchema.safeParse(data);
 
   if (!result.success) {
