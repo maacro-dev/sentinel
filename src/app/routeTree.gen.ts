@@ -12,7 +12,12 @@ import { Route as rootRouteImport } from './../routes/__root'
 import { Route as AdminRouteImport } from './../routes/admin'
 import { Route as ManagerRouteImport } from './../routes/_manager'
 import { Route as IndexRouteImport } from './../routes/index'
-import { Route as AdminDashboardRouteImport } from './../routes/admin.dashboard'
+import { Route as AdminUser_managementRouteImport } from './../routes/admin/user_management'
+import { Route as AdminSettingsRouteImport } from './../routes/admin/settings'
+import { Route as AdminSecurityRouteImport } from './../routes/admin/security'
+import { Route as AdminReportsRouteImport } from './../routes/admin/reports'
+import { Route as AdminMonitoringRouteImport } from './../routes/admin/monitoring'
+import { Route as AdminDashboardRouteImport } from './../routes/admin/dashboard'
 import { Route as ManagerDashboardRouteImport } from './../routes/_manager/dashboard'
 import { Route as ManagerAnalyticsRouteImport } from './../routes/_manager/analytics'
 import { Route as appUnauthorizedRouteImport } from './../routes/(app)/unauthorized'
@@ -40,6 +45,31 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUser_managementRoute = AdminUser_managementRouteImport.update({
+  id: '/user_management',
+  path: '/user_management',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSecurityRoute = AdminSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMonitoringRoute = AdminMonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
@@ -125,6 +155,11 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/monitoring': typeof AdminMonitoringRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/security': typeof AdminSecurityRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/user_management': typeof AdminUser_managementRoute
   '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
   '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
   '/fieldProfile': typeof ManagerFormsFieldProfileRoute
@@ -143,6 +178,11 @@ export interface FileRoutesByTo {
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/monitoring': typeof AdminMonitoringRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/security': typeof AdminSecurityRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/user_management': typeof AdminUser_managementRoute
   '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
   '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
   '/fieldProfile': typeof ManagerFormsFieldProfileRoute
@@ -163,6 +203,11 @@ export interface FileRoutesById {
   '/_manager/analytics': typeof ManagerAnalyticsRoute
   '/_manager/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/monitoring': typeof AdminMonitoringRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/security': typeof AdminSecurityRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/user_management': typeof AdminUser_managementRoute
   '/_manager/_forms/culturalManagement': typeof ManagerFormsCulturalManagementRoute
   '/_manager/_forms/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
   '/_manager/_forms/fieldProfile': typeof ManagerFormsFieldProfileRoute
@@ -183,6 +228,11 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/dashboard'
     | '/admin/dashboard'
+    | '/admin/monitoring'
+    | '/admin/reports'
+    | '/admin/security'
+    | '/admin/settings'
+    | '/admin/user_management'
     | '/culturalManagement'
     | '/damageAssessment'
     | '/fieldProfile'
@@ -201,6 +251,11 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/dashboard'
     | '/admin/dashboard'
+    | '/admin/monitoring'
+    | '/admin/reports'
+    | '/admin/security'
+    | '/admin/settings'
+    | '/admin/user_management'
     | '/culturalManagement'
     | '/damageAssessment'
     | '/fieldProfile'
@@ -220,6 +275,11 @@ export interface FileRouteTypes {
     | '/_manager/analytics'
     | '/_manager/dashboard'
     | '/admin/dashboard'
+    | '/admin/monitoring'
+    | '/admin/reports'
+    | '/admin/security'
+    | '/admin/settings'
+    | '/admin/user_management'
     | '/_manager/_forms/culturalManagement'
     | '/_manager/_forms/damageAssessment'
     | '/_manager/_forms/fieldProfile'
@@ -261,6 +321,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/user_management': {
+      id: '/admin/user_management'
+      path: '/user_management'
+      fullPath: '/admin/user_management'
+      preLoaderRoute: typeof AdminUser_managementRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/security': {
+      id: '/admin/security'
+      path: '/security'
+      fullPath: '/admin/security'
+      preLoaderRoute: typeof AdminSecurityRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/monitoring': {
+      id: '/admin/monitoring'
+      path: '/monitoring'
+      fullPath: '/admin/monitoring'
+      preLoaderRoute: typeof AdminMonitoringRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
       id: '/admin/dashboard'
@@ -394,10 +489,20 @@ const ManagerRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminMonitoringRoute: typeof AdminMonitoringRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSecurityRoute: typeof AdminSecurityRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUser_managementRoute: typeof AdminUser_managementRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminMonitoringRoute: AdminMonitoringRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSecurityRoute: AdminSecurityRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminUser_managementRoute: AdminUser_managementRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
