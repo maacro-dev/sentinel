@@ -1,6 +1,13 @@
 import { Role } from "./schemas/user";
 
-export type RouteGroup = "Core" | "Forms";
+export type RouteGroup =
+  | "Core"
+  | "Forms"
+  | "Overview"
+  | "Access Control"
+  | "Operations"
+  | "Configuration";
+
 export type RouteMetadata = {
   group: RouteGroup;
   title: string;
