@@ -8,7 +8,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { SidebarDataGroup } from "@/lib/types";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -21,7 +21,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuGroup,
-  DropdownMenuItem
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { cn, mapRole } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -99,12 +99,12 @@ const HumaySidebarFooter = memo(() => {
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
                     src="https://avatar.iran.liara.run/public/40"
-                    alt={user?.firstName}
+                    alt={user?.first_name}
                   />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user?.firstName}</span>
+                  <span className="truncate font-medium">{user?.first_name}</span>
                   <span className="truncate text-muted-foreground text-xs">
                     {mapRole(user?.role)}
                   </span>
@@ -123,7 +123,7 @@ const HumaySidebarFooter = memo(() => {
 const StaticDropdownContent = memo(
   ({
     user,
-    handleLogoutClick
+    handleLogoutClick,
   }: {
     user: User | null;
     handleLogoutClick: () => Promise<void>;
@@ -139,12 +139,12 @@ const StaticDropdownContent = memo(
           <Avatar className="h-8 w-8 rounded-lg">
             <AvatarImage
               src="https://avatar.iran.liara.run/public/40"
-              alt={user?.firstName}
+              alt={user?.first_name}
             />
             <AvatarFallback className="rounded-lg">CN</AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">{user?.firstName}</span>
+            <span className="truncate font-medium">{user?.first_name}</span>
             <span className="truncate text-xs">{user?.username}</span>
           </div>
         </div>
@@ -169,7 +169,7 @@ const StaticDropdownContent = memo(
   )
 );
 
-export const SidebarSkeleton = ({className}: {className?: string}) => {
+export const SidebarSkeleton = ({ className }: { className?: string }) => {
   return (
     <div className="h-screen w-(--sidebar-width)">
       <Skeleton className={cn("h-full w-full", className)} />

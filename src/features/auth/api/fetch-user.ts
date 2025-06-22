@@ -5,7 +5,7 @@ import { Result } from "@/lib/types";
 export async function fetchUserWithRoles(username: string): Promise<Result<User>> {
   const supabase = await getSupabaseClient();
   const { data, error } = await supabase.rpc("fetch_user_by_username", {
-    arg: username
+    arg: username,
   });
 
   if (error) {
@@ -13,11 +13,11 @@ export async function fetchUserWithRoles(username: string): Promise<Result<User>
     return { data: null, error: error };
   }
 
+  console.log(data);
   const result = userSchema.safeParse(data);
 
   if (!result.success) {
-    console.error("User not found");
-    return { data: null, error: new Error("User not found") };
+    return { data: null, error: new Error(`Invalid user data ${result.error}`) };
   }
 
   return { data: result.data, error: null };

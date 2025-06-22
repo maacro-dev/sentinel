@@ -32,15 +32,14 @@ function LoginPage() {
         if (error || !user) {
           showErrorToast(
             "Couldn't sign you in",
-            error?.message ||
-              "Please check your email and password and try again."
+            error?.message || "Please check your email and password and try again."
           );
           setIsSubmitting(false);
           return;
         }
 
         showSuccessToast(
-          `Welcome back, ${user.firstName}!`,
+          `Welcome back, ${user.first_name}!`,
           "You've been successfully signed in."
         );
 
@@ -48,12 +47,11 @@ function LoginPage() {
       } catch (err) {
         const message =
           err instanceof Error
-          ? `We encountered an issue: ${err.message}`
-          : "Something went wrong. Please try again in a moment.";
+            ? `We encountered an issue: ${err.message}`
+            : "Something went wrong. Please try again in a moment.";
         showErrorToast("Login failed", message);
         setIsSubmitting(false);
       }
-
     },
     [handleLogin, isSubmitting, navigate]
   );

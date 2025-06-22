@@ -7,7 +7,7 @@ export const useSignIn = () => {
   return useMutation({
     mutationFn: async ({
       username,
-      password
+      password,
     }: UserCredentials): Promise<Result<User>> => {
       const { data: user, error: fetchError } = await fetchUserWithRoles(username);
       if (fetchError || !user) {
@@ -16,10 +16,13 @@ export const useSignIn = () => {
 
       const signInError = await signInUser(user.email, password);
       if (signInError) {
-        return { data: null, error: signInError };
+        return {
+          data: null,
+          error: new Error(signInError.message),
+        };
       }
 
       return { data: user, error: null };
-    }
+    },
   });
 };

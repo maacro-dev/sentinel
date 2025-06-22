@@ -4,7 +4,7 @@ import {
   useEffect,
   useState,
   useMemo,
-  useCallback
+  useCallback,
 } from "react";
 import { Role, User, UserCredentials } from "@/lib/schemas/user";
 import { useSignIn, useSignOut } from "@/features/auth/mutations";
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       role: user?.role ?? null,
       error,
       handleLogin,
-      handleLogout
+      handleLogout,
     }),
     [user, isAuthenticated, error, handleLogin, handleLogout]
   );

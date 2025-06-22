@@ -16,6 +16,7 @@ import "@/styles/global.css";
 
 const rootElement = document.getElementById("root");
 
+// Add react scan for development
 if (import.meta.env.DEV) {
   const script = document.createElement("script");
   script.src = "https://cdn.jsdelivr.net/npm/react-scan/dist/auto.global.js";

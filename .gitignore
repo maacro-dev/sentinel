@@ -65,3 +65,5 @@ debug.log
 .eslintcache
 .stylelintcache
 .prettierrc
+
+ease/
