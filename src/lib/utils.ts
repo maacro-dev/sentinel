@@ -13,6 +13,8 @@ export const mapRole = (role?: Role) => {
       return "Admin";
     case "data_manager":
       return "Data Manager";
+    case "data_collector":
+      return "Data Collector";
     default:
       return "Error";
   }
