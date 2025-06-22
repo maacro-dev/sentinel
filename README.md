@@ -48,8 +48,6 @@ Sentinel serves as a centralized platform for managing, analyzing, and visualizi
 
 ## Getting Started
 
-Track feature progress and planned improvements in the [Roadmap](./docs/roadmap.md).
-
 For full setup instructions, including prerequisites, installation steps, and environment configuration, see the [Setup Guide](./docs/setup.md).
 
 ## Analytics
