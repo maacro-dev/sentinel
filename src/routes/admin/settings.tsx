@@ -4,6 +4,9 @@ import { Settings } from "lucide-react";
 
 export const Route = createFileRoute("/admin/settings")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Settings | Humay" }],
+  }),
   staticData: {
     metadata: {
       group: "Core",

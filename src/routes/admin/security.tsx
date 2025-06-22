@@ -4,6 +4,9 @@ import { Shield } from "lucide-react";
 
 export const Route = createFileRoute("/admin/security")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "System Security | Humay" }],
+  }),
   staticData: {
     metadata: {
       group: "Core",

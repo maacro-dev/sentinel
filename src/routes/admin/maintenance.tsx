@@ -4,6 +4,9 @@ import { Server } from "lucide-react";
 
 export const Route = createFileRoute("/admin/maintenance")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "System Maintenance | Humay" }],
+  }),
   staticData: {
     metadata: {
       group: "Core",

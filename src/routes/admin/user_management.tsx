@@ -4,6 +4,9 @@ import { Users } from "lucide-react";
 
 export const Route = createFileRoute("/admin/user_management")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "User Management | Humay" }],
+  }),
   staticData: {
     metadata: {
       group: "Core",
