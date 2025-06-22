@@ -16,7 +16,7 @@ import { Route as AdminUser_managementRouteImport } from './../routes/admin/user
 import { Route as AdminSettingsRouteImport } from './../routes/admin/settings'
 import { Route as AdminSecurityRouteImport } from './../routes/admin/security'
 import { Route as AdminReportsRouteImport } from './../routes/admin/reports'
-import { Route as AdminMonitoringRouteImport } from './../routes/admin/monitoring'
+import { Route as AdminMaintenanceRouteImport } from './../routes/admin/maintenance'
 import { Route as AdminDashboardRouteImport } from './../routes/admin/dashboard'
 import { Route as ManagerDashboardRouteImport } from './../routes/_manager/dashboard'
 import { Route as ManagerAnalyticsRouteImport } from './../routes/_manager/analytics'
@@ -66,9 +66,9 @@ const AdminReportsRoute = AdminReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminMonitoringRoute = AdminMonitoringRouteImport.update({
-  id: '/monitoring',
-  path: '/monitoring',
+const AdminMaintenanceRoute = AdminMaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
@@ -155,7 +155,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/monitoring': typeof AdminMonitoringRoute
+  '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -178,7 +178,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/monitoring': typeof AdminMonitoringRoute
+  '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -203,7 +203,7 @@ export interface FileRoutesById {
   '/_manager/analytics': typeof ManagerAnalyticsRoute
   '/_manager/dashboard': typeof ManagerDashboardRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/monitoring': typeof AdminMonitoringRoute
+  '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -228,7 +228,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/dashboard'
     | '/admin/dashboard'
-    | '/admin/monitoring'
+    | '/admin/maintenance'
     | '/admin/reports'
     | '/admin/security'
     | '/admin/settings'
@@ -251,7 +251,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/dashboard'
     | '/admin/dashboard'
-    | '/admin/monitoring'
+    | '/admin/maintenance'
     | '/admin/reports'
     | '/admin/security'
     | '/admin/settings'
@@ -275,7 +275,7 @@ export interface FileRouteTypes {
     | '/_manager/analytics'
     | '/_manager/dashboard'
     | '/admin/dashboard'
-    | '/admin/monitoring'
+    | '/admin/maintenance'
     | '/admin/reports'
     | '/admin/security'
     | '/admin/settings'
@@ -350,11 +350,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReportsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/monitoring': {
-      id: '/admin/monitoring'
-      path: '/monitoring'
-      fullPath: '/admin/monitoring'
-      preLoaderRoute: typeof AdminMonitoringRouteImport
+    '/admin/maintenance': {
+      id: '/admin/maintenance'
+      path: '/maintenance'
+      fullPath: '/admin/maintenance'
+      preLoaderRoute: typeof AdminMaintenanceRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
@@ -489,7 +489,7 @@ const ManagerRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminMonitoringRoute: typeof AdminMonitoringRoute
+  AdminMaintenanceRoute: typeof AdminMaintenanceRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSecurityRoute: typeof AdminSecurityRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -498,7 +498,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminMonitoringRoute: AdminMonitoringRoute,
+  AdminMaintenanceRoute: AdminMaintenanceRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSecurityRoute: AdminSecurityRoute,
   AdminSettingsRoute: AdminSettingsRoute,

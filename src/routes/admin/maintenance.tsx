@@ -1,14 +1,14 @@
 import PlaceholderBody from "@/components/placeholder-body";
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity } from "lucide-react";
+import { Server } from "lucide-react";
 
-export const Route = createFileRoute("/admin/monitoring")({
+export const Route = createFileRoute("/admin/maintenance")({
   component: RouteComponent,
   staticData: {
     metadata: {
       group: "Core",
-      title: "System Monitoring",
-      icon: Activity,
+      title: "System Maintenance",
+      icon: Server,
       sidebarOptions: {
         showInSidebar: true,
         order: 4,
