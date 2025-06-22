@@ -6,7 +6,7 @@ const supabaseUrl =
 const supabaseKey =
   import.meta.env.MODE === "development"
     ? import.meta.env.VITE_SUPABASE_KEY_DEV
-    : import.meta.env.VITE_SUPABASE_KEY_PROD;
+    : import.meta.env.VITE_SUPABASE_KEY;
 
 async function getSupabaseClient() {
   const { createClient } = await import("@supabase/supabase-js");
