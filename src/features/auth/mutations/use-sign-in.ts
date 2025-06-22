@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { UserCredentials, User } from "@/lib/schemas/user";
-import { fetchUserWithRoles, signInUser } from "@/features/auth/api";
+import { fetchUserWithRoles, signInUser, updateLastActive } from "@/features/auth/api";
 import { Result } from "@/lib/types";
 
 export const useSignIn = () => {
@@ -21,6 +21,8 @@ export const useSignIn = () => {
           error: new Error(signInError.message),
         };
       }
+
+      await updateLastActive(user.id);
 
       return { data: user, error: null };
     },
