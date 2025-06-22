@@ -1,3 +1,4 @@
+import PlaceholderBody from "@/components/placeholder-body";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileText } from "lucide-react";
 
@@ -18,5 +19,5 @@ export const Route = createFileRoute("/admin/reports")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/admin/reports"!</div>;
+  return <PlaceholderBody />;
 }
