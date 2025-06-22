@@ -9,12 +9,12 @@ export const Route = createFileRoute("/admin/settings")({
   }),
   staticData: {
     metadata: {
-      group: "Core",
+      group: "Configuration",
       title: "Settings",
       icon: Settings,
       sidebarOptions: {
         showInSidebar: true,
-        order: 6,
+        order: 1,
       },
       for: "admin",
     },

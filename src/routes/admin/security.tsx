@@ -9,12 +9,12 @@ export const Route = createFileRoute("/admin/security")({
   }),
   staticData: {
     metadata: {
-      group: "Core",
+      group: "Access Control",
       title: "System Security",
       icon: Shield,
       sidebarOptions: {
         showInSidebar: true,
-        order: 3,
+        order: 2,
       },
       for: "admin",
     },

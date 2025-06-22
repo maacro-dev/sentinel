@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   }),
   staticData: {
     metadata: {
-      group: "Core",
+      group: "Overview",
       title: "Dashboard",
       icon: Home,
       sidebarOptions: {
