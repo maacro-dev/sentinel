@@ -31,7 +31,7 @@ schema_paths = []
 
 [db.seed]
 enabled = true
-sql_paths = ["./seeds/lookup/*.sql"]
+sql_paths = ["./seeds/lookup/*.sql", "./seeds/admin.sql"]
 
 
 [realtime]
