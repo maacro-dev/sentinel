@@ -2,7 +2,7 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { columns } from "@/features/admin/components/users-table/columns";
+import { useUserColumns } from "@/features/admin/components/users-table/columns";
 import { sampleUsers } from "@/features/admin/components/users-table/data";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Search as SearchIcon, Users } from "lucide-react";
@@ -12,6 +12,10 @@ export const Route = createFileRoute("/admin/user_management")({
   head: () => ({
     meta: [{ title: "User Management | Humay" }],
   }),
+  loader: async () => {
+    return { sampleUsers };
+  },
+
   staticData: {
     metadata: {
       group: "Access Control",
@@ -27,6 +31,9 @@ export const Route = createFileRoute("/admin/user_management")({
 });
 
 function RouteComponent() {
+  const { sampleUsers } = Route.useLoaderData();
+  const columns = useUserColumns();
+
   return (
     <div className="flex flex-col gap-4">
       <div className="w-full flex justify-between">
