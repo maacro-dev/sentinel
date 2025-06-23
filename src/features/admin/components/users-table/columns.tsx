@@ -65,7 +65,7 @@ export const columns: ColumnDef<User>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
@@ -77,16 +77,31 @@ export const columns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem className="text-xs" onClick={() => {}}>
+            <DropdownMenuItem
+              className="text-xs"
+              onClick={() => {
+                console.log(user);
+              }}
+            >
               <Eye className="size-3" />
               View User Detail
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-xs" onClick={() => {}}>
+            <DropdownMenuItem
+              className="text-xs"
+              onClick={() => {
+                console.log(user);
+              }}
+            >
               <Edit className="size-3" />
               Edit User
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-xs" onClick={() => {}}>
+            <DropdownMenuItem
+              className="text-xs"
+              onClick={() => {
+                console.log(user);
+              }}
+            >
               <Trash className="size-3" />
               Delete User
             </DropdownMenuItem>
