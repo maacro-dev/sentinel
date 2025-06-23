@@ -1,6 +1,11 @@
-import PlaceholderBody from "@/components/placeholder-body";
+import { DataTable } from "@/components/data-table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { columns } from "@/features/admin/components/users-table/columns";
+import { sampleUsers } from "@/features/admin/components/users-table/data";
 import { createFileRoute } from "@tanstack/react-router";
-import { Users } from "lucide-react";
+import { Plus, Search as SearchIcon, Users } from "lucide-react";
 
 export const Route = createFileRoute("/admin/user_management")({
   component: RouteComponent,
@@ -22,5 +27,40 @@ export const Route = createFileRoute("/admin/user_management")({
 });
 
 function RouteComponent() {
-  return <PlaceholderBody />;
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="w-full flex justify-between">
+        <div>
+          <h1 className="text-4xl font-semibold">User Management</h1>
+          <p className="text-muted-foreground">
+            Manage data collectors and data managers
+          </p>
+        </div>
+        <Button>
+          <Plus />
+          Add User
+        </Button>
+      </div>
+      <div>
+        <div className="w-72 flex items-center gap-2">
+          <SearchIcon className="text-muted-foreground" />
+          <Input placeholder="Search" />
+        </div>
+      </div>
+      <Tabs defaultValue="all">
+        <TabsList className="p-2">
+          <TabsTrigger className="py-2 px-4" value="all">
+            All
+          </TabsTrigger>
+          <TabsTrigger value="data_collectors">Data Collectors</TabsTrigger>
+          <TabsTrigger value="data_managers">Data Managers</TabsTrigger>
+        </TabsList>
+        <TabsContent value="all">
+          <div className="flex-1 container w-full h-full">
+            <DataTable columns={columns} data={sampleUsers} />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }
