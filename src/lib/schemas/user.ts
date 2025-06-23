@@ -30,3 +30,4 @@ export const userCredentialsSchema = z.object({
 export type Role = z.infer<typeof userRoleSchema>;
 export type User = z.infer<typeof userSchema>;
 export type UserCredentials = z.infer<typeof userCredentialsSchema>;
+export type UserStatus = z.infer<typeof userStatusSchema>;
