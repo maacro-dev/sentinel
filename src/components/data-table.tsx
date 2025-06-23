@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>({
                 return (
                   <TableHead
                     key={header.id}
-                    align="right"
+                    align={header.column.columnDef.meta?.style?.textAlign ?? "left"}
                     style={{ width: header.column.getSize() }}
                     className="px-2 py-4 text-muted-foreground text-[0.8rem] text-right "
                   >
@@ -63,8 +63,9 @@ export function DataTable<TData, TValue>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
+                    align={cell.column.columnDef.meta?.style?.textAlign ?? "left"}
                     style={{ width: cell.column.getSize() }}
-                    className="px-2 py-3 text-muted-foreground/95 text-xs text-right"
+                    className="px-2 py-3 text-muted-foreground/95 text-xs"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
