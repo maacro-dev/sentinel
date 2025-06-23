@@ -18,6 +18,7 @@ import { Route as AdminSecurityRouteImport } from './../routes/admin/security'
 import { Route as AdminReportsRouteImport } from './../routes/admin/reports'
 import { Route as AdminMaintenanceRouteImport } from './../routes/admin/maintenance'
 import { Route as AdminDashboardRouteImport } from './../routes/admin/dashboard'
+import { Route as ManagerMfid_managementRouteImport } from './../routes/_manager/mfid_management'
 import { Route as ManagerDashboardRouteImport } from './../routes/_manager/dashboard'
 import { Route as ManagerAnalyticsRouteImport } from './../routes/_manager/analytics'
 import { Route as appUnauthorizedRouteImport } from './../routes/(app)/unauthorized'
@@ -75,6 +76,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
+} as any)
+const ManagerMfid_managementRoute = ManagerMfid_managementRouteImport.update({
+  id: '/mfid_management',
+  path: '/mfid_management',
+  getParentRoute: () => ManagerRoute,
 } as any)
 const ManagerDashboardRoute = ManagerDashboardRouteImport.update({
   id: '/dashboard',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/unauthorized': typeof appUnauthorizedRoute
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
+  '/mfid_management': typeof ManagerMfid_managementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByTo {
   '/unauthorized': typeof appUnauthorizedRoute
   '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
+  '/mfid_management': typeof ManagerMfid_managementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/(app)/unauthorized': typeof appUnauthorizedRoute
   '/_manager/analytics': typeof ManagerAnalyticsRoute
   '/_manager/dashboard': typeof ManagerDashboardRoute
+  '/_manager/mfid_management': typeof ManagerMfid_managementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/analytics'
     | '/dashboard'
+    | '/mfid_management'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/reports'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/analytics'
     | '/dashboard'
+    | '/mfid_management'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/reports'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/(app)/unauthorized'
     | '/_manager/analytics'
     | '/_manager/dashboard'
+    | '/_manager/mfid_management'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/reports'
@@ -363,6 +375,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/_manager/mfid_management': {
+      id: '/_manager/mfid_management'
+      path: '/mfid_management'
+      fullPath: '/mfid_management'
+      preLoaderRoute: typeof ManagerMfid_managementRouteImport
+      parentRoute: typeof ManagerRoute
     }
     '/_manager/dashboard': {
       id: '/_manager/dashboard'
@@ -461,6 +480,7 @@ declare module '@tanstack/react-router' {
 interface ManagerRouteChildren {
   ManagerAnalyticsRoute: typeof ManagerAnalyticsRoute
   ManagerDashboardRoute: typeof ManagerDashboardRoute
+  ManagerMfid_managementRoute: typeof ManagerMfid_managementRoute
   ManagerFormsCulturalManagementRoute: typeof ManagerFormsCulturalManagementRoute
   ManagerFormsDamageAssessmentRoute: typeof ManagerFormsDamageAssessmentRoute
   ManagerFormsFieldProfileRoute: typeof ManagerFormsFieldProfileRoute
@@ -474,6 +494,7 @@ interface ManagerRouteChildren {
 const ManagerRouteChildren: ManagerRouteChildren = {
   ManagerAnalyticsRoute: ManagerAnalyticsRoute,
   ManagerDashboardRoute: ManagerDashboardRoute,
+  ManagerMfid_managementRoute: ManagerMfid_managementRoute,
   ManagerFormsCulturalManagementRoute: ManagerFormsCulturalManagementRoute,
   ManagerFormsDamageAssessmentRoute: ManagerFormsDamageAssessmentRoute,
   ManagerFormsFieldProfileRoute: ManagerFormsFieldProfileRoute,
