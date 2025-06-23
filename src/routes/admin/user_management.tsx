@@ -48,8 +48,8 @@ function RouteComponent() {
         </div>
       </div>
       <Tabs defaultValue="all">
-        <TabsList className="p-2">
-          <TabsTrigger className="py-2 px-4" value="all">
+        <TabsList className="">
+          <TabsTrigger className="" value="all">
             All
           </TabsTrigger>
           <TabsTrigger value="data_collectors">Data Collectors</TabsTrigger>
