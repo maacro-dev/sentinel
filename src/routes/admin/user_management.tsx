@@ -57,7 +57,26 @@ function RouteComponent() {
         </TabsList>
         <TabsContent value="all">
           <div className="flex-1 container w-full h-full">
-            <DataTable columns={columns} data={sampleUsers} />
+            <DataTable
+              columns={columns}
+              data={sampleUsers.filter((u) => u.role != "admin")}
+            />
+          </div>
+        </TabsContent>
+        <TabsContent value="data_collectors">
+          <div className="flex-1 container w-full h-full">
+            <DataTable
+              columns={columns}
+              data={sampleUsers.filter((u) => u.role === "data_collector")}
+            />
+          </div>
+        </TabsContent>
+        <TabsContent value="data_managers">
+          <div className="flex-1 container w-full h-full">
+            <DataTable
+              columns={columns}
+              data={sampleUsers.filter((u) => u.role === "data_manager")}
+            />
           </div>
         </TabsContent>
       </Tabs>
