@@ -1,16 +1,22 @@
+import { Button } from "@/components/ui/button";
 import { User } from "@/lib/schemas/user";
 import { mapRole } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
+import { Edit, Eye, MoreHorizontal, Trash } from "lucide-react";
 
 export const columns: ColumnDef<User>[] = [
   {
     id: "full_name",
     header: "Full Name",
     accessorFn: (row) => `${row.first_name} ${row.last_name}`,
-  },
-  {
-    accessorKey: "username",
-    header: "Username",
   },
   {
     accessorKey: "role",
@@ -53,6 +59,39 @@ export const columns: ColumnDef<User>[] = [
               })
             : "Never"}
         </span>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const payment = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem className="text-xs" onClick={() => {}}>
+              <Eye className="size-3" />
+              View User Detail
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-xs" onClick={() => {}}>
+              <Edit className="size-3" />
+              Edit User
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-xs" onClick={() => {}}>
+              <Trash className="size-3" />
+              Delete User
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },
