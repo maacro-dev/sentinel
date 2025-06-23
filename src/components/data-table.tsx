@@ -5,7 +5,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  Table as UITable,
+  Table,
   TableHeader,
   TableRow,
   TableHead,
@@ -25,18 +25,28 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    defaultColumn: {
+      size: 150,
+      minSize: 0,
+      maxSize: 1000,
+    },
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="rounded-md border">
-      <UITable>
+      <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    align="right"
+                    style={{ width: header.column.getSize() }}
+                    className="px-2 py-4 text-muted-foreground text-[0.8rem] text-right "
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -51,7 +61,11 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    style={{ width: cell.column.getSize() }}
+                    className="px-2 py-3 text-muted-foreground/95 text-xs text-right"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -65,7 +79,7 @@ export function DataTable<TData, TValue>({
             </TableRow>
           )}
         </TableBody>
-      </UITable>
+      </Table>
     </div>
   );
 }
