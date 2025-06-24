@@ -6,6 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const toError = (error: unknown): Error => {
+  if (error instanceof Error) return error;
+  return new Error(String(error));
+};
+
 export const mapRole = (role?: Role) => {
   if (!role) return "";
   switch (role) {

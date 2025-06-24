@@ -8,14 +8,14 @@ export async function fetchUserWithRoles(username: string): Promise<Result<User>
   });
 
   if (fetchError) {
-    return { data: null, error: new Error("User not found") };
+    return { success: false, error: new Error("User not found") };
   }
 
-  const { success, data: parsedUser } = userSchema.safeParse(user);
+  const parseResult = userSchema.safeParse(user);
 
-  if (!success) {
-    return { data: null, error: new Error("Error parsing user data") };
+  if (!parseResult.success) {
+    return { success: false, error: new Error("Error parsing user data") };
   }
 
-  return { data: parsedUser, error: null };
+  return { success: true, data: parseResult.data };
 }

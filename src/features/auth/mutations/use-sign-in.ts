@@ -3,28 +3,21 @@ import { fetchUserWithRoles, signInUser, updateLastActive } from "@/features/aut
 
 import type { Result, User, UserCredentials } from "@/lib/types";
 
-export const useSignIn = () => {
-  return useMutation({
-    mutationFn: async ({
-      username,
-      password,
-    }: UserCredentials): Promise<Result<User>> => {
-      const { data: user, error: fetchError } = await fetchUserWithRoles(username);
-      if (fetchError || !user) {
-        return { data: null, error: fetchError ?? new Error("User not found") };
+export const useSignIn = () =>
+  useMutation<User, Error, UserCredentials>({
+    mutationFn: async ({ username, password }: UserCredentials) => {
+      const res: Result<User> = await fetchUserWithRoles(username);
+      if (!res.success) {
+        throw res.error;
       }
+      const user = res.data;
 
       const signInError = await signInUser(user.email, password);
       if (signInError) {
-        return {
-          data: null,
-          error: new Error(signInError.message),
-        };
+        throw new Error(signInError.message);
       }
 
       await updateLastActive(user.id);
-
-      return { data: user, error: null };
+      return user;
     },
   });
-};

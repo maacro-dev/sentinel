@@ -1,4 +1,3 @@
-export type Result<T> = {
-  data: T | null;
-  error: Error | null;
-};
+export type Result<T = void> = T extends void
+  ? { success: true } | { success: false; error: Error }
+  : { success: true; data: T } | { success: false; error: Error };
