@@ -55,12 +55,25 @@ function RouteComponent() {
         </div>
       </div>
       <Tabs defaultValue="all">
-        <TabsList className="">
-          <TabsTrigger className="" value="all">
+        <TabsList className="p-1">
+          <TabsTrigger
+            className="px-2 py-1 min-w-16 text-muted-foreground data-[state=active]:text-primary data-[state=active]:shadow-none"
+            value="all"
+          >
             All
           </TabsTrigger>
-          <TabsTrigger value="data_collectors">Data Collectors</TabsTrigger>
-          <TabsTrigger value="data_managers">Data Managers</TabsTrigger>
+          <TabsTrigger
+            className="px-4 py-1 text-muted-foreground data-[state=active]:text-primary data-[state=active]:shadow-none"
+            value="data_collectors"
+          >
+            Data Collectors
+          </TabsTrigger>
+          <TabsTrigger
+            className="px-4 py-1 text-muted-foreground data-[state=active]:text-primary data-[state=active]:shadow-none"
+            value="data_managers"
+          >
+            Data Managers
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="all">
           <div className="flex-1 container w-full h-full">
