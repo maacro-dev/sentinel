@@ -1,3 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
+
 const supabaseUrl =
   import.meta.env.MODE === "development"
     ? "http://127.0.0.1:54321"
@@ -8,10 +10,6 @@ const supabaseKey =
     ? import.meta.env.VITE_SUPABASE_KEY_DEV
     : import.meta.env.VITE_SUPABASE_KEY;
 
-async function getSupabaseClient() {
-  const { createClient } = await import("@supabase/supabase-js");
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  return supabase;
-}
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-export { getSupabaseClient };
+export { supabase };

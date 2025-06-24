@@ -43,8 +43,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const handleLogin = useCallback(
     async (fields: UserCredentials) => {
       const { data, error } = await signIn(fields);
-      if (error || !data) {
-        return { data: null, error: error ?? new Error("User not found") };
+
+      if (error) {
+        return { data: null, error: error };
       }
 
       setUser(data);
