@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "@/lib/schemas/user";
+import type { User } from "@/lib/types";
 
 type UserUserActionsCellProps = {
   user: User;

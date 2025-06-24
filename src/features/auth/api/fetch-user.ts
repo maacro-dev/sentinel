@@ -1,6 +1,6 @@
 import { getSupabaseClient } from "@/app/supabase";
-import { User, userSchema } from "@/lib/schemas/user";
-import { Result } from "@/lib/types";
+import { userSchema } from "@/lib/schemas/user";
+import type { User, Result } from "@/lib/types";
 
 export async function fetchUserWithRoles(username: string): Promise<Result<User>> {
   const supabase = await getSupabaseClient();

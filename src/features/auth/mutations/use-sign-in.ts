@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { UserCredentials, User } from "@/lib/schemas/user";
 import { fetchUserWithRoles, signInUser, updateLastActive } from "@/features/auth/api";
-import { Result } from "@/lib/types";
+
+import type { Result, User, UserCredentials } from "@/lib/types";
 
 export const useSignIn = () => {
   return useMutation({

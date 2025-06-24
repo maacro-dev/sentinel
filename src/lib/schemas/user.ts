@@ -1,33 +1,37 @@
-import * as z from "zod/v4-mini";
+import {
+  enum as enum_,
+  object,
+  number,
+  string,
+  iso,
+  nullable,
+  minLength,
+  email,
+} from "zod/v4-mini";
 
-export const userRoleSchema = z.enum([
+export const userRoleSchema = enum_([
   "data_collector",
   "data_manager",
   "admin",
   "*",
 ] as const);
 
-export const userStatusSchema = z.enum(["active", "inactive", "disabled"]);
+export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 
-export const userSchema = z.object({
-  id: z.number(),
-  email: z.email(),
-  username: z.string().check(z.minLength(1)),
-  first_name: z.string().check(z.minLength(1)),
-  last_name: z.string().check(z.minLength(1)),
+export const userSchema = object({
+  id: number(),
+  email: email(),
+  username: string().check(minLength(1)),
+  first_name: string().check(minLength(1)),
+  last_name: string().check(minLength(1)),
   status: userStatusSchema,
   role: userRoleSchema,
-  last_active: z.nullable(z.iso.datetime({ offset: true })),
-  created_at: z.iso.datetime({ offset: true }),
-  updated_at: z.iso.datetime({ offset: true }),
+  last_active: nullable(iso.datetime({ offset: true })),
+  created_at: iso.datetime({ offset: true }),
+  updated_at: iso.datetime({ offset: true }),
 });
 
-export const userCredentialsSchema = z.object({
-  username: z.string().check(z.minLength(1, "Username is required to log in")),
-  password: z.string().check(z.minLength(1, "Password is required to log in")),
+export const userCredentialsSchema = object({
+  username: string().check(minLength(1, "Username is required to log in")),
+  password: string().check(minLength(1, "Password is required to log in")),
 });
-
-export type Role = z.infer<typeof userRoleSchema>;
-export type User = z.infer<typeof userSchema>;
-export type UserCredentials = z.infer<typeof userCredentialsSchema>;
-export type UserStatus = z.infer<typeof userStatusSchema>;

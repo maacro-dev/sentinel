@@ -1,4 +1,4 @@
-import { User } from "@/lib/schemas/user";
+import type { User } from "@/lib/types";
 
 export const sampleUsers: User[] = [
   {

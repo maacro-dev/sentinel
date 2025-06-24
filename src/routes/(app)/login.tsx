@@ -6,7 +6,8 @@ import { useAuth } from "@/context/auth-context";
 import LoginForm from "@/features/auth/components/login-form";
 import { showErrorToast, showSuccessToast } from "@/app/toast";
 import { getRedirectPath } from "@/features/auth/utils";
-import { UserCredentials } from "@/lib/schemas/user";
+
+import type { UserCredentials } from "@/lib/types";
 
 export const Route = createFileRoute("/(app)/login")({
   head: () => ({ meta: [{ title: "Login | Humay" }] }),

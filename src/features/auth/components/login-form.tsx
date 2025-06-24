@@ -6,12 +6,13 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { userCredentialsSchema } from "@/lib/schemas/user";
 import { HumayForm, HumayTextField } from "@/components/forms";
-import { UserCredentials } from "@/lib/schemas/user";
 import HumayLogo from "@/components/logo";
+
+import type { UserCredentials } from "@/lib/types";
 
 type LoginFormProps = {
   onSubmit: (fields: UserCredentials) => void;
@@ -20,7 +21,7 @@ type LoginFormProps = {
 const LoginForm = ({ onSubmit }: LoginFormProps) => {
   const form = useForm<UserCredentials>({
     resolver: zodResolver(userCredentialsSchema),
-    defaultValues: { username: "", password: "" }
+    defaultValues: { username: "", password: "" },
   });
 
   return (

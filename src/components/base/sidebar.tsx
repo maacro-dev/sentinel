@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { SidebarDataGroup } from "@/lib/types";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,7 +26,8 @@ import { cn, mapRole } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import HumayLogo from "../logo";
 import { Skeleton } from "../ui/skeleton";
-import { User } from "@/lib/schemas/user";
+
+import type { SidebarDataGroup, User } from "@/lib/types";
 
 type HumayBaseSidebarProps = {
   data: SidebarDataGroup[];

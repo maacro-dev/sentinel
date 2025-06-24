@@ -1,9 +1,10 @@
-import { User } from "@/lib/schemas/user";
 import { mapRole } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { LastActiveCell, StatusCell } from "@/components/cell";
 import { UserActionsCell } from "@/components/cell/user-actions-cell";
+
+import type { User } from "@/lib/types";
 
 export const useUserColumns = (): ColumnDef<User>[] => {
   return useMemo(

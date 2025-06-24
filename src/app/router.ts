@@ -1,6 +1,6 @@
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "@/app/routeTree.gen";
-import { RouteMetadata } from "@/lib/types";
+import { RouteMetadata } from "@/lib/types/route";
 import { useAuth } from "@/context/auth-context";
 
 export type RouterContext = {
@@ -11,8 +11,8 @@ export const router = createRouter({
   routeTree: routeTree,
   defaultPreload: "intent",
   context: {
-    auth: undefined!
-  }
+    auth: undefined!,
+  },
 });
 
 declare module "@tanstack/react-router" {

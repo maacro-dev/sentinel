@@ -1,4 +1,4 @@
-import { UserStatus } from "@/lib/schemas/user";
+import type { UserStatus } from "@/lib/types";
 
 type StatusCellProps = {
   status: UserStatus;
