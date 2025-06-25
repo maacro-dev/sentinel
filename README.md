@@ -2,7 +2,7 @@
 
 **The web application component of Hum-i**: A web and mobile-based multi-stage data acquisition and analysis system for rice cultivation.
 
-🛠️ _This is an internal tool intended for use by partner agricultural organizations and research institutions._
+🛠️ _Under development. This is an internal tool intended for use by partner agricultural organizations and research institutions._
 
 ## Overview
 
