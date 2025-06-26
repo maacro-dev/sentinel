@@ -75,10 +75,16 @@ function RouteComponent() {
           >
             Data Managers
           </TabsTrigger>
+          <TabsTrigger
+            className="px-4 py-1 text-muted-foreground data-[state=active]:text-primary data-[state=active]:shadow-none"
+            value="admins"
+          >
+            Admins
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="all">
           <div className="flex-1 container w-full h-full">
-            <DataTable columns={columns} data={users.filter((u) => u.role != "admin")} />
+            <DataTable columns={columns} data={users} />
           </div>
         </TabsContent>
         <TabsContent value="data_collectors">
@@ -95,6 +101,11 @@ function RouteComponent() {
               columns={columns}
               data={users.filter((u) => u.role === "data_manager")}
             />
+          </div>
+        </TabsContent>
+        <TabsContent value="admins">
+          <div className="flex-1 container w-full h-full">
+            <DataTable columns={columns} data={users.filter((u) => u.role === "admin")} />
           </div>
         </TabsContent>
       </Tabs>
