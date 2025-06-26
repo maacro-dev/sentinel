@@ -42,7 +42,7 @@ export const useUserColumns = (): ColumnDef<User>[] => {
       {
         accessorKey: "last_active",
         header: "Last Active",
-        cell: ({ row }) => <LastActiveCell lastActive={row.original.last_active} />,
+        cell: ({ row }) => <LastActiveCell lastActive={row.original.last_sign_in_at} />,
         meta: {
           style: {
             textAlign: "right",
