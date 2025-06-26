@@ -80,7 +80,7 @@ const HumaySidebarFooter = memo(() => {
   const handleLogoutClick = useCallback(async () => {
     try {
       await handleLogout();
-      await navigate({ to: "/login", replace: true });
+      await navigate({ to: "/login", replace: true, reloadDocument: true });
     } catch (error) {
       console.error("Failed to sign out:", error);
     }

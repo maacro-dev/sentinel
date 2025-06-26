@@ -28,23 +28,25 @@ function LoginPage() {
       setIsSubmitting(true);
 
       try {
-        const { data: user, error } = await handleLogin(fields);
+        const result = await handleLogin(fields);
 
-        if (error || !user) {
+        if (!result.success) {
           showErrorToast(
             "Couldn't sign you in",
-            error?.message || "Please check your email and password and try again."
+            result.error?.message || "Please check your email and password and try again."
           );
           setIsSubmitting(false);
           return;
         }
+
+        const { data: user } = result;
 
         showSuccessToast(
           `Welcome back, ${user.first_name}!`,
           "You've been successfully signed in."
         );
 
-        navigate({ to: getRedirectPath(user.role) });
+        navigate({ to: getRedirectPath(user.role), replace: true, reloadDocument: true });
       } catch (err) {
         const message =
           err instanceof Error

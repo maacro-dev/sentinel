@@ -1,18 +1,16 @@
-import { useAuth } from "@/context/auth-context";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  component: RouteComponent,
+  beforeLoad: ({ context }) => {
+    const { role } = context.auth;
+    switch (role) {
+      case "admin":
+        return redirect({ to: "/admin/dashboard", reloadDocument: true });
+      case "data_manager":
+        return redirect({ to: "/dashboard", reloadDocument: true });
+      default:
+        return redirect({ to: "/login", reloadDocument: true });
+    }
+  },
+  component: () => null,
 });
-
-function RouteComponent() {
-  const { role } = useAuth();
-  switch (role) {
-    case "admin":
-      return <Navigate to="/admin/dashboard" />;
-    case "data_manager":
-      return <Navigate to="/dashboard" />;
-    default:
-      return <Navigate to="/login" />;
-  }
-}
