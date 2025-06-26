@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { Database } from "./database.types";
 
 const supabaseUrl =
   import.meta.env.MODE === "development"
@@ -10,6 +11,6 @@ const supabaseKey =
     ? import.meta.env.VITE_SUPABASE_KEY_DEV
     : import.meta.env.VITE_SUPABASE_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 export { supabase };

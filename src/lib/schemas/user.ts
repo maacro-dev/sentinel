@@ -7,6 +7,7 @@ import {
   email,
   uuidv4,
   nullable,
+  array,
 } from "zod/v4-mini";
 
 export const userRoleSchema = enum_([
@@ -30,6 +31,8 @@ export const userSchema = object({
   created_at: iso.datetime({ offset: true }),
   updated_at: iso.datetime({ offset: true }),
 });
+
+export const userSchemaArray = array(userSchema);
 
 export const userCredentialsSchema = object({
   username: string().check(minLength(1, "Username is required to log in")),
