@@ -31,10 +31,7 @@ function LoginPage() {
         const result = await handleLogin(fields);
 
         if (!result.success) {
-          showErrorToast(
-            "Couldn't sign you in",
-            result.error?.message || "Please check your email and password and try again."
-          );
+          showErrorToast("Couldn't sign you in", result.error?.message);
           setIsSubmitting(false);
           return;
         }
