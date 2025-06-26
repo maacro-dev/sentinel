@@ -2,8 +2,8 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { fetchAllUsers } from "@/features/admin/api/fetch-all-users";
 import { useUserColumns } from "@/features/admin/components/users-table/columns";
-import { sampleUsers } from "@/features/admin/components/users-table/data";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Search as SearchIcon, Users } from "lucide-react";
 
@@ -13,9 +13,10 @@ export const Route = createFileRoute("/admin/user_management")({
     meta: [{ title: "User Management | Humay" }],
   }),
   loader: async () => {
-    return { sampleUsers };
+    const result = await fetchAllUsers();
+    if (!result.success) throw result.error;
+    return { users: result.data };
   },
-
   staticData: {
     metadata: {
       group: "Access Control",
@@ -31,8 +32,8 @@ export const Route = createFileRoute("/admin/user_management")({
 });
 
 function RouteComponent() {
-  const { sampleUsers } = Route.useLoaderData();
   const columns = useUserColumns();
+  const { users } = Route.useLoaderData();
 
   return (
     <div className="flex flex-col gap-4">
@@ -77,17 +78,14 @@ function RouteComponent() {
         </TabsList>
         <TabsContent value="all">
           <div className="flex-1 container w-full h-full">
-            <DataTable
-              columns={columns}
-              data={sampleUsers.filter((u) => u.role != "admin")}
-            />
+            <DataTable columns={columns} data={users.filter((u) => u.role != "admin")} />
           </div>
         </TabsContent>
         <TabsContent value="data_collectors">
           <div className="flex-1 container w-full h-full">
             <DataTable
               columns={columns}
-              data={sampleUsers.filter((u) => u.role === "data_collector")}
+              data={users.filter((u) => u.role === "data_collector")}
             />
           </div>
         </TabsContent>
@@ -95,7 +93,7 @@ function RouteComponent() {
           <div className="flex-1 container w-full h-full">
             <DataTable
               columns={columns}
-              data={sampleUsers.filter((u) => u.role === "data_manager")}
+              data={users.filter((u) => u.role === "data_manager")}
             />
           </div>
         </TabsContent>
