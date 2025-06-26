@@ -40,6 +40,6 @@ export function protectRoute(
   const hasAccess = user?.role && roleHasAccess(user.role, allowedRoles);
 
   if (!hasAccess) {
-    throw redirect({ to: redirectTo || "/unauthorized" });
+    throw redirect({ to: redirectTo || "/unauthorized", reloadDocument: true });
   }
 }

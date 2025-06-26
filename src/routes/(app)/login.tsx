@@ -12,7 +12,7 @@ import type { UserCredentials } from "@/lib/types";
 export const Route = createFileRoute("/(app)/login")({
   head: () => ({ meta: [{ title: "Login | Humay" }] }),
   beforeLoad: ({ context }) => {
-    if (context.auth.isAuthenticated) throw redirect({ to: "/" });
+    if (context.auth.isAuthenticated) throw redirect({ to: "/", reloadDocument: true });
   },
   component: LoginPage,
 });
