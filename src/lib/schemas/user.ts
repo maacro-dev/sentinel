@@ -1,12 +1,12 @@
 import {
   enum as enum_,
   object,
-  number,
   string,
   iso,
-  nullable,
   minLength,
   email,
+  uuidv4,
+  nullable,
 } from "zod/v4-mini";
 
 export const userRoleSchema = enum_([
@@ -19,14 +19,14 @@ export const userRoleSchema = enum_([
 export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 
 export const userSchema = object({
-  id: number(),
-  email: email(),
-  username: string().check(minLength(1)),
+  auth_id: uuidv4(),
   first_name: string().check(minLength(1)),
   last_name: string().check(minLength(1)),
+  username: string().check(minLength(1)),
   status: userStatusSchema,
   role: userRoleSchema,
-  last_active: nullable(iso.datetime({ offset: true })),
+  email: email(),
+  last_sign_in_at: nullable(iso.datetime({ offset: true })),
   created_at: iso.datetime({ offset: true }),
   updated_at: iso.datetime({ offset: true }),
 });

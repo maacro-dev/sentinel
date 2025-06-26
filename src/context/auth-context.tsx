@@ -36,10 +36,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = Boolean(user);
 
   useEffect(() => {
-    if (storedUser && storedUser.id !== user?.id) {
+    if (storedUser && storedUser.auth_id !== user?.auth_id) {
       setUser(storedUser);
     }
-  }, [storedUser, user?.id]);
+  }, [storedUser, user?.auth_id]);
 
   const handleLogin = useCallback(
     async (fields: UserCredentials): Promise<Result<User>> => {
