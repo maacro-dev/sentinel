@@ -1,11 +1,12 @@
 import { DataTable } from "@/components/data-table";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchAllUsers } from "@/features/admin/api/fetch-all-users";
+import { AddUserForm } from "@/features/admin/components/add-user-dialog";
 import { useUserColumns } from "@/features/admin/components/users-table/columns";
+import { UserCreate } from "@/lib/types/user";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Search as SearchIcon, Users } from "lucide-react";
+import { Search as SearchIcon, Users } from "lucide-react";
 
 export const Route = createFileRoute("/admin/user_management")({
   component: RouteComponent,
@@ -35,6 +36,10 @@ function RouteComponent() {
   const columns = useUserColumns();
   const { users } = Route.useLoaderData();
 
+  const onSubmit = (fields: UserCreate) => {
+    console.log(fields);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="w-full flex justify-between">
@@ -44,10 +49,7 @@ function RouteComponent() {
             Manage data collectors and data managers
           </p>
         </div>
-        <Button>
-          <Plus />
-          Add User
-        </Button>
+        <AddUserForm onSubmit={onSubmit} />
       </div>
       <div>
         <div className="w-72 flex items-center gap-2">

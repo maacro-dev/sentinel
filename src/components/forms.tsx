@@ -9,13 +9,23 @@ import {
   FormControl,
   FormField,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { UseFormReturn, FieldValues, Path, useFormContext } from "react-hook-form";
-import { ReactNode, memo } from "react";
+import { ReactNode, memo, useMemo } from "react";
 import { Input } from "./ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
-type TextFieldTypes = "text" | "password";
+type TextFieldTypes = "text" | "password" | "email";
 
 type HumayFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
@@ -26,11 +36,11 @@ type HumayFormProps<T extends FieldValues> = {
 const HumayForm = <T extends FieldValues>({
   form,
   onSubmit,
-  children
+  children,
 }: HumayFormProps<T>) => {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
         {children}
       </form>
     </Form>
@@ -48,7 +58,7 @@ const InternalTextField = <T extends FieldValues>({
   label,
   name,
   placeholder,
-  type = "text"
+  type = "text",
 }: HumayTextFieldProps<T>) => {
   const form = useFormContext<T>();
 
@@ -73,4 +83,73 @@ const InternalTextField = <T extends FieldValues>({
 
 const HumayTextField = memo(InternalTextField);
 
-export { HumayForm, HumayTextField };
+interface InternalSelectProps<T extends FieldValues> {
+  className?: string;
+  name: Path<T>;
+  label?: string;
+  placeholder?: string;
+  data: Array<{ value: string; label: string }>;
+}
+
+const InternalSelect = <T extends FieldValues>({
+  className,
+  name,
+  label,
+  placeholder,
+  data,
+}: InternalSelectProps<T>) => {
+  const form = useFormContext<T>();
+
+  return (
+    <div className="space-y-2">
+      <FormLabel>{label}</FormLabel>
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <>
+            <FormControl>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                name={field.name}
+              >
+                <SelectTrigger className={cn("w-full", className)}>
+                  <SelectValue placeholder={placeholder} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Roles</SelectLabel>
+                    {data.map(({ value, label }) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </>
+        )}
+      />
+    </div>
+  );
+};
+
+const HumayRoleSelect = <T extends FieldValues>(
+  props: Omit<InternalSelectProps<T>, "data">
+) => {
+  const data = useMemo(
+    () => [
+      { value: "1", label: "Admin" },
+      { value: "3", label: "Data Manager" },
+      { value: "2", label: "Data Collector" },
+    ],
+    []
+  );
+
+  return <InternalSelect {...props} data={data} />;
+};
+
+export { HumayForm, HumayTextField, HumayRoleSelect };
