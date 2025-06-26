@@ -45,6 +45,7 @@ Thumbs.db
 *.sln
 *.sw?
 
+diff.patch
 .github
 .git-commits/
 *.orig
