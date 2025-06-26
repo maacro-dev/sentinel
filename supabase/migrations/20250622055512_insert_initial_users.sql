@@ -1,0 +1,7 @@
+-- pg_dump from supabase
+
+INSERT INTO auth.users VALUES ('00000000-0000-0000-0000-000000000000', '7ba8a45d-de4c-47e1-ae23-be9b263dbfd9', 'authenticated', 'authenticated', 'admin@humayapp.com', '$2a$10$thbOnXLJUoQqbcpmErWKcuTXDvx.XptgWV2/J370t.4ETJxnYirj.', '2025-06-26 09:11:34.191931+00', NULL, '', NULL, '', NULL, '', '', NULL, NULL, '{"provider": "email", "providers": ["email"]}', '{"email_verified": true}', NULL, '2025-06-26 09:11:34.189371+00', '2025-06-26 09:11:34.192701+00', NULL, NULL, '', '', NULL, DEFAULT, '', 0, NULL, '', NULL, false, NULL, false);
+
+INSERT INTO auth.identities VALUES ('7ba8a45d-de4c-47e1-ae23-be9b263dbfd9', '7ba8a45d-de4c-47e1-ae23-be9b263dbfd9', '{"sub": "7ba8a45d-de4c-47e1-ae23-be9b263dbfd9", "email": "admin@humayapp.com", "email_verified": false, "phone_verified": false}', 'email', '2025-06-26 09:11:34.190423+00', '2025-06-26 09:11:34.190451+00', '2025-06-26 09:11:34.190451+00', DEFAULT, 'fe6a198e-8cce-40b9-b3d7-b41581800602');
+
+INSERT INTO public.users VALUES (1, '7ba8a45d-de4c-47e1-ae23-be9b263dbfd9', 1, 'System', 'Administrator', 'admin', 'admin@humayapp.com', 'active', '2025-06-26 09:12:16+00', '2025-06-26 09:12:17+00');
