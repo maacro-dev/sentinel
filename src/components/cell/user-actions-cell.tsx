@@ -8,13 +8,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { User } from "@/lib/types";
+import type { UserSummary } from "@/lib/types";
 
-type UserUserActionsCellProps = {
-  user: User;
+type UserActionsCellProps = {
+  user: UserSummary;
 };
 
-export const UserActionsCell = ({ user }: UserUserActionsCellProps) => (
+export const UserActionsCell = ({ user }: UserActionsCellProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
       <Button variant="ghost" className="h-4 w-4 p-0">
