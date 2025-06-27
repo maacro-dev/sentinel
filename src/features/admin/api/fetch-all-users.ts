@@ -1,10 +1,10 @@
 import { supabase } from "@/app/supabase";
-import { userSchemaArray } from "@/lib/schemas/user";
-import type { User, Result } from "@/lib/types";
+import { userSummarySchemaArray } from "@/lib/schemas/user";
+import { Result, UserSummaryArray } from "@/lib/types";
 
-export async function fetchAllUsers(): Promise<Result<User[]>> {
+export async function fetchAllUsers(): Promise<Result<UserSummaryArray>> {
   const { data: users, error: fetchError } = await supabase
-    .from("user_profiles")
+    .from("user_summaries")
     .select("*");
 
   if (fetchError) {
@@ -14,7 +14,7 @@ export async function fetchAllUsers(): Promise<Result<User[]>> {
     };
   }
 
-  const parseResult = userSchemaArray.safeParse(users);
+  const parseResult = userSummarySchemaArray.safeParse(users);
 
   if (!parseResult.success) {
     return { success: false, error: new Error("Error parsing user data") };

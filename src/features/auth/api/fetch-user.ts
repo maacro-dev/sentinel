@@ -1,5 +1,5 @@
 import { supabase } from "@/app/supabase";
-import { userSchema } from "@/lib/schemas/user";
+import { userDetailSchema } from "@/lib/schemas/user";
 import type { User, Result } from "@/lib/types";
 
 export async function fetchUserWithRoles(username: string): Promise<Result<User>> {
@@ -16,7 +16,7 @@ export async function fetchUserWithRoles(username: string): Promise<Result<User>
     };
   }
 
-  const parseResult = userSchema.safeParse(user);
+  const parseResult = userDetailSchema.safeParse(user);
 
   if (!parseResult.success) {
     return { success: false, error: new Error("Error parsing user data") };

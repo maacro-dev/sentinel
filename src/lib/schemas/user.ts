@@ -19,7 +19,7 @@ export const userRoleSchema = enum_([
 
 export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 
-export const userSchema = object({
+export const userDetailSchema = object({
   auth_id: uuidv4(),
   first_name: string().check(minLength(1)),
   last_name: string().check(minLength(1)),
@@ -32,7 +32,16 @@ export const userSchema = object({
   updated_at: iso.datetime({ offset: true }),
 });
 
-export const userSchemaArray = array(userSchema);
+export const userSummarySchema = object({
+  auth_id: uuidv4(),
+  full_name: string(),
+  status: userStatusSchema,
+  role: userRoleSchema,
+  email: email(),
+  last_sign_in_at: nullable(iso.datetime({ offset: true })),
+});
+
+export const userSummarySchemaArray = array(userSummarySchema);
 
 export const userCredentialsSchema = object({
   username: string().check(minLength(1, "Username is required to log in")),

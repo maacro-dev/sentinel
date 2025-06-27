@@ -1,18 +1,17 @@
-import { mapRole } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { LastActiveCell, StatusCell } from "@/components/cell";
 import { UserActionsCell } from "@/components/cell/user-actions-cell";
+import { UserSummary } from "@/lib/types";
+import { mapRole } from "@/lib/utils";
 
-import type { User } from "@/lib/types";
-
-export const useUserColumns = (): ColumnDef<User>[] => {
+export const useUserColumns = (): ColumnDef<UserSummary>[] => {
   return useMemo(
     () => [
       {
         id: "full_name",
         header: "Full Name",
-        accessorFn: (row) => `${row.first_name} ${row.last_name}`,
+        accessorFn: ({ full_name }) => full_name,
         meta: {
           style: {
             textAlign: "right",
@@ -22,7 +21,7 @@ export const useUserColumns = (): ColumnDef<User>[] => {
       {
         accessorKey: "role",
         header: "Role",
-        accessorFn: (row) => mapRole(row.role),
+        accessorFn: ({ role }) => mapRole(role),
         meta: {
           style: {
             textAlign: "right",
