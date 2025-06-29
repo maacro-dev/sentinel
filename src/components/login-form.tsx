@@ -28,6 +28,7 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
 							</Label>
 							<Input
 								id="id"
+								name="id"
 								type="text"
 								placeholder="Enter your user ID"
 								required
@@ -42,6 +43,7 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
 							</Label>
 							<Input
 								id="password"
+								name="password"
 								type="password"
 								placeholder="Enter your password"
 								required
