@@ -1,7 +1,7 @@
-import { createFileRoute, Outlet,  } from "@tanstack/react-router";
-import { HumayBaseLayout } from "@/components/base/base";
+import { createFileRoute, Outlet, } from "@tanstack/react-router";
 import { protectRoute } from "@/features/auth/utils";
-import { lazy } from "react";
+import { BaseSidebar } from "@/components/base";
+import { BaseLayout } from "@/components/layouts";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: ({ context }) => {
@@ -10,12 +10,10 @@ export const Route = createFileRoute("/admin")({
   component: RouteComponent
 });
 
-const Sidebar = lazy(() => import("@/features/admin/components/sidebar"));
-
 function RouteComponent() {
   return (
-    <HumayBaseLayout sidebar={Sidebar}>
+    <BaseLayout sidebarSlot={<BaseSidebar role="admin" />}>
       <Outlet />
-    </HumayBaseLayout>
+    </BaseLayout>
   );
 }
