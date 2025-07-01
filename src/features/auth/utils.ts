@@ -1,10 +1,7 @@
 import { redirect } from "@tanstack/react-router";
 
 import type { Role, User } from "@/lib/types";
-
-export function roleHasAccess(role: Role, allowedRoles: Role) {
-  return allowedRoles.includes(role);
-}
+import { isRoleAllowed } from "@/utils/auth/is-role-allowed";
 
 export function getRedirectPath(role: Role) {
   switch (role) {
@@ -37,7 +34,7 @@ export function protectRoute(
     return;
   }
 
-  const hasAccess = user?.role && roleHasAccess(user.role, allowedRoles);
+  const hasAccess = user?.role && isRoleAllowed(user.role, allowedRoles);
 
   if (!hasAccess) {
     throw redirect({ to: redirectTo || "/unauthorized", reloadDocument: true });
