@@ -8,16 +8,11 @@ export const Route = createFileRoute("/_manager/_forms/damageAssessment")({
     meta: [{ title: "Damage Assessment | Humay" }],
   }),
   staticData: {
-    metadata: {
-      group: "Forms",
-      title: "Damage Assessment",
-      icon: ShieldHalf,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 8,
-      },
-      for: "data_manager",
-    },
+    routeFor: "data_manager",
+    label: "Damage Assessment",
+    icon: ShieldHalf,
+    group: "Forms",
+    navItemOrder: 8,
   },
 });
 

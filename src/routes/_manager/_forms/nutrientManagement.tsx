@@ -8,16 +8,11 @@ export const Route = createFileRoute("/_manager/_forms/nutrientManagement")({
     meta: [{ title: "Nutrient Management | Humay" }],
   }),
   staticData: {
-    metadata: {
-      group: "Forms",
-      title: "Nutrient Management",
-      icon: Cuboid,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 6,
-      },
-      for: "data_manager",
-    },
+    routeFor: "data_manager",
+    label: "Nutrient Management",
+    icon: Cuboid,
+    group: "Forms",
+    navItemOrder: 6,
   },
 });
 

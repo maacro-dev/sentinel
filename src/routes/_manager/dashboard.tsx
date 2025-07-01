@@ -7,16 +7,11 @@ export const Route = createFileRoute("/_manager/dashboard")({
     meta: [{ title: "Dashboard | Humay" }],
   }),
   staticData: {
-    metadata: {
-      group: "Core",
-      title: "Dashboard",
-      icon: LayoutDashboard,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 1,
-      },
-      for: "data_manager",
-    },
+    routeFor: "data_manager",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    group: "Overview",
+    navItemOrder: 1,
   },
 });
 

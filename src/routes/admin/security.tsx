@@ -8,16 +8,11 @@ export const Route = createFileRoute("/admin/security")({
     meta: [{ title: "System Security | Humay" }],
   }),
   staticData: {
-    metadata: {
-      group: "Access Control",
-      title: "System Security",
-      icon: Shield,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 2,
-      },
-      for: "admin",
-    },
+    routeFor: "admin",
+    label: "System Security",
+    icon: Shield,
+    group: "Access Control",
+    navItemOrder: 2,
   },
 });
 

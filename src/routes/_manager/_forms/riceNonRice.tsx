@@ -8,16 +8,11 @@ export const Route = createFileRoute("/_manager/_forms/riceNonRice")({
     meta: [{ title: "Rice-non-Rice | Humay" }],
   }),
   staticData: {
-    metadata: {
-      group: "Forms",
-      title: "Rice-non-Rice",
-      icon: Leaf,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 7,
-      },
-      for: "data_manager",
-    },
+    routeFor: "data_manager",
+    label: "Rice-non-Rice",
+    icon: Leaf,
+    group: "Forms",
+    navItemOrder: 7,
   },
 });
 

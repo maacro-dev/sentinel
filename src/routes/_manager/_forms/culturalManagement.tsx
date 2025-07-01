@@ -8,16 +8,11 @@ export const Route = createFileRoute("/_manager/_forms/culturalManagement")({
     meta: [{ title: "Cultural Management | Humay" }],
   }),
   staticData: {
-    metadata: {
-      group: "Forms",
-      title: "Cultural Management",
-      icon: Folder,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 3,
-      },
-      for: "data_manager",
-    },
+    routeFor: "data_manager",
+    label: "Cultural Management",
+    icon: Folder,
+    group: "Forms",
+    navItemOrder: 3,
   },
 });
 

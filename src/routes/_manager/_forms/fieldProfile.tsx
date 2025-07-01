@@ -8,16 +8,11 @@ export const Route = createFileRoute("/_manager/_forms/fieldProfile")({
     meta: [{ title: "Field Profile | Humay" }],
   }),
   staticData: {
-    metadata: {
-      group: "Forms",
-      title: "Field Profile",
-      icon: User,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 2,
-      },
-      for: "data_manager",
-    },
+    routeFor: "data_manager",
+    label: "Field Profile",
+    icon: User,
+    group: "Forms",
+    navItemOrder: 2,
   },
 });
 
