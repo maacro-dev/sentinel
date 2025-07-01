@@ -1,6 +1,11 @@
+import { usersQueryOptions } from "@/api/users";
+import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddUserForm } from "@/components/users/user-create-dialog";
+import { useUserColumns } from "@/components/users/user-table/user-table-columns";
 import { UserCreate } from "@/lib/types/user";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search as SearchIcon, Users } from "lucide-react";
 
@@ -9,10 +14,8 @@ export const Route = createFileRoute("/admin/user_management")({
   head: () => ({
     meta: [{ title: "User Management | Humay" }],
   }),
-  loader: async () => {
-    // const result = await fetchAllUsers();
-    // if (!result.success) throw result.error;
-    // return { users: result.data };
+  loader: async ({ context: { queryClient } }) => {
+    queryClient.ensureQueryData(usersQueryOptions);
   },
   staticData: {
     routeFor: "admin",
@@ -24,9 +27,8 @@ export const Route = createFileRoute("/admin/user_management")({
 });
 
 function RouteComponent() {
-  // const columns = useUserColumns();
-  // console.log(columns);
-  // const { users } = Route.useLoaderData();
+  const { data: users } = useSuspenseQuery(usersQueryOptions);
+  const columns = useUserColumns();
 
   const onSubmit = (fields: UserCreate) => {
     console.log(fields);
@@ -49,7 +51,7 @@ function RouteComponent() {
           <Input placeholder="Search" />
         </div>
       </div>
-      {/* <Tabs defaultValue="all">
+      <Tabs defaultValue="all">
         <TabsList className="p-1">
           <TabsTrigger
             className="px-2 py-1 min-w-16 text-muted-foreground data-[state=active]:text-primary data-[state=active]:shadow-none"
@@ -102,7 +104,7 @@ function RouteComponent() {
             <DataTable columns={columns} data={users.filter((u) => u.role === "admin")} />
           </div>
         </TabsContent>
-      </Tabs> */}
+      </Tabs>
     </div>
   );
 }
