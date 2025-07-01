@@ -54,36 +54,46 @@ type HumayTextFieldProps<T extends FieldValues> = {
   type?: TextFieldTypes;
 };
 
-const InternalTextField = <T extends FieldValues>({
+const HumayTextField = memo(<T extends FieldValues>({
   label,
   name,
   placeholder,
   type = "text",
 }: HumayTextFieldProps<T>) => {
+
   const form = useFormContext<T>();
 
   return (
-    <div className="space-y-2">
-      <FormLabel>{label}</FormLabel>
-      <FormField
-        control={form.control}
-        name={name}
-        render={({ field }) => (
-          <>
-            <FormControl>
-              <Input id={name} type={type} placeholder={placeholder} {...field} />
-            </FormControl>
-            <FormMessage />
-          </>
-        )}
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <>
+          <FormControl>
+            <div className="group flex flex-col gap-1">
+              <FormLabel
+                htmlFor={name}
+                className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
+              >
+                {label}
+              </FormLabel>
+              <Input
+                id={name}
+                type={type}
+                placeholder={placeholder}
+                {...field}
+                className="md:text-xs"
+              />
+            </div>
+          </FormControl>
+          <FormMessage className="text-xs text-red-500 font-normal opacity-80" />
+        </>
+      )}
+    />
   );
-};
+});
 
-const HumayTextField = memo(InternalTextField);
-
-interface InternalSelectProps<T extends FieldValues> {
+interface HumaySelectProps<T extends FieldValues> {
   className?: string;
   name: Path<T>;
   label?: string;
@@ -91,13 +101,13 @@ interface InternalSelectProps<T extends FieldValues> {
   data: Array<{ value: string; label: string }>;
 }
 
-const InternalSelect = <T extends FieldValues>({
+const HumaySelect = memo(<T extends FieldValues>({
   className,
   name,
   label,
   placeholder,
   data,
-}: InternalSelectProps<T>) => {
+}: HumaySelectProps<T>) => {
   const form = useFormContext<T>();
 
   return (
@@ -135,10 +145,10 @@ const InternalSelect = <T extends FieldValues>({
       />
     </div>
   );
-};
+});
 
 const HumayRoleSelect = <T extends FieldValues>(
-  props: Omit<InternalSelectProps<T>, "data">
+  props: Omit<HumaySelectProps<T>, "data">
 ) => {
   const data = useMemo(
     () => [
@@ -149,7 +159,7 @@ const HumayRoleSelect = <T extends FieldValues>(
     []
   );
 
-  return <InternalSelect {...props} data={data} />;
+  return <HumaySelect {...props} data={data} />;
 };
 
 export { HumayForm, HumayTextField, HumayRoleSelect };
