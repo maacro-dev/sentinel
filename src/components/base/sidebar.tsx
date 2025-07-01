@@ -76,16 +76,16 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
 
 const HumaySidebarFooter = memo(() => {
   const navigate = useNavigate();
-  const { user, handleLogout } = useAuth();
+  const { user, handleSignOut } = useAuth();
 
-  const handleLogoutClick = useCallback(async () => {
+  const handleSignOutClick = useCallback(async () => {
     try {
-      await handleLogout();
+      await handleSignOut();
       await navigate({ to: "/login", replace: true, reloadDocument: true });
     } catch (error) {
       console.error("Failed to sign out:", error);
     }
-  }, [handleLogout, navigate]);
+  }, [handleSignOut, navigate]);
 
   return (
     <SidebarFooter>
@@ -112,7 +112,7 @@ const HumaySidebarFooter = memo(() => {
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <StaticDropdownContent user={user} handleLogoutClick={handleLogoutClick} />
+            <StaticDropdownContent user={user} handleSignOutClick={handleSignOutClick} />
           </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
@@ -123,10 +123,10 @@ const HumaySidebarFooter = memo(() => {
 const StaticDropdownContent = memo(
   ({
     user,
-    handleLogoutClick,
+    handleSignOutClick,
   }: {
     user: User | null;
-    handleLogoutClick: () => Promise<void>;
+    handleSignOutClick: () => Promise<void>;
   }) => (
     <DropdownMenuContent
       className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
@@ -160,7 +160,7 @@ const StaticDropdownContent = memo(
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem onClick={handleLogoutClick}>
+      <DropdownMenuItem onClick={handleSignOutClick}>
         <LogOut />
         Log out
       </DropdownMenuItem>

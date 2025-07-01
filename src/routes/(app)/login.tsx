@@ -23,7 +23,7 @@ export const Route = createFileRoute("/(app)/login")({
  * TODO: Refactor this so that the loading will only be show TO LOAD THE DASHBOARD UI
  */
 function LoginPage() {
-  const { handleLogin } = useAuth();
+  const { handleSignIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ function LoginPage() {
       setIsSubmitting(true);
 
       try {
-        const loggedUser = await handleLogin(fields);
+        const loggedUser = await handleSignIn(fields);
 
         if (!loggedUser) {
           showErrorToast("Couldn't sign you in", "Please check your credentials and try again.");
@@ -54,7 +54,7 @@ function LoginPage() {
         setIsSubmitting(false);
       }
     },
-    [handleLogin, isSubmitting, navigate]
+    [handleSignIn, isSubmitting, navigate]
   );
 
   return (
