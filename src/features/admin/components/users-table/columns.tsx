@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { LastActiveCell, StatusCell } from "@/components/cell";
 import { UserActionsCell } from "@/components/cell/user-actions-cell";
 import { UserSummary } from "@/lib/types";
-import { mapRole } from "@/lib/utils";
+import { ROLE_LABELS } from "@/app/config";
 
 export const useUserColumns = (): ColumnDef<UserSummary>[] => {
   return useMemo(
@@ -21,7 +21,7 @@ export const useUserColumns = (): ColumnDef<UserSummary>[] => {
       {
         accessorKey: "role",
         header: "Role",
-        accessorFn: ({ role }) => mapRole(role),
+        accessorFn: ({ role }) => ROLE_LABELS[role],
         meta: {
           style: {
             textAlign: "right",
