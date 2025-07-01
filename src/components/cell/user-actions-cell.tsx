@@ -8,10 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { UserSummary } from "@/lib/types";
+import type { User } from "@/lib/types";
 
 type UserActionsCellProps = {
-  user: UserSummary;
+  user: User;
 };
 
 export const UserActionsCell = ({ user }: UserActionsCellProps) => (

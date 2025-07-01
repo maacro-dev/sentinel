@@ -2,16 +2,16 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { LastActiveCell, StatusCell } from "@/components/cell";
 import { UserActionsCell } from "@/components/cell/user-actions-cell";
-import { UserSummary } from "@/lib/types";
+import { User } from "@/lib/types";
 import { ROLE_LABELS } from "@/app/config";
 
-export const useUserColumns = (): ColumnDef<UserSummary>[] => {
+export const useUserColumns = (): ColumnDef<User>[] => {
   return useMemo(
     () => [
       {
         id: "full_name",
         header: "Full Name",
-        accessorFn: ({ full_name }) => full_name,
+        accessorFn: ({ first_name, last_name }) => `${first_name} ${last_name}`,
         meta: {
           style: {
             textAlign: "right",
