@@ -1,28 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Role } from "@/lib/types/user";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-export const toError = (error: unknown): Error => {
-  if (error instanceof Error) return error;
-  return new Error(String(error));
-};
-
-export const mapRole = (role?: Role) => {
-  if (!role) return "";
-  switch (role) {
-    case "admin":
-      return "Admin";
-    case "data_manager":
-      return "Data Manager";
-    case "data_collector":
-      return "Data Collector";
-    default:
-      return "Error";
-  }
-};
 
 export const isMobile = window.matchMedia("(max-width: 768px)").matches;
