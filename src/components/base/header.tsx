@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { RouteGroup, RouteMetadata } from "@/lib/types";
+import { RouteBreadcrumb } from "@/lib/types";
 import { useMatches } from "@tanstack/react-router";
 import { Fragment, memo, useMemo } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
@@ -26,27 +26,20 @@ const StaticHeaderComponents = memo(() => {
 });
 
 export const HumayBaseHeader = memo(() => {
+
   const matches = useMatches();
 
-  const breadcrumbs = useMemo(
-    () =>
-      matches
-        .map((match) => {
-          const metadata = match.staticData?.metadata as RouteMetadata | undefined;
-          if (!metadata?.title) return null;
-
-          return {
-            group: metadata.group,
-            title: metadata.title,
-            url: match.pathname,
-          };
-        })
-        .filter(
-          (item): item is { group: RouteGroup; title: string; url: string } =>
-            item !== null
-        ),
-    [matches]
-  );
+  const breadcrumbs = useMemo((): RouteBreadcrumb[] => {
+    return matches.flatMap((match) => {
+      const staticData = match.staticData;
+      if (!staticData.label) return [];
+      return {
+        section: staticData.group!!,
+        title: staticData.label!!,
+        url: match.pathname,
+      };
+    });
+  }, [matches]);
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2">
@@ -61,7 +54,7 @@ export const HumayBaseHeader = memo(() => {
                   {i === 0 && (
                     <BreadcrumbItem>
                       <BreadcrumbPage className="text-muted-foreground">
-                        {crumb.group}
+                        {crumb.section}
                       </BreadcrumbPage>
                     </BreadcrumbItem>
                   )}
