@@ -5,7 +5,7 @@ type CenteredLayoutProps = {
   children?: React.ReactNode;
 };
 
-const CenteredLayout = ({ className, children }: CenteredLayoutProps) => {
+export const CenteredLayout = ({ className, children }: CenteredLayoutProps) => {
   return (
     <div
       className={cn(
@@ -18,4 +18,3 @@ const CenteredLayout = ({ className, children }: CenteredLayoutProps) => {
   );
 };
 
-export default CenteredLayout;
