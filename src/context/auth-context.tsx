@@ -7,9 +7,12 @@ import {
   useCallback,
 } from "react";
 import { useLocalStorage } from "@/hooks";
-
 import type { Role, User, UserCredentials } from "@/lib/types";
-import { fetchUserWithRoles, supabaseSignIn, supabaseSignOut } from "@/features/auth/api";
+import {
+  fetchUser,
+  supabaseSignIn,
+  supabaseSignOut,
+} from "@/api";
 
 const AUTH_KEY = "humay.sentinel.auth";
 
@@ -17,61 +20,59 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   role: Role | null;
-  handleLogin: (fields: UserCredentials) => Promise<User>;
-  handleLogout: () => Promise<void>;
+  handleSignIn: (fields: UserCredentials) => Promise<User>;
+  handleSignOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+
   const [storedUser, setStoredUser] = useLocalStorage<User | null>(AUTH_KEY, null);
-  const isAuthenticated = user ? true : false;
+  const [user, setUser] = useState<User | null>(storedUser);
+  const isAuthenticated = !!user;
 
   useEffect(() => {
-    if (storedUser && storedUser.auth_id !== user?.auth_id) {
-      setUser(storedUser);
-    }
-  }, [storedUser, user?.auth_id]);
+    setUser(storedUser);
+  }, [storedUser]);
 
-  const handleLogin = useCallback(
+  const handleSignIn = useCallback(
+
     async ({ user_id, password }: UserCredentials): Promise<User> => {
 
-      try {
-        const user = await fetchUserWithRoles(user_id);
-        const signInError = await supabaseSignIn(user.email, password);
+      const user = await fetchUser(user_id);
+      const signInError = await supabaseSignIn(user.email, password);
 
-        if (signInError) {
-
-          throw new Error(signInError.message);
-        }
-
-        setUser(user);
-        setStoredUser(user);
-
-        return user;
-      } catch (err) {
-        throw err;
+      if (signInError) {
+        throw new Error(signInError.message);
       }
+
+      setUser(user);
+      setStoredUser(user);
+      return user;
+
     },
-    [setUser, setStoredUser]
+    [setStoredUser]
   );
 
-  const handleLogout = useCallback(async (): Promise<void> => {
+  // should handle sign out error in the future wahahaha
+  const handleSignOut = useCallback(async (): Promise<void> => {
     await supabaseSignOut();
     setUser(null);
     setStoredUser(null);
   }, [setStoredUser]);
 
-  const value = useMemo<AuthContextType>(
+  const role = user?.role ?? null;
+
+  const value = useMemo(
     () => ({
       user,
       isAuthenticated,
-      role: user?.role ? user.role : null,
-      handleLogin,
-      handleLogout,
+      role,
+      handleSignIn,
+      handleSignOut,
     }),
-    [user, isAuthenticated, handleLogin, handleLogout]
+    [user, isAuthenticated, role, handleSignIn, handleSignOut]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
