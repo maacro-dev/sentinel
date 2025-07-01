@@ -8,7 +8,6 @@ export async function getAllUsers(): Promise<User[]> {
     .from("user_profiles")
     .select("*");
 
-  console.log(data, error);
   const rawData = throwOnError(data, error, "Failed to load users");
   return validateWithSchema(rawData, usersSchema, "Invalid user data");
 }
