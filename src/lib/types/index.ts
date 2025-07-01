@@ -17,7 +17,5 @@ export type {
   UserCreate,
   UserStatus,
   Role,
-  UserSummary,
-  UserSummaryArray,
 } from "./user";
 export type { Result } from "./result";
