@@ -1,26 +1,16 @@
 import { supabase } from "@/app/supabase";
-import { userDetailSchema } from "@/lib/schemas/user";
-import type { User, Result } from "@/lib/types";
+import type { User } from "@/lib/types";
 
-export async function fetchUserWithRoles(username: string): Promise<Result<User>> {
+export async function fetchUserWithRoles(userId: string): Promise<User> {
   const { data: user, error: fetchError } = await supabase
     .from("user_profiles")
     .select("*")
-    .eq("username", username)
+    .eq("user_id", userId)
     .single();
 
   if (fetchError) {
-    return {
-      success: false,
-      error: new Error("User not found. Please check your username and try again."),
-    };
+    throw new Error("User not found. Please check your username and try again.");
   }
 
-  const parseResult = userDetailSchema.safeParse(user);
-
-  if (!parseResult.success) {
-    return { success: false, error: new Error("Error parsing user data") };
-  }
-
-  return { success: true, data: parseResult.data };
+  return user;
 }
