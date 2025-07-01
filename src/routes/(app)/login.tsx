@@ -1,13 +1,14 @@
 import { useCallback, useState } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import CenteredLayout from "@/components/layouts/centered";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/context/auth-context";
-import LoginForm from "@/features/auth/components/login-form";
 import { showErrorToast, showSuccessToast } from "@/app/toast";
-import { getRedirectPath } from "@/features/auth/utils";
+
+import CenteredLayout from "@/components/layouts/centered";
 
 import type { UserCredentials } from "@/lib/types";
+import { ROLE_REDIRECT_PATHS } from "@/app/config/roles";
+import { LoginForm } from "@/components/login-form";
 
 export const Route = createFileRoute("/(app)/login")({
   head: () => ({ meta: [{ title: "Login | Humay" }] }),
@@ -24,32 +25,28 @@ function LoginPage() {
 
   const handleSubmit = useCallback(
     async (fields: UserCredentials) => {
+
       if (isSubmitting) return;
       setIsSubmitting(true);
 
       try {
-        const result = await handleLogin(fields);
+        const loggedUser = await handleLogin(fields);
 
-        if (!result.success) {
-          showErrorToast("Couldn't sign you in", result.error?.message);
+        if (!loggedUser) {
+          showErrorToast("Couldn't sign you in", "Please check your credentials and try again.");
           setIsSubmitting(false);
           return;
         }
 
-        const { data: user } = result;
-
         showSuccessToast(
-          `Welcome back, ${user.first_name}!`,
+          `Welcome back, ${loggedUser.first_name}!`,
           "You've been successfully signed in."
         );
 
-        navigate({ to: getRedirectPath(user.role), replace: true, reloadDocument: true });
-      } catch (err) {
-        const message =
-          err instanceof Error
-            ? `We encountered an issue: ${err.message}`
-            : "Something went wrong. Please try again in a moment.";
-        showErrorToast("Login failed", message);
+        navigate({ to: ROLE_REDIRECT_PATHS[loggedUser.role], replace: true, reloadDocument: true });
+
+      } catch {
+        showErrorToast("Login failed", "Please check your credentials and try again.");
         setIsSubmitting(false);
       }
     },
