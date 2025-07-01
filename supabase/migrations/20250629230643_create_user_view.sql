@@ -3,7 +3,7 @@ SELECT
     usr.auth_id,
     usr.first_name,
     usr.last_name,
-    usr.national_id,
+    usr.user_id,
     usr.date_of_birth,
     usr.status,
     role.name AS role,
