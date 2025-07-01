@@ -68,7 +68,7 @@ const HumayTextField = memo(<T extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <>
+        <div className="space-y-1.5">
           <FormControl>
             <div className="group flex flex-col gap-1">
               <FormLabel
@@ -87,7 +87,7 @@ const HumayTextField = memo(<T extends FieldValues>({
             </div>
           </FormControl>
           <FormMessage className="text-xs text-red-500 font-normal opacity-80" />
-        </>
+        </div>
       )}
     />
   );
