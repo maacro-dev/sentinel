@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -22,15 +22,16 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { cn, mapRole } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import HumayLogo from "../logo";
 import { Skeleton } from "../ui/skeleton";
 
-import type { SidebarDataGroup, User } from "@/lib/types";
+import type { Role, SidebarData, User } from "@/lib/types";
+import { getRoleLabel } from "@/utils";
 
 type HumayBaseSidebarProps = {
-  data: SidebarDataGroup[];
+  data: SidebarData;
 } & React.ComponentProps<typeof Sidebar>;
 
 export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps) => {
@@ -47,19 +48,19 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
       </SidebarHeader>
       <SidebarContent>
         {data.map((group) => (
-          <SidebarGroup key={group.title}>
-            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+          <SidebarGroup key={group.group}>
+            <SidebarGroupLabel>{group.group}</SidebarGroupLabel>
             <SidebarMenu>
               {group.items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton asChild>
                     <Link
-                      to={item.url}
+                      to={item.path}
                       className="flex items-center gap-2.5"
                       activeProps={{ className: "bg-sidebar-accent" }}
                     >
                       <item.icon className="!size-4" />
-                      <span className="text-xs">{item.title}</span>
+                      <span className="text-xs">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -97,16 +98,15 @@ const HumaySidebarFooter = memo(() => {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src="https://avatar.iran.liara.run/public/40"
-                    alt={user?.first_name}
-                  />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {user?.first_name?.charAt(0)}
+                    {user?.last_name?.charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user?.first_name}</span>
                   <span className="truncate text-muted-foreground text-xs">
-                    {mapRole(user?.role)}
+                    {getRoleLabel(user?.role as Role)}
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
@@ -137,15 +137,14 @@ const StaticDropdownContent = memo(
       <DropdownMenuLabel className="p-0 font-normal">
         <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
           <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage
-              src="https://avatar.iran.liara.run/public/40"
-              alt={user?.first_name}
-            />
-            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+            <AvatarFallback className="rounded-lg">
+              {user?.first_name?.charAt(0)}
+              {user?.last_name?.charAt(0)}
+            </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-medium">{user?.first_name}</span>
-            <span className="truncate text-xs">{user?.username}</span>
+            <span className="truncate text-xs">{user?.email}</span>
           </div>
         </div>
       </DropdownMenuLabel>
