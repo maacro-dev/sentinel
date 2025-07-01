@@ -18,6 +18,7 @@ type LoginFormProps = {
   onSubmit: (fields: UserCredentials) => void;
 };
 
+// TODO: remember textfields state on refresh
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   const form = useForm<UserCredentials>({
