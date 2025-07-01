@@ -4,7 +4,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/context/auth-context";
 import { showErrorToast, showSuccessToast } from "@/app/toast";
 
-import CenteredLayout from "@/components/layouts/centered";
+import { CenteredLayout } from "@/components/layouts";
 
 import type { UserCredentials } from "@/lib/types";
 import { ROLE_REDIRECT_PATHS } from "@/app/config/roles";

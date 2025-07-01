@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input";
-import { useUserColumns } from "@/components/users";
 import { AddUserForm } from "@/components/users/user-create-dialog";
 import { UserCreate } from "@/lib/types/user";
 import { createFileRoute } from "@tanstack/react-router";
@@ -25,7 +24,7 @@ export const Route = createFileRoute("/admin/user_management")({
 });
 
 function RouteComponent() {
-  const columns = useUserColumns();
+  // const columns = useUserColumns();
   // console.log(columns);
   // const { users } = Route.useLoaderData();
 

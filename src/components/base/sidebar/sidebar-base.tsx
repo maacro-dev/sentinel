@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { cn } from "@/lib/utils";
 import { useSidebarData } from "@/hooks";
 import HumayLogo from "@/components/logo";

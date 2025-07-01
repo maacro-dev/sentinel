@@ -1,4 +1,4 @@
-import CenteredLayout from "@/components/layouts/centered";
+import { CenteredLayout } from "@/components/layouts";
 import HumayLogo from "@/components/logo";
 import { createFileRoute } from "@tanstack/react-router";
 
