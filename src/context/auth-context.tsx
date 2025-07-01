@@ -8,9 +8,8 @@ import {
 } from "react";
 import { useSignIn, useSignOut } from "@/features/auth/mutations";
 import { useLocalStorage } from "@/hooks";
-import { toError } from "@/lib/utils";
 
-import type { Result, Role, User, UserCredentials } from "@/lib/types";
+import type { Role, User, UserCredentials } from "@/lib/types";
 
 const AUTH_KEY = "humay.sentinel.auth";
 
@@ -19,8 +18,8 @@ type AuthContextType = {
   isAuthenticated: boolean;
   role: Role | null;
   error: Error | null;
-  handleLogin: (fields: UserCredentials) => Promise<Result<User>>;
-  handleLogout: () => Promise<Result<void>>;
+  handleLogin: (fields: UserCredentials) => Promise<User>;
+  handleLogout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { mutateAsync: signOut, error: signOutError } = useSignOut();
 
   const error = signInError ?? signOutError ?? null;
-  const isAuthenticated = Boolean(user);
+  const isAuthenticated = user ? true : false;
 
   useEffect(() => {
     if (storedUser && storedUser.auth_id !== user?.auth_id) {
@@ -42,40 +41,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [storedUser, user?.auth_id]);
 
   const handleLogin = useCallback(
-    async (fields: UserCredentials): Promise<Result<User>> => {
+    async (fields: UserCredentials): Promise<User> => {
+
       try {
         const user = await signIn(fields);
 
         setUser(user);
         setStoredUser(user);
 
-        return { success: true, data: user };
+        return user;
       } catch (err) {
-        return {
-          success: false,
-          error: toError(err),
-        };
+        throw err;
       }
     },
     [signIn, setUser, setStoredUser]
   );
 
-  const handleLogout = useCallback(async (): Promise<Result<void>> => {
-    try {
-      await signOut();
-      setUser(null);
-      setStoredUser(null);
-      return { success: true };
-    } catch (err) {
-      return { success: false, error: toError(err) };
-    }
+  const handleLogout = useCallback(async (): Promise<void> => {
+    await signOut();
+    setUser(null);
+    setStoredUser(null);
   }, [signOut, setStoredUser]);
 
   const value = useMemo<AuthContextType>(
     () => ({
       user,
       isAuthenticated,
-      role: user?.role ?? null,
+      role: user?.role ? user.role : null,
       error,
       handleLogin,
       handleLogout,
