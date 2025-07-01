@@ -1,5 +1,16 @@
-export type { RouteMetadata, RouteGroup } from "./route";
-export type { SidebarDataGroup, SidebarRouteOptions, SidebarDataItem } from "./sidebar";
+export type {
+  RouteMetadata,
+  RouteGroup,
+  RouteWithStaticData,
+  RouteBreadcrumb,
+} from "./route";
+export type {
+  SidebarData,
+  SidebarSectionMap,
+  SidebarStaticData,
+  SidebarItem,
+  SidebarSection,
+} from "./sidebar";
 export type {
   User,
   UserCredentials,
