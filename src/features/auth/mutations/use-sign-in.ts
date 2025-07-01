@@ -1,18 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
-import { fetchUserWithRoles, signInUser } from "@/features/auth/api";
+import { fetchUserWithRoles, supabaseSignIn } from "@/features/auth/api";
 
-import type { Result, User, UserCredentials } from "@/lib/types";
+import type { User, UserCredentials } from "@/lib/types";
 
 export const useSignIn = () =>
   useMutation<User, Error, UserCredentials>({
-    mutationFn: async ({ username, password }: UserCredentials) => {
-      const res: Result<User> = await fetchUserWithRoles(username);
-      if (!res.success) {
-        throw res.error;
-      }
-      const user = res.data;
+    mutationFn: async ({ user_id, password }: UserCredentials) => {
 
-      const signInError = await signInUser(user.email, password);
+      const user = await fetchUserWithRoles(user_id);
+      const signInError = await supabaseSignIn(user.email, password);
+
       if (signInError) {
         throw new Error(signInError.message);
       }
