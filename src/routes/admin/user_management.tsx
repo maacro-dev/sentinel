@@ -1,9 +1,5 @@
-import { DataTable } from "@/components/data-table";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetchAllUsers } from "@/features/admin/api/fetch-all-users";
 import { AddUserForm } from "@/features/admin/components/add-user-dialog";
-import { useUserColumns } from "@/features/admin/components/users-table/columns";
 import { UserCreate } from "@/lib/types/user";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search as SearchIcon, Users } from "lucide-react";
@@ -14,27 +10,22 @@ export const Route = createFileRoute("/admin/user_management")({
     meta: [{ title: "User Management | Humay" }],
   }),
   loader: async () => {
-    const result = await fetchAllUsers();
-    if (!result.success) throw result.error;
-    return { users: result.data };
+    // const result = await fetchAllUsers();
+    // if (!result.success) throw result.error;
+    // return { users: result.data };
   },
   staticData: {
-    metadata: {
-      group: "Access Control",
-      title: "User Management",
-      icon: Users,
-      sidebarOptions: {
-        showInSidebar: true,
-        order: 1,
-      },
-      for: "admin",
-    },
+    routeFor: "admin",
+    label: "User Management",
+    icon: Users,
+    group: "Access Control",
+    navItemOrder: 1,
   },
 });
 
 function RouteComponent() {
-  const columns = useUserColumns();
-  const { users } = Route.useLoaderData();
+  // const columns = useUserColumns();
+  // const { users } = Route.useLoaderData();
 
   const onSubmit = (fields: UserCreate) => {
     console.log(fields);
@@ -57,7 +48,7 @@ function RouteComponent() {
           <Input placeholder="Search" />
         </div>
       </div>
-      <Tabs defaultValue="all">
+      {/* <Tabs defaultValue="all">
         <TabsList className="p-1">
           <TabsTrigger
             className="px-2 py-1 min-w-16 text-muted-foreground data-[state=active]:text-primary data-[state=active]:shadow-none"
@@ -110,7 +101,7 @@ function RouteComponent() {
             <DataTable columns={columns} data={users.filter((u) => u.role === "admin")} />
           </div>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </div>
   );
 }
