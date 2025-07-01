@@ -26,7 +26,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   });
 
   return (
-    <Card className="w-96">
+    <Card className="w-96 shadow-none border-none">
       <CardHeader className="flex flex-col gap-4">
         <Logo />
         <div className="flex flex-col gap-1">
