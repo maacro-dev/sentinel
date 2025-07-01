@@ -7,12 +7,9 @@ import {
   useCallback,
 } from "react";
 import { useLocalStorage } from "@/hooks";
+import { supabaseSignIn, supabaseSignOut } from "@/api/auth";
+import { getUserById } from "@/api/users";
 import type { Role, User, UserCredentials } from "@/lib/types";
-import {
-  fetchUser,
-  supabaseSignIn,
-  supabaseSignOut,
-} from "@/api";
 
 const AUTH_KEY = "humay.sentinel.auth";
 
@@ -40,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     async ({ user_id, password }: UserCredentials): Promise<User> => {
 
-      const user = await fetchUser(user_id);
+      const user = await getUserById(user_id);
       const signInError = await supabaseSignIn(user.email, password);
 
       if (signInError) {
