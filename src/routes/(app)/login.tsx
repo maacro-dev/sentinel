@@ -18,6 +18,10 @@ export const Route = createFileRoute("/(app)/login")({
   component: LoginPage,
 });
 
+/**
+ * 
+ * TODO: Refactor this so that the loading will only be show TO LOAD THE DASHBOARD UI
+ */
 function LoginPage() {
   const { handleLogin } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
