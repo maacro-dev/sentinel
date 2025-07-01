@@ -8,37 +8,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { userCredentialsSchema } from "@/lib/schemas/user";
-import { HumayForm, HumayTextField } from "@/components/forms";
-import HumayLogo from "@/components/logo";
 
-import type { UserCredentials } from "@/lib/types";
+import { HumayForm, HumayTextField } from "@/components/forms";
+import { UserCredentials } from "@/lib/types";
+import { userCredentialsSchema } from "@/lib/schemas/user";
+import Logo from "./logo";
 
 type LoginFormProps = {
   onSubmit: (fields: UserCredentials) => void;
 };
 
-const LoginForm = ({ onSubmit }: LoginFormProps) => {
+export const LoginForm = ({ onSubmit }: LoginFormProps) => {
+
   const form = useForm<UserCredentials>({
     resolver: zodResolver(userCredentialsSchema),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { user_id: "", password: "" },
   });
 
   return (
     <Card className="w-96">
-      <CardHeader className="space-y-4">
-        <HumayLogo />
-        <div className="space-y-1">
-          <CardTitle className="text-xl ">Login to your account</CardTitle>
+      <CardHeader className="flex flex-col gap-4">
+        <Logo />
+        <div className="flex flex-col gap-1">
+          <CardTitle>Login to your account</CardTitle>
           <CardDescription>Enter your credentials below to login</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
         <HumayForm form={form} onSubmit={onSubmit}>
           <HumayTextField
-            name="username"
-            label="Username"
-            placeholder="Enter your username"
+            name="user_id"
+            label="User ID"
+            placeholder="Enter your user ID"
             type="text"
           />
           <HumayTextField
@@ -54,4 +55,3 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
   );
 };
 
-export default LoginForm;
