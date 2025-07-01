@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { HeaderBreadcrumbItem } from "@/components/base/header/header-breadcrumbs";
+import { HeaderBreadcrumbItem } from "./header-breadcrumbs";
 import { useBreadcrumbs } from "@/hooks";
 
 export const BaseHeader = memo(() => {

@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, } from "@tanstack/react-router";
 import { protectRoute } from "@/features/auth/utils";
-import { BaseSidebar } from "@/components/base";
+import { BaseSidebar } from "@/components/layouts/base";
 import { BaseLayout } from "@/components/layouts";
 
 export const Route = createFileRoute("/admin")({

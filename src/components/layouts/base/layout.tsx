@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { BaseContent } from "../base/content";
+import { BaseContent } from "./content";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { FadeIn } from "@/components/animation";
-import { BaseHeader, HeaderSkeleton } from "@/components/base/header";
-import { SidebarSkeleton } from "@/components/base/sidebar";
-import type { BaseSidebarProps } from "@/components/base/sidebar";
+import { BaseHeader, HeaderSkeleton } from "./header";
+import { SidebarSkeleton } from "./sidebar";
+import { BaseSidebarProps } from "./sidebar";
 
 type HumayBaseLayoutProps = {
   sidebarSlot?: React.ReactElement<BaseSidebarProps>;

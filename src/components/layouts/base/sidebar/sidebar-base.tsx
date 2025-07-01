@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { useSidebarData } from "@/hooks";
 import HumayLogo from "@/components/logo";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SidebarUserNavigation } from "@/components/base/sidebar";
+import { SidebarUserNavigation } from "./sidebar-user-nav";
 
 import type { Role, SidebarData } from "@/lib/types";
 

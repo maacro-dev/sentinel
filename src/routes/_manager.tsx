@@ -1,5 +1,5 @@
 import { BaseLayout } from "@/components/layouts";
-import { BaseSidebar } from "@/components/base";
+import { BaseSidebar } from "@/components/layouts/base";
 import { protectRoute } from "@/features/auth/utils";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 

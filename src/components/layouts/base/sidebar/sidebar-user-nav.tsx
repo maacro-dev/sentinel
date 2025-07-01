@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { SidebarUserNavigationDropdown } from "@/components/base/sidebar";
+import { SidebarUserNavigationDropdown } from "./sidebar-user-dropdown";
 import { useAuth } from "@/context/auth-context";
 import { getRoleLabel } from "@/utils";
 import { useNavigate } from "@tanstack/react-router";
