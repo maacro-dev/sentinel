@@ -4,9 +4,12 @@ import { RouteGroup } from "@/lib/types/route";
 import { useAuth } from "@/context/auth-context";
 import { LucideIcon } from "lucide-react";
 import { Role } from "@/lib/types/user";
+import { QueryClient } from "@tanstack/react-query";
+import { queryClient } from "@/app/query-client";
 
 export type RouterContext = {
   auth: ReturnType<typeof useAuth>;
+  queryClient: QueryClient;
 };
 
 // https://github.com/TanStack/router/discussions/824#discussioncomment-12342295
@@ -20,6 +23,7 @@ export const router = createRouter({
   scrollRestoration: true,
   context: {
     auth: undefined!,
+    queryClient: queryClient,
   },
 });
 
