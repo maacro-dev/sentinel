@@ -1,5 +1,5 @@
 import { supabase } from "@/app/supabase";
-import { throwOnError, validateWithSchema } from "../utils";
+import { throwOnError, validateWithSchema } from "@/api/utils";
 import type { User } from "@/lib/types";
 import { usersSchema } from "@/lib/schemas/user";
 
