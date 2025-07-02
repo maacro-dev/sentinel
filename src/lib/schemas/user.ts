@@ -38,10 +38,9 @@ export const userCredentialsSchema = object({
 });
 
 export const userCreateSchema = object({
+  user_id: userIdSchema,
   first_name: string().check(minLength(1)),
   last_name: string().check(minLength(1)),
-  username: string().check(minLength(1)),
-  status: userStatusSchema,
   role: userRoleSchema,
   email: email(),
 });
