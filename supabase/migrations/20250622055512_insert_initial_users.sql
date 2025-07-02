@@ -50,18 +50,29 @@ VALUES
     DEFAULT, 'c2d8d22f-3987-4277-8945-634822e39320'
   );
 
-INSERT INTO public.users 
+INSERT INTO public.users (
+  id, 
+  auth_id, 
+  role_id, 
+  first_name, 
+  last_name, 
+  date_of_birth, 
+  email, 
+  status, 
+  created_at, 
+  updated_at
+)
 VALUES 
   (
     1, '7ba8a45d-de4c-47e1-ae23-be9b263dbfd9', 
-    'DA0001', 1, 'System', 'Administrator', 
+    1, 'System', 'Administrator', 
     '1990-01-01', 'admin@humayapp.com', 
     'active', '2025-06-26 09:12:16+00', 
     '2025-06-26 09:12:17+00'
   ),
   (
     2, 'c2d8d22f-3987-4277-8945-634822e39320', 
-    'DA0002', 2, 'Data', 'Manager', 
+    2, 'Data', 'Manager', 
     '1990-01-01', 'manager@humayapp.com', 
     'active', '2025-06-26 09:12:16+00', 
     '2025-06-26 09:12:17+00'
