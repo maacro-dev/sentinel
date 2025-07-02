@@ -52,6 +52,9 @@ type HumayTextFieldProps<T extends FieldValues> = {
   name: Path<T>;
   placeholder?: string;
   type?: TextFieldTypes;
+  className?: string;
+  disabled?: boolean;
+  note?: string;
 };
 
 const HumayTextField = memo(<T extends FieldValues>({
@@ -59,6 +62,9 @@ const HumayTextField = memo(<T extends FieldValues>({
   name,
   placeholder,
   type = "text",
+  className,
+  disabled,
+  note,
 }: HumayTextFieldProps<T>) => {
 
   const form = useFormContext<T>();
@@ -70,19 +76,25 @@ const HumayTextField = memo(<T extends FieldValues>({
       render={({ field }) => (
         <div className="space-y-1.5">
           <FormControl>
-            <div className="group flex flex-col gap-1">
-              <FormLabel
-                htmlFor={name}
-                className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
-              >
-                {label}
-              </FormLabel>
+            <div className="group flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <FormLabel
+                  htmlFor={name}
+                  className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
+                >
+                  {label}
+                </FormLabel>
+                {note && (
+                  <p className="text-[0.45rem] tracking-loose uppercase text-muted-foreground/60">{note}</p>
+                )}
+              </div>
               <Input
                 id={name}
                 type={type}
                 placeholder={placeholder}
                 {...field}
-                className="md:text-xs"
+                className={cn("md:text-xs", className)}
+                disabled={disabled}
               />
             </div>
           </FormControl>
