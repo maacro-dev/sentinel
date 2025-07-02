@@ -25,10 +25,10 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
   const form = useForm<UserCreate>({
     resolver: zodResolver(userCreateSchema),
     defaultValues: {
+      user_id: "DA6969",
       first_name: "",
       last_name: "",
-      username: "",
-      status: "active",
+      role: "data_manager",
       email: "",
     },
   });
