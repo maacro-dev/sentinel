@@ -6,3 +6,5 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+export const IS_DEV = import.meta.env.DEV;
