@@ -1,4 +1,4 @@
-import { usersQueryOptions } from "@/api/users";
+import { generateUserIdQueryOptions, usersQueryOptions } from "@/api/users";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,8 +14,9 @@ export const Route = createFileRoute("/admin/user_management")({
   head: () => ({
     meta: [{ title: "User Management | Humay" }],
   }),
-  loader: async ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(usersQueryOptions);
+  loader: ({ context: { queryClient } }) => {
+    queryClient.prefetchQuery(generateUserIdQueryOptions())
+    queryClient.ensureQueryData(usersQueryOptions())
   },
   staticData: {
     routeFor: "admin",
@@ -27,11 +28,13 @@ export const Route = createFileRoute("/admin/user_management")({
 });
 
 function RouteComponent() {
-  const { data: users } = useSuspenseQuery(usersQueryOptions);
+
+  const { data: users } = useSuspenseQuery(usersQueryOptions())
+
   const columns = useUserColumns();
 
-  const onSubmit = (fields: UserCreate) => {
-    console.log(fields);
+  const onSubmit = async (fields: UserCreate) => {
+    console.log(fields)
   };
 
   return (
