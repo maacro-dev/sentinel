@@ -15,7 +15,7 @@ export const userRoleSchema = enum_(["data_collector", "data_manager", "admin", 
 
 export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 
-export const userIdSchema = string().check(regex(/^DA\d{4}$/));
+export const userIdSchema = string().check(regex(/^DA\d{5}$/));
 
 export const userSchema = object({
   auth_id: uuidv4(),
