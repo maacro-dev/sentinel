@@ -15,7 +15,6 @@ import { userCreateSchema } from "@/lib/schemas/user";
 import { UserCreate } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Separator } from "@/components/ui/separator";
 
 interface AddUserFormProps {
   onSubmit: (fields: UserCreate) => void;
@@ -35,60 +34,64 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
 
   return (
     <Dialog>
-      <HumayForm form={form} onSubmit={onSubmit}>
-        <DialogTrigger asChild>
-          <Button variant="default">
-            <Plus />
-            Add User
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
+      <DialogTrigger asChild>
+        <Button variant="default">
+          <Plus />
+          Add User
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="p-6 max-w-lg">
+        <HumayForm form={form} onSubmit={onSubmit}>
           <DialogHeader>
             <DialogTitle>Add User</DialogTitle>
-            <DialogDescription>Add a new user to the system.</DialogDescription>
+            <DialogDescription>
+              Add a new user to the system.
+            </DialogDescription>
           </DialogHeader>
-          <Separator className="mb-0.5 bg-transparent" />
-          <div className="flex gap-4 h-full">
-            <div className="flex flex-col gap-4 ">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-4">
               <HumayTextField
-                name="username"
-                label="Username"
-                placeholder="Enter your username"
+                name="user_id"
+                label="User ID"
                 type="text"
+                note="Auto-generated"
+                disabled
               />
               <HumayTextField
                 name="email"
                 label="Email"
-                placeholder="Enter your email"
+                placeholder="user@humayapp.com"
                 type="email"
               />
             </div>
-            <Separator className="opacity-60 h-full" orientation="vertical" />
             <div className="flex flex-col gap-4">
               <HumayTextField
                 name="first_name"
                 label="First Name"
-                placeholder="Enter your first name"
+                placeholder="e.g. Lebron"
                 type="text"
               />
               <HumayTextField
                 name="last_name"
                 label="Last Name"
-                placeholder="Enter your last name"
+                placeholder="e.g. James"
                 type="text"
               />
-              <HumayRoleSelect name="role" label="Role" placeholder="Select a role" />
+              <HumayRoleSelect
+                name="role"
+                label="Role"
+                placeholder="Choose a role"
+              />
             </div>
           </div>
-          <Separator className="mb-0.5 bg-transparent" />
-          <DialogFooter>
+          <DialogFooter className="pt-2">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button type="submit">Save changes</Button>
           </DialogFooter>
-        </DialogContent>
-      </HumayForm>
+        </HumayForm>
+      </DialogContent>
     </Dialog>
   );
 }
