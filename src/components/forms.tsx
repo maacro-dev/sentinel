@@ -136,14 +136,14 @@ const HumaySelect = memo(<T extends FieldValues>({
                 onValueChange={field.onChange}
                 name={field.name}
               >
-                <SelectTrigger className={cn("w-full", className)}>
-                  <SelectValue placeholder={placeholder} />
+                <SelectTrigger className={cn("w-full text-xs", className)}>
+                  <SelectValue className="text-base" placeholder={placeholder} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Roles</SelectLabel>
                     {data.map(({ value, label }) => (
-                      <SelectItem key={value} value={value}>
+                      <SelectItem key={value} value={value} className="text-xs">
                         {label}
                       </SelectItem>
                     ))}
@@ -164,9 +164,9 @@ const HumayRoleSelect = <T extends FieldValues>(
 ) => {
   const data = useMemo(
     () => [
-      { value: "1", label: "Admin" },
-      { value: "3", label: "Data Manager" },
-      { value: "2", label: "Data Collector" },
+      { value: "admin", label: "Admin" },
+      { value: "data_manager", label: "Data Manager" },
+      { value: "data_collector", label: "Data Collector" },
     ],
     []
   );
