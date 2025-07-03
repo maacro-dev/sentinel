@@ -57,7 +57,7 @@ INSERT INTO public.users (
   first_name, 
   last_name, 
   date_of_birth, 
-  email, 
+  -- email, 
   status, 
   created_at, 
   updated_at
@@ -66,14 +66,14 @@ VALUES
   (
     1, '7ba8a45d-de4c-47e1-ae23-be9b263dbfd9', 
     1, 'System', 'Administrator', 
-    '1990-01-01', 'admin@humayapp.com', 
+    '1990-01-01', 
     'active', '2025-06-26 09:12:16+00', 
     '2025-06-26 09:12:17+00'
   ),
   (
     2, 'c2d8d22f-3987-4277-8945-634822e39320', 
     2, 'Data', 'Manager', 
-    '1990-01-01', 'manager@humayapp.com', 
+    '1990-01-01', 
     'active', '2025-06-26 09:12:16+00', 
     '2025-06-26 09:12:17+00'
   );
