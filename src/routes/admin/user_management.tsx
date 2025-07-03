@@ -1,11 +1,13 @@
-import { generateUserIdQueryOptions, usersQueryOptions } from "@/api/users";
+import { usersQueryOptions } from "@/api/users";
+import { createUser } from "@/api/users/create-user";
+import { showErrorToast, showSuccessToast } from "@/app/toast";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddUserForm } from "@/components/users/user-create-dialog";
 import { useUserColumns } from "@/components/users/user-table/user-table-columns";
 import { UserCreate } from "@/lib/types/user";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search as SearchIcon, Users } from "lucide-react";
 
@@ -14,10 +16,7 @@ export const Route = createFileRoute("/admin/user_management")({
   head: () => ({
     meta: [{ title: "User Management | Humay" }],
   }),
-  loader: ({ context: { queryClient } }) => {
-    queryClient.prefetchQuery(generateUserIdQueryOptions())
-    queryClient.ensureQueryData(usersQueryOptions())
-  },
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(usersQueryOptions()),
   staticData: {
     routeFor: "admin",
     label: "User Management",
@@ -30,11 +29,19 @@ export const Route = createFileRoute("/admin/user_management")({
 function RouteComponent() {
 
   const { data: users } = useSuspenseQuery(usersQueryOptions())
+  const queryClient = useQueryClient()
 
   const columns = useUserColumns();
 
   const onSubmit = async (fields: UserCreate) => {
-    console.log(fields)
+    try {
+      await createUser(fields)
+      await queryClient.invalidateQueries(usersQueryOptions())
+      showSuccessToast("Success", "User created successfully")
+    } catch (error) {
+      showErrorToast("Error", error instanceof Error ? error.message : "Unknown error")
+      console.log(fields)
+    }
   };
 
   return (
