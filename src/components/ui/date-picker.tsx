@@ -31,15 +31,16 @@ export function DatePicker({ control, name }: DatePickerProps) {
               data-empty={!field.value}
               className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
             >
-              <CalendarIcon className="size-4 text-muted-foreground/60 mr-2" />
-              <span className="text-xs text-muted-foreground/60">
+              <CalendarIcon className="size-4 text-muted-foreground/60" />
                 {field.value ? (
-                  format(field.value, "PPP")
+                  <span className="text-xs text-primary">
+                    {format(field.value, "PPP")}
+                  </span>
                 ) : (
-                  "Pick a date"
+                  <span className="text-xs text-muted-foreground/60">
+                    Pick a date
+                  </span>
                 )}
-              </span>
-
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
