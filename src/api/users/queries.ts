@@ -1,5 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getAllUsers, getUserById, getNextUserId } from "./";
+import { getAllUsers } from "./get-all-users";
+import { getNextUserId } from "./generate-user-id";
+import { getUserById } from "./get-user-by-id";
 
 export const usersQueryOptions = () => 
   queryOptions({
