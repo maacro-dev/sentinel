@@ -39,8 +39,8 @@ export const useUserColumns = (): ColumnDef<User>[] => {
         },
       },
       {
-        accessorKey: "last_active",
-        header: "Last Active",
+        accessorKey: "last_sign_in_at",
+        header: "Last Sign In",
         cell: ({ row }) => <LastActiveCell lastActive={row.original.last_sign_in_at} />,
         meta: {
           style: {
