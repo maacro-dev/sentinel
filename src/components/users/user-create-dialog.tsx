@@ -15,9 +15,7 @@ import { userCreateSchema } from "@/lib/schemas/user";
 import { UserCreate } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { generateUserIdQueryOptions } from "@/api/users";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useState } from "react";
 
 interface AddUserFormProps {
   onSubmit: (fields: UserCreate) => void;
@@ -25,20 +23,12 @@ interface AddUserFormProps {
 
 export function AddUserForm({ onSubmit }: AddUserFormProps) {
 
-  const { data: userId, isLoading: isLoadingUserId } = useSuspenseQuery(generateUserIdQueryOptions())
-
-
-  // Set user id when it is generated [should refactor]
-  useEffect(() => {
-    if (userId && !form.getValues().user_id) {
-      form.reset({ ...form.getValues(), user_id: userId })
-    }
-  }, [userId])
+  const [isOpen, setIsOpen] = useState(false)
 
   const form = useForm<UserCreate>({
     resolver: zodResolver(userCreateSchema),
     defaultValues: {
-      user_id: userId,
+      // user_id: userId,
       first_name: "",
       last_name: "",
       role: "data_manager",
@@ -47,8 +37,13 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
     },
   });
 
+  const handleSubmit = (fields: UserCreate) => {
+    onSubmit(fields)
+    setIsOpen(false)
+  }
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="default">
           <Plus />
@@ -56,7 +51,7 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="p-6 max-w-lg">
-        <HumayForm form={form} onSubmit={onSubmit}>
+        <HumayForm form={form} onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add User</DialogTitle>
             <DialogDescription>
@@ -65,14 +60,6 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-4">
-              <HumayTextField
-                name="user_id"
-                label="User ID"
-                type="text"
-                note="Auto-generated"
-                disabled
-                placeholder={isLoadingUserId ? 'Loading...' : undefined}
-              />
               <HumayTextField
                 name="email"
                 label="Email"
