@@ -60,7 +60,6 @@ export type Database = {
           auth_id: string | null
           created_at: string
           date_of_birth: string
-          email: string
           first_name: string
           id: number
           last_name: string
@@ -73,7 +72,6 @@ export type Database = {
           auth_id?: string | null
           created_at?: string
           date_of_birth: string
-          email: string
           first_name: string
           id?: number
           last_name: string
@@ -86,7 +84,6 @@ export type Database = {
           auth_id?: string | null
           created_at?: string
           date_of_birth?: string
-          email?: string
           first_name?: string
           id?: number
           last_name?: string
