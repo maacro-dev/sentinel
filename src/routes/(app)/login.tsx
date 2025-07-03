@@ -47,7 +47,7 @@ function LoginPage() {
           "You've been successfully signed in."
         );
 
-        navigate({ to: ROLE_REDIRECT_PATHS[loggedUser.role], replace: true, reloadDocument: true });
+        navigate({ to: ROLE_REDIRECT_PATHS[loggedUser.role], replace: true });
 
       } catch {
         showErrorToast("Login failed", "Please check your credentials and try again.");
