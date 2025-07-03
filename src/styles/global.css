@@ -1,10 +1,5 @@
 @import "tailwindcss";
-@import "@/assets/fonts/fonts.css";
 @import "tw-animate-css";
-
-html {
-  font-family: var(--font-poppins);
-}
 
 @custom-variant dark (&:is(.dark *));
 
