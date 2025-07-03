@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "./ui/date-picker";
 
 type TextFieldTypes = "text" | "password" | "email";
 
@@ -123,8 +124,14 @@ const HumaySelect = memo(<T extends FieldValues>({
   const form = useFormContext<T>();
 
   return (
-    <div className="space-y-2">
-      <FormLabel>{label}</FormLabel>
+    <div className="space-y-1.5">
+      <FormLabel
+        htmlFor={name}
+        className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
+      >
+        {label}
+      </FormLabel>
+
       <FormField
         control={form.control}
         name={name}
@@ -174,4 +181,25 @@ const HumayRoleSelect = <T extends FieldValues>(
   return <HumaySelect {...props} data={data} />;
 };
 
-export { HumayForm, HumayTextField, HumayRoleSelect };
+interface HumayDatePickerProps {
+  label: string;
+  name: string;
+  placeholder?: string;
+}
+
+const HumayDatePicker = ({ name, label }: HumayDatePickerProps) => {
+  const form = useFormContext();
+  return (
+    <div className="space-y-1.5">
+      <FormLabel
+        htmlFor={name}
+        className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
+      >
+        {label}
+      </FormLabel>
+      <DatePicker control={form.control} name={name} />
+    </div>
+  );
+};
+
+export { HumayForm, HumayTextField, HumayRoleSelect, HumayDatePicker };
