@@ -1,5 +1,12 @@
 import { Role } from "@/lib/types";
 
+export const ROLE_IDS: Record<Role, number> = {
+  admin: 1,
+  data_manager: 2,
+  data_collector: 3,
+  "*": -1,
+};
+
 export const ROLE_LABELS: Record<Role, string> = {
   admin: "Admin",
   data_manager: "Data Manager",
