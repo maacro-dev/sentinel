@@ -42,5 +42,6 @@ export const userCreateSchema = object({
   first_name: string().check(minLength(1)),
   last_name: string().check(minLength(1)),
   role: userRoleSchema,
+  date_of_birth: iso.date(),
   email: email(),
 });

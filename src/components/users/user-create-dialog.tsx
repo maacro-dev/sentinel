@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { HumayForm, HumayRoleSelect, HumayTextField } from "@/components/forms";
+import { HumayDatePicker, HumayForm, HumayRoleSelect, HumayTextField } from "@/components/forms";
 import { userCreateSchema } from "@/lib/schemas/user";
 import { UserCreate } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,6 +43,7 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
       last_name: "",
       role: "data_manager",
       email: "",
+      date_of_birth: "",
     },
   });
 
@@ -78,6 +79,11 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
                 placeholder="user@humayapp.com"
                 type="email"
               />
+              <HumayRoleSelect
+                name="role"
+                label="Role"
+                placeholder="Choose a role"
+              />
             </div>
             <div className="flex flex-col gap-4">
               <HumayTextField
@@ -92,11 +98,7 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
                 placeholder="e.g. James"
                 type="text"
               />
-              <HumayRoleSelect
-                name="role"
-                label="Role"
-                placeholder="Choose a role"
-              />
+              <HumayDatePicker name="date_of_birth" label="Date of Birth" />
             </div>
           </div>
           <DialogFooter className="pt-2">
