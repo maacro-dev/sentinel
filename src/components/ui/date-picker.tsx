@@ -9,8 +9,8 @@ import {
 import { formatDate } from "@/utils/date/format";
 
 interface DatePickerProps {
-  selected: Date;
-  onSelect: (date: Date) => void;
+  selected: string;
+  onSelect: (date: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
 }
@@ -18,7 +18,7 @@ interface DatePickerProps {
 export function DatePicker({ selected, onSelect, open, setOpen }: DatePickerProps) {
   
   const handleSelect = (date: Date | undefined) => {
-    onSelect(date!)
+    onSelect(date!.toISOString().slice(0, 10))
     setOpen(false)
   }
 
