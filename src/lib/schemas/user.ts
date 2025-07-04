@@ -15,7 +15,7 @@ export const userRoleSchema = enum_(["data_collector", "data_manager", "admin", 
 
 export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 
-export const userIdSchema = string().check(regex(/^DA\d{5}$/));
+export const userIdSchema = string().check(regex(/^DA\d{5}$/, "User ID must be in the format DA00000"));
 
 export const userSchema = object({
   auth_id: uuidv4(),
@@ -38,9 +38,9 @@ export const userCredentialsSchema = object({
 });
 
 export const userCreateSchema = object({
-  first_name: string().check(minLength(1)),
-  last_name: string().check(minLength(1)),
+  first_name: string().check(minLength(1, "First name is required")),
+  last_name: string().check(minLength(1, "Last name is required")),
   role: userRoleSchema,
-  date_of_birth: iso.date(),
-  email: email(),
+  date_of_birth: iso.date("Date of birth is required" ),
+  email: email("Please enter a valid email address"),
 });
