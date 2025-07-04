@@ -8,6 +8,7 @@ import {
   Form,
   FormControl,
   FormField,
+  FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
@@ -70,39 +71,37 @@ const HumayTextField = memo(<T extends FieldValues>({
   note,
 }: HumayTextFieldProps<T>) => {
 
-  const form = useFormContext<T>();
+  const { control } = useFormContext<T>();
 
   return (
     <FormField
-      control={form.control}
+      control={control}
       name={name}
       render={({ field }) => (
-        <div className="space-y-1.5">
+        <FormItem className="group flex flex-col gap-2 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <FormLabel
+              htmlFor={name}
+              className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
+            >
+              {label}
+            </FormLabel>
+            {note && (
+              <p className="text-[0.45rem] tracking-loose uppercase text-muted-foreground/60">{note}</p>
+            )} 
+          </div>
           <FormControl>
-            <div className="group flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <FormLabel
-                  htmlFor={name}
-                  className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
-                >
-                  {label}
-                </FormLabel>
-                {note && (
-                  <p className="text-[0.45rem] tracking-loose uppercase text-muted-foreground/60">{note}</p>
-                )}
-              </div>
-              <Input
-                id={name}
-                type={type}
-                placeholder={placeholder}
-                {...field}
-                className={cn("md:text-xs", className)}
-                disabled={disabled}
-              />
-            </div>
+            <Input
+              id={name}
+              type={type}
+              placeholder={placeholder}
+              {...field}
+              className={cn("md:text-xs", className)}
+              disabled={disabled}
+            />
           </FormControl>
           <FormMessage className={errorMessage} />
-        </div>
+        </FormItem>
       )}
     />
   );
