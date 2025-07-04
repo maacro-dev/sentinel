@@ -1,13 +1,17 @@
 import { supabase } from "@/app/supabase";
-import { throwOnError, validateWithSchema } from "@/api/utils";
-import type { User } from "@/lib/types";
 import { usersSchema } from "@/lib/schemas/user";
+import { validateResponse } from "@/utils";
+import type { Result, User } from "@/lib/types";
 
-export async function getAllUsers(): Promise<User[]> {
-  const { data, error } = await supabase
+export async function getAllUsers(): Promise<Result<User[]>> {
+  const { data: users, error: usersError } = await supabase
     .from("user_profiles")
     .select("*");
 
-  const rawData = throwOnError(data, error, "Failed to load users");
-  return validateWithSchema(rawData, usersSchema, "Invalid user data");
+  return validateResponse({ 
+    data: users, 
+    schema: usersSchema, 
+    error: usersError, 
+    fallbackMsg: "Failed to load users",
+  });
 }
