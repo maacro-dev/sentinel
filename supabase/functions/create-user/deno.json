@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "@constants": "../_shared/constants.ts",
+    "@clients": "../_shared/clients.ts",
+    "@http": "../_shared/http.ts",
+    "zod/v4-mini": "npm:zod@latest/v4-mini"
+  }
+}
