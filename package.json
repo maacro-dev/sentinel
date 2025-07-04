@@ -37,11 +37,11 @@
     "react-day-picker": "^9.7.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.59.0",
-    "sonner": "^2.0.5",
+    "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
-    "tw-animate-css": "^1.3.4",
-    "zod": "^3.25.71"
+    "tw-animate-css": "^1.3.5",
+    "zod": "^3.25.73"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
@@ -64,5 +64,5 @@
     "typescript-eslint": "^8.35.1",
     "vite": "^6.3.5"
   },
-  "packageManager": "pnpm@10.12.1"
+  "packageManager": "pnpm@10.12.4"
 }
