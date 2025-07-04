@@ -45,7 +45,7 @@ export function DatePicker({ selected, onSelect, open, setOpen }: DatePickerProp
           <PopoverContent className="w-auto p-0">
             <Calendar
               mode="single"
-              selected={selected}
+              selected={new Date(selected)}
               onSelect={handleSelect}
             />
           </PopoverContent>
