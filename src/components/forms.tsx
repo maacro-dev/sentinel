@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { UseFormReturn, FieldValues, Path, useFormContext } from "react-hook-form";
-import { ReactNode, memo, useMemo } from "react";
+import { ReactNode, memo, useMemo, useState } from "react";
 import { Input } from "./ui/input";
 import {
   Select,
@@ -27,6 +27,8 @@ import { cn } from "@/lib/utils";
 import { DatePicker } from "./ui/date-picker";
 
 type TextFieldTypes = "text" | "password" | "email";
+
+const errorMessage = "text-xs text-red-500 font-normal opacity-80"
 
 type HumayFormProps<T extends FieldValues> = {
   form: UseFormReturn<T>;
@@ -99,7 +101,7 @@ const HumayTextField = memo(<T extends FieldValues>({
               />
             </div>
           </FormControl>
-          <FormMessage className="text-xs text-red-500 font-normal opacity-80" />
+          <FormMessage className={errorMessage} />
         </div>
       )}
     />
@@ -158,7 +160,7 @@ const HumaySelect = memo(<T extends FieldValues>({
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage />
+            <FormMessage className={errorMessage} />
           </>
         )}
       />
@@ -189,6 +191,8 @@ interface HumayDatePickerProps {
 
 const HumayDatePicker = ({ name, label }: HumayDatePickerProps) => {
   const form = useFormContext();
+  const [open, setOpen] = useState(false)
+
   return (
     <div className="space-y-1.5">
       <FormLabel
@@ -197,7 +201,23 @@ const HumayDatePicker = ({ name, label }: HumayDatePickerProps) => {
       >
         {label}
       </FormLabel>
-      <DatePicker control={form.control} name={name} />
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <>
+          <FormControl>
+            <DatePicker 
+              selected={field.value} 
+              onSelect={field.onChange} 
+              open={open} 
+              setOpen={setOpen} 
+            />
+          </FormControl>
+          <FormMessage className={errorMessage} />
+          </>
+        )}
+      />
     </div>
   );
 };

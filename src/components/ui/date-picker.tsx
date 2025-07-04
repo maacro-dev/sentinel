@@ -8,33 +8,33 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Control, Controller } from "react-hook-form"
-import { useState } from "react"
 
 interface DatePickerProps {
-  control: Control<any>;
-  name: string;
+  selected: Date;
+  onSelect: (date: Date) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
-export function DatePicker({ control, name }: DatePickerProps) {
-  const [open, setOpen] = useState(false)
+export function DatePicker({ selected, onSelect, open, setOpen }: DatePickerProps) {
+  
+  const handleSelect = (date: Date | undefined) => {
+    onSelect(date!)
+    setOpen(false)
+  }
 
   return (
-    <Controller
-      control={control}
-      name={name}
-      render={({ field }) => (
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              data-empty={!field.value}
+              data-empty={!selected}
               className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
             >
               <CalendarIcon className="size-4 text-muted-foreground/60" />
-                {field.value ? (
+                {selected ? (
                   <span className="text-xs text-primary">
-                    {format(field.value, "PPP")}
+                    {format(selected, "PPP")}
                   </span>
                 ) : (
                   <span className="text-xs text-muted-foreground/60">
@@ -46,15 +46,10 @@ export function DatePicker({ control, name }: DatePickerProps) {
           <PopoverContent className="w-auto p-0">
             <Calendar
               mode="single"
-              selected={field.value}
-              onSelect={(date) => {
-                field.onChange(format(date!, "yyyy-MM-dd"))
-                setOpen(false) 
-              }}
+              selected={selected}
+              onSelect={handleSelect}
             />
           </PopoverContent>
         </Popover>
-      )}
-    />
-  )
+  );
 }
