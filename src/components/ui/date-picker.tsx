@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { formatDate } from "@/lib/utils";
+import { formatDate } from "@/utils/date/format";
 
 interface DatePickerProps {
   selected: Date;
