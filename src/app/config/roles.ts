@@ -17,6 +17,6 @@ export const ROLE_LABELS: Record<Role, string> = {
 export const ROLE_REDIRECT_PATHS: Record<Role, string> = {
   admin: "/admin/dashboard",
   data_manager: "/dashboard",
-  data_collector: "/login",
+  data_collector: "/data_collector",
   "*": "/login",
 };
