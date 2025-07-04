@@ -8,19 +8,19 @@ import {
   uuidv4,
   nullable,
   array,
+  number,
   regex,
-  date,
 } from "zod/v4-mini";
 
 export const userRoleSchema = enum_(["data_collector", "data_manager", "admin", "*"] as const);
 
 export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 
-export const userIdSchema = string().check(regex(/^DA\d{5}$/, "User ID must be in the format DA00000"));
+export const userDateOfBirthSchema = string().check(regex(/^\d{4}-\d{2}-\d{2}$/, "Date of birth must be in the format YYYY-MM-DD"));
 
 export const userSchema = object({
+  id: number(),
   auth_id: uuidv4(),
-  user_id: userIdSchema,
   first_name: string().check(minLength(1)),
   last_name: string().check(minLength(1)),
   status: userStatusSchema,
@@ -34,7 +34,7 @@ export const userSchema = object({
 export const usersSchema = array(userSchema);
 
 export const userCredentialsSchema = object({
-  user_id: string().check(minLength(1, "User ID is required to log in")),
+  email: string().check(minLength(1, "Email is required to log in")),
   password: string().check(minLength(1, "Password is required to log in")),
 });
 
@@ -42,6 +42,6 @@ export const userCreateSchema = object({
   first_name: string().check(minLength(1, "First name is required")),
   last_name: string().check(minLength(1, "Last name is required")),
   role: userRoleSchema,
-  date_of_birth: date("Date of birth is required" ),
+  date_of_birth: userDateOfBirthSchema,
   email: email("Please enter a valid email address"),
 });

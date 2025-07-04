@@ -23,7 +23,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   const form = useForm<UserCredentials>({
     resolver: zodResolver(userCredentialsSchema),
-    defaultValues: { user_id: "", password: "" },
+    defaultValues: { email: "", password: "" },
   });
 
   return (
@@ -38,9 +38,9 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
       <CardContent>
         <HumayForm form={form} onSubmit={onSubmit}>
           <HumayTextField
-            name="user_id"
-            label="User ID"
-            placeholder="Enter your user ID"
+            name="email"
+            label="Email"
+            placeholder="Enter your email"
             type="text"
           />
           <HumayTextField

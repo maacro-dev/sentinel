@@ -33,7 +33,7 @@ export function AddUserForm({ onSubmit }: AddUserFormProps) {
       last_name: "",
       role: "data_manager",
       email: "",
-      date_of_birth: "",
+      date_of_birth: new Date().toISOString().slice(0, 10),
     },
   });
 
