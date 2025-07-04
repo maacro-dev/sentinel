@@ -1,9 +1,9 @@
 CREATE OR REPLACE VIEW public.user_profiles AS
 SELECT
+    usr.id,
     usr.auth_id,
     usr.first_name,
     usr.last_name,
-    usr.user_id,
     usr.date_of_birth,
     usr.status,
     role.name AS role,
