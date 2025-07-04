@@ -9,6 +9,7 @@ import {
   nullable,
   array,
   regex,
+  date,
 } from "zod/v4-mini";
 
 export const userRoleSchema = enum_(["data_collector", "data_manager", "admin", "*"] as const);
@@ -41,6 +42,6 @@ export const userCreateSchema = object({
   first_name: string().check(minLength(1, "First name is required")),
   last_name: string().check(minLength(1, "Last name is required")),
   role: userRoleSchema,
-  date_of_birth: iso.date("Date of birth is required" ),
+  date_of_birth: date("Date of birth is required" ),
   email: email("Please enter a valid email address"),
 });
