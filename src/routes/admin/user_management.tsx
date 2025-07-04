@@ -1,5 +1,4 @@
-import { usersQueryOptions } from "@/api/users";
-import { createUser } from "@/api/users/create-user";
+import { createUser } from "@/api/users";
 import { showErrorToast, showSuccessToast } from "@/app/toast";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddUserForm } from "@/components/users/user-create-dialog";
 import { useUserColumns } from "@/components/users/user-table/user-table-columns";
 import { UserCreate } from "@/lib/types/user";
+import { usersQueryOptions } from "@/queries";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search as SearchIcon, Users } from "lucide-react";
@@ -34,13 +34,12 @@ function RouteComponent() {
   const columns = useUserColumns();
 
   const onSubmit = async (fields: UserCreate) => {
-    try {
-      await createUser(fields)
+    const result = await createUser(fields)
+    if (!result.ok) {
+      showErrorToast("Error", result.error.message)
+    } else {
       await queryClient.invalidateQueries(usersQueryOptions())
       showSuccessToast("Success", "User created successfully")
-    } catch (error) {
-      showErrorToast("Error", error instanceof Error ? error.message : "Unknown error")
-      console.log(fields)
     }
   };
 
@@ -90,7 +89,7 @@ function RouteComponent() {
         </TabsList>
         <TabsContent value="all">
           <div className="flex-1 container w-full h-full">
-            <DataTable columns={columns} data={users} />
+            <DataTable columns={columns} data={users.filter((u) => u.role !== "admin")} />
           </div>
         </TabsContent>
         <TabsContent value="data_collectors">
