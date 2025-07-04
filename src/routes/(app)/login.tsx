@@ -49,7 +49,6 @@ function LoginPage() {
         );
 
         navigate({ to: ROLE_REDIRECT_PATHS[loggedUser.role], replace: true });
-        setIsSubmitting(false);
 
     },
     [handleSignIn, isSubmitting, navigate]
