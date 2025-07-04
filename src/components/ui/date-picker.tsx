@@ -1,6 +1,4 @@
-import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
- 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -8,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { formatDate } from "@/lib/utils";
 
 interface DatePickerProps {
   selected: Date;
@@ -34,7 +33,7 @@ export function DatePicker({ selected, onSelect, open, setOpen }: DatePickerProp
               <CalendarIcon className="size-4 text-muted-foreground/60" />
                 {selected ? (
                   <span className="text-xs text-primary">
-                    {format(selected, "PPP")}
+                    {formatDate(selected)}
                   </span>
                 ) : (
                   <span className="text-xs text-muted-foreground/60">
