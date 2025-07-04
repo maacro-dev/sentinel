@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './../routes/__root'
+import { Route as Data_collectorRouteImport } from './../routes/data_collector'
 import { Route as AdminRouteImport } from './../routes/admin'
 import { Route as ManagerRouteImport } from './../routes/_manager'
 import { Route as IndexRouteImport } from './../routes/index'
@@ -33,6 +34,11 @@ import { Route as ManagerFormsFieldProfileRouteImport } from './../routes/_manag
 import { Route as ManagerFormsDamageAssessmentRouteImport } from './../routes/_manager/_forms/damageAssessment'
 import { Route as ManagerFormsCulturalManagementRouteImport } from './../routes/_manager/_forms/culturalManagement'
 
+const Data_collectorRoute = Data_collectorRouteImport.update({
+  id: '/data_collector',
+  path: '/data_collector',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -155,6 +161,7 @@ const ManagerFormsCulturalManagementRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/data_collector': typeof Data_collectorRoute
   '/404': typeof app404Route
   '/login': typeof appLoginRoute
   '/unauthorized': typeof appUnauthorizedRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/data_collector': typeof Data_collectorRoute
   '/404': typeof app404Route
   '/login': typeof appLoginRoute
   '/unauthorized': typeof appUnauthorizedRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_manager': typeof ManagerRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
+  '/data_collector': typeof Data_collectorRoute
   '/(app)/404': typeof app404Route
   '/(app)/login': typeof appLoginRoute
   '/(app)/unauthorized': typeof appUnauthorizedRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/data_collector'
     | '/404'
     | '/login'
     | '/unauthorized'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/data_collector'
     | '/404'
     | '/login'
     | '/unauthorized'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_manager'
     | '/admin'
+    | '/data_collector'
     | '/(app)/404'
     | '/(app)/login'
     | '/(app)/unauthorized'
@@ -306,6 +318,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ManagerRoute: typeof ManagerRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  Data_collectorRoute: typeof Data_collectorRoute
   app404Route: typeof app404Route
   appLoginRoute: typeof appLoginRoute
   appUnauthorizedRoute: typeof appUnauthorizedRoute
@@ -313,6 +326,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/data_collector': {
+      id: '/data_collector'
+      path: '/data_collector'
+      fullPath: '/data_collector'
+      preLoaderRoute: typeof Data_collectorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -532,6 +552,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ManagerRoute: ManagerRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  Data_collectorRoute: Data_collectorRoute,
   app404Route: app404Route,
   appLoginRoute: appLoginRoute,
   appUnauthorizedRoute: appUnauthorizedRoute,
