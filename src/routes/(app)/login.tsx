@@ -33,14 +33,15 @@ function LoginPage() {
       if (isSubmitting) return;
       setIsSubmitting(true);
 
-      try {
-        const loggedUser = await handleSignIn(fields);
+        const signInResult = await handleSignIn(fields);
 
-        if (!loggedUser) {
-          showErrorToast("Couldn't sign you in", "Please check your credentials and try again.");
+        if (!signInResult.ok) {
+          showErrorToast("Couldn't sign you in", signInResult.error.message);
           setIsSubmitting(false);
           return;
         }
+
+        const loggedUser = signInResult.data;
 
         showSuccessToast(
           `Welcome back, ${loggedUser.first_name}!`,
@@ -48,11 +49,8 @@ function LoginPage() {
         );
 
         navigate({ to: ROLE_REDIRECT_PATHS[loggedUser.role], replace: true });
-
-      } catch {
-        showErrorToast("Login failed", "Please check your credentials and try again.");
         setIsSubmitting(false);
-      }
+
     },
     [handleSignIn, isSubmitting, navigate]
   );
