@@ -8,8 +8,17 @@ const supabaseDevKey = import.meta.env.VITE_SUPABASE_DEV_ANON_KEY;
 const supabaseProdUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseProdKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+const options = {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+    storage: localStorage,
+  },
+}
+
 const supabase = IS_DEV ? 
-  createClient<Database>(supabaseDevUrl, supabaseDevKey) : 
-  createClient<Database>(supabaseProdUrl, supabaseProdKey);
+  createClient<Database>(supabaseDevUrl, supabaseDevKey, options) : 
+  createClient<Database>(supabaseProdUrl, supabaseProdKey, options);
 
 export { supabase };
