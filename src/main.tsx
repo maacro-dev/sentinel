@@ -1,13 +1,12 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { router } from "@/app/router";
 import { queryClient } from "@/app/query-client";
-import { AuthProvider, useAuth } from "@/context/auth-context";
-
 import "@/styles/global.css";
+import { StrictMode } from "react";
+import { log } from "./utils";
 
 const rootElement = document.getElementById("root");
 
@@ -19,18 +18,19 @@ const rootElement = document.getElementById("root");
 // }
 
 function App() {
-  const auth = useAuth();
-  return <RouterProvider router={router} context={{ auth }} />;
+  log("RENDER", "App");
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />;
+    </QueryClientProvider>
+  );
 }
 
 if (rootElement && !rootElement.innerHTML) {
   createRoot(rootElement).render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </QueryClientProvider>
+      <App />
     </StrictMode>
   );
 }
