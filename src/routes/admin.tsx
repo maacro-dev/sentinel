@@ -1,16 +1,28 @@
-import { createFileRoute, Outlet, } from "@tanstack/react-router";
-import { protectRoute } from "@/features/auth/utils";
+import { createFileRoute, Outlet, redirect, } from "@tanstack/react-router";
 import { BaseSidebar } from "@/components/layouts/base";
 import { BaseLayout } from "@/components/layouts";
+import { log } from "@/utils";
+import { useAuthStore } from "@/store/auth-store";
+import { logDebugError, logPreload, logRender } from "@/utils/log";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: ({ context }) => {
-    protectRoute(context, { allowedRoles: "admin" });
+  beforeLoad: async () => {
+    logPreload("Admin Route");
+    const user = useAuthStore.getState().user;
+    if (!user) {
+      logDebugError("User does not exist → redirecting to login");
+      throw redirect({ to: "/login", reloadDocument: true });
+    }
+    if (user.role !== "admin") {
+      logDebugError("User is not an admin → redirecting to unauthorized");
+      throw redirect({ to: "/unauthorized", reloadDocument: true });
+    }
   },
-  component: RouteComponent
+  component: RouteComponent,
 });
 
 function RouteComponent() {
+  logRender("Admin Route");
   return (
     <BaseLayout sidebarSlot={<BaseSidebar role="admin" />}>
       <Outlet />
