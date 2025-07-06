@@ -5,7 +5,7 @@ import type { Result, User } from "@/lib/types";
 
 export async function getAllUsers(): Promise<Result<User[]>> {
   const { data: users, error: usersError } = await supabase
-    .from("user_profiles")
+    .from("user_details")
     .select("*");
 
   return validateResponse({ 
