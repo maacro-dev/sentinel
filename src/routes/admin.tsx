@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet, redirect, } from "@tanstack/react-router";
 import { BaseSidebar } from "@/components/layouts/base";
 import { BaseLayout } from "@/components/layouts";
-import { log } from "@/utils";
 import { useAuthStore } from "@/store/auth-store";
 import { logDebugError, logPreload, logRender } from "@/utils/log";
 

@@ -36,7 +36,7 @@ function RouteComponent() {
   const onSubmit = async (fields: UserCreate) => {
     const result = await createUser(fields)
     if (!result.ok) {
-      showErrorToast("Error", result.error.message)
+      showErrorToast("Error", result.error?.message)
     } else {
       await queryClient.invalidateQueries(usersQueryOptions())
       showSuccessToast("Success", "User created successfully")
