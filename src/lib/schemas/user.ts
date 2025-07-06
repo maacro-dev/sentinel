@@ -8,7 +8,6 @@ import {
   uuidv4,
   nullable,
   array,
-  number,
   regex,
 } from "zod/v4-mini";
 
@@ -19,8 +18,9 @@ export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 export const userDateOfBirthSchema = string().check(regex(/^\d{4}-\d{2}-\d{2}$/, "Date of birth must be in the format YYYY-MM-DD"));
 
 export const userSchema = object({
-  id: number(),
-  auth_id: uuidv4(),
+  // id: number(),
+  // auth_id: uuidv4(),
+  id: uuidv4(),
   first_name: string().check(minLength(1)),
   last_name: string().check(minLength(1)),
   status: userStatusSchema,
