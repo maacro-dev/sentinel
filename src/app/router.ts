@@ -1,14 +1,12 @@
 import { createRouter } from "@tanstack/react-router";
-import { FileRoutesByTo, routeTree } from "@/app/routeTree.gen";
 import { RouteGroup } from "@/lib/types/route";
-import { useAuth } from "@/context/auth-context";
 import { LucideIcon } from "lucide-react";
 import { Role } from "@/lib/types/user";
 import { QueryClient } from "@tanstack/react-query";
 import { queryClient } from "@/app/query-client";
+import { FileRoutesByTo, routeTree } from "@/app/routeTree.gen";
 
 export type RouterContext = {
-  auth: ReturnType<typeof useAuth>;
   queryClient: QueryClient;
 };
 
@@ -18,11 +16,8 @@ export type Path = keyof FileRoutesByTo;
 export const router = createRouter({
   routeTree: routeTree,
   defaultPreload: "intent",
-  defaultPreloadStaleTime: 0,
-  defaultStructuralSharing: true,
-  scrollRestoration: true,
+  defaultPreloadDelay: 100,
   context: {
-    auth: undefined!,
     queryClient: queryClient,
   },
 });
