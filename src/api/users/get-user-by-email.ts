@@ -5,7 +5,7 @@ import type { Result, User } from "@/lib/types";
 
 export async function getUserByEmail(email: string): Promise<Result<User>> {
   const { data, error } = await supabase
-    .from("user_profiles")
+    .from("user_details")
     .select("*")
     .eq("email", email)
     .maybeSingle();
