@@ -2,17 +2,18 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { SidebarUserNavigationDropdown } from "./sidebar-user-dropdown";
-import { useAuth } from "@/context/auth-context";
 import { getRoleLabel } from "@/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronsUpDown } from "lucide-react";
 import { memo, useCallback } from "react";
 import type { Role } from "@/lib/types";
+import { useAuthStore } from "@/store/auth-store";
 
 export const SidebarUserNavigation = memo(() => {
 
   const navigate = useNavigate();
-  const { user, handleSignOut } = useAuth();
+  const handleSignOut = useAuthStore((state) => state.handleSignOut);
+  const user = useAuthStore((state) => state.user);
 
   const handleSignOutClick = useCallback(async () => {
     try {
