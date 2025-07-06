@@ -1,7 +1,12 @@
 import { supabase } from "@/app/supabase";
-import { AuthError } from "@supabase/supabase-js";
+import { Result } from "@/lib/types";
 
-export async function supabaseSignIn(email: string, password: string): Promise<AuthError | null> {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  return error;
+export async function supabaseSignIn(email: string, password: string): Promise<Result<any>> { // [do not commit]
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    return { ok: false, error };
+  }
+
+  return { ok: true, data: data};
 }

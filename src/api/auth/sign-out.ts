@@ -1,7 +1,10 @@
 import { supabase } from "@/app/supabase";
-import { AuthError } from "@supabase/supabase-js";
+import { Result } from "@/lib/types";
 
-export async function supabaseSignOut(): Promise<AuthError | null> {
+export const supabaseSignOut = async (): Promise<Result<void>> => {
   const { error } = await supabase.auth.signOut();
-  return error;
-}
+  if (error) {
+    return { ok: false, error };
+  }
+  return { ok: true, data: undefined };
+};
