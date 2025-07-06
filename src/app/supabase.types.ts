@@ -34,101 +34,83 @@ export type Database = {
   }
   public: {
     Tables: {
-      roles: {
-        Row: {
-          created_at: string | null
-          id: number
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: number
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: number
-          name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       users: {
         Row: {
-          auth_id: string | null
+          auth_id: string
           created_at: string
           date_of_birth: string
           first_name: string
           id: number
           last_name: string
-          role_id: number
-          status: string
+          role: Database["public"]["Enums"]["user_role"]
+          status: Database["public"]["Enums"]["user_status"] | null
           updated_at: string
-          user_id: string
         }
         Insert: {
-          auth_id?: string | null
+          auth_id: string
           created_at?: string
           date_of_birth: string
           first_name: string
-          id?: number
+          id?: never
           last_name: string
-          role_id: number
-          status?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["user_status"] | null
           updated_at?: string
-          user_id?: string
         }
         Update: {
-          auth_id?: string | null
+          auth_id?: string
           created_at?: string
           date_of_birth?: string
           first_name?: string
-          id?: number
+          id?: never
           last_name?: string
-          role_id?: number
-          status?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["user_status"] | null
           updated_at?: string
-          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "users_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
-      user_profiles: {
+      user_details: {
         Row: {
           auth_id: string | null
           created_at: string | null
           date_of_birth: string | null
           email: string | null
           first_name: string | null
+          id: number | null
           last_name: string | null
           last_sign_in_at: string | null
-          role: string | null
-          status: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          status: Database["public"]["Enums"]["user_status"] | null
           updated_at: string | null
-          user_id: string | null
         }
         Relationships: []
       }
     }
     Functions: {
-      next_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
+      create_seed_user: {
+        Args: {
+          p_first_name: string
+          p_last_name: string
+          p_date_of_birth: string
+          p_role: Database["public"]["Enums"]["user_role"]
+          p_password: string
+          p_email: string
+          p_auth_id: string
+          p_created_at?: string
+        }
+        Returns: undefined
+      }
+      custom_access_token_hook: {
+        Args: { event: Json }
+        Returns: Json
       }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "data_manager" | "data_collector" | "pending"
+      user_status: "active" | "inactive" | "disabled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -246,7 +228,10 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "data_manager", "data_collector", "pending"],
+      user_status: ["active", "inactive", "disabled"],
+    },
   },
 } as const
 
