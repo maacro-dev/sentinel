@@ -2,7 +2,7 @@ import { CenteredLayout } from "@/components/layouts";
 import HumayLogo from "@/components/logo";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/(app)/404")({
+export const Route = createFileRoute("/404")({
   component: RouteComponent
 });
 
