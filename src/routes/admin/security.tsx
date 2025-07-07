@@ -1,6 +1,7 @@
 import PlaceholderBody from "@/components/placeholder-body";
 import { createFileRoute } from "@tanstack/react-router";
 import { Shield } from "lucide-react";
+import { logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/admin/security")({
   component: RouteComponent,
@@ -17,5 +18,6 @@ export const Route = createFileRoute("/admin/security")({
 });
 
 function RouteComponent() {
+  logRender("Admin Security Route");
   return <PlaceholderBody />;
 }

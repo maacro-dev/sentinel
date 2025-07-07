@@ -1,6 +1,7 @@
 import PlaceholderBody from "@/components/placeholder-body";
 import { createFileRoute } from "@tanstack/react-router";
 import { Server } from "lucide-react";
+import { logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/admin/maintenance")({
   component: RouteComponent,
@@ -17,5 +18,6 @@ export const Route = createFileRoute("/admin/maintenance")({
 });
 
 function RouteComponent() {
+  logRender("Admin Maintenance Route");
   return <PlaceholderBody />;
 }

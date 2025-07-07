@@ -1,6 +1,7 @@
 import PlaceholderBody from "@/components/placeholder-body";
 import { createFileRoute } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
+import { logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/admin/settings")({
   component: RouteComponent,
@@ -17,5 +18,6 @@ export const Route = createFileRoute("/admin/settings")({
 });
 
 function RouteComponent() {
+  logRender("Admin Settings Route");
   return <PlaceholderBody />;
 }

@@ -10,6 +10,7 @@ import { usersQueryOptions } from "@/queries";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search as SearchIcon, Users } from "lucide-react";
+import { logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/admin/user_management")({
   component: RouteComponent,
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/admin/user_management")({
 });
 
 function RouteComponent() {
+  logRender("Admin User Management Route");
 
   const { data: users } = useSuspenseQuery(usersQueryOptions())
   const queryClient = useQueryClient()

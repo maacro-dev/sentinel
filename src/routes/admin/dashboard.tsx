@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import PlaceholderBody from "@/components/placeholder-body";
 import { Home } from "lucide-react";
-import { log } from "@/utils";
+import { logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: RouteComponent,
@@ -18,6 +18,6 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 function RouteComponent() {
-  log("RENDER", "AdminDashboardRouteComponent");
+  logRender("Admin Dashboard Route");
   return <PlaceholderBody />;
 }
