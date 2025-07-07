@@ -1,8 +1,8 @@
-import { RoleID } from "@constants"
 import { getAdminAuthClient } from "@clients"
 import { preflight, response } from "@http"
 
 Deno.serve(async (req) => {
+
   if (req.method === "OPTIONS") {
     return preflight();
   }
@@ -39,10 +39,10 @@ Deno.serve(async (req) => {
   const { error: userError } = await supabase
     .from("users")
     .insert({
-      auth_id: user.id,
+      id: user.id,
       first_name: first_name,
       last_name: last_name,
-      role_id: RoleID[role as keyof typeof RoleID],
+      role: role,
       date_of_birth: date_of_birth,
     });
 
