@@ -60,8 +60,8 @@ importers:
         specifier: ^4.6.0
         version: 4.6.0(vite@6.3.5(@types/node@24.0.10)(jiti@2.4.2)(lightningcss@1.30.1)(tsx@4.20.3))
       chronicle-log:
-        specifier: ^2.2.2
-        version: 2.2.2
+        specifier: ^2.3.2
+        version: 2.3.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1593,8 +1593,8 @@ packages:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
     engines: {node: '>=18'}
 
-  chronicle-log@2.2.2:
-    resolution: {integrity: sha512-TveEJ54d3p/CFyRZUNal2GqSGXeIk+kbChW2BrQJc7eEsNzBNf9fK9C+DhynkVjt2xkbEPrveWD8IfEm6nzjEg==}
+  chronicle-log@2.3.2:
+    resolution: {integrity: sha512-VKzSZh5BynAjNQ0k/XNOCL7XZf1x3hh+ZWjimskP4v4SDJXrKURtFmsVmUc4iMgs5eMi9/rdJrt2tzjrN4YgGQ==}
 
   class-variance-authority@0.7.1:
     resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
@@ -4050,7 +4050,7 @@ snapshots:
 
   chownr@3.0.0: {}
 
-  chronicle-log@2.2.2: {}
+  chronicle-log@2.3.2: {}
 
   class-variance-authority@0.7.1:
     dependencies:
