@@ -4,7 +4,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuthStore } from "@/store/auth-store";
-import { logRender, logPreload, logDebugCheck, logDebugOk, logDebugError } from "@/utils/log";
+import { logPreload, logDebugCheck, logDebugOk, logDebugError, logRender } from "chronicle-log";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {

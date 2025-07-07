@@ -1,12 +1,11 @@
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
-
 import { router } from "@/app/router";
 import { queryClient } from "@/app/query-client";
 import "@/styles/global.css";
 import { StrictMode } from "react";
-import { log } from "./utils";
+import { logRender } from "chronicle-log";
 
 const rootElement = document.getElementById("root");
 
@@ -18,7 +17,7 @@ const rootElement = document.getElementById("root");
 // }
 
 function App() {
-  log("RENDER", "App");
+  logRender("App");
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -5,10 +5,9 @@ import { showErrorToast, showSuccessToast } from "@/app/toast";
 import { CenteredLayout } from "@/components/layouts";
 import { ROLE_REDIRECT_PATHS } from "@/app/config/roles";
 import { LoginForm } from "@/components/login-form";
-import { log } from "@/utils";
 import { useAuthStore } from "@/store/auth-store";
 import type { UserCredentials } from "@/lib/types";
-import { logDebugOk, logOk, logPreload } from "@/utils/log";
+import { logDebugOk, logOk, logPreload, logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
@@ -58,7 +57,7 @@ function LoginPage() {
   );
 
 
-  log("RENDER", `${isSubmitting ? "LoadingSpinner" : "LoginPage"}`);
+  logRender(`${isSubmitting ? "LoadingSpinner" : "LoginPage"}`);
   return (
     <CenteredLayout>
       {isSubmitting ? (

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { Result, User, UserCredentials } from "@/lib/types";
 import { getCurrentSession, supabaseSignIn, supabaseSignOut } from "@/api/auth";
 import { getUserByEmail } from "@/api/users";
-import { logDebugCall, logDebugCheck, logDebugError, logDebugOk } from "@/utils/log";
+import { logDebugCheck, logDebugError, logDebugOk } from "chronicle-log";
 
 const MAX_SESSION_AGE_MS = 0.5 * 60 * 1000; // 0.5 minutes for testing
 const SIGN_IN_TIME_KEY = "sentinel.sign_in_time";
@@ -75,27 +75,18 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   user: null,
   hasValidSession: false,
   sessionChecked: false,
-  setUser: (user: User | null) => {
-    logDebugCall(`Auth store setUser(${user ? user.email : "null"})`);
-    set({ user });
-  },
-  setHasValidSession: (hasValidSession: boolean) => {
-    logDebugCall(`Auth store setHasValidSession(${hasValidSession})`);
-    set({ hasValidSession });
-  },
+  setUser: (user: User | null) => set({ user }),
+  setHasValidSession: (hasValidSession: boolean) => set({ hasValidSession }),
   checkSession: async () => {
-    logDebugCall("Auth store checkSession()");
     const { user, isValid } = await checkSession();
     set({ user, hasValidSession: isValid, sessionChecked: true });
   },
   handleSignOut: async (): Promise<void> => {
-    logDebugCall("Auth store handleSignOut()");
     await supabaseSignOut();
     set({ user: null });
     localStorage.removeItem(SIGN_IN_TIME_KEY);
   },
   handleSignIn: async ({ email, password }: UserCredentials): Promise<Result<User>> => {
-    logDebugCall(`Auth store handleSignIn(${email})`);
     const signInResult = await supabaseSignIn(email, password);
     if (!signInResult.ok) return signInResult;
 

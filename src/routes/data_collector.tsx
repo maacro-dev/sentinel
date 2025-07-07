@@ -2,19 +2,19 @@ import { CenteredLayout } from "@/components/layouts";
 import HumayLogo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
-import { log } from "@/utils";
+import { logDebugCheck, logDebugError } from "chronicle-log";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/data_collector")({
   beforeLoad: async () => {
     const user = useAuthStore.getState().user;
-    log("CHECK", `User: ${user ? "exists" : "does not exist"}`);
+    logDebugCheck(`User: ${user ? "exists" : "does not exist"}`);
     if (!user) {
-      log("ERROR", "User does not exist → redirecting to login");
+      logDebugError("User does not exist → redirecting to login");
       throw redirect({ to: "/login" });
     }
     if (user.role !== "data_collector") {
-      log("ERROR", "User is not a data collector → redirecting to unauthorized");
+      logDebugError("User is not a data collector → redirecting to unauthorized");
       throw redirect({ to: "/unauthorized" });
     }
   },
