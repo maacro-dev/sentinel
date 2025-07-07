@@ -36,33 +36,30 @@ export type Database = {
     Tables: {
       users: {
         Row: {
-          auth_id: string
           created_at: string
           date_of_birth: string
           first_name: string
-          id: number
+          id: string
           last_name: string
           role: Database["public"]["Enums"]["user_role"]
           status: Database["public"]["Enums"]["user_status"] | null
           updated_at: string
         }
         Insert: {
-          auth_id: string
           created_at?: string
           date_of_birth: string
           first_name: string
-          id?: never
+          id: string
           last_name: string
           role?: Database["public"]["Enums"]["user_role"]
           status?: Database["public"]["Enums"]["user_status"] | null
           updated_at?: string
         }
         Update: {
-          auth_id?: string
           created_at?: string
           date_of_birth?: string
           first_name?: string
-          id?: never
+          id?: string
           last_name?: string
           role?: Database["public"]["Enums"]["user_role"]
           status?: Database["public"]["Enums"]["user_status"] | null
@@ -74,12 +71,11 @@ export type Database = {
     Views: {
       user_details: {
         Row: {
-          auth_id: string | null
           created_at: string | null
           date_of_birth: string | null
           email: string | null
           first_name: string | null
-          id: number | null
+          id: string | null
           last_name: string | null
           last_sign_in_at: string | null
           role: Database["public"]["Enums"]["user_role"] | null
@@ -98,7 +94,7 @@ export type Database = {
           p_role: Database["public"]["Enums"]["user_role"]
           p_password: string
           p_email: string
-          p_auth_id: string
+          p_id: string
           p_created_at?: string
         }
         Returns: undefined
