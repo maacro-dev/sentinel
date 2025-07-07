@@ -14,5 +14,3 @@ export { formatDate } from "./date/format";
 
 export { validateResponse } from "./api/validate-response";
 export { invokeFunction } from "./api/invoke-function";
-
-export { log } from "./log";
