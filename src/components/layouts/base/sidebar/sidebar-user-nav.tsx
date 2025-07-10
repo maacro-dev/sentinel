@@ -8,6 +8,7 @@ import { ChevronsUpDown } from "lucide-react";
 import { memo, useCallback } from "react";
 import type { Role } from "@/lib/types";
 import { useAuthStore } from "@/store/auth-store";
+import { showToast } from "@/app/toast";
 
 export const SidebarUserNavigation = memo(() => {
 
@@ -16,11 +17,21 @@ export const SidebarUserNavigation = memo(() => {
   const user = useAuthStore((state) => state.user);
 
   const handleSignOutClick = useCallback(async () => {
-    try {
-      await handleSignOut();
+    const toastId = showToast({
+      type: "loading",
+      message: "Hold on",
+      description: "signing you out...",
+    });
+    const signOutResult = await handleSignOut();
+    if (signOutResult.ok) {
       await navigate({ to: "/login", replace: true, reloadDocument: true });
-    } catch (error) {
-      console.error("Failed to sign out:", error);
+    } else {
+      showToast({
+        type: "error",
+        message: "Failed to sign out",
+        description: signOutResult.error?.message,
+        toastId: toastId,
+      });
     }
   }, [handleSignOut, navigate]);
 
