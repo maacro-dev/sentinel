@@ -17,7 +17,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     }
     logDebugError("Session is not checked");
     logDebugCheck("Checking session...");
-    await useAuthStore.getState().checkSession();
+    await useAuthStore.getState().handleSession();
     logDebugOk("Session checked");
   },
   component: RootComponent,
