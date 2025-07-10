@@ -2,7 +2,6 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 import { Skeleton } from "./skeleton"
-import { FadeInRow } from "../animation"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
