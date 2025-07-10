@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "./ui/date-picker";
+import { LucideIcon } from "lucide-react";
 
 type TextFieldTypes = "text" | "password" | "email";
 
@@ -44,7 +45,7 @@ const HumayForm = <T extends FieldValues>({
 }: HumayFormProps<T>) => {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {children}
       </form>
     </Form>
@@ -59,6 +60,8 @@ type HumayTextFieldProps<T extends FieldValues> = {
   className?: string;
   disabled?: boolean;
   note?: string;
+  StartIcon?: LucideIcon;
+  EndIcon?: LucideIcon;
 };
 
 const HumayTextField = memo(<T extends FieldValues>({
@@ -78,7 +81,7 @@ const HumayTextField = memo(<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="group flex flex-col gap-2 space-y-1.5">
+        <FormItem className="group flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <FormLabel
               htmlFor={name}
@@ -193,18 +196,17 @@ const HumayDatePicker = ({ name, label }: HumayDatePickerProps) => {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="space-y-1.5">
-      <FormLabel
-        htmlFor={name}
-        className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
-      >
-        {label}
-      </FormLabel>
-      <FormField
-        control={form.control}
-        name={name}
-        render={({ field }) => (
-          <>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="group flex flex-col gap-2">
+          <FormLabel
+            htmlFor={name}
+            className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors"
+          >
+            {label}
+          </FormLabel>
           <FormControl>
             <DatePicker 
               selected={field.value} 
@@ -214,10 +216,9 @@ const HumayDatePicker = ({ name, label }: HumayDatePickerProps) => {
             />
           </FormControl>
           <FormMessage className={errorMessage} />
-          </>
-        )}
-      />
-    </div>
+        </FormItem>
+      )}
+    />
   );
 };
 
