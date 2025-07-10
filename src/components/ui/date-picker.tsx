@@ -7,6 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { formatDate } from "@/utils/date/format";
+import { cn } from "@/lib/utils";
 
 interface DatePickerProps {
   selected: string;
@@ -28,7 +29,11 @@ export function DatePicker({ selected, onSelect, open, setOpen }: DatePickerProp
             <Button
               variant="outline"
               data-empty={!selected}
-              className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
+              className={cn(
+                "flex items-center gap-2",
+                "shadow-none border-input border rounded-md data-[empty=true]:text-muted-foreground w-full h-8 justify-start text-left font-normal", 
+                "ring-0 ring-transparent ring-offset-2 ring-offset-background", 
+              )}
             >
               <CalendarIcon className="size-4 text-muted-foreground/60" />
                 {selected ? (
