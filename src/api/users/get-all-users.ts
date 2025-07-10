@@ -8,9 +8,11 @@ export interface GetAllUsersParams {
 }
 
 export async function getAllUsers({ includeAdmin }: GetAllUsersParams): Promise<Result<User[]>> {
+
   const query = supabase
     .from("user_details")
-    .select("*");
+    .select("*")
+    .order("created_at", { ascending: true });
 
   if (!includeAdmin) {
     query.neq("role", "admin");
