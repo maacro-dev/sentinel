@@ -13,6 +13,8 @@ import { HumayForm, HumayTextField } from "@/components/forms";
 import { UserCredentials } from "@/lib/types";
 import { userCredentialsSchema } from "@/lib/schemas/user";
 import Logo from "./logo";
+import { useRouterState } from "@tanstack/react-router";
+import { Spinner } from "./ui/spinner";
 
 type LoginFormProps = {
   onSubmit: (fields: UserCredentials) => void;
@@ -20,6 +22,8 @@ type LoginFormProps = {
 
 // TODO: remember textfields state on refresh
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
+
+  const status = useRouterState({ select: s => s.status });
 
   const form = useForm<UserCredentials>({
     resolver: zodResolver(userCredentialsSchema),
@@ -49,7 +53,13 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
             placeholder="Enter your password"
             type="password"
           />
-          <Button className="w-full">Login</Button>
+          <Button className="w-full relative h-10">
+            {status === 'pending' ? (
+              <Spinner className="size-5 text-background"/>
+            ) : (
+              "Login"
+            )}
+          </Button>
         </HumayForm>
       </CardContent>
     </Card>
