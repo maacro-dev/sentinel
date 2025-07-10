@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Spinner } from "@/components/ui/spinner";
-import { showErrorToast, showSuccessToast } from "@/app/toast";
+import { showToast } from "@/app/toast";
 import { CenteredLayout } from "@/components/layouts";
 import { ROLE_REDIRECT_PATHS } from "@/app/config/roles";
 import { LoginForm } from "@/components/login-form";
 import { useAuthStore } from "@/store/auth-store";
 import type { UserCredentials } from "@/lib/types";
-import { logDebugOk, logOk, logPreload, logRender } from "chronicle-log";
+import { logDebugOk, logOk, logPreload } from "chronicle-log";
+import { LoadingScreen } from "@/components/loading-screen";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
@@ -24,50 +24,49 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const handleSignIn = useAuthStore((state) => state.handleSignIn);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = useCallback(
     async (fields: UserCredentials) => {
 
-      if (isSubmitting) return;
-      setIsSubmitting(true);
+      setIsLoading(true);
       const result = await handleSignIn(fields);
 
       if (!result.ok) {
-        showErrorToast(
-          "Couldn't sign you in",
-          result.error?.message ?? "Unknown error"
-        );
-        setIsSubmitting(false);
+        showToast({
+          type: "error",
+          message: "Couldn't sign you in",
+          description: result.error?.message ?? "Unknown error",
+        });
+        setIsLoading(false)
         return;
       }
 
       logOk("Signed in successfully");
 
       const user = result.data;
-      showSuccessToast(
-        `Welcome back, ${user.first_name}!`,
-        "You've been successfully signed in."
-      );
-      navigate({ to: ROLE_REDIRECT_PATHS[user.role], replace: true });
+      await navigate({ to: ROLE_REDIRECT_PATHS[user.role], replace: true });
+
+      showToast({
+        type: "success",
+        message: `Welcome back, ${user.first_name}!`,
+        description: "You've been successfully signed in.",
+      });
+
+      setIsLoading(false);
     },
-    [handleSignIn, isSubmitting, navigate]
+    [handleSignIn, navigate]
   );
 
+  if (isLoading) {
+    return <LoadingScreen message="Hold on — we're signing you in..." />;
+  }
 
-  logRender(`${isSubmitting ? "LoadingSpinner" : "LoginPage"}`);
   return (
     <CenteredLayout>
-      {isSubmitting ? (
-        <div className="flex flex-col items-center gap-4">
-          <Spinner size="large" />
-          <p className="text-muted-foreground">Signing you in...</p>
-        </div>
-      ) : (
-        <LoginForm onSubmit={handleSubmit} />
-      )}
+      <LoginForm onSubmit={handleSubmit} />
     </CenteredLayout>
   );
 }
