@@ -6,6 +6,7 @@ import { queryClient } from "@/app/query-client";
 import "@/styles/global.css";
 import { StrictMode } from "react";
 import { logRender } from "chronicle-log";
+import { LazyMotion } from "motion/react";
 
 const rootElement = document.getElementById("root");
 
@@ -16,12 +17,17 @@ const rootElement = document.getElementById("root");
 //   document.head.appendChild(script);
 // }
 
+const loadFeatures = () => import("@/app/features").then(module => module.default);
+
 function App() {
+
   logRender("App");
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />;
+      <LazyMotion features={loadFeatures} strict>
+        <RouterProvider router={router} />
+      </LazyMotion>
     </QueryClientProvider>
   );
 }
