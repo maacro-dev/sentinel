@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { BaseContent } from "./content";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { FadeIn } from "@/components/animation";
+import { FadeInDiv } from "@/components/animation";
 import { BaseHeader, HeaderSkeleton } from "./header";
 import { SidebarSkeleton } from "./sidebar";
 import { BaseSidebarProps } from "./sidebar";
@@ -21,36 +21,36 @@ export const BaseLayout = ({
     <SidebarProvider>
       <Suspense
         fallback={
-          <FadeIn direction="down">
+          <FadeInDiv direction="down">
             <SidebarSkeleton />
-          </FadeIn>
+          </FadeInDiv>
         }>
-        <FadeIn direction="up">
+        <FadeInDiv direction="up">
           {sidebarSlot}
-        </FadeIn>
+        </FadeInDiv>
       </Suspense>
       <SidebarInset>
         <Suspense
           fallback={
-            <FadeIn direction="down">
+            <FadeInDiv direction="down">
               <HeaderSkeleton />
-            </FadeIn>
+            </FadeInDiv>
           }
         >
-          <FadeIn direction="up">
+          <FadeInDiv direction="up">
             {headerSlot}
-          </FadeIn>
+          </FadeInDiv>
         </Suspense>
         <Suspense
           fallback={
-            <FadeIn direction="down">
+            <FadeInDiv direction="down">
               <div className="h-full" />
-            </FadeIn>
+            </FadeInDiv>
           }
         >
-          <FadeIn direction="up" className="h-full">
+          <FadeInDiv direction="up" className="h-full">
             <BaseContent>{children}</BaseContent>
-          </FadeIn>
+          </FadeInDiv>
         </Suspense>
       </SidebarInset>
     </SidebarProvider>
