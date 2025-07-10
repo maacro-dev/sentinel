@@ -1,19 +1,16 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { Skeleton } from "./skeleton"
+import { FadeInRow } from "../animation"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div
-      data-slot="table-container"
-      className="relative w-full overflow-x-auto"
-    >
-      <table
-        data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
-    </div>
+    <table
+      data-slot="table"
+      className={cn("w-full caption-bottom text-sm", className)}
+      {...props}
+    />
   )
 }
 
@@ -21,7 +18,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      className={cn("sticky top-0 bg-secondary", "[&_tr]:border-b", className)}
       {...props}
     />
   )
@@ -31,7 +28,11 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0", className)}
+      className={
+        cn(
+          "[&_tr:last-child]:border-0",
+          className
+        )}
       {...props}
     />
   )
@@ -50,16 +51,29 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   )
 }
 
-function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+function TableRow({ className, children  }: React.ComponentProps<"tr">) {
   return (
+
     <tr
       data-slot="table-row"
       className={cn(
-        "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
+        "hover:bg-muted/25 data-[state=selected]:bg-muted border-b transition-colors",
+        "p-2",
+        "border-b border-b-muted-foreground/10",
         className
       )}
-      {...props}
+      children={children}
     />
+  )
+}
+
+function TableRowSkeleton({ className, ...props }: React.ComponentProps<"tr">) {
+  return (
+    <TableRow className="border-b-0 hover:bg-transparent" {...props}>
+      <TableCell colSpan={6} className="p-3 border-b-0">
+        <Skeleton className={cn("h-24 w-full opacity-50", className)} />
+      </TableCell>
+    </TableRow>
   )
 }
 
@@ -68,7 +82,9 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "text-foreground h-10 px-4 text-left align-middle font-medium whitespace-nowrap",
+        "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:flex [&>[role=checkbox]]:items-center",
+        "text-muted-foreground/75",
         className
       )}
       {...props}
@@ -81,7 +97,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "p-4 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:flex [&>[role=checkbox]]:items-center",
         className
       )}
       {...props}
@@ -102,6 +118,7 @@ function TableCaption({
   )
 }
 
+
 export {
   Table,
   TableHeader,
@@ -109,6 +126,7 @@ export {
   TableFooter,
   TableHead,
   TableRow,
+  TableRowSkeleton,
   TableCell,
   TableCaption,
 }
