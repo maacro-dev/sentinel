@@ -1,1 +1,1 @@
-export { AddUserForm } from "./user-create-dialog";
+export { CreateUserDialog } from "./user-create-dialog";
