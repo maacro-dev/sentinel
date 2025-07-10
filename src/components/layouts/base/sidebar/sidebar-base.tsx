@@ -52,6 +52,7 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton asChild>
                     <Link
+                      replace
                       to={item.path}
                       className="flex items-center gap-2.5"
                       activeProps={{ className: "bg-sidebar-accent" }}
