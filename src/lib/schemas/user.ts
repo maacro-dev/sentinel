@@ -11,7 +11,7 @@ import {
   regex,
 } from "zod/v4-mini";
 
-export const userRoleSchema = enum_(["data_collector", "data_manager", "admin", "*"] as const);
+export const userRoleSchema = enum_(["data_collector", "data_manager", "admin", "pending"] as const);
 
 export const userStatusSchema = enum_(["active", "inactive", "disabled"]);
 
