@@ -177,7 +177,7 @@ create table crop_establishments ( -- cultural_mgmt / metadata 2
   num_plants_3                      smallint null,
 
   rice_variety                      text not null, -- PSB, NSIC, other
-  rice_variety_no                   int not null, -- 3digit if NSIC, 2digit if PSB, 1
+  rice_variety_no                   text null, -- 3digit if NSIC, 2digit if PSB, 1
   rice_variety_maturity_duration    smallint not null, -- 90-150
   seed_class                        text not null, -- good, foundation, hybrid, registered, certified
   -- source_of_seed                    text not null, -- seed_producer, etc.
