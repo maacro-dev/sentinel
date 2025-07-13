@@ -1,7 +1,7 @@
-import { supabase } from "@/app/supabase";
 import { usersSchema } from "@/lib/schemas/user";
 import { validateResponse } from "@/utils";
 import type { Result, User } from "@/lib/types";
+import { getSupabase } from "@/app/supabase";
 
 export interface GetAllUsersParams {
   includeAdmin: boolean;
@@ -9,6 +9,7 @@ export interface GetAllUsersParams {
 
 export async function getAllUsers({ includeAdmin }: GetAllUsersParams): Promise<Result<User[]>> {
 
+  const supabase = await getSupabase();
   const query = supabase
     .from("user_details")
     .select("*")
@@ -20,10 +21,10 @@ export async function getAllUsers({ includeAdmin }: GetAllUsersParams): Promise<
 
   const { data: users, error: usersError } = await query;
 
-  return validateResponse({ 
-    data: users, 
-    schema: usersSchema, 
-    error: usersError, 
+  return validateResponse({
+    data: users,
+    schema: usersSchema,
+    error: usersError,
     fallbackMsg: "Failed to load users",
   });
 }

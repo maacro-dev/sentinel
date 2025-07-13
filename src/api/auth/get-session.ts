@@ -1,8 +1,11 @@
-import { supabase } from "@/app/supabase";
+import { getSupabase } from "@/app/supabase";
 import { Result } from "@/lib/types";
 import { Session } from "@supabase/supabase-js";
 
 export async function getCurrentSession(): Promise<Result<Session>> {
+
+  const supabase = await getSupabase();
+
   const { data, error } = await supabase.auth.getSession();
 
   if (error) {
