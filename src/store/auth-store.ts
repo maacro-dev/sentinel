@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { Result, User, UserCredentials } from "@/lib/types";
 import { supabaseSession, supabaseSignIn, supabaseSignOut } from "@/api/auth";
 import { getUserByEmail } from "@/api/users";
-import { clearSignInTime, storeSignInTime } from "@/utils";
+import { clearAccessToken, clearSignInTime, storeSignInTime } from "@/utils";
+import { SESSION_MISSING } from "@/app/config/session";
 
 interface AuthState {
   user: User | null;
@@ -11,7 +12,7 @@ interface AuthState {
 
 interface AuthActions {
   setUser: (user: User | null) => void;
-  handleSession: () => Promise<void>; 
+  handleSession: () => Promise<void>;
   handleSignIn: (fields: UserCredentials) => Promise<Result<User>>;
   handleSignOut: () => Promise<Result<void>>;
 }
@@ -30,12 +31,17 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   },
   handleSignOut: async (): Promise<Result<void>> => {
     const signOutResult = await supabaseSignOut();
-    if (!signOutResult.ok) { return signOutResult; }
 
+    if (!signOutResult.ok && signOutResult.error?.message !== SESSION_MISSING) {
+      return signOutResult;
+    }
+
+    clearAccessToken();
     clearSignInTime();
     set({ user: null, sessionChecked: false });
     return { ok: true, data: undefined };
   },
+
   handleSignIn: async ({ email, password }: UserCredentials): Promise<Result<User>> => {
     const signInResult = await supabaseSignIn(email, password);
     if (!signInResult.ok) { return signInResult; }
