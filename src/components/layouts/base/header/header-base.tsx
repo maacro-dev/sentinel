@@ -13,7 +13,7 @@ export const BaseHeader = memo(() => {
   const breadcrumbs = useBreadcrumbs();
 
   return (
-    <header className="flex h-16 items-center gap-2 px-4">
+    <header className="sticky top-0 z-20 flex h-18 items-center gap-2 px-4">
       <SidebarTrigger className="-ml-1" />
       <Separator
         orientation="vertical"
@@ -27,8 +27,6 @@ export const BaseHeader = memo(() => {
               section={crumb.section}
               title={crumb.title}
               url={crumb.url}
-              isFirst={idx === 0}
-              isLast={idx === breadcrumbs.length - 1}
             />
           ))}
         </BreadcrumbList>
