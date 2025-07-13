@@ -1,4 +1,4 @@
-import { supabase } from "@/app/supabase";
+import { getSupabase } from "@/app/supabase";
 import { Result } from "@/lib/types";
 import { FunctionsHttpError, FunctionsRelayError, FunctionsFetchError } from "@supabase/supabase-js";
 
@@ -6,6 +6,8 @@ export async function invokeFunction<T>(
   name: string,
   body: object
 ): Promise<Result<T>> {
+
+  const supabase = await getSupabase();
 
   const { data, error } = await supabase.functions.invoke(name, { body });
 
