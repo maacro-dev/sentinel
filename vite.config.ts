@@ -3,6 +3,7 @@ import path from "path";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import svgr from "vite-plugin-svgr";
 
 const ReactCompilerConfig = {
   target: "19",
@@ -19,6 +20,7 @@ export default defineConfig({
     port: 3001
   },
   plugins: [
+    svgr(),
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,
