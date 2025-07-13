@@ -1,9 +1,15 @@
+export type Nullable<T> = {
+  [K in keyof T]: T[K] | null;
+};
+
+
 export type {
   RouteMetadata,
   RouteGroup,
   RouteWithStaticData,
   RouteBreadcrumb,
 } from "./route";
+
 export type {
   SidebarData,
   SidebarSectionMap,
@@ -11,6 +17,7 @@ export type {
   SidebarItem,
   SidebarSection,
 } from "./sidebar";
+
 export type {
   User,
   UserCredentials,
@@ -18,4 +25,16 @@ export type {
   UserStatus,
   Role,
 } from "./user";
+
 export type { Result } from "./result";
+
+export type {
+  FormSubmissionStat,
+  SeasonYieldComparisonStat,
+  SeasonYieldTimeSeries,
+  SeasonIrrigationComparisonStat,
+  SeasonHarvestedAreaComparisonStat,
+  SeasonFieldCountComparisonStat,
+  BarangayYieldTopBottomRanked
+} from "./analytics";
+
