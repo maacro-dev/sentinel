@@ -1,3 +1,4 @@
+import { AUTH_TOKEN_KEY } from "./config/session";
 import { Database } from "./supabase.types";
 
 export async function getSupabase() {
@@ -17,6 +18,7 @@ export async function getSupabase() {
       autoRefreshToken: true,
       detectSessionInUrl: false,
       storage: localStorage,
+      storageKey: AUTH_TOKEN_KEY
     },
   };
 
