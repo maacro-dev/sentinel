@@ -1,5 +1,5 @@
 select public.create_seed_user(
-  '0e196a64-05dd-428c-a867-32412afa148a',
+  'ea35b3d8-277e-44c9-a94c-a21c1a914612',
   'romilie_taculin@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Romilie Taculin',
@@ -8,7 +8,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'cec5ce99-4532-4221-bb9a-1d5869abbb44',
+  'a03a9049-290c-4e5a-8f41-c67077d2b0d1',
   'reynaldo_chavez@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Reynaldo Chavez',
@@ -17,7 +17,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '0ea3c2db-a7f5-4c51-995c-2e8fea29fa47',
+  '148d0624-29d4-4e09-9ff6-da1663154f25',
   'clara_mae_doma@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Clara Mae Doma',
@@ -26,7 +26,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '54f83a6e-1364-491a-bfcd-5e6078b828eb',
+  'ae5fe49b-12d4-4318-afe8-2828a2841e8c',
   'efren_desposado@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Efren Desposado',
@@ -35,7 +35,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'b9c88e94-f891-4c5a-ac0b-ff3b6dc7fc23',
+  'c6c1be1f-b139-471d-b260-c0068787a3e9',
   'roselyn_sican@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Roselyn Sican',
@@ -44,7 +44,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'a3e30823-951f-44db-8e82-93a6996efe84',
+  '4608c610-ace6-4464-9ad5-b6bfd51ddca0',
   'jovelyn_tano@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Jovelyn Tano',
@@ -53,7 +53,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '3d5fc904-4546-429b-9f05-649c11148b1a',
+  '591fbf08-f147-4369-9681-794ffc062c8d',
   'connie_gomia@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Connie Gomia',
@@ -62,7 +62,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '3e93d07f-760b-46cc-a415-76ab4dea0f09',
+  '19097fa4-c26e-4a87-a8d8-8f07df2f104c',
   'andy_savillo@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Andy Savillo',
@@ -71,7 +71,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '51d73db1-48e0-43a7-a09d-05415255c17d',
+  '5c843f42-a93c-4af5-835a-8bafd4b7e7d9',
   'djohana_magbanua@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Djohana Magbanua',
@@ -80,7 +80,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'a1bec324-61bb-4b71-ac81-a4bce210a8eb',
+  '74af34ad-a725-4cee-a40a-538829947bbb',
   'procesa_ejudo@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Procesa Ejudo',
@@ -89,7 +89,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '04aa6409-bc74-400b-a23f-f7be8152655c',
+  '2491e61e-2e39-42d7-b9c3-996a9494d1f4',
   'teodolfo_espartero@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Teodolfo Espartero',
@@ -98,7 +98,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'f358e9d0-1abf-4dd1-8d3c-4c564dba8cb8',
+  '08878e94-8a48-4fd6-b1c2-b60acaf786e2',
   'rishel_miguel@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Rishel Miguel',
@@ -107,7 +107,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'a7d6191c-986b-4fd7-b975-4cc248c0b54d',
+  'dff7ce3b-b5e7-4db8-b94b-a6cc5dca960d',
   'eulito_bolivar@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Eulito Bolivar',
@@ -116,7 +116,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'db3e8556-1853-429d-907a-c1d08b1627fd',
+  '4bbc9476-9bb4-43ed-b7c7-4793380cd177',
   'armando_divino@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Armando Divino',
@@ -125,7 +125,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'ee408fe2-8d13-4ba2-ad0b-2695178a6f16',
+  'd9e80835-1e30-49dc-b738-f8403775ca1e',
   'sheryl_gregorio@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Sheryl Gregorio',
@@ -134,7 +134,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '3ff0520a-7755-4fea-871e-ca080a3b4e30',
+  'd7a35ac9-d3f1-4c1d-852c-95af9cf2c19e',
   'vanissa_mae_camilan@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Vanissa Mae Camilan',
@@ -143,7 +143,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '01a75ad2-aeea-4283-9e3e-460947d3853f',
+  '08d648fe-1ba5-4c06-ae8d-1ffd4a419ec7',
   'lailyn_badayos@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Lailyn Badayos',
@@ -152,7 +152,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'cfdee914-4f1d-4ef4-8fb4-262bd5b74b17',
+  'f961cb86-231a-464d-a3a8-9d8b9445fe32',
   'nimrod_olac@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Nimrod Olac',
@@ -161,7 +161,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'ca05a590-ca63-4fcb-b2ca-b25022710ea7',
+  '1b7a2f88-0428-4462-a959-8cf429699f1b',
   'ruvin_ray_tacadao@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Ruvin Ray Tacadao',
@@ -170,7 +170,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  '0ba92f9e-1dee-40c3-8dae-30f52c4f05e3',
+  '7c98e4ee-241b-414a-927b-1379c21ef4e6',
   'fe_malabanan@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Fe Malabanan',
@@ -179,7 +179,7 @@ select public.create_seed_user(
   'data_collector'
 );
 select public.create_seed_user(
-  'ef954429-6bea-4c13-a98c-1626bcfdbd3d',
+  'd3aecf3e-8726-4253-bebe-d8d8b60841a9',
   'ma_fe_pollentes@humayapp.com',
   '$2a$12$6r60GZBWJOnXzN522JhSTeIRgP08QH4YluOOaG93AioDsPIkdAkH2',
   'Ma. Fe Pollentes',
