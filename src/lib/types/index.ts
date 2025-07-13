@@ -2,7 +2,6 @@ export type Nullable<T> = {
   [K in keyof T]: T[K] | null;
 };
 
-
 export type {
   RouteMetadata,
   RouteGroup,
@@ -26,7 +25,7 @@ export type {
   Role,
 } from "./user";
 
-export type { Result } from "./result";
+export type { Result, ErrorResult, SuccessResult } from "./result";
 
 export type {
   FormSubmissionStat,
