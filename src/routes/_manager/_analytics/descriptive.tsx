@@ -2,17 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import PlaceholderBody from "@/components/placeholder-body";
 import { ChartArea } from "lucide-react";
 
-export const Route = createFileRoute("/_manager/analytics")({
+export const Route = createFileRoute("/_manager/_analytics/descriptive")({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Analytics | Humay" }],
+    meta: [{ title: "Descriptive Analytics | Humay" }],
   }),
   staticData: {
     routeFor: "data_manager",
-    label: "Analytics",
+    label: "Descriptive",
     icon: ChartArea,
-    group: "Overview",
-    navItemOrder: 2,
+    group: "Analytics",
+    navItemOrder: 1,
   },
 });
 
