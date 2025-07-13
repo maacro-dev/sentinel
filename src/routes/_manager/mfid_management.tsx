@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_manager/mfid_management")({
   }),
   staticData: {
     routeFor: "data_manager",
-    label: "MFID Management",
+    label: "MFID",
     icon: IdCard,
     group: "Overview",
     navItemOrder: 3,
