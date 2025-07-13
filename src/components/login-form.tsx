@@ -20,7 +20,6 @@ type LoginFormProps = {
   onSubmit: (fields: UserCredentials) => void;
 };
 
-// TODO: remember textfields state on refresh
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   const status = useRouterState({ select: s => s.status });
@@ -31,15 +30,15 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   });
 
   return (
-    <Card className="w-96 shadow-none border-none">
-      <CardHeader className="flex flex-col gap-4">
+    <Card className="min-w-96 md:min-w-1/3 gap-8 shadow-none border-none">
+      <CardHeader className="flex flex-col gap-4 w-full">
         <Logo />
-        <div className="flex flex-col gap-1">
-          <CardTitle>Login to your account</CardTitle>
+        <div className="flex flex-col gap-2">
+          <CardTitle className="text-3xl">Login to your account</CardTitle>
           <CardDescription>Enter your credentials below to login</CardDescription>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="my-2">
         <HumayForm form={form} onSubmit={onSubmit}>
           <HumayTextField
             name="email"
@@ -53,7 +52,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
             placeholder="Enter your password"
             type="password"
           />
-          <Button className="w-full relative h-10">
+          <Button className="w-full relative h-10 mt-2">
             {status === 'pending' ? (
               <Spinner className="size-5 text-background"/>
             ) : (
