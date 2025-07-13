@@ -1,8 +1,9 @@
 import { memo } from "react";
-import { BadgeCheck, Bell, LogOut } from "lucide-react";
+import { BadgeCheck, LogOut } from "lucide-react";
 import { DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User } from "@/lib/types";
+import { Role, User } from "@/lib/types";
+import { ROLE_LABELS } from "@/app/config";
 
 export const SidebarUserNavigationDropdown = memo(
   ({
@@ -13,7 +14,7 @@ export const SidebarUserNavigationDropdown = memo(
     handleSignOutClick: () => Promise<void>;
   }) => (
     <DropdownMenuContent
-      className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+      className="w-(--radix-dropdown-menu-trigger-width) shadow-none min-w-56 rounded-lg font-mono"
       align="end"
       side="right"
       sideOffset={4}
@@ -26,25 +27,27 @@ export const SidebarUserNavigationDropdown = memo(
               {user?.last_name?.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">{user?.first_name}</span>
-            <span className="truncate text-xs">{user?.email}</span>
+          <div className="grid flex-1 text-left leading-tight">
+            <span className="truncate text-xs font-medium">{user?.first_name}</span>
+            <span className="truncate text-muted-foreground/75 text-[0.7rem]">
+              {ROLE_LABELS[user?.role as Role]}
+            </span>
           </div>
         </div>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        <DropdownMenuItem>
+        <DropdownMenuItem className="text-xs">
           <BadgeCheck />
           Account
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        {/* <DropdownMenuItem className="text-xs">
           <Bell />
           Notifications
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
       </DropdownMenuGroup>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem onClick={handleSignOutClick}>
+      {/* <DropdownMenuSeparator /> */}
+      <DropdownMenuItem onClick={handleSignOutClick} className="text-xs">
         <LogOut />
         Log out
       </DropdownMenuItem>
