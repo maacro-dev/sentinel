@@ -4,7 +4,7 @@ import type { Role } from ".";
 import type { SidebarStaticData } from "./sidebar";
 
 export type RouteGroup
-  = "Core" | "Forms" | "Overview" | "Access Control" | "Operations" | "Configuration" | "*";
+  = "Core" | "Analytics" | "Forms" | "Overview" | "Access Control" | "Operations" | "Configuration" | "*";
 
 export type RouteWithStaticData = AnyRoute & {
   options: { staticData: SidebarStaticData }
