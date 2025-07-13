@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FormInput } from "lucide-react";
 import PlaceholderBody from "@/components/placeholder-body";
 
-export const Route = createFileRoute("/_manager/_forms/overview")({
+export const Route = createFileRoute("/_manager/_forms/_overview")({
   component: RouteComponent,
   head: () => ({
     meta: [{ title: "Overview | Humay" }],
