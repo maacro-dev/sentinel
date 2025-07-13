@@ -1,16 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { User } from "lucide-react";
+import { Grid2X2 } from "lucide-react";
 import PlaceholderBody from "@/components/placeholder-body";
 
-export const Route = createFileRoute("/_manager/_forms/fieldProfile")({
+export const Route = createFileRoute("/_manager/_forms/fieldData")({
   component: RouteComponent,
   head: () => ({
-    meta: [{ title: "Field Profile | Humay" }],
+    meta: [{ title: "Field Data | Humay" }],
   }),
   staticData: {
     routeFor: "data_manager",
-    label: "Field Profile",
-    icon: User,
+    label: "Field Data",
+    icon: Grid2X2,
     group: "Forms",
     navItemOrder: 2,
   },
