@@ -54,11 +54,11 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
                     <Link
                       replace
                       to={item.path}
-                      className="flex items-center gap-2.5"
-                      activeProps={{ className: "bg-sidebar-accent" }}
+                      className="flex items-center gap-2.5 text-primary/70 transition-colors"
+                      activeProps={{ className: "bg-sidebar-accent text-primary/100 font-semibold" }}
                     >
                       <item.icon className="!size-4" />
-                      <span className="text-xs">{item.label}</span>
+                      <span className="text-[0.7rem]">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
