@@ -24,15 +24,17 @@ import { Route as AdminMaintenanceRouteImport } from './../routes/admin/maintena
 import { Route as AdminDashboardRouteImport } from './../routes/admin/dashboard'
 import { Route as ManagerMfid_managementRouteImport } from './../routes/_manager/mfid_management'
 import { Route as ManagerDashboardRouteImport } from './../routes/_manager/dashboard'
-import { Route as ManagerAnalyticsRouteImport } from './../routes/_manager/analytics'
 import { Route as ManagerFormsRiceNonRiceRouteImport } from './../routes/_manager/_forms/riceNonRice'
 import { Route as ManagerFormsProductionRouteImport } from './../routes/_manager/_forms/production'
-import { Route as ManagerFormsOverviewRouteImport } from './../routes/_manager/_forms/overview'
 import { Route as ManagerFormsNutrientManagementRouteImport } from './../routes/_manager/_forms/nutrientManagement'
 import { Route as ManagerFormsMonitoringRouteImport } from './../routes/_manager/_forms/monitoring'
-import { Route as ManagerFormsFieldProfileRouteImport } from './../routes/_manager/_forms/fieldProfile'
+import { Route as ManagerFormsFieldDataRouteImport } from './../routes/_manager/_forms/fieldData'
 import { Route as ManagerFormsDamageAssessmentRouteImport } from './../routes/_manager/_forms/damageAssessment'
 import { Route as ManagerFormsCulturalManagementRouteImport } from './../routes/_manager/_forms/culturalManagement'
+import { Route as ManagerFormsOverviewRouteImport } from './../routes/_manager/_forms/_overview'
+import { Route as ManagerAnalyticsPredictiveRouteImport } from './../routes/_manager/_analytics/predictive'
+import { Route as ManagerAnalyticsDescriptiveRouteImport } from './../routes/_manager/_analytics/descriptive'
+import { Route as ManagerAnalyticsComparativeRouteImport } from './../routes/_manager/_analytics/comparative'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -108,11 +110,6 @@ const ManagerDashboardRoute = ManagerDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => ManagerRoute,
 } as any)
-const ManagerAnalyticsRoute = ManagerAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => ManagerRoute,
-} as any)
 const ManagerFormsRiceNonRiceRoute = ManagerFormsRiceNonRiceRouteImport.update({
   id: '/_forms/riceNonRice',
   path: '/riceNonRice',
@@ -121,11 +118,6 @@ const ManagerFormsRiceNonRiceRoute = ManagerFormsRiceNonRiceRouteImport.update({
 const ManagerFormsProductionRoute = ManagerFormsProductionRouteImport.update({
   id: '/_forms/production',
   path: '/production',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const ManagerFormsOverviewRoute = ManagerFormsOverviewRouteImport.update({
-  id: '/_forms/overview',
-  path: '/overview',
   getParentRoute: () => ManagerRoute,
 } as any)
 const ManagerFormsNutrientManagementRoute =
@@ -139,12 +131,11 @@ const ManagerFormsMonitoringRoute = ManagerFormsMonitoringRouteImport.update({
   path: '/monitoring',
   getParentRoute: () => ManagerRoute,
 } as any)
-const ManagerFormsFieldProfileRoute =
-  ManagerFormsFieldProfileRouteImport.update({
-    id: '/_forms/fieldProfile',
-    path: '/fieldProfile',
-    getParentRoute: () => ManagerRoute,
-  } as any)
+const ManagerFormsFieldDataRoute = ManagerFormsFieldDataRouteImport.update({
+  id: '/_forms/fieldData',
+  path: '/fieldData',
+  getParentRoute: () => ManagerRoute,
+} as any)
 const ManagerFormsDamageAssessmentRoute =
   ManagerFormsDamageAssessmentRouteImport.update({
     id: '/_forms/damageAssessment',
@@ -157,6 +148,28 @@ const ManagerFormsCulturalManagementRoute =
     path: '/culturalManagement',
     getParentRoute: () => ManagerRoute,
   } as any)
+const ManagerFormsOverviewRoute = ManagerFormsOverviewRouteImport.update({
+  id: '/_forms/_overview',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerAnalyticsPredictiveRoute =
+  ManagerAnalyticsPredictiveRouteImport.update({
+    id: '/_analytics/predictive',
+    path: '/predictive',
+    getParentRoute: () => ManagerRoute,
+  } as any)
+const ManagerAnalyticsDescriptiveRoute =
+  ManagerAnalyticsDescriptiveRouteImport.update({
+    id: '/_analytics/descriptive',
+    path: '/descriptive',
+    getParentRoute: () => ManagerRoute,
+  } as any)
+const ManagerAnalyticsComparativeRoute =
+  ManagerAnalyticsComparativeRouteImport.update({
+    id: '/_analytics/comparative',
+    path: '/comparative',
+    getParentRoute: () => ManagerRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -165,7 +178,6 @@ export interface FileRoutesByFullPath {
   '/data_collector': typeof Data_collectorRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/mfid_management': typeof ManagerMfid_managementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -174,12 +186,14 @@ export interface FileRoutesByFullPath {
   '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user_management': typeof AdminUser_managementRoute
+  '/comparative': typeof ManagerAnalyticsComparativeRoute
+  '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
+  '/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
   '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
-  '/fieldProfile': typeof ManagerFormsFieldProfileRoute
+  '/fieldData': typeof ManagerFormsFieldDataRoute
   '/monitoring': typeof ManagerFormsMonitoringRoute
   '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
-  '/overview': typeof ManagerFormsOverviewRoute
   '/production': typeof ManagerFormsProductionRoute
   '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
@@ -190,7 +204,6 @@ export interface FileRoutesByTo {
   '/data_collector': typeof Data_collectorRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/analytics': typeof ManagerAnalyticsRoute
   '/dashboard': typeof ManagerDashboardRoute
   '/mfid_management': typeof ManagerMfid_managementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -199,12 +212,14 @@ export interface FileRoutesByTo {
   '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user_management': typeof AdminUser_managementRoute
+  '/comparative': typeof ManagerAnalyticsComparativeRoute
+  '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
+  '/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
   '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
-  '/fieldProfile': typeof ManagerFormsFieldProfileRoute
+  '/fieldData': typeof ManagerFormsFieldDataRoute
   '/monitoring': typeof ManagerFormsMonitoringRoute
   '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
-  '/overview': typeof ManagerFormsOverviewRoute
   '/production': typeof ManagerFormsProductionRoute
   '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
@@ -217,7 +232,6 @@ export interface FileRoutesById {
   '/data_collector': typeof Data_collectorRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/_manager/analytics': typeof ManagerAnalyticsRoute
   '/_manager/dashboard': typeof ManagerDashboardRoute
   '/_manager/mfid_management': typeof ManagerMfid_managementRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -226,12 +240,15 @@ export interface FileRoutesById {
   '/admin/security': typeof AdminSecurityRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/user_management': typeof AdminUser_managementRoute
+  '/_manager/_analytics/comparative': typeof ManagerAnalyticsComparativeRoute
+  '/_manager/_analytics/descriptive': typeof ManagerAnalyticsDescriptiveRoute
+  '/_manager/_analytics/predictive': typeof ManagerAnalyticsPredictiveRoute
+  '/_manager/_forms/_overview': typeof ManagerFormsOverviewRoute
   '/_manager/_forms/culturalManagement': typeof ManagerFormsCulturalManagementRoute
   '/_manager/_forms/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
-  '/_manager/_forms/fieldProfile': typeof ManagerFormsFieldProfileRoute
+  '/_manager/_forms/fieldData': typeof ManagerFormsFieldDataRoute
   '/_manager/_forms/monitoring': typeof ManagerFormsMonitoringRoute
   '/_manager/_forms/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
-  '/_manager/_forms/overview': typeof ManagerFormsOverviewRoute
   '/_manager/_forms/production': typeof ManagerFormsProductionRoute
   '/_manager/_forms/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
@@ -244,7 +261,6 @@ export interface FileRouteTypes {
     | '/data_collector'
     | '/login'
     | '/unauthorized'
-    | '/analytics'
     | '/dashboard'
     | '/mfid_management'
     | '/admin/dashboard'
@@ -253,12 +269,14 @@ export interface FileRouteTypes {
     | '/admin/security'
     | '/admin/settings'
     | '/admin/user_management'
+    | '/comparative'
+    | '/descriptive'
+    | '/predictive'
     | '/culturalManagement'
     | '/damageAssessment'
-    | '/fieldProfile'
+    | '/fieldData'
     | '/monitoring'
     | '/nutrientManagement'
-    | '/overview'
     | '/production'
     | '/riceNonRice'
   fileRoutesByTo: FileRoutesByTo
@@ -269,7 +287,6 @@ export interface FileRouteTypes {
     | '/data_collector'
     | '/login'
     | '/unauthorized'
-    | '/analytics'
     | '/dashboard'
     | '/mfid_management'
     | '/admin/dashboard'
@@ -278,12 +295,14 @@ export interface FileRouteTypes {
     | '/admin/security'
     | '/admin/settings'
     | '/admin/user_management'
+    | '/comparative'
+    | '/descriptive'
+    | '/predictive'
     | '/culturalManagement'
     | '/damageAssessment'
-    | '/fieldProfile'
+    | '/fieldData'
     | '/monitoring'
     | '/nutrientManagement'
-    | '/overview'
     | '/production'
     | '/riceNonRice'
   id:
@@ -295,7 +314,6 @@ export interface FileRouteTypes {
     | '/data_collector'
     | '/login'
     | '/unauthorized'
-    | '/_manager/analytics'
     | '/_manager/dashboard'
     | '/_manager/mfid_management'
     | '/admin/dashboard'
@@ -304,12 +322,15 @@ export interface FileRouteTypes {
     | '/admin/security'
     | '/admin/settings'
     | '/admin/user_management'
+    | '/_manager/_analytics/comparative'
+    | '/_manager/_analytics/descriptive'
+    | '/_manager/_analytics/predictive'
+    | '/_manager/_forms/_overview'
     | '/_manager/_forms/culturalManagement'
     | '/_manager/_forms/damageAssessment'
-    | '/_manager/_forms/fieldProfile'
+    | '/_manager/_forms/fieldData'
     | '/_manager/_forms/monitoring'
     | '/_manager/_forms/nutrientManagement'
-    | '/_manager/_forms/overview'
     | '/_manager/_forms/production'
     | '/_manager/_forms/riceNonRice'
   fileRoutesById: FileRoutesById
@@ -431,13 +452,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerDashboardRouteImport
       parentRoute: typeof ManagerRoute
     }
-    '/_manager/analytics': {
-      id: '/_manager/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof ManagerAnalyticsRouteImport
-      parentRoute: typeof ManagerRoute
-    }
     '/_manager/_forms/riceNonRice': {
       id: '/_manager/_forms/riceNonRice'
       path: '/riceNonRice'
@@ -450,13 +464,6 @@ declare module '@tanstack/react-router' {
       path: '/production'
       fullPath: '/production'
       preLoaderRoute: typeof ManagerFormsProductionRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/overview': {
-      id: '/_manager/_forms/overview'
-      path: '/overview'
-      fullPath: '/overview'
-      preLoaderRoute: typeof ManagerFormsOverviewRouteImport
       parentRoute: typeof ManagerRoute
     }
     '/_manager/_forms/nutrientManagement': {
@@ -473,11 +480,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerFormsMonitoringRouteImport
       parentRoute: typeof ManagerRoute
     }
-    '/_manager/_forms/fieldProfile': {
-      id: '/_manager/_forms/fieldProfile'
-      path: '/fieldProfile'
-      fullPath: '/fieldProfile'
-      preLoaderRoute: typeof ManagerFormsFieldProfileRouteImport
+    '/_manager/_forms/fieldData': {
+      id: '/_manager/_forms/fieldData'
+      path: '/fieldData'
+      fullPath: '/fieldData'
+      preLoaderRoute: typeof ManagerFormsFieldDataRouteImport
       parentRoute: typeof ManagerRoute
     }
     '/_manager/_forms/damageAssessment': {
@@ -494,33 +501,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerFormsCulturalManagementRouteImport
       parentRoute: typeof ManagerRoute
     }
+    '/_manager/_forms/_overview': {
+      id: '/_manager/_forms/_overview'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ManagerFormsOverviewRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_analytics/predictive': {
+      id: '/_manager/_analytics/predictive'
+      path: '/predictive'
+      fullPath: '/predictive'
+      preLoaderRoute: typeof ManagerAnalyticsPredictiveRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_analytics/descriptive': {
+      id: '/_manager/_analytics/descriptive'
+      path: '/descriptive'
+      fullPath: '/descriptive'
+      preLoaderRoute: typeof ManagerAnalyticsDescriptiveRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_analytics/comparative': {
+      id: '/_manager/_analytics/comparative'
+      path: '/comparative'
+      fullPath: '/comparative'
+      preLoaderRoute: typeof ManagerAnalyticsComparativeRouteImport
+      parentRoute: typeof ManagerRoute
+    }
   }
 }
 
 interface ManagerRouteChildren {
-  ManagerAnalyticsRoute: typeof ManagerAnalyticsRoute
   ManagerDashboardRoute: typeof ManagerDashboardRoute
   ManagerMfid_managementRoute: typeof ManagerMfid_managementRoute
+  ManagerAnalyticsComparativeRoute: typeof ManagerAnalyticsComparativeRoute
+  ManagerAnalyticsDescriptiveRoute: typeof ManagerAnalyticsDescriptiveRoute
+  ManagerAnalyticsPredictiveRoute: typeof ManagerAnalyticsPredictiveRoute
+  ManagerFormsOverviewRoute: typeof ManagerFormsOverviewRoute
   ManagerFormsCulturalManagementRoute: typeof ManagerFormsCulturalManagementRoute
   ManagerFormsDamageAssessmentRoute: typeof ManagerFormsDamageAssessmentRoute
-  ManagerFormsFieldProfileRoute: typeof ManagerFormsFieldProfileRoute
+  ManagerFormsFieldDataRoute: typeof ManagerFormsFieldDataRoute
   ManagerFormsMonitoringRoute: typeof ManagerFormsMonitoringRoute
   ManagerFormsNutrientManagementRoute: typeof ManagerFormsNutrientManagementRoute
-  ManagerFormsOverviewRoute: typeof ManagerFormsOverviewRoute
   ManagerFormsProductionRoute: typeof ManagerFormsProductionRoute
   ManagerFormsRiceNonRiceRoute: typeof ManagerFormsRiceNonRiceRoute
 }
 
 const ManagerRouteChildren: ManagerRouteChildren = {
-  ManagerAnalyticsRoute: ManagerAnalyticsRoute,
   ManagerDashboardRoute: ManagerDashboardRoute,
   ManagerMfid_managementRoute: ManagerMfid_managementRoute,
+  ManagerAnalyticsComparativeRoute: ManagerAnalyticsComparativeRoute,
+  ManagerAnalyticsDescriptiveRoute: ManagerAnalyticsDescriptiveRoute,
+  ManagerAnalyticsPredictiveRoute: ManagerAnalyticsPredictiveRoute,
+  ManagerFormsOverviewRoute: ManagerFormsOverviewRoute,
   ManagerFormsCulturalManagementRoute: ManagerFormsCulturalManagementRoute,
   ManagerFormsDamageAssessmentRoute: ManagerFormsDamageAssessmentRoute,
-  ManagerFormsFieldProfileRoute: ManagerFormsFieldProfileRoute,
+  ManagerFormsFieldDataRoute: ManagerFormsFieldDataRoute,
   ManagerFormsMonitoringRoute: ManagerFormsMonitoringRoute,
   ManagerFormsNutrientManagementRoute: ManagerFormsNutrientManagementRoute,
-  ManagerFormsOverviewRoute: ManagerFormsOverviewRoute,
   ManagerFormsProductionRoute: ManagerFormsProductionRoute,
   ManagerFormsRiceNonRiceRoute: ManagerFormsRiceNonRiceRoute,
 }
