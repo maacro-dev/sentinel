@@ -29,7 +29,7 @@ export const BaseLayout = ({
           {sidebarSlot}
         </FadeInDiv>
       </Suspense>
-      <SidebarInset>
+      <SidebarInset className="overflow-visible">
         <Suspense
           fallback={
             <FadeInDiv direction="down">
@@ -37,7 +37,7 @@ export const BaseLayout = ({
             </FadeInDiv>
           }
         >
-          <FadeInDiv direction="up">
+          <FadeInDiv direction="up" className="sticky top-0 z-20 bg-background/20 backdrop-blur-lg">
             {headerSlot}
           </FadeInDiv>
         </Suspense>
