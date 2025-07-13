@@ -13,8 +13,8 @@ function Input({ className, type, renderPrefix, renderSuffix, ...props }: InputP
     <div
       className={cn(
         "relative flex items-center gap-2",
-        "border-input flex h-8 w-full min-w-0 rounded-md border px-2 py-1.5",
-        "ring-0 ring-transparent ring-offset-2 ring-offset-background", 
+        "border-input flex w-full min-w-0 rounded-md border px-2 py-2",
+        "ring-0 ring-transparent ring-offset-2 ring-offset-background",
         "transition-all focus-within:ring-2 focus-within:ring-ring",
         className
       )}
