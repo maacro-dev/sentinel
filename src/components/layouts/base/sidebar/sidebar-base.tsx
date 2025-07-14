@@ -31,9 +31,9 @@ type HumayBaseSidebarProps = {
   data: SidebarData;
 } & React.ComponentProps<typeof Sidebar>;
 
-export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps) => {
+export const HumayBaseSidebar = memo(({ data, className, ...props }: HumayBaseSidebarProps) => {
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="inset" className="border-r" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -50,12 +50,14 @@ export const HumayBaseSidebar = memo(({ data, ...props }: HumayBaseSidebarProps)
             <SidebarMenu>
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild >
                     <Link
                       replace
                       to={item.path}
-                      className="flex items-center gap-2.5 text-primary/70 transition-colors"
-                      activeProps={{ className: "bg-sidebar-accent text-primary/100 font-semibold" }}
+                      className={cn(
+                        "flex items-center gap-2.5 text-primary/70 transition-colors",
+                      )}
+                      activeProps={{ className: "text-primary/100 font-semibold bg-accent" }}
                     >
                       <item.icon className="!size-4" />
                       <span className="text-[0.7rem]">{item.label}</span>
