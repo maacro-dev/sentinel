@@ -30,15 +30,15 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   });
 
   return (
-    <Card className="min-w-96 md:min-w-1/3 gap-8 shadow-none border-none">
-      <CardHeader className="flex flex-col gap-4 w-full">
+    <Card className="min-w-96 gap-8 shadow-none border-none bg-transparent">
+      <CardHeader className="flex flex-col gap-4 w-full max-w-96">
         <Logo />
         <div className="flex flex-col gap-2">
           <CardTitle className="text-3xl">Login to your account</CardTitle>
           <CardDescription>Enter your credentials below to login</CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="my-2">
+      <CardContent className="my-2 max-w-96">
         <HumayForm form={form} onSubmit={onSubmit}>
           <HumayTextField
             name="email"
