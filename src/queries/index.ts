@@ -1,6 +1,7 @@
 import { GetAllUsersParams } from "@/api/users";
 import { queryOptions } from "@tanstack/react-query";
 import { queryUsers } from "./users";
+import { queryAllFields } from "./fields";
 import {
   queryBarangayYieldTopBottom,
   queryFormSubmissionCount,
@@ -30,6 +31,12 @@ export const usersQueryOptions = (params: GetAllUsersParams) =>
     queryFn: () => queryUsers(params),
     staleTime: 1000 * 60 * 5,
   })
+
+// fields
+export const fieldsQueryOptions = createQueryOptions(
+  ["fields"] as const,
+  queryAllFields
+);
 
 // analytics
 export const seasonFieldCountComparisonStatQueryOptions = createQueryOptions(

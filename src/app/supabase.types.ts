@@ -12,128 +12,21 @@ export type Database = {
       [_ in never]: never
     }
     Views: {
-      barangay_yields_top_bottom: {
-        Row: {
-          avg_yield_t_per_ha: number | null
-          barangay_name: string | null
-          category: string | null
-          municipality_name: string | null
-          province_name: string | null
-        }
-        Relationships: []
-      }
-      form_submission_comparison: {
-        Row: {
-          current_forms_submitted: number | null
-          current_semester: Database["public"]["Enums"]["semester"] | null
-          current_year: number | null
-          percent_change: number | null
-          previous_forms_submitted: number | null
-          previous_semester: Database["public"]["Enums"]["semester"] | null
-          previous_year: number | null
-        }
-        Relationships: []
-      }
-      harvest_yield_timeseries: {
-        Row: {
-          avg_yield_t_ha: number | null
-          month_year: string | null
-        }
-        Relationships: []
-      }
       season_field_count_comparison: {
         Row: {
+          current_end_date: string | null
           current_field_count: number | null
+          current_month: number | null
+          current_season_year: string | null
           current_semester: Database["public"]["Enums"]["semester"] | null
+          current_start_date: string | null
           current_year: number | null
           percent_change: number | null
+          previous_end_date: string | null
           previous_field_count: number | null
+          previous_season_year: string | null
           previous_semester: Database["public"]["Enums"]["semester"] | null
-          previous_year: number | null
-        }
-        Relationships: []
-      }
-      season_field_counts: {
-        Row: {
-          field_count: number | null
-          sem: Database["public"]["Enums"]["semester"] | null
-          year: number | null
-        }
-        Relationships: []
-      }
-      season_harvested_area: {
-        Row: {
-          sem: Database["public"]["Enums"]["semester"] | null
-          total_area_harvested: number | null
-          year: number | null
-        }
-        Relationships: []
-      }
-      season_harvested_area_comparison: {
-        Row: {
-          current_area_harvested: number | null
-          current_semester: Database["public"]["Enums"]["semester"] | null
-          current_year: number | null
-          percent_change: number | null
-          previous_area_harvested: number | null
-          previous_semester: Database["public"]["Enums"]["semester"] | null
-          previous_year: number | null
-        }
-        Relationships: []
-      }
-      season_irrigation_comparison: {
-        Row: {
-          current_excessive: number | null
-          current_not_sufficient: number | null
-          current_semester: Database["public"]["Enums"]["semester"] | null
-          current_sufficient: number | null
-          current_year: number | null
-          excessive_change_pct: number | null
-          not_sufficient_change_pct: number | null
-          previous_excessive: number | null
-          previous_not_sufficient: number | null
-          previous_semester: Database["public"]["Enums"]["semester"] | null
-          previous_sufficient: number | null
-          previous_year: number | null
-          sufficient_change_pct: number | null
-        }
-        Relationships: []
-      }
-      season_irrigation_counts: {
-        Row: {
-          excessive_count: number | null
-          not_sufficient_count: number | null
-          sem: Database["public"]["Enums"]["semester"] | null
-          sufficient_count: number | null
-          year: number | null
-        }
-        Relationships: []
-      }
-      season_submissions: {
-        Row: {
-          forms_submitted: number | null
-          sem: Database["public"]["Enums"]["semester"] | null
-          year: number | null
-        }
-        Relationships: []
-      }
-      season_yield_comparison: {
-        Row: {
-          current_semester: Database["public"]["Enums"]["semester"] | null
-          current_year: number | null
-          current_yield_t_per_ha: number | null
-          percent_change: number | null
-          previous_semester: Database["public"]["Enums"]["semester"] | null
-          previous_year: number | null
-          previous_yield_t_per_ha: number | null
-        }
-        Relationships: []
-      }
-      season_yields: {
-        Row: {
-          avg_yield_kg_per_ha: number | null
-          sem: Database["public"]["Enums"]["semester"] | null
-          year: number | null
+          previous_start_date: string | null
         }
         Relationships: []
       }
@@ -292,13 +185,6 @@ export type Database = {
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "crop_establishments_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "submitted_forms"
-            referencedColumns: ["field_activity_id"]
-          },
         ]
       }
       farmers: {
@@ -354,13 +240,6 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fertilization_records_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "submitted_forms"
-            referencedColumns: ["field_activity_id"]
           },
         ]
       }
@@ -476,6 +355,13 @@ export type Database = {
             foreignKeyName: "field_activities_field_id_fkey"
             columns: ["field_id"]
             isOneToOne: false
+            referencedRelation: "field_details"
+            referencedColumns: ["field_id"]
+          },
+          {
+            foreignKeyName: "field_activities_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
             referencedRelation: "fields"
             referencedColumns: ["id"]
           },
@@ -485,13 +371,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "seasons"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "field_activities_season_id_fkey"
-            columns: ["season_id"]
-            isOneToOne: false
-            referencedRelation: "submitted_forms"
-            referencedColumns: ["season_id"]
           },
           {
             foreignKeyName: "field_activities_verified_by_fkey"
@@ -553,13 +432,6 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "field_plannings_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "submitted_forms"
-            referencedColumns: ["field_activity_id"]
           },
         ]
       }
@@ -644,13 +516,6 @@ export type Database = {
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "harvest_records_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "submitted_forms"
-            referencedColumns: ["field_activity_id"]
-          },
         ]
       }
       provinces: {
@@ -675,23 +540,23 @@ export type Database = {
         Row: {
           end_date: string
           id: number
-          sem: Database["public"]["Enums"]["semester"]
+          season_year: string
+          semester: Database["public"]["Enums"]["semester"]
           start_date: string
-          year: number
         }
         Insert: {
           end_date: string
           id?: number
-          sem: Database["public"]["Enums"]["semester"]
+          season_year: string
+          semester: Database["public"]["Enums"]["semester"]
           start_date: string
-          year: number
         }
         Update: {
           end_date?: string
           id?: number
-          sem?: Database["public"]["Enums"]["semester"]
+          season_year?: string
+          semester?: Database["public"]["Enums"]["semester"]
           start_date?: string
-          year?: number
         }
         Relationships: []
       }
@@ -754,6 +619,20 @@ export type Database = {
       }
     }
     Views: {
+      field_details: {
+        Row: {
+          barangay: string | null
+          created_at: string | null
+          farmer_first_name: string | null
+          farmer_last_name: string | null
+          field_id: number | null
+          mfid: string | null
+          municipality: string | null
+          province: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
       geography_columns: {
         Row: {
           coord_dimension: number | null
@@ -793,17 +672,6 @@ export type Database = {
           f_table_schema?: unknown | null
           srid?: number | null
           type?: string | null
-        }
-        Relationships: []
-      }
-      submitted_forms: {
-        Row: {
-          activity_type: Database["public"]["Enums"]["activity_type"] | null
-          collected_at: string | null
-          field_activity_id: number | null
-          season_id: number | null
-          sem: Database["public"]["Enums"]["semester"] | null
-          year: number | null
         }
         Relationships: []
       }

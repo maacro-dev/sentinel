@@ -37,3 +37,7 @@ export type {
   BarangayYieldTopBottomRanked
 } from "./analytics";
 
+export type {
+  Field,
+  Fields
+} from "./field"

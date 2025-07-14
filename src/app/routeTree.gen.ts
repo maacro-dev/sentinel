@@ -22,7 +22,7 @@ import { Route as AdminSecurityRouteImport } from './../routes/admin/security'
 import { Route as AdminReportsRouteImport } from './../routes/admin/reports'
 import { Route as AdminMaintenanceRouteImport } from './../routes/admin/maintenance'
 import { Route as AdminDashboardRouteImport } from './../routes/admin/dashboard'
-import { Route as ManagerMfid_managementRouteImport } from './../routes/_manager/mfid_management'
+import { Route as ManagerMonitored_fieldsRouteImport } from './../routes/_manager/monitored_fields'
 import { Route as ManagerDashboardRouteImport } from './../routes/_manager/dashboard'
 import { Route as ManagerFormsRiceNonRiceRouteImport } from './../routes/_manager/_forms/riceNonRice'
 import { Route as ManagerFormsProductionRouteImport } from './../routes/_manager/_forms/production'
@@ -100,9 +100,9 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
-const ManagerMfid_managementRoute = ManagerMfid_managementRouteImport.update({
-  id: '/mfid_management',
-  path: '/mfid_management',
+const ManagerMonitored_fieldsRoute = ManagerMonitored_fieldsRouteImport.update({
+  id: '/monitored_fields',
+  path: '/monitored_fields',
   getParentRoute: () => ManagerRoute,
 } as any)
 const ManagerDashboardRoute = ManagerDashboardRouteImport.update({
@@ -179,7 +179,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/dashboard': typeof ManagerDashboardRoute
-  '/mfid_management': typeof ManagerMfid_managementRoute
+  '/monitored_fields': typeof ManagerMonitored_fieldsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -205,7 +205,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/dashboard': typeof ManagerDashboardRoute
-  '/mfid_management': typeof ManagerMfid_managementRoute
+  '/monitored_fields': typeof ManagerMonitored_fieldsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -233,7 +233,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/_manager/dashboard': typeof ManagerDashboardRoute
-  '/_manager/mfid_management': typeof ManagerMfid_managementRoute
+  '/_manager/monitored_fields': typeof ManagerMonitored_fieldsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/maintenance': typeof AdminMaintenanceRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -262,7 +262,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/unauthorized'
     | '/dashboard'
-    | '/mfid_management'
+    | '/monitored_fields'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/reports'
@@ -288,7 +288,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/unauthorized'
     | '/dashboard'
-    | '/mfid_management'
+    | '/monitored_fields'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/reports'
@@ -315,7 +315,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/unauthorized'
     | '/_manager/dashboard'
-    | '/_manager/mfid_management'
+    | '/_manager/monitored_fields'
     | '/admin/dashboard'
     | '/admin/maintenance'
     | '/admin/reports'
@@ -438,11 +438,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/_manager/mfid_management': {
-      id: '/_manager/mfid_management'
-      path: '/mfid_management'
-      fullPath: '/mfid_management'
-      preLoaderRoute: typeof ManagerMfid_managementRouteImport
+    '/_manager/monitored_fields': {
+      id: '/_manager/monitored_fields'
+      path: '/monitored_fields'
+      fullPath: '/monitored_fields'
+      preLoaderRoute: typeof ManagerMonitored_fieldsRouteImport
       parentRoute: typeof ManagerRoute
     }
     '/_manager/dashboard': {
@@ -534,7 +534,7 @@ declare module '@tanstack/react-router' {
 
 interface ManagerRouteChildren {
   ManagerDashboardRoute: typeof ManagerDashboardRoute
-  ManagerMfid_managementRoute: typeof ManagerMfid_managementRoute
+  ManagerMonitored_fieldsRoute: typeof ManagerMonitored_fieldsRoute
   ManagerAnalyticsComparativeRoute: typeof ManagerAnalyticsComparativeRoute
   ManagerAnalyticsDescriptiveRoute: typeof ManagerAnalyticsDescriptiveRoute
   ManagerAnalyticsPredictiveRoute: typeof ManagerAnalyticsPredictiveRoute
@@ -550,7 +550,7 @@ interface ManagerRouteChildren {
 
 const ManagerRouteChildren: ManagerRouteChildren = {
   ManagerDashboardRoute: ManagerDashboardRoute,
-  ManagerMfid_managementRoute: ManagerMfid_managementRoute,
+  ManagerMonitored_fieldsRoute: ManagerMonitored_fieldsRoute,
   ManagerAnalyticsComparativeRoute: ManagerAnalyticsComparativeRoute,
   ManagerAnalyticsDescriptiveRoute: ManagerAnalyticsDescriptiveRoute,
   ManagerAnalyticsPredictiveRoute: ManagerAnalyticsPredictiveRoute,
