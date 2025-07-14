@@ -2,18 +2,17 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableRowSkeleton } from "@/components/ui/table";
 import { User } from "@/lib/types";
-import { LastActiveCell } from "./cells";
-import { UserActionsCell } from "./cells/user-actions-cell";
+import { LastActiveCell } from "../cells";
+import { UserActionsCell } from "../cells/user-actions-cell";
 import { usersQueryOptions } from "@/queries";
 import { useSuspenseQuery } from "@tanstack/react-query";
-
 
 
 interface UsersTableProps {
   users: User[]
 }
 
-export function UsersTable({ users }: UsersTableProps) {  
+export function UsersTable({ users }: UsersTableProps) {
   return (
     // <FadeInDiv direction="up" offset={2} duration={0.15}>
       <ScrollArea className="h-96 md:h-[32rem] rounded-md border">
