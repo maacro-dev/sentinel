@@ -21,7 +21,7 @@ import { Role, UserCreate } from "@/lib/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useState } from "react"
-import { Tabs, TabsContent } from "../ui/tabs"
+import { Tabs, TabsContent } from "./ui/tabs"
 
 export function CreateUserDialog({
   onSubmit,
