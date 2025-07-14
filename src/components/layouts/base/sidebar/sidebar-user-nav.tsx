@@ -7,7 +7,7 @@ import { ChevronsUpDown } from "lucide-react";
 import { memo, useCallback } from "react";
 import type { Role } from "@/lib/types";
 import { useAuthStore } from "@/store/auth-store";
-import { showToast } from "@/app/toast";
+import { dismissToast, showToast } from "@/app/toast";
 import { ROLE_LABELS } from "@/app/config";
 
 export const SidebarUserNavigation = memo(() => {
@@ -17,22 +17,26 @@ export const SidebarUserNavigation = memo(() => {
   const user = useAuthStore((state) => state.user);
 
   const handleSignOutClick = useCallback(async () => {
-    const toastId = showToast({
-      type: "loading",
-      message: "Hold on",
-      description: "signing you out...",
-    });
+
     const signOutResult = await handleSignOut();
-    if (signOutResult.ok) {
-      await navigate({ to: "/login", replace: true, reloadDocument: true });
-    } else {
+
+    if (!signOutResult.ok) {
       showToast({
         type: "error",
         message: "Failed to sign out",
         description: signOutResult.error?.message,
-        toastId: toastId,
       });
+
+      return;
     }
+
+    navigate({ to: "/login", replace: true });
+    showToast({
+      type: "success",
+      message: "Success",
+      description: "Successfully signed out",
+    });
+
   }, [handleSignOut, navigate]);
 
   return (
@@ -43,7 +47,7 @@ export const SidebarUserNavigation = memo(() => {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className="data-[state=open]:bg-green-200/5! data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarFallback className="rounded-lg">
