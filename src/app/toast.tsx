@@ -26,7 +26,7 @@ interface ToastContentProps {
   message: string;
   description?: string;
 }
-const ToastContent = 
+const ToastContent =
   memo<ToastContentProps>(({ icon, message, description }) => (
     <div className="w-full max-w-md px-1 py-0.5">
       <div className="flex items-center gap-3">
@@ -51,6 +51,10 @@ export const showToast = ({
   const icon    = ICONS[type];
   const toastFn = TOAST_FN[type];
   const content = <ToastContent icon={icon} message={message} description={description} />;
-  
+
   return toastFn(content, { id: toastId, icon: null });
+};
+
+export const dismissToast = (toastId: ReturnType<typeof toast.loading>) => {
+  toast.dismiss(toastId);
 };
