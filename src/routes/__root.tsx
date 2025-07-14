@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuthStore } from "@/store/auth-store";
 import { logPreload, logDebugCheck, logDebugOk, logDebugError, logRender } from "chronicle-log";
+import HumayLogo from "@/components/logo";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
@@ -39,6 +40,23 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   component: RootComponent,
+  errorComponent: ({ error }) => (
+    <div className="h-screen w-screen flex flex-col justify-center items-center">
+      <div className="flex flex-col gap-2 max-w-prose w-full">
+        <HumayLogo />
+        <div className="flex flex-col">
+          <h1 className="text-5xl font-semibold">Oh no!</h1>
+          <h2 className="text-2xl text-muted-foreground">Something went wrong</h2>
+        </div>
+        <p className="w-fit text-pretty border-2 text-muted-foreground text-sm border-red-300 px-3 py-2 mt-2 rounded-lg inline-flex bg-red-50">{error.message}</p>
+      </div>
+    </div>
+  ),
+  pendingComponent: () => (
+    <div className="h-screen w-screen flex flex-col justify-center items-center">
+      <HumayLogo />
+    </div>
+  ),
 });
 
 function RootComponent() {
