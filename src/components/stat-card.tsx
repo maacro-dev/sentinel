@@ -25,11 +25,11 @@ export const StatCard = memo(({
     <Card className="flex flex-col justify-between p-6 shadow-none">
       <CardHeader className="flex flex-col gap-4 p-0">
         <div className="space-y-1.5">
-          <CardDescription className="leading-none text-primary/75 md:text-xs lg:text-sm">
+          <CardDescription className="leading-none text-primary md:text-xs lg:text-sm">
             {title}
           </CardDescription>
           {subtitle && (
-            <span className="block text-[0.6rem] md:text-[0.625rem] lg:text-[0.675rem] font-light text-muted-foreground/75 leading-tight">
+            <span className="block text-[0.6rem] md:text-[0.625rem] lg:text-[0.675rem] font-light text-muted-foreground leading-tight">
               {subtitle}
             </span>
           )}
@@ -37,14 +37,14 @@ export const StatCard = memo(({
         <CardTitle className="space-x-2 text-lg font-semibold tabular-nums lg:text-2xl md:text-xl">
           <span>{value ?? "-"}</span>
           {unit && (
-            <span className="text-xs lg:text-[0.9rem] font-light text-muted-foreground/75">
+            <span className="text-xs lg:text-[0.9rem] font-light text-muted-foreground">
               {unit}
             </span>
           )}
         </CardTitle>
       </CardHeader>
 
-      <CardFooter className="text-xs text-muted-foreground/75 p-0">
+      <CardFooter className="text-xs text-muted-foreground p-0">
         {hasPercentChange ? (
           <div>
             <span>
