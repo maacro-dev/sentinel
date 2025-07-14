@@ -7,7 +7,7 @@ import { ChevronsUpDown } from "lucide-react";
 import { memo, useCallback } from "react";
 import type { Role } from "@/lib/types";
 import { useAuthStore } from "@/store/auth-store";
-import { dismissToast, showToast } from "@/app/toast";
+import { showToast } from "@/app/toast";
 import { ROLE_LABELS } from "@/app/config";
 
 export const SidebarUserNavigation = memo(() => {
