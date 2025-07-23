@@ -8,6 +8,7 @@ import { DashboardStat } from "@/features/analytics/types";
 import { DashboardSkeleton } from "@/features/dashboard/components/DashboardSkeleton";
 import { BarangayYieldRankChart } from "@/features/analytics/components/BarangayYieldRankChart";
 import { YieldTimeSeriesChart } from "@/features/analytics/components/YieldTimeSeries";
+import { ScrollIndicator } from "@/core/components/ScrollIndicator";
 
 export const Route = createFileRoute("/_manager/dashboard")({
   loader: ({ context: { queryClient } }) => {
@@ -54,6 +55,7 @@ function RouteComponent() {
           description="Barangays with the lowest yield this season"
         />
       </div>
+      <ScrollIndicator />
     </Motion>
   );
 }
