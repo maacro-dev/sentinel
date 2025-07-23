@@ -1,3 +1,4 @@
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { createFileRoute } from "@tanstack/react-router";
 import { Home } from "lucide-react";
 
@@ -19,11 +20,5 @@ export const Route = createFileRoute("/admin/dashboard")({
 
 function RouteComponent() {
 
-  return (
-    <div>
-      <p className="text-muted-foreground border rounded-lg p-4 max-w-1/3">
-        {}
-      </p>
-    </div>
-  );
+  return <PlaceholderBody />;
 }
