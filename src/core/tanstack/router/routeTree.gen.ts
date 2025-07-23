@@ -26,12 +26,12 @@ import { Route as ManagerMonitored_fieldsRouteImport } from './../../../routes/_
 import { Route as ManagerDashboardRouteImport } from './../../../routes/_manager/dashboard'
 import { Route as ManagerFormsRiceNonRiceRouteImport } from './../../../routes/_manager/_forms/riceNonRice'
 import { Route as ManagerFormsProductionRouteImport } from './../../../routes/_manager/_forms/production'
+import { Route as ManagerFormsOverviewRouteImport } from './../../../routes/_manager/_forms/overview'
 import { Route as ManagerFormsNutrientManagementRouteImport } from './../../../routes/_manager/_forms/nutrientManagement'
 import { Route as ManagerFormsMonitoringRouteImport } from './../../../routes/_manager/_forms/monitoring'
 import { Route as ManagerFormsFieldDataRouteImport } from './../../../routes/_manager/_forms/fieldData'
 import { Route as ManagerFormsDamageAssessmentRouteImport } from './../../../routes/_manager/_forms/damageAssessment'
 import { Route as ManagerFormsCulturalManagementRouteImport } from './../../../routes/_manager/_forms/culturalManagement'
-import { Route as ManagerFormsOverviewRouteImport } from './../../../routes/_manager/_forms/_overview'
 import { Route as ManagerAnalyticsPredictiveRouteImport } from './../../../routes/_manager/_analytics/predictive'
 import { Route as ManagerAnalyticsDescriptiveRouteImport } from './../../../routes/_manager/_analytics/descriptive'
 import { Route as ManagerAnalyticsComparativeRouteImport } from './../../../routes/_manager/_analytics/comparative'
@@ -120,6 +120,11 @@ const ManagerFormsProductionRoute = ManagerFormsProductionRouteImport.update({
   path: '/production',
   getParentRoute: () => ManagerRoute,
 } as any)
+const ManagerFormsOverviewRoute = ManagerFormsOverviewRouteImport.update({
+  id: '/_forms/overview',
+  path: '/overview',
+  getParentRoute: () => ManagerRoute,
+} as any)
 const ManagerFormsNutrientManagementRoute =
   ManagerFormsNutrientManagementRouteImport.update({
     id: '/_forms/nutrientManagement',
@@ -148,10 +153,6 @@ const ManagerFormsCulturalManagementRoute =
     path: '/culturalManagement',
     getParentRoute: () => ManagerRoute,
   } as any)
-const ManagerFormsOverviewRoute = ManagerFormsOverviewRouteImport.update({
-  id: '/_forms/_overview',
-  getParentRoute: () => ManagerRoute,
-} as any)
 const ManagerAnalyticsPredictiveRoute =
   ManagerAnalyticsPredictiveRouteImport.update({
     id: '/_analytics/predictive',
@@ -194,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/fieldData': typeof ManagerFormsFieldDataRoute
   '/monitoring': typeof ManagerFormsMonitoringRoute
   '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
+  '/overview': typeof ManagerFormsOverviewRoute
   '/production': typeof ManagerFormsProductionRoute
   '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
@@ -220,6 +222,7 @@ export interface FileRoutesByTo {
   '/fieldData': typeof ManagerFormsFieldDataRoute
   '/monitoring': typeof ManagerFormsMonitoringRoute
   '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
+  '/overview': typeof ManagerFormsOverviewRoute
   '/production': typeof ManagerFormsProductionRoute
   '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
@@ -243,12 +246,12 @@ export interface FileRoutesById {
   '/_manager/_analytics/comparative': typeof ManagerAnalyticsComparativeRoute
   '/_manager/_analytics/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/_manager/_analytics/predictive': typeof ManagerAnalyticsPredictiveRoute
-  '/_manager/_forms/_overview': typeof ManagerFormsOverviewRoute
   '/_manager/_forms/culturalManagement': typeof ManagerFormsCulturalManagementRoute
   '/_manager/_forms/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
   '/_manager/_forms/fieldData': typeof ManagerFormsFieldDataRoute
   '/_manager/_forms/monitoring': typeof ManagerFormsMonitoringRoute
   '/_manager/_forms/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
+  '/_manager/_forms/overview': typeof ManagerFormsOverviewRoute
   '/_manager/_forms/production': typeof ManagerFormsProductionRoute
   '/_manager/_forms/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
 }
@@ -277,6 +280,7 @@ export interface FileRouteTypes {
     | '/fieldData'
     | '/monitoring'
     | '/nutrientManagement'
+    | '/overview'
     | '/production'
     | '/riceNonRice'
   fileRoutesByTo: FileRoutesByTo
@@ -303,6 +307,7 @@ export interface FileRouteTypes {
     | '/fieldData'
     | '/monitoring'
     | '/nutrientManagement'
+    | '/overview'
     | '/production'
     | '/riceNonRice'
   id:
@@ -325,12 +330,12 @@ export interface FileRouteTypes {
     | '/_manager/_analytics/comparative'
     | '/_manager/_analytics/descriptive'
     | '/_manager/_analytics/predictive'
-    | '/_manager/_forms/_overview'
     | '/_manager/_forms/culturalManagement'
     | '/_manager/_forms/damageAssessment'
     | '/_manager/_forms/fieldData'
     | '/_manager/_forms/monitoring'
     | '/_manager/_forms/nutrientManagement'
+    | '/_manager/_forms/overview'
     | '/_manager/_forms/production'
     | '/_manager/_forms/riceNonRice'
   fileRoutesById: FileRoutesById
@@ -466,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerFormsProductionRouteImport
       parentRoute: typeof ManagerRoute
     }
+    '/_manager/_forms/overview': {
+      id: '/_manager/_forms/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof ManagerFormsOverviewRouteImport
+      parentRoute: typeof ManagerRoute
+    }
     '/_manager/_forms/nutrientManagement': {
       id: '/_manager/_forms/nutrientManagement'
       path: '/nutrientManagement'
@@ -501,13 +513,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerFormsCulturalManagementRouteImport
       parentRoute: typeof ManagerRoute
     }
-    '/_manager/_forms/_overview': {
-      id: '/_manager/_forms/_overview'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof ManagerFormsOverviewRouteImport
-      parentRoute: typeof ManagerRoute
-    }
     '/_manager/_analytics/predictive': {
       id: '/_manager/_analytics/predictive'
       path: '/predictive'
@@ -538,12 +543,12 @@ interface ManagerRouteChildren {
   ManagerAnalyticsComparativeRoute: typeof ManagerAnalyticsComparativeRoute
   ManagerAnalyticsDescriptiveRoute: typeof ManagerAnalyticsDescriptiveRoute
   ManagerAnalyticsPredictiveRoute: typeof ManagerAnalyticsPredictiveRoute
-  ManagerFormsOverviewRoute: typeof ManagerFormsOverviewRoute
   ManagerFormsCulturalManagementRoute: typeof ManagerFormsCulturalManagementRoute
   ManagerFormsDamageAssessmentRoute: typeof ManagerFormsDamageAssessmentRoute
   ManagerFormsFieldDataRoute: typeof ManagerFormsFieldDataRoute
   ManagerFormsMonitoringRoute: typeof ManagerFormsMonitoringRoute
   ManagerFormsNutrientManagementRoute: typeof ManagerFormsNutrientManagementRoute
+  ManagerFormsOverviewRoute: typeof ManagerFormsOverviewRoute
   ManagerFormsProductionRoute: typeof ManagerFormsProductionRoute
   ManagerFormsRiceNonRiceRoute: typeof ManagerFormsRiceNonRiceRoute
 }
@@ -554,12 +559,12 @@ const ManagerRouteChildren: ManagerRouteChildren = {
   ManagerAnalyticsComparativeRoute: ManagerAnalyticsComparativeRoute,
   ManagerAnalyticsDescriptiveRoute: ManagerAnalyticsDescriptiveRoute,
   ManagerAnalyticsPredictiveRoute: ManagerAnalyticsPredictiveRoute,
-  ManagerFormsOverviewRoute: ManagerFormsOverviewRoute,
   ManagerFormsCulturalManagementRoute: ManagerFormsCulturalManagementRoute,
   ManagerFormsDamageAssessmentRoute: ManagerFormsDamageAssessmentRoute,
   ManagerFormsFieldDataRoute: ManagerFormsFieldDataRoute,
   ManagerFormsMonitoringRoute: ManagerFormsMonitoringRoute,
   ManagerFormsNutrientManagementRoute: ManagerFormsNutrientManagementRoute,
+  ManagerFormsOverviewRoute: ManagerFormsOverviewRoute,
   ManagerFormsProductionRoute: ManagerFormsProductionRoute,
   ManagerFormsRiceNonRiceRoute: ManagerFormsRiceNonRiceRoute,
 }
