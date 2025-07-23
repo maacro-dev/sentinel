@@ -8,7 +8,8 @@
     "types": ["./src/app/vite-env.d.ts"], // changed the location of the file
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@features/*": ["./src/features/*"],
     },
     "moduleResolution": "bundler",
     "module": "ESNext",

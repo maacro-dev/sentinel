@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Grid2X2 } from "lucide-react";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 
 export const Route = createFileRoute("/_manager/_forms/fieldData")({
   component: RouteComponent,
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_forms/fieldData")({
     icon: Grid2X2,
     group: "Forms",
     navItemOrder: 2,
+    disabled: true
   },
 });
 

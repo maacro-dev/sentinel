@@ -1,30 +1,17 @@
-import { CenteredLayout } from "@/components/layouts";
-import HumayLogo from "@/components/logo";
-import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/store/auth-store";
-import { logDebugCheck, logDebugError } from "chronicle-log";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { HumayLogo } from "@/core/components/HumayLogo";
+import { Button } from "@/core/components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
+import { CenteredLayout } from "@/core/components/Centered";
+import { Session, useSignOut } from "@/features/authentication";
 
 export const Route = createFileRoute("/data_collector")({
-  beforeLoad: async () => {
-    const user = useAuthStore.getState().user;
-    logDebugCheck(`User: ${user ? "exists" : "does not exist"}`);
-    if (!user) {
-      logDebugError("User does not exist → redirecting to login");
-      throw redirect({ to: "/login" });
-    }
-    if (user.role !== "data_collector") {
-      logDebugError("User is not a data collector → redirecting to unauthorized");
-      throw redirect({ to: "/unauthorized" });
-    }
-  },
+  beforeLoad: async () => await Session.ensure({ role: "data_collector"}),
   component: RouteComponent
 });
 
 function RouteComponent() {
 
-  const handleSignOut = useAuthStore((state) => state.handleSignOut);
-  const navigate = useNavigate();
+  const { signOut } = useSignOut();
 
   return (
     <CenteredLayout>
@@ -35,13 +22,10 @@ function RouteComponent() {
           <p className="text-muted-foreground text-sm">
             Use the mobile app to collect data. Hehehehe
           </p>
-          <Button 
-            className="ml-0 pl-0 mt-2" 
-            variant="link" 
-            onClick={ async () => {
-              await handleSignOut();
-              await navigate({ to: "/login", replace: true, reloadDocument: true });
-            }}
+          <Button
+            className="ml-0 pl-0 mt-2"
+            variant="link"
+            onClick={() => signOut()}
             size="sm"
           >
             Sign Out

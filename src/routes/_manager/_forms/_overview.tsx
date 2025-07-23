@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FormInput } from "lucide-react";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 
 export const Route = createFileRoute("/_manager/_forms/_overview")({
   component: RouteComponent,
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_forms/_overview")({
     icon: FormInput,
     group: "Forms",
     navItemOrder: 1,
+    disabled: true
   },
 });
 

@@ -1,64 +1,28 @@
-import { useCallback, useState } from "react";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { showToast } from "@/app/toast";
-import { CenteredLayout } from "@/components/layouts";
-import { ROLE_REDIRECT_PATHS } from "@/app/config/roles";
-import { LoginForm } from "@/components/login-form";
-import { useAuthStore } from "@/store/auth-store";
-import type { UserCredentials } from "@/lib/types";
-import { logDebugOk, logOk, logPreload } from "chronicle-log";
-import { LoadingScreen } from "@/components/loading-screen";
+import { routeRedirectSchema } from "@/core/tanstack/router/schema";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LoginForm } from "@/features/authentication/components";
+import { Session, useSignIn } from "@/features/authentication";
+import { DEFAULT_FADE_UP } from "@/core/utils/motions";
+import { getRoleRedirect } from "@features/users/utils"
+import { Motion } from "@/core/components/Motion";
+import { CenteredLayout } from "@/core/components/Centered";
+import { LoadingScreen } from "@/core/components/LoadingScreen";
 
 export const Route = createFileRoute("/login")({
-  beforeLoad: async () => {
-    logPreload("Login Route");
-    const user  = useAuthStore.getState().user;
-    if (user) {
-      logDebugOk("User is already logged in → redirecting to home");
-      throw redirect({ to: ROLE_REDIRECT_PATHS[user.role] });
-    }
-  },
+  beforeLoad: async () => await Session.restore(),
   head: () => ({ meta: [{ title: "Login | Humay" }] }),
-  component: LoginPage,
+  validateSearch: routeRedirectSchema,
+  component: RouteComponent,
 });
 
-function LoginPage() {
+function RouteComponent() {
 
-  const navigate = useNavigate();
-  const handleSignIn = useAuthStore((state) => state.handleSignIn);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = useCallback(
-    async (fields: UserCredentials) => {
-
-      setIsLoading(true);
-      const result = await handleSignIn(fields);
-
-      if (!result.ok) {
-        showToast({
-          type: "error",
-          message: "Couldn't sign you in",
-          description: result.error?.message ?? "Unknown error",
-        });
-        setIsLoading(false)
-        return;
-      }
-
-      logOk("Signed in successfully");
-
-      const user = result.data;
-      await navigate({ to: ROLE_REDIRECT_PATHS[user.role], replace: true });
-
-      showToast({
-        type: "success",
-        message: `Welcome back, ${user.first_name}!`,
-        description: "You've been successfully signed in.",
-      });
-
-      setIsLoading(false);
+  const navigate = useNavigate()
+  const { signIn, isLoading } = useSignIn({
+    onSignIn: async (user) => {
+      await navigate({ to: getRoleRedirect(user.role), replace: true });
     },
-    [handleSignIn, navigate]
-  );
+  });
 
   if (isLoading) {
     return <LoadingScreen message="Hold on — we're signing you in..." />;
@@ -66,7 +30,9 @@ function LoginPage() {
 
   return (
     <CenteredLayout>
-      <LoginForm onSubmit={handleSubmit} />
+      <Motion motion={ DEFAULT_FADE_UP } className="flex-center">
+        <LoginForm onSubmit={signIn} />
+      </Motion>
     </CenteredLayout>
   );
 }

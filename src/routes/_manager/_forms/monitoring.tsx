@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { Activity } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/monitoring")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_forms/monitoring")({
     icon: Activity,
     group: "Forms",
     navItemOrder: 4,
+    disabled: true
   },
 });
 

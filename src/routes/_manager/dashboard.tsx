@@ -1,18 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LayoutDashboard, MoveDown, MoveUp } from "lucide-react";
-import { lazy, Suspense } from "react";
-import { FadeInDiv } from "@/components/animation";
-import { StatCard } from "@/components/stat-card";
-import { BarangayYieldRank } from "@/components/barangay-yield-rank";
-import { ensureManagerDashboardData } from "@/queries/dashboard";
-import { useDashboardStats, useDashboardCharts } from "@/hooks/use-dashboard-data";
-import { YIELD_CHART_CONFIG } from "@/app/config/chart";
-import { DashboardSkeleton } from "@/components/skeletons";
-import { title } from "@/utils/string";
+import { LayoutDashboard } from "lucide-react";
+import { useAnalyticsDashboard } from "@/features/analytics/hooks/useAnalyticsDashboard";
+import { dashboardDataOptions } from "@/features/analytics/queries/options";
+import { StatCard } from "@/features/analytics/components/StatCard";
+import { Motion } from "@/core/components/Motion";
+import { DashboardStat } from "@/features/analytics/types";
+import { DashboardSkeleton } from "@/features/dashboard/components/DashboardSkeleton";
+import { BarangayYieldRankChart } from "@/features/analytics/components/BarangayYieldRankChart";
+import { YieldTimeSeriesChart } from "@/features/analytics/components/YieldTimeSeries";
 
 export const Route = createFileRoute("/_manager/dashboard")({
-  component: RouteComponent,
-  loader: ({ context: { queryClient } }) => ensureManagerDashboardData(queryClient),
+  loader: ({ context: { queryClient } }) => {
+    queryClient.ensureQueryData(dashboardDataOptions());
+  },
   head: () => ({ meta: [{ title: "Dashboard | Humay" }] }),
   staticData: {
     routeFor: "data_manager",
@@ -21,77 +21,39 @@ export const Route = createFileRoute("/_manager/dashboard")({
     group: "Overview",
     navItemOrder: 1,
   },
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-  return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardStats />
-      <DashboardChart />
-    </Suspense>
-  );
-}
 
-const DashboardStats = () => {
-  const { statData } = useDashboardStats();
+  const { stats, trends, ranks, isLoading } = useAnalyticsDashboard();
+
+  if (isLoading || !stats || !trends || !ranks) {
+    return <DashboardSkeleton />;
+  }
 
   return (
-    <FadeInDiv
-      direction="none"
-      duration={0.5}
-      className="grid auto-rows-min gap-4 md:grid-cols-4"
-    >
-      {statData.map((data, i) => (
-        <StatCard key={i} {...data} />
-      ))}
-    </FadeInDiv>
-  );
-};
-
-
-const AreaChartDefault = lazy(async () => {
-  const mod = await import("@/components/ui/area-chart");
-  return { default: mod.AreaChartDefault };
-});
-
-const DashboardChart = () => {
-
-  const {
-    yieldData,
-    topBarangayYield,
-    bottomBarangayYield
-  } = useDashboardCharts();
-
-  return (
-    <FadeInDiv direction="none" duration={0.5} className="space-y-4">
-      <AreaChartDefault
-        className="h-72"
-        data={yieldData.map(({ month_year, avg_yield_t_ha }) => ({
-          month_year: title(month_year),
-          avg_yield_t_ha,
-        }))}
-        xDataKey="month_year"
-        yDataKey="avg_yield_t_ha"
-        title="Overall Yield Trend"
-        description="Tracking average yield (t/ha) by month"
-        config={YIELD_CHART_CONFIG}
-      />
-      <div className="flex gap-4">
-        <BarangayYieldRank
+    <Motion className="gap-4">
+      <div className="grid auto-rows-min gap-4 md:grid-cols-4">
+        {stats.map((stat: DashboardStat) => (
+          <StatCard key={stat.title} {...stat} />
+        ))}
+      </div>
+      <YieldTimeSeriesChart data={trends} />
+      <div className="flex gap-4 pb-4">
+        <BarangayYieldRankChart
           ranking="top"
-          data={topBarangayYield}
-          title="Top Performing Barangays"
-          titleSuffix={<MoveUp className="size-4 text-humay"/>}
-          description="Highest yield this season"
+          data={ranks.top}
+          title="Top 3 Barangays by Yield"
+          description="Barangays with the highest yield this season"
         />
-        <BarangayYieldRank
+        <BarangayYieldRankChart
           ranking="bottom"
-          data={bottomBarangayYield}
-          title="Bottom Performing Barangays"
-          titleSuffix={<MoveDown className="size-4 text-red-500"/>}
-          description="Lowest yield this season"
+          data={ranks.bottom}
+          title="Bottom 3 Barangays by Yield"
+          description="Barangays with the lowest yield this season"
         />
       </div>
-    </FadeInDiv>
+    </Motion>
   );
-};
+}

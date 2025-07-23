@@ -1,7 +1,6 @@
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { createFileRoute } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
-import { logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/admin/settings")({
   component: RouteComponent,
@@ -14,10 +13,10 @@ export const Route = createFileRoute("/admin/settings")({
     icon: Settings,
     group: "Configuration",
     navItemOrder: 1,
+    disabled: true
   },
 });
 
 function RouteComponent() {
-  logRender("Admin Settings Route");
   return <PlaceholderBody />;
 }

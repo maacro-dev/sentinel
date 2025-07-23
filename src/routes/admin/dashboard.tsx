@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderBody from "@/components/placeholder-body";
 import { Home } from "lucide-react";
-import { logRender } from "chronicle-log";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: RouteComponent,
   head: () => ({
     meta: [{ title: "Admin Dashboard | Humay" }],
   }),
+  loader: async () => {
+  },
   staticData: {
     routeFor: "admin",
     label: "Dashboard",
@@ -18,6 +18,12 @@ export const Route = createFileRoute("/admin/dashboard")({
 });
 
 function RouteComponent() {
-  logRender("Admin Dashboard Route");
-  return <PlaceholderBody />;
+
+  return (
+    <div>
+      <p className="text-muted-foreground border rounded-lg p-4 max-w-1/3">
+        {}
+      </p>
+    </div>
+  );
 }

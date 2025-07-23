@@ -1,307 +1,301 @@
 create schema if not exists analytics;
 
-create or replace view analytics.season_field_counts as
-select
-    s.year,
-    s.sem,
-    count(distinct fa.field_id) as field_count
-from field_activities fa
-join seasons s on fa.season_id = s.id
-group by s.year, s.sem
-order by s.year desc, s.sem desc;
+CREATE OR REPLACE FUNCTION analytics.dashboard_seasonal_stat_comparisons()
+RETURNS JSONB
+LANGUAGE plpgsql AS $$
+DECLARE
+    curr RECORD;
+    prev RECORD;
+    current_field_count NUMERIC := 0;
+    previous_field_count NUMERIC := 0;
+    current_forms_submitted NUMERIC := 0;
+    previous_forms_submitted NUMERIC := 0;
+    current_total_area NUMERIC := 0;
+    previous_total_area NUMERIC := 0;
+    current_total_yield NUMERIC := 0;
+    previous_total_yield NUMERIC := 0;
+    current_yield NUMERIC := 0;
+    previous_yield NUMERIC := 0;
+    current_not_sufficient NUMERIC := 0;
+    previous_not_sufficient NUMERIC := 0;
+    current_data_completeness NUMERIC := 0;
+    previous_data_completeness NUMERIC := 0;
+    current_damage_reports NUMERIC := 0;
+    previous_damage_reports NUMERIC := 0;
+    current_pest_reports NUMERIC := 0;
+    previous_pest_reports NUMERIC := 0;
+    result JSONB;
+BEGIN
+    SELECT * INTO curr FROM seasons ORDER BY start_date DESC LIMIT 1;
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object();
+    END IF;
 
+    SELECT * INTO prev FROM seasons
+    WHERE start_date < curr.start_date
+    ORDER BY start_date DESC LIMIT 1;
+    IF prev IS NULL THEN
+        RETURN jsonb_build_object();
+    END IF;
 
-create view analytics.season_submissions as
-select
-    s.year,
-    s.sem,
-    count(*) as forms_submitted
-from field_activities fa
-join seasons s on fa.season_id = s.id
-group by s.year, s.sem;
+    SELECT
+        COALESCE(COUNT(DISTINCT field_id) FILTER (WHERE season_id = curr.id), 0),
+        COALESCE(COUNT(DISTINCT field_id) FILTER (WHERE season_id = prev.id), 0),
+        COALESCE(COUNT(*) FILTER (WHERE season_id = curr.id), 0),
+        COALESCE(COUNT(*) FILTER (WHERE season_id = prev.id), 0)
+    INTO current_field_count, previous_field_count, current_forms_submitted, previous_forms_submitted
+    FROM field_activities
+    WHERE season_id IN (curr.id, prev.id);
 
-create or replace view analytics.season_harvested_area as
-select
-    s.year,
-    s.sem,
-    sum(hr.area_harvested) as total_area_harvested
-from harvest_records hr
-join field_activities fa on hr.id = fa.id
-join seasons s on fa.season_id = s.id
-group by s.year, s.sem
-order by s.year desc, s.sem desc;
+    SELECT
+        COALESCE(COUNT(*) FILTER (WHERE fa.season_id = curr.id), 0),
+        COALESCE(COUNT(*) FILTER (WHERE fa.season_id = prev.id), 0),
+        COALESCE(COUNT(*) FILTER (WHERE da.observed_pest IS NOT NULL AND fa.season_id = curr.id), 0),
+        COALESCE(COUNT(*) FILTER (WHERE da.observed_pest IS NOT NULL AND fa.season_id = prev.id), 0)
+    INTO current_damage_reports, previous_damage_reports, current_pest_reports, previous_pest_reports
+    FROM field_activities fa
+    JOIN damage_assessments da ON da.id = fa.id
+    WHERE fa.season_id IN (curr.id, prev.id);
 
-create or replace view analytics.season_irrigation_counts as
-select
-    s.year,
-    s.sem,
-    count(*) filter (
-      where hr.irrigation_supply in ('Not Enough', 'Not Sufficient')
-    ) as not_sufficient_count,
-    count(*) filter (
-      where hr.irrigation_supply = 'Sufficient'
-    ) as sufficient_count,
-    count(*) filter (
-      where hr.irrigation_supply = 'Excessive'
-    ) as excessive_count
-from harvest_records hr
-join field_activities fa on hr.id = fa.id
-join seasons s on fa.season_id = s.id
-group by s.year, s.sem
-order by s.year desc, s.sem desc;
+    SELECT
+        COALESCE(SUM(hr.area_harvested) FILTER (WHERE fa.season_id = curr.id), 0),
+        COALESCE(SUM(hr.area_harvested) FILTER (WHERE fa.season_id = prev.id), 0),
+        COALESCE(SUM(hr.bags_harvested * hr.avg_bag_weight_kg) FILTER (WHERE fa.season_id = curr.id), 0),
+        COALESCE(SUM(hr.bags_harvested * hr.avg_bag_weight_kg) FILTER (WHERE fa.season_id = prev.id), 0),
+        COALESCE(COUNT(*) FILTER (WHERE hr.irrigation_supply IN ('Not Enough', 'Not Sufficient') AND fa.season_id = curr.id), 0),
+        COALESCE(COUNT(*) FILTER (WHERE hr.irrigation_supply IN ('Not Enough', 'Not Sufficient') AND fa.season_id = prev.id), 0)
+    INTO current_total_area, previous_total_area, current_total_yield, previous_total_yield, current_not_sufficient, previous_not_sufficient
+    FROM field_activities fa
+    JOIN harvest_records hr ON hr.id = fa.id
+    WHERE fa.season_id IN (curr.id, prev.id);
 
-create or replace view analytics.season_field_count_comparison as
-with ranked_fields as (
-    select
-        year,
-        sem,
-        field_count,
-        lag(year) over (order by year desc, sem desc) as previous_year,
-        lag(sem) over (order by year desc, sem desc) as previous_semester,
-        lag(field_count) over (order by year desc, sem desc) as previous_field_count
-    from analytics.season_field_counts
+    current_yield := CASE WHEN current_total_area > 0 THEN ROUND((current_total_yield / current_total_area) / 1000, 2) ELSE 0 END;
+    previous_yield := CASE WHEN previous_total_area > 0 THEN ROUND((previous_total_yield / previous_total_area) / 1000, 2) ELSE 0 END;
+
+    SELECT
+        COALESCE(ROUND(
+            (SUM(CASE WHEN fa.season_id = curr.id AND (
+                (fa.activity_type = 'field_planning' AND fp.id IS NOT NULL) OR
+                (fa.activity_type = 'crop_establishment' AND ce.id IS NOT NULL) OR
+                (fa.activity_type = 'fertilization_record' AND fr.id IS NOT NULL) OR
+                (fa.activity_type = 'harvest_record' AND hr.id IS NOT NULL)
+            ) AND fa.verification_status = 'approved' THEN 1 ELSE 0 END) * 100.0) /
+            NULLIF(COUNT(*) FILTER (WHERE fa.season_id = curr.id), 0), 2), 0),
+        COALESCE(ROUND(
+            (SUM(CASE WHEN fa.season_id = prev.id AND (
+                (fa.activity_type = 'field_planning' AND fp.id IS NOT NULL) OR
+                (fa.activity_type = 'crop_establishment' AND ce.id IS NOT NULL) OR
+                (fa.activity_type = 'fertilization_record' AND fr.id IS NOT NULL) OR
+                (fa.activity_type = 'harvest_record' AND hr.id IS NOT NULL)
+            ) AND fa.verification_status = 'approved' THEN 1 ELSE 0 END) * 100.0) /
+            NULLIF(COUNT(*) FILTER (WHERE fa.season_id = prev.id), 0), 2), 0)
+    INTO current_data_completeness, previous_data_completeness
+    FROM field_activities fa
+    LEFT JOIN field_plannings fp ON fp.id = fa.id AND fa.activity_type = 'field_planning'
+    LEFT JOIN crop_establishments ce ON ce.id = fa.id AND fa.activity_type = 'crop_establishment'
+    LEFT JOIN fertilization_records fr ON fr.id = fa.id AND fa.activity_type = 'fertilization_record'
+    LEFT JOIN harvest_records hr ON hr.id = fa.id AND fa.activity_type = 'harvest_record'
+    WHERE fa.season_id IN (curr.id, prev.id);
+
+    result := jsonb_build_object(
+      'periods', jsonb_build_object(
+        'current', jsonb_build_object(
+          'start_date', curr.start_date,
+          'end_date', curr.end_date,
+          'semester', curr.semester,
+          'season_year', curr.season_year
+        ),
+        'previous', jsonb_build_object(
+          'start_date', prev.start_date,
+          'end_date', prev.end_date,
+          'semester', prev.semester,
+          'season_year', prev.season_year
+        )
+      ),
+      'stats', jsonb_build_array(
+        jsonb_build_object(
+          'name', 'field_count',
+          'current_value', current_field_count,
+          'previous_value', previous_field_count,
+          'percent_change', CASE WHEN previous_field_count = 0 THEN CASE WHEN current_field_count = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (
+                current_field_count - previous_field_count
+              ):: NUMERIC / previous_field_count
+            ) * 100,
+            2
+          ) END
+        ),
+        jsonb_build_object(
+          'name', 'form_submission',
+          'current_value', current_forms_submitted,
+          'previous_value', previous_forms_submitted,
+          'percent_change', CASE WHEN previous_forms_submitted = 0 THEN CASE WHEN current_forms_submitted = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (
+                current_forms_submitted - previous_forms_submitted
+              ):: NUMERIC / previous_forms_submitted
+            ) * 100,
+            2
+          ) END
+        ),
+        jsonb_build_object(
+          'name', 'yield',
+          'current_value', current_yield,
+          'previous_value', previous_yield,
+          'percent_change', CASE WHEN previous_yield = 0 THEN CASE WHEN current_yield = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (current_yield - previous_yield) / previous_yield
+            ) * 100,
+            2
+          ) END
+        ),
+        jsonb_build_object(
+          'name', 'harvested_area',
+          'current_value', ROUND(current_total_area, 2),
+          'previous_value', ROUND(previous_total_area, 2),
+          'percent_change', CASE WHEN previous_total_area = 0 THEN CASE WHEN current_total_area = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (
+                current_total_area - previous_total_area
+              ) / previous_total_area
+            ) * 100,
+            2
+          ) END
+        ),
+        jsonb_build_object(
+          'name', 'irrigation',
+          'current_value', current_not_sufficient,
+          'previous_value', previous_not_sufficient,
+          'percent_change', CASE WHEN previous_not_sufficient = 0 THEN CASE WHEN current_not_sufficient = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (
+                current_not_sufficient - previous_not_sufficient
+              ):: NUMERIC / previous_not_sufficient
+            ) * 100,
+            2
+          ) END
+        ),
+        jsonb_build_object(
+          'name', 'data_completeness',
+          'current_value', current_data_completeness,
+          'previous_value', previous_data_completeness,
+          'percent_change', CASE WHEN previous_data_completeness = 0 THEN CASE WHEN current_data_completeness = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (
+                current_data_completeness - previous_data_completeness
+              ) / previous_data_completeness
+            ) * 100,
+            2
+          ) END
+        ),
+        jsonb_build_object(
+          'name', 'damage_report',
+          'current_value', current_damage_reports,
+          'previous_value', previous_damage_reports,
+          'percent_change', CASE WHEN previous_damage_reports = 0 THEN CASE WHEN current_damage_reports = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (
+                current_damage_reports - previous_damage_reports
+              ):: NUMERIC / previous_damage_reports
+            ) * 100,
+            2
+          ) END
+        ),
+        jsonb_build_object(
+          'name', 'pest_report',
+          'current_value', current_pest_reports,
+          'previous_value', previous_pest_reports,
+          'percent_change',
+            CASE WHEN previous_pest_reports = 0 THEN CASE WHEN current_pest_reports = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            (
+              (
+                current_pest_reports - previous_pest_reports
+              ):: NUMERIC / previous_pest_reports
+            ) * 100,
+            2
+          ) END
+        )
+      )
+    );
+
+    RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE VIEW analytics.dashboard_yield_timeseries AS
+WITH monthly_yields AS (
+  SELECT
+    date_trunc('month', hr.harvest_date) AS month_start,
+    (hr.bags_harvested * hr.avg_bag_weight_kg) / nullif(hr.area_harvested, 0) / 1000.0 AS yield_t_ha
+  FROM harvest_records hr
+  JOIN field_activities fa ON hr.id = fa.id
 )
-select
-    year as current_year,
-    sem as current_semester,
-    field_count as current_field_count,
-    previous_year,
-    previous_semester,
-    previous_field_count,
-    case
-        when previous_field_count is not null and previous_field_count > 0 then
-            round(
-                ((field_count - previous_field_count)::numeric / previous_field_count) * 100,
-                2
-            )
-        else null
-    end as percent_change
-from ranked_fields
-where previous_field_count is not null
-order by year desc, sem desc
-limit 1;
+SELECT
+  to_char(month_start, 'mon yyyy') AS month_year,
+  round(avg(yield_t_ha)::numeric, 2) AS avg_yield_t_ha
+FROM monthly_yields
+GROUP BY month_start
+ORDER BY month_start;
 
-
-create or replace view analytics.season_irrigation_comparison as
-with ranked_irrigation as (
-    select
-        year,
-        sem,
-        not_sufficient_count,
-        sufficient_count,
-        excessive_count,
-        lag(year)  over (order by year desc, sem desc) as previous_year,
-        lag(sem)   over (order by year desc, sem desc) as previous_sem,
-        lag(not_sufficient_count) over (order by year desc, sem desc) as previous_not_sufficient,
-        lag(sufficient_count) over (order by year desc, sem desc) as previous_sufficient,
-        lag(excessive_count)  over (order by year desc, sem desc) as previous_excessive
-    from analytics.season_irrigation_counts
-)
-select
-    year as current_year,
-    sem as current_semester,
-    not_sufficient_count as current_not_sufficient,
-    sufficient_count as current_sufficient,
-    excessive_count as current_excessive,
-    previous_year,
-    previous_sem as previous_semester,
-    previous_not_sufficient,
-    previous_sufficient,
-    previous_excessive,
-    round(
-      ((not_sufficient_count - previous_not_sufficient)::numeric / nullif(previous_not_sufficient,0)) * 100,
-      2
-    ) as not_sufficient_change_pct,
-    round(
-      ((sufficient_count - previous_sufficient)::numeric / nullif(previous_sufficient,0)) * 100,
-      2
-    ) as sufficient_change_pct,
-    round(
-      ((excessive_count - previous_excessive)::numeric / nullif(previous_excessive,0)) * 100,
-      2
-    ) as excessive_change_pct
-from ranked_irrigation
-where previous_year is not null
-order by year desc, sem desc
-limit 1;
-
-
-create view analytics.season_yields as
-select s.year, s.sem,
-       sum(hr.bags_harvested * hr.avg_bag_weight_kg) / nullif(sum(hr.area_harvested), 0) as avg_yield_kg_per_ha
-from harvest_records hr
-join field_activities fa on hr.id = fa.id
-join seasons s on fa.season_id = s.id
-group by s.year, s.sem;
-
-create or replace view analytics.season_yield_comparison as
-with ranked_yields as (
-    select
-        year,
-        sem,
-        avg_yield_kg_per_ha,
-        lag(year) over (order by year desc, sem desc) as previous_year,
-        lag(sem) over (order by year desc, sem desc) as previous_semester,
-        lag(avg_yield_kg_per_ha) over (order by year desc, sem desc) as previous_yield_kg_per_ha
-    from analytics.season_yields
-)
-select
-    year as current_year,
-    sem as current_semester,
-    round((avg_yield_kg_per_ha / 1000.0)::numeric, 2) as current_yield_t_per_ha,
-    round((previous_yield_kg_per_ha / 1000.0)::numeric, 2) as previous_yield_t_per_ha,
-    previous_year,
-    previous_semester,
-    case
-        when previous_yield_kg_per_ha is not null then
-            round(
-                ((avg_yield_kg_per_ha - previous_yield_kg_per_ha) / previous_yield_kg_per_ha * 100)::numeric,
-                2
-            )
-        else null
-    end as percent_change
-from ranked_yields
-where previous_yield_kg_per_ha is not null
-order by year desc, sem desc
-limit 1;
-
-create or replace view analytics.season_harvested_area_comparison as
-with ranked_area as (
-    select
-        year,
-        sem,
-        total_area_harvested,
-        lag(year) over (order by year desc, sem desc) as previous_year,
-        lag(sem) over (order by year desc, sem desc) as previous_semester,
-        lag(total_area_harvested) over (order by year desc, sem desc) as previous_area_harvested
-    from analytics.season_harvested_area
-)
-select
-    year as current_year,
-    sem as current_semester,
-    round(total_area_harvested::numeric, 2) as current_area_harvested,
-    previous_year,
-    previous_semester,
-    round(previous_area_harvested::numeric, 2) as previous_area_harvested,
-    case
-      when previous_area_harvested is not null and previous_area_harvested > 0 then
-          round(
-              (((total_area_harvested - previous_area_harvested) / previous_area_harvested) * 100)::numeric,
-              2
-          )
-      else null
-    end as percent_change
-from ranked_area
-where previous_area_harvested is not null
-order by year desc, sem desc
-limit 1;
-
-
-
-create or replace view analytics.form_submission_comparison as
-with ranked_submissions as (
-    select
-        year,
-        sem,
-        forms_submitted,
-        lag(year) over (order by year desc, sem desc) as previous_year,
-        lag(sem) over (order by year desc, sem desc) as previous_semester,
-        lag(forms_submitted) over (order by year desc, sem desc) as previous_forms_submitted
-    from analytics.season_submissions
-)
-select
-    year as current_year,
-    sem as current_semester,
-    forms_submitted as current_forms_submitted,
-    previous_year,
-    previous_semester,
-    previous_forms_submitted,
-    case
-        when previous_forms_submitted is not null and previous_forms_submitted > 0 then
-            round(
-                ((forms_submitted - previous_forms_submitted)::numeric / previous_forms_submitted) * 100,
-                2
-            )
-        else null
-    end as percent_change
-from ranked_submissions
-where previous_forms_submitted is not null
-order by year desc, sem desc
-limit 1;
-
-
--- harvest yield time-series
-create or replace view analytics.harvest_yield_timeseries as
-select
-  to_char(hr.harvest_date, 'mon yyyy') as month_year,
-  round(
-    avg((hr.bags_harvested * hr.avg_bag_weight_kg) / nullif(hr.area_harvested, 0) / 1000.0)::numeric,
-    2
-  ) as avg_yield_t_ha
-from harvest_records hr
-join field_activities fa on hr.id = fa.id
-join seasons s on fa.season_id = s.id
-group by to_char(hr.harvest_date, 'mon yyyy'), extract(year from hr.harvest_date), extract(month from hr.harvest_date)
-order by extract(year from hr.harvest_date), extract(month from hr.harvest_date);
-
-
-create or replace view analytics.barangay_yields_top_bottom as
-with latest_season as (
-    select id
-    from seasons
-    order by year desc, sem desc
-    limit 1
+CREATE OR REPLACE VIEW analytics.dashboard_barangay_yield_rankings AS
+WITH season_data AS (
+    SELECT
+        s.id AS season_id,
+        s.start_date,
+        s.season_year
+    FROM seasons s
+    ORDER BY s.start_date DESC
+    LIMIT 1
 ),
-yields_per_barangay as (
-    select
-        b.id as barangay_id,
-        b.name as barangay_name,
-        m.name as municipality_name,
-        p.name as province_name,
-        sum(hr.bags_harvested * hr.avg_bag_weight_kg) / nullif(sum(hr.area_harvested),0) as avg_yield_kg_per_ha
-    from harvest_records hr
-    join field_activities fa
-      on hr.id = fa.id
-    join fields f
-      on fa.field_id = f.id
-    join barangays b
-      on f.barangay_id = b.id
-    join cities_municipalities m
-      on b.city_municipality_id = m.id
-    join provinces p
-      on m.province_id = p.id
-    where fa.season_id = (select id from latest_season)
-    group by b.id, b.name, m.name, p.name
+harvest_agg AS (
+    SELECT
+        f.barangay_id,
+        SUM(hr.bags_harvested * hr.avg_bag_weight_kg) AS total_kg,
+        SUM(hr.area_harvested) AS total_area
+    FROM season_data sd
+    JOIN field_activities fa ON fa.season_id = sd.season_id
+    JOIN harvest_records hr ON hr.id = fa.id
+    JOIN fields f ON fa.field_id = f.id
+    GROUP BY f.barangay_id
+    HAVING SUM(hr.area_harvested) > 0
 ),
-ranked as (
-    select
-        barangay_id,
-        barangay_name,
-        province_name,
-        municipality_name,
-        round((avg_yield_kg_per_ha::numeric / 1000), 2) as avg_yield_t_per_ha,
-        row_number() over (order by avg_yield_kg_per_ha desc) as rank_desc,
-        row_number() over (order by avg_yield_kg_per_ha asc) as rank_asc
-    from yields_per_barangay
+barangay_ranking AS (
+    SELECT
+        b.name AS barangay,
+        cm.name AS municipality,
+        p.name AS province,
+        (ha.total_kg / ha.total_area / 1000)::numeric(10,2) AS avg_yield_t_per_ha,
+        RANK() OVER (ORDER BY (ha.total_kg / ha.total_area) DESC) AS yield_rank
+    FROM harvest_agg ha
+    JOIN barangays b ON b.id = ha.barangay_id
+    JOIN cities_municipalities cm ON cm.id = b.city_municipality_id
+    JOIN provinces p ON p.id = cm.province_id
 )
-select
-    'Top' as category,
-    barangay_name,
-    province_name,
-    municipality_name,
-    avg_yield_t_per_ha
-from ranked
-where rank_desc <= 3
-
-union all
-
-select
-    'Bottom' as category,
-    barangay_name,
-    province_name,
-    municipality_name,
-    avg_yield_t_per_ha
-from ranked
-where rank_asc <= 3
-
-order by category, avg_yield_t_per_ha desc;
+SELECT
+  (
+    SELECT COALESCE(jsonb_agg(jsonb_build_object(
+      'barangay',       barangay,
+      'province',       province,
+      'municipality',   municipality,
+      'avg_yield_t_per_ha', avg_yield_t_per_ha,
+      'rank',           yield_rank
+    )), '[]'::jsonb)
+    FROM barangay_ranking
+    WHERE yield_rank <= 3
+  ) AS top,
+  (
+    SELECT COALESCE(jsonb_agg(jsonb_build_object(
+      'barangay',       barangay,
+      'province',       province,
+      'municipality',   municipality,
+      'avg_yield_t_per_ha', avg_yield_t_per_ha,
+      'rank',           yield_rank
+    )), '[]'::jsonb)
+    FROM (
+      SELECT *,
+             RANK() OVER (ORDER BY avg_yield_t_per_ha ASC) AS reverse_rank
+      FROM barangay_ranking
+    ) r
+    WHERE reverse_rank <= 3
+  ) AS bottom;

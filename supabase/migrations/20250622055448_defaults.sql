@@ -1,5 +1,3 @@
-
-
 create or replace function public.create_seed_user(
   p_id uuid,
   p_email text,
@@ -52,17 +50,50 @@ begin
     deleted_at,
     is_anonymous
   ) values (
-    '00000000-0000-0000-0000-000000000000',
-    p_id,
-    'authenticated', 'authenticated',
-    p_email, p_password,
-    p_created_at,
-    null, '', null, '', null, '', '', null,
-    null, '{"provider": "email", "providers": ["email"]}',
-    '{"email_verified": true}', null,
-    p_created_at, p_created_at,
-    null, null, '', '', null, DEFAULT, '',
-    0, null, '', null, false, null, false
+    '00000000-0000-0000-0000-000000000000', -- instance_id (always 0s for single-tenant)
+    p_id,                                   -- id (user UUID)
+    'authenticated',                        -- aud (audience claim)
+    'authenticated',                        -- role (internal GoTrue role)
+    p_email,                                -- email
+    p_password,                             -- encrypted_password
+    p_created_at,                           -- email_confirmed_at (when email was confirmed)
+    null,                                   -- invited_at
+    '',                                     -- confirmation_token
+    null,                                   -- confirmation_sent_at
+    '',                                     -- recovery_token
+    null,                                   -- recovery_sent_at
+    '',                                     -- email_change_token_new
+    '',                                     -- email_change
+    null,                                   -- email_change_sent_at
+    null,                                   -- last_sign_in_at
+    jsonb_build_object(                     -- raw_app_meta_data
+      'provider', 'email',
+      'providers', jsonb_build_array('email')
+    ),
+    jsonb_build_object(                     -- raw_user_meta_data
+      'email_verified', true,
+      'first_name', p_first_name,
+      'last_name', p_last_name,
+      'date_of_birth', p_date_of_birth::text,
+      'role', p_role::public.user_role
+    ),
+    null,                                   -- is_super_admin
+    p_created_at,                          -- created_at
+    p_created_at,                          -- updated_at
+    null,                                  -- phone
+    null,                                  -- phone_confirmed_at
+    '',                                    -- phone_change
+    '',                                    -- phone_change_token
+    null,                                  -- phone_change_sent_at
+    DEFAULT,                               -- confirmed_at
+    '',                                    -- email_change_token_current
+    0,                                     -- email_change_confirm_status
+    null,                                  -- banned_until
+    '',                                    -- reauthentication_token
+    null,                                  -- reauthentication_sent_at
+    false,                                 -- is_sso_user
+    null,                                  -- deleted_at
+    false                                  -- is_anonymous
   );
 
   insert into auth.identities (
@@ -75,43 +106,25 @@ begin
     updated_at,
     id
   ) values (
-    p_id,
-    p_id,
-    json_build_object(
+    p_id,                                  -- provider_id (same as user id for email)
+    p_id,                                  -- user_id (FK to auth.users)
+    jsonb_build_object(                   -- identity_data
       'sub', p_id::text,
       'email', p_email,
       'email_verified', true,
       'phone_verified', false
-    )::jsonb,
-    'email',
-    p_created_at,
-    p_created_at,
-    p_created_at,
-    p_id
+    ),
+    'email',                              -- provider (email, google, etc.)
+    p_created_at,                         -- last_sign_in_at
+    p_created_at,                         -- created_at
+    p_created_at,                         -- updated_at
+    p_id                                  -- id (same as user id)
   );
-
-  insert into public.users (
-    id,
-    first_name,
-    last_name,
-    date_of_birth,
-    role,
-    status,
-    created_at,
-    updated_at
-  ) values (
-    p_id,
-    p_first_name,
-    p_last_name,
-    p_date_of_birth,
-    p_role,
-    'active',
-    p_created_at,
-    p_created_at
-  );
-
 end;
 $$;
+
+
+
 
 select public.create_seed_user(
   '7ba8a45d-de4c-47e1-ae23-be9b263dbfd9',
@@ -130,5 +143,15 @@ select public.create_seed_user(
   'Data',
   'Manager',
   '1990-01-01',
+  'data_manager'
+);
+
+select public.create_seed_user(
+  '9ea752ca-dd53-4967-b555-dccc88844731',
+  'reyangelo.calopez@humayapp.com',
+  '$2a$12$XOdnURTPryC1VcpbD8WWned2y62flisSuqYXt5bMqxOwwsmuT.78O',
+  'Rey Angelo',
+  'Calopez',
+  '2000-01-01',
   'data_manager'
 );

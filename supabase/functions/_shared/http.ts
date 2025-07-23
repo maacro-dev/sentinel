@@ -5,7 +5,6 @@ const corsHeaders = {
   "Access-Control-Max-Age": "86400",
 }
 
-
 export function response(
   body:   object,
   status = 200,

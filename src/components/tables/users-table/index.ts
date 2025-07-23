@@ -1,1 +1,0 @@
-export { UsersTableSuspense, UsersTableSkeleton } from "./users-table";

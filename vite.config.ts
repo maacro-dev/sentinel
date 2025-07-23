@@ -8,7 +8,7 @@ import svgr from "vite-plugin-svgr";
 const ReactCompilerConfig = {
   target: "19",
   sources: (filename: string) => {
-    return filename.indexOf("src/app") !== -1;
+    return filename.indexOf("src/core/lib") !== -1;
   }
 };
 
@@ -21,11 +21,12 @@ export default defineConfig({
   },
   plugins: [
     svgr(),
+    tailwindcss(),
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,
       routesDirectory: "./src/routes",
-      generatedRouteTree: "./src/app/routeTree.gen.ts"
+      generatedRouteTree: "./src/core/tanstack/router/routeTree.gen.ts"
     }),
 
     react({
@@ -33,12 +34,11 @@ export default defineConfig({
         plugins: [["babel-plugin-react-compiler", ReactCompilerConfig]]
       }
     }),
-
-    tailwindcss(),
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src")
+      "@": path.resolve(__dirname, "./src"),
+      "@features": path.resolve(__dirname, "./src/features"),
     }
   }
 });

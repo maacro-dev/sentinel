@@ -3,9 +3,9 @@ INSERT INTO "public"."fertilizer_applications" (
     "fertilization_record_id",
     "fertilizer_type",
     "brand",
-    "nitrogen_content",
-    "phosphorus_content",
-    "potassium_content",
+    "nitrogen_content_pct",
+    "phosphorus_content_pct",
+    "potassium_content_pct",
     "amount_applied",
     "amount_unit",
     "crop_stage_on_application")
@@ -8446,4 +8446,3 @@ VALUES (
     '50',
     'kg',
     'Se/PI');
-

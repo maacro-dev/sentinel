@@ -1,6 +1,5 @@
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { createFileRoute } from "@tanstack/react-router";
-import { logRender } from "chronicle-log";
 import { FileText } from "lucide-react";
 
 export const Route = createFileRoute("/admin/reports")({
@@ -14,10 +13,10 @@ export const Route = createFileRoute("/admin/reports")({
     icon: FileText,
     group: "Operations",
     navItemOrder: 2,
+    disabled: true
   },
 });
 
 function RouteComponent() {
-  logRender("Admin Reports Route");
   return <PlaceholderBody />;
 }

@@ -9,14 +9,19 @@ from users usr
 join auth.users auth_user
   on usr.id = auth_user.id;
 
-
-create or replace view submitted_forms as
+create or replace view field_details as
 select
-    fa.id as field_activity_id,
-    fa.activity_type,
-    fa.collected_at,
-    s.id as season_id,
-    s.year,
-    s.sem
-from field_activities fa
-join seasons s on fa.season_id = s.id;
+  fd.id             as field_id,
+  fd.mfid           as mfid,
+  f.first_name      as farmer_first_name,
+  f.last_name       as farmer_last_name,
+  b.name            as barangay,
+  cm.name           as municipality,
+  p.name            as province,
+  fd.created_at     as created_at,
+  fd.updated_at     as updated_at
+from fields fd
+join farmers f on f.id = fd.farmer_id
+join barangays b on b.id = barangay_id
+join cities_municipalities cm on cm.id = b.city_municipality_id
+join provinces p on p.id = cm.province_id;

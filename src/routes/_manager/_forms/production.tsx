@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { PackagePlus } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/production")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_forms/production")({
     icon: PackagePlus,
     group: "Forms",
     navItemOrder: 8,
+    disabled: true
   },
 });
 

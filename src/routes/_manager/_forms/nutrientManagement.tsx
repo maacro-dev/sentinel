@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { Cuboid } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/nutrientManagement")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_forms/nutrientManagement")({
     icon: Cuboid,
     group: "Forms",
     navItemOrder: 6,
+    disabled: true
   },
 });
 

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { ChartArea } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_analytics/descriptive")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_analytics/descriptive")({
     icon: ChartArea,
     group: "Analytics",
     navItemOrder: 1,
+    disabled: true
   },
 });
 

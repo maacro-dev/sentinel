@@ -83,6 +83,7 @@ enabled = true
 site_url = "http://127.0.0.1:3000"
 additional_redirect_urls = ["https://127.0.0.1:3000"]
 jwt_expiry = 3600
+signing_keys_path = "./signing_key.json"
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
 enable_signup = false
@@ -156,7 +157,7 @@ max_frequency = "5s"
 # Force log out after the specified duration.
 timebox = "24h"
 # Force log out if the user has been inactive longer than the specified duration.
-inactivity_timeout = "8h"
+inactivity_timeout = "2h"
 
 # This hook runs before a token is issued and allows you to add additional claims based on the authentication method used.
 [auth.hook.custom_access_token]
@@ -248,8 +249,8 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 1
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+[edge_runtime.secrets]
+secret_key = "env(SECRET_VALUE)"
 
 [analytics]
 enabled = true

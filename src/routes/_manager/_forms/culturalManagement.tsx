@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { Folder } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/culturalManagement")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_forms/culturalManagement")({
     icon: Folder,
     group: "Forms",
     navItemOrder: 3,
+    disabled: true
   },
 });
 

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderBody from "@/components/placeholder-body";
+import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { Leaf } from "lucide-react";
 
 export const Route = createFileRoute("/_manager/_forms/riceNonRice")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_manager/_forms/riceNonRice")({
     icon: Leaf,
     group: "Forms",
     navItemOrder: 7,
+    disabled: true
   },
 });
 
