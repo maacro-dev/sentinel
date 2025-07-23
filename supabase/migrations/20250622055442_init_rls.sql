@@ -14,7 +14,6 @@ create policy "Allow individual insert access"
   to public
   with check ( auth.uid() = id );
 
--- Users [UPDATE]
 create policy "Allow individual update access"
   on users
   as permissive
@@ -22,24 +21,22 @@ create policy "Allow individual update access"
   to public
   using ( auth.uid() = id );
 
-create policy "Allow admins and data managers to read farmers"
+create policy "Allow authenticated to read farmers"
   on farmers
   as permissive
   for select
   to authenticated
   using ( auth.uid() = id );
 
--- Allow data_collector to read their own activities
-create policy "Allow data_collector to read their field_activities"
+create policy "Allow authenticated to read field_activities"
   on field_activities
   as permissive
   for select
   to authenticated
   using ( auth.uid() = id );
 
--- Allow admins to read all
-create policy "Allow admins to read all field_activities"
-  on field_activities
+create policy "Allow authenticated to read seasons"
+  on seasons
   as permissive
   for select
   to authenticated
@@ -52,7 +49,6 @@ create policy "Allow data_manager to update verification"
   to authenticated
   using (auth.role() = 'data_manager' and verified_by is null)
   with check (verification_status in ('approved', 'rejected') and verified_by = auth.uid());
-
 
 grant select on user_details to authenticated;
 grant select on users to authenticated, public;
