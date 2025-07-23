@@ -34,9 +34,9 @@ export function AreaChartDefault({
   className,
 }: AreaChartDefaultProps) {
   return (
-    <Card className="shadow-none bg-transparent">
+    <Card className="p-6">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+        <CardTitle className="text-xl">{title}</CardTitle>
         <CardDescription className="text-sm text-muted-foreground/75">{description}</CardDescription>
       </CardHeader>
       <CardContent>

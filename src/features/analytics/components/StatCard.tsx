@@ -9,11 +9,15 @@ import {
 import { ChangeBadge } from "./ChangeBadge";
 import { DashboardStat } from "../types";
 
-export const StatCard = memo(({ title, subtitle, current_value, unit, percent_change }: DashboardStat) => {
+interface StatCardProps extends Omit<DashboardStat, "percent_change"> {
+  percent_change?: number;
+}
+
+export const StatCard = memo(({ title, subtitle, current_value, unit, percent_change }: StatCardProps) => {
   return (
-    <Card className="flex flex-col justify-between py-0 p-4 gap-1.5 shadow-none">
-      <CardHeader className="flex flex-col gap-1 p-0 m-0">
-        <CardTitle className="leading-none text-primary text-sm">
+    <Card className="flex flex-col justify-between py-0 p-6 gap-2 min-w-[200px] min-h-[180px]">
+      <CardHeader className="flex flex-col gap-1">
+        <CardTitle className="leading-none font-semibold text-primary text-sm">
           {title}
         </CardTitle>
         <CardDescription className="text-[0.665rem] font-light text-muted-foreground">
@@ -22,7 +26,7 @@ export const StatCard = memo(({ title, subtitle, current_value, unit, percent_ch
         <CardTitle >
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0 flex flex-col gap-2">
+      <CardContent className="flex flex-col gap-2">
         <div className="space-x-1.5">
           <span className="space-x-2 font-semibold text-2xl">
             {current_value ?? "-"}
@@ -31,7 +35,7 @@ export const StatCard = memo(({ title, subtitle, current_value, unit, percent_ch
             {unit}
           </span>
         </div>
-        <ChangeBadge value={percent_change}/>
+        {percent_change !== undefined && <ChangeBadge value={percent_change}/>}
       </CardContent>
     </Card>
   );
