@@ -54,7 +54,9 @@ grant select on user_details to authenticated;
 grant select on users to authenticated, public;
 
 grant select on fields to authenticated, public;
-
+grant select on farmers to authenticated, public;
+grant select on field_activities to authenticated, public;
+grant select on seasons to authenticated, public;
 
 
 grant all privileges on users to service_role;
