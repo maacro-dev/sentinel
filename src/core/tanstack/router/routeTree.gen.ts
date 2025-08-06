@@ -14,27 +14,29 @@ import { Route as LoginRouteImport } from './../../../routes/login'
 import { Route as Data_collectorRouteImport } from './../../../routes/data_collector'
 import { Route as AdminRouteImport } from './../../../routes/admin'
 import { Route as ManagerRouteImport } from './../../../routes/_manager'
-import { Route as R404RouteImport } from './../../../routes/404'
 import { Route as IndexRouteImport } from './../../../routes/index'
-import { Route as AdminUser_managementRouteImport } from './../../../routes/admin/user_management'
-import { Route as AdminSettingsRouteImport } from './../../../routes/admin/settings'
-import { Route as AdminSecurityRouteImport } from './../../../routes/admin/security'
-import { Route as AdminReportsRouteImport } from './../../../routes/admin/reports'
-import { Route as AdminMaintenanceRouteImport } from './../../../routes/admin/maintenance'
-import { Route as AdminDashboardRouteImport } from './../../../routes/admin/dashboard'
-import { Route as ManagerMonitored_fieldsRouteImport } from './../../../routes/_manager/monitored_fields'
-import { Route as ManagerDashboardRouteImport } from './../../../routes/_manager/dashboard'
-import { Route as ManagerFormsRiceNonRiceRouteImport } from './../../../routes/_manager/_forms/riceNonRice'
-import { Route as ManagerFormsProductionRouteImport } from './../../../routes/_manager/_forms/production'
-import { Route as ManagerFormsOverviewRouteImport } from './../../../routes/_manager/_forms/overview'
-import { Route as ManagerFormsNutrientManagementRouteImport } from './../../../routes/_manager/_forms/nutrientManagement'
-import { Route as ManagerFormsMonitoringRouteImport } from './../../../routes/_manager/_forms/monitoring'
-import { Route as ManagerFormsFieldDataRouteImport } from './../../../routes/_manager/_forms/fieldData'
-import { Route as ManagerFormsDamageAssessmentRouteImport } from './../../../routes/_manager/_forms/damageAssessment'
-import { Route as ManagerFormsCulturalManagementRouteImport } from './../../../routes/_manager/_forms/culturalManagement'
+import { Route as AdminOverviewRouteImport } from './../../../routes/admin/_overview'
+import { Route as AdminOperationsRouteImport } from './../../../routes/admin/_operations'
+import { Route as AdminConfigurationRouteImport } from './../../../routes/admin/_configuration'
+import { Route as AdminAccessControlRouteImport } from './../../../routes/admin/_accessControl'
+import { Route as ManagerFormsRouteImport } from './../../../routes/_manager/forms'
+import { Route as ManagerOverviewRouteImport } from './../../../routes/_manager/_overview'
+import { Route as ManagerAnalyticsRouteImport } from './../../../routes/_manager/_analytics'
+import { Route as AdminOverviewDashboardRouteImport } from './../../../routes/admin/_overview/dashboard'
+import { Route as AdminOperationsReportsRouteImport } from './../../../routes/admin/_operations/reports'
+import { Route as AdminOperationsMaintenanceRouteImport } from './../../../routes/admin/_operations/maintenance'
+import { Route as AdminConfigurationSettingsRouteImport } from './../../../routes/admin/_configuration/settings'
+import { Route as AdminAccessControlUserManagementRouteImport } from './../../../routes/admin/_accessControl/user-management'
+import { Route as AdminAccessControlSecurityRouteImport } from './../../../routes/admin/_accessControl/security'
+import { Route as ManagerFormsOverviewRouteImport } from './../../../routes/_manager/forms/overview'
+import { Route as ManagerFormsFormTypeRouteImport } from './../../../routes/_manager/forms/$formType'
+import { Route as ManagerOverviewMonitored_fieldsRouteImport } from './../../../routes/_manager/_overview/monitored_fields'
+import { Route as ManagerOverviewDashboardRouteImport } from './../../../routes/_manager/_overview/dashboard'
 import { Route as ManagerAnalyticsPredictiveRouteImport } from './../../../routes/_manager/_analytics/predictive'
 import { Route as ManagerAnalyticsDescriptiveRouteImport } from './../../../routes/_manager/_analytics/descriptive'
 import { Route as ManagerAnalyticsComparativeRouteImport } from './../../../routes/_manager/_analytics/comparative'
+import { Route as ManagerFormsFormTypeIndexRouteImport } from './../../../routes/_manager/forms/$formType.index'
+import { Route as ManagerFormsFormTypeMfidRouteImport } from './../../../routes/_manager/forms/$formType.$mfid'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -60,289 +62,283 @@ const ManagerRoute = ManagerRouteImport.update({
   id: '/_manager',
   getParentRoute: () => rootRouteImport,
 } as any)
-const R404Route = R404RouteImport.update({
-  id: '/404',
-  path: '/404',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminUser_managementRoute = AdminUser_managementRouteImport.update({
-  id: '/user_management',
-  path: '/user_management',
+const AdminOverviewRoute = AdminOverviewRouteImport.update({
+  id: '/_overview',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const AdminOperationsRoute = AdminOperationsRouteImport.update({
+  id: '/_operations',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminSecurityRoute = AdminSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
+const AdminConfigurationRoute = AdminConfigurationRouteImport.update({
+  id: '/_configuration',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminReportsRoute = AdminReportsRouteImport.update({
+const AdminAccessControlRoute = AdminAccessControlRouteImport.update({
+  id: '/_accessControl',
+  getParentRoute: () => AdminRoute,
+} as any)
+const ManagerFormsRoute = ManagerFormsRouteImport.update({
+  id: '/forms',
+  path: '/forms',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerOverviewRoute = ManagerOverviewRouteImport.update({
+  id: '/_overview',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const ManagerAnalyticsRoute = ManagerAnalyticsRouteImport.update({
+  id: '/_analytics',
+  getParentRoute: () => ManagerRoute,
+} as any)
+const AdminOverviewDashboardRoute = AdminOverviewDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminOverviewRoute,
+} as any)
+const AdminOperationsReportsRoute = AdminOperationsReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => AdminOperationsRoute,
 } as any)
-const AdminMaintenanceRoute = AdminMaintenanceRouteImport.update({
-  id: '/maintenance',
-  path: '/maintenance',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AdminRoute,
-} as any)
-const ManagerMonitored_fieldsRoute = ManagerMonitored_fieldsRouteImport.update({
-  id: '/monitored_fields',
-  path: '/monitored_fields',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const ManagerDashboardRoute = ManagerDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const ManagerFormsRiceNonRiceRoute = ManagerFormsRiceNonRiceRouteImport.update({
-  id: '/_forms/riceNonRice',
-  path: '/riceNonRice',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const ManagerFormsProductionRoute = ManagerFormsProductionRouteImport.update({
-  id: '/_forms/production',
-  path: '/production',
-  getParentRoute: () => ManagerRoute,
-} as any)
+const AdminOperationsMaintenanceRoute =
+  AdminOperationsMaintenanceRouteImport.update({
+    id: '/maintenance',
+    path: '/maintenance',
+    getParentRoute: () => AdminOperationsRoute,
+  } as any)
+const AdminConfigurationSettingsRoute =
+  AdminConfigurationSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AdminConfigurationRoute,
+  } as any)
+const AdminAccessControlUserManagementRoute =
+  AdminAccessControlUserManagementRouteImport.update({
+    id: '/user-management',
+    path: '/user-management',
+    getParentRoute: () => AdminAccessControlRoute,
+  } as any)
+const AdminAccessControlSecurityRoute =
+  AdminAccessControlSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => AdminAccessControlRoute,
+  } as any)
 const ManagerFormsOverviewRoute = ManagerFormsOverviewRouteImport.update({
-  id: '/_forms/overview',
+  id: '/overview',
   path: '/overview',
-  getParentRoute: () => ManagerRoute,
+  getParentRoute: () => ManagerFormsRoute,
 } as any)
-const ManagerFormsNutrientManagementRoute =
-  ManagerFormsNutrientManagementRouteImport.update({
-    id: '/_forms/nutrientManagement',
-    path: '/nutrientManagement',
-    getParentRoute: () => ManagerRoute,
+const ManagerFormsFormTypeRoute = ManagerFormsFormTypeRouteImport.update({
+  id: '/$formType',
+  path: '/$formType',
+  getParentRoute: () => ManagerFormsRoute,
+} as any)
+const ManagerOverviewMonitored_fieldsRoute =
+  ManagerOverviewMonitored_fieldsRouteImport.update({
+    id: '/monitored_fields',
+    path: '/monitored_fields',
+    getParentRoute: () => ManagerOverviewRoute,
   } as any)
-const ManagerFormsMonitoringRoute = ManagerFormsMonitoringRouteImport.update({
-  id: '/_forms/monitoring',
-  path: '/monitoring',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const ManagerFormsFieldDataRoute = ManagerFormsFieldDataRouteImport.update({
-  id: '/_forms/fieldData',
-  path: '/fieldData',
-  getParentRoute: () => ManagerRoute,
-} as any)
-const ManagerFormsDamageAssessmentRoute =
-  ManagerFormsDamageAssessmentRouteImport.update({
-    id: '/_forms/damageAssessment',
-    path: '/damageAssessment',
-    getParentRoute: () => ManagerRoute,
-  } as any)
-const ManagerFormsCulturalManagementRoute =
-  ManagerFormsCulturalManagementRouteImport.update({
-    id: '/_forms/culturalManagement',
-    path: '/culturalManagement',
-    getParentRoute: () => ManagerRoute,
+const ManagerOverviewDashboardRoute =
+  ManagerOverviewDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => ManagerOverviewRoute,
   } as any)
 const ManagerAnalyticsPredictiveRoute =
   ManagerAnalyticsPredictiveRouteImport.update({
-    id: '/_analytics/predictive',
+    id: '/predictive',
     path: '/predictive',
-    getParentRoute: () => ManagerRoute,
+    getParentRoute: () => ManagerAnalyticsRoute,
   } as any)
 const ManagerAnalyticsDescriptiveRoute =
   ManagerAnalyticsDescriptiveRouteImport.update({
-    id: '/_analytics/descriptive',
+    id: '/descriptive',
     path: '/descriptive',
-    getParentRoute: () => ManagerRoute,
+    getParentRoute: () => ManagerAnalyticsRoute,
   } as any)
 const ManagerAnalyticsComparativeRoute =
   ManagerAnalyticsComparativeRouteImport.update({
-    id: '/_analytics/comparative',
+    id: '/comparative',
     path: '/comparative',
-    getParentRoute: () => ManagerRoute,
+    getParentRoute: () => ManagerAnalyticsRoute,
+  } as any)
+const ManagerFormsFormTypeIndexRoute =
+  ManagerFormsFormTypeIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ManagerFormsFormTypeRoute,
+  } as any)
+const ManagerFormsFormTypeMfidRoute =
+  ManagerFormsFormTypeMfidRouteImport.update({
+    id: '/$mfid',
+    path: '/$mfid',
+    getParentRoute: () => ManagerFormsFormTypeRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminOverviewRouteWithChildren
   '/data_collector': typeof Data_collectorRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/dashboard': typeof ManagerDashboardRoute
-  '/monitored_fields': typeof ManagerMonitored_fieldsRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/maintenance': typeof AdminMaintenanceRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/security': typeof AdminSecurityRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/user_management': typeof AdminUser_managementRoute
+  '/forms': typeof ManagerFormsRouteWithChildren
   '/comparative': typeof ManagerAnalyticsComparativeRoute
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
-  '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
-  '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
-  '/fieldData': typeof ManagerFormsFieldDataRoute
-  '/monitoring': typeof ManagerFormsMonitoringRoute
-  '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
-  '/overview': typeof ManagerFormsOverviewRoute
-  '/production': typeof ManagerFormsProductionRoute
-  '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
+  '/dashboard': typeof ManagerOverviewDashboardRoute
+  '/monitored_fields': typeof ManagerOverviewMonitored_fieldsRoute
+  '/forms/$formType': typeof ManagerFormsFormTypeRouteWithChildren
+  '/forms/overview': typeof ManagerFormsOverviewRoute
+  '/admin/security': typeof AdminAccessControlSecurityRoute
+  '/admin/user-management': typeof AdminAccessControlUserManagementRoute
+  '/admin/settings': typeof AdminConfigurationSettingsRoute
+  '/admin/maintenance': typeof AdminOperationsMaintenanceRoute
+  '/admin/reports': typeof AdminOperationsReportsRoute
+  '/admin/dashboard': typeof AdminOverviewDashboardRoute
+  '/forms/$formType/$mfid': typeof ManagerFormsFormTypeMfidRoute
+  '/forms/$formType/': typeof ManagerFormsFormTypeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminOverviewRouteWithChildren
   '/data_collector': typeof Data_collectorRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/dashboard': typeof ManagerDashboardRoute
-  '/monitored_fields': typeof ManagerMonitored_fieldsRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/maintenance': typeof AdminMaintenanceRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/security': typeof AdminSecurityRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/user_management': typeof AdminUser_managementRoute
+  '/forms': typeof ManagerFormsRouteWithChildren
   '/comparative': typeof ManagerAnalyticsComparativeRoute
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
-  '/culturalManagement': typeof ManagerFormsCulturalManagementRoute
-  '/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
-  '/fieldData': typeof ManagerFormsFieldDataRoute
-  '/monitoring': typeof ManagerFormsMonitoringRoute
-  '/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
-  '/overview': typeof ManagerFormsOverviewRoute
-  '/production': typeof ManagerFormsProductionRoute
-  '/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
+  '/dashboard': typeof ManagerOverviewDashboardRoute
+  '/monitored_fields': typeof ManagerOverviewMonitored_fieldsRoute
+  '/forms/overview': typeof ManagerFormsOverviewRoute
+  '/admin/security': typeof AdminAccessControlSecurityRoute
+  '/admin/user-management': typeof AdminAccessControlUserManagementRoute
+  '/admin/settings': typeof AdminConfigurationSettingsRoute
+  '/admin/maintenance': typeof AdminOperationsMaintenanceRoute
+  '/admin/reports': typeof AdminOperationsReportsRoute
+  '/admin/dashboard': typeof AdminOverviewDashboardRoute
+  '/forms/$formType/$mfid': typeof ManagerFormsFormTypeMfidRoute
+  '/forms/$formType': typeof ManagerFormsFormTypeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/404': typeof R404Route
   '/_manager': typeof ManagerRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/data_collector': typeof Data_collectorRoute
   '/login': typeof LoginRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/_manager/dashboard': typeof ManagerDashboardRoute
-  '/_manager/monitored_fields': typeof ManagerMonitored_fieldsRoute
-  '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/maintenance': typeof AdminMaintenanceRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/security': typeof AdminSecurityRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/user_management': typeof AdminUser_managementRoute
+  '/_manager/_analytics': typeof ManagerAnalyticsRouteWithChildren
+  '/_manager/_overview': typeof ManagerOverviewRouteWithChildren
+  '/_manager/forms': typeof ManagerFormsRouteWithChildren
+  '/admin/_accessControl': typeof AdminAccessControlRouteWithChildren
+  '/admin/_configuration': typeof AdminConfigurationRouteWithChildren
+  '/admin/_operations': typeof AdminOperationsRouteWithChildren
+  '/admin/_overview': typeof AdminOverviewRouteWithChildren
   '/_manager/_analytics/comparative': typeof ManagerAnalyticsComparativeRoute
   '/_manager/_analytics/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/_manager/_analytics/predictive': typeof ManagerAnalyticsPredictiveRoute
-  '/_manager/_forms/culturalManagement': typeof ManagerFormsCulturalManagementRoute
-  '/_manager/_forms/damageAssessment': typeof ManagerFormsDamageAssessmentRoute
-  '/_manager/_forms/fieldData': typeof ManagerFormsFieldDataRoute
-  '/_manager/_forms/monitoring': typeof ManagerFormsMonitoringRoute
-  '/_manager/_forms/nutrientManagement': typeof ManagerFormsNutrientManagementRoute
-  '/_manager/_forms/overview': typeof ManagerFormsOverviewRoute
-  '/_manager/_forms/production': typeof ManagerFormsProductionRoute
-  '/_manager/_forms/riceNonRice': typeof ManagerFormsRiceNonRiceRoute
+  '/_manager/_overview/dashboard': typeof ManagerOverviewDashboardRoute
+  '/_manager/_overview/monitored_fields': typeof ManagerOverviewMonitored_fieldsRoute
+  '/_manager/forms/$formType': typeof ManagerFormsFormTypeRouteWithChildren
+  '/_manager/forms/overview': typeof ManagerFormsOverviewRoute
+  '/admin/_accessControl/security': typeof AdminAccessControlSecurityRoute
+  '/admin/_accessControl/user-management': typeof AdminAccessControlUserManagementRoute
+  '/admin/_configuration/settings': typeof AdminConfigurationSettingsRoute
+  '/admin/_operations/maintenance': typeof AdminOperationsMaintenanceRoute
+  '/admin/_operations/reports': typeof AdminOperationsReportsRoute
+  '/admin/_overview/dashboard': typeof AdminOverviewDashboardRoute
+  '/_manager/forms/$formType/$mfid': typeof ManagerFormsFormTypeMfidRoute
+  '/_manager/forms/$formType/': typeof ManagerFormsFormTypeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/404'
     | '/admin'
     | '/data_collector'
     | '/login'
     | '/unauthorized'
-    | '/dashboard'
-    | '/monitored_fields'
-    | '/admin/dashboard'
-    | '/admin/maintenance'
-    | '/admin/reports'
-    | '/admin/security'
-    | '/admin/settings'
-    | '/admin/user_management'
+    | '/forms'
     | '/comparative'
     | '/descriptive'
     | '/predictive'
-    | '/culturalManagement'
-    | '/damageAssessment'
-    | '/fieldData'
-    | '/monitoring'
-    | '/nutrientManagement'
-    | '/overview'
-    | '/production'
-    | '/riceNonRice'
+    | '/dashboard'
+    | '/monitored_fields'
+    | '/forms/$formType'
+    | '/forms/overview'
+    | '/admin/security'
+    | '/admin/user-management'
+    | '/admin/settings'
+    | '/admin/maintenance'
+    | '/admin/reports'
+    | '/admin/dashboard'
+    | '/forms/$formType/$mfid'
+    | '/forms/$formType/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/404'
     | '/admin'
     | '/data_collector'
     | '/login'
     | '/unauthorized'
-    | '/dashboard'
-    | '/monitored_fields'
-    | '/admin/dashboard'
-    | '/admin/maintenance'
-    | '/admin/reports'
-    | '/admin/security'
-    | '/admin/settings'
-    | '/admin/user_management'
+    | '/forms'
     | '/comparative'
     | '/descriptive'
     | '/predictive'
-    | '/culturalManagement'
-    | '/damageAssessment'
-    | '/fieldData'
-    | '/monitoring'
-    | '/nutrientManagement'
-    | '/overview'
-    | '/production'
-    | '/riceNonRice'
+    | '/dashboard'
+    | '/monitored_fields'
+    | '/forms/overview'
+    | '/admin/security'
+    | '/admin/user-management'
+    | '/admin/settings'
+    | '/admin/maintenance'
+    | '/admin/reports'
+    | '/admin/dashboard'
+    | '/forms/$formType/$mfid'
+    | '/forms/$formType'
   id:
     | '__root__'
     | '/'
-    | '/404'
     | '/_manager'
     | '/admin'
     | '/data_collector'
     | '/login'
     | '/unauthorized'
-    | '/_manager/dashboard'
-    | '/_manager/monitored_fields'
-    | '/admin/dashboard'
-    | '/admin/maintenance'
-    | '/admin/reports'
-    | '/admin/security'
-    | '/admin/settings'
-    | '/admin/user_management'
+    | '/_manager/_analytics'
+    | '/_manager/_overview'
+    | '/_manager/forms'
+    | '/admin/_accessControl'
+    | '/admin/_configuration'
+    | '/admin/_operations'
+    | '/admin/_overview'
     | '/_manager/_analytics/comparative'
     | '/_manager/_analytics/descriptive'
     | '/_manager/_analytics/predictive'
-    | '/_manager/_forms/culturalManagement'
-    | '/_manager/_forms/damageAssessment'
-    | '/_manager/_forms/fieldData'
-    | '/_manager/_forms/monitoring'
-    | '/_manager/_forms/nutrientManagement'
-    | '/_manager/_forms/overview'
-    | '/_manager/_forms/production'
-    | '/_manager/_forms/riceNonRice'
+    | '/_manager/_overview/dashboard'
+    | '/_manager/_overview/monitored_fields'
+    | '/_manager/forms/$formType'
+    | '/_manager/forms/overview'
+    | '/admin/_accessControl/security'
+    | '/admin/_accessControl/user-management'
+    | '/admin/_configuration/settings'
+    | '/admin/_operations/maintenance'
+    | '/admin/_operations/reports'
+    | '/admin/_overview/dashboard'
+    | '/_manager/forms/$formType/$mfid'
+    | '/_manager/forms/$formType/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  R404Route: typeof R404Route
   ManagerRoute: typeof ManagerRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   Data_collectorRoute: typeof Data_collectorRoute
@@ -387,13 +383,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/404': {
-      id: '/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof R404RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -401,200 +390,302 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/user_management': {
-      id: '/admin/user_management'
-      path: '/user_management'
-      fullPath: '/admin/user_management'
-      preLoaderRoute: typeof AdminUser_managementRouteImport
+    '/admin/_overview': {
+      id: '/admin/_overview'
+      path: ''
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminOverviewRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
+    '/admin/_operations': {
+      id: '/admin/_operations'
+      path: ''
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminOperationsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/security': {
-      id: '/admin/security'
-      path: '/security'
-      fullPath: '/admin/security'
-      preLoaderRoute: typeof AdminSecurityRouteImport
+    '/admin/_configuration': {
+      id: '/admin/_configuration'
+      path: ''
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminConfigurationRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/reports': {
-      id: '/admin/reports'
-      path: '/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AdminReportsRouteImport
+    '/admin/_accessControl': {
+      id: '/admin/_accessControl'
+      path: ''
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminAccessControlRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/maintenance': {
-      id: '/admin/maintenance'
-      path: '/maintenance'
-      fullPath: '/admin/maintenance'
-      preLoaderRoute: typeof AdminMaintenanceRouteImport
-      parentRoute: typeof AdminRoute
+    '/_manager/forms': {
+      id: '/_manager/forms'
+      path: '/forms'
+      fullPath: '/forms'
+      preLoaderRoute: typeof ManagerFormsRouteImport
+      parentRoute: typeof ManagerRoute
     }
-    '/admin/dashboard': {
-      id: '/admin/dashboard'
+    '/_manager/_overview': {
+      id: '/_manager/_overview'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ManagerOverviewRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/_manager/_analytics': {
+      id: '/_manager/_analytics'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ManagerAnalyticsRouteImport
+      parentRoute: typeof ManagerRoute
+    }
+    '/admin/_overview/dashboard': {
+      id: '/admin/_overview/dashboard'
       path: '/dashboard'
       fullPath: '/admin/dashboard'
-      preLoaderRoute: typeof AdminDashboardRouteImport
-      parentRoute: typeof AdminRoute
+      preLoaderRoute: typeof AdminOverviewDashboardRouteImport
+      parentRoute: typeof AdminOverviewRoute
     }
-    '/_manager/monitored_fields': {
-      id: '/_manager/monitored_fields'
+    '/admin/_operations/reports': {
+      id: '/admin/_operations/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminOperationsReportsRouteImport
+      parentRoute: typeof AdminOperationsRoute
+    }
+    '/admin/_operations/maintenance': {
+      id: '/admin/_operations/maintenance'
+      path: '/maintenance'
+      fullPath: '/admin/maintenance'
+      preLoaderRoute: typeof AdminOperationsMaintenanceRouteImport
+      parentRoute: typeof AdminOperationsRoute
+    }
+    '/admin/_configuration/settings': {
+      id: '/admin/_configuration/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminConfigurationSettingsRouteImport
+      parentRoute: typeof AdminConfigurationRoute
+    }
+    '/admin/_accessControl/user-management': {
+      id: '/admin/_accessControl/user-management'
+      path: '/user-management'
+      fullPath: '/admin/user-management'
+      preLoaderRoute: typeof AdminAccessControlUserManagementRouteImport
+      parentRoute: typeof AdminAccessControlRoute
+    }
+    '/admin/_accessControl/security': {
+      id: '/admin/_accessControl/security'
+      path: '/security'
+      fullPath: '/admin/security'
+      preLoaderRoute: typeof AdminAccessControlSecurityRouteImport
+      parentRoute: typeof AdminAccessControlRoute
+    }
+    '/_manager/forms/overview': {
+      id: '/_manager/forms/overview'
+      path: '/overview'
+      fullPath: '/forms/overview'
+      preLoaderRoute: typeof ManagerFormsOverviewRouteImport
+      parentRoute: typeof ManagerFormsRoute
+    }
+    '/_manager/forms/$formType': {
+      id: '/_manager/forms/$formType'
+      path: '/$formType'
+      fullPath: '/forms/$formType'
+      preLoaderRoute: typeof ManagerFormsFormTypeRouteImport
+      parentRoute: typeof ManagerFormsRoute
+    }
+    '/_manager/_overview/monitored_fields': {
+      id: '/_manager/_overview/monitored_fields'
       path: '/monitored_fields'
       fullPath: '/monitored_fields'
-      preLoaderRoute: typeof ManagerMonitored_fieldsRouteImport
-      parentRoute: typeof ManagerRoute
+      preLoaderRoute: typeof ManagerOverviewMonitored_fieldsRouteImport
+      parentRoute: typeof ManagerOverviewRoute
     }
-    '/_manager/dashboard': {
-      id: '/_manager/dashboard'
+    '/_manager/_overview/dashboard': {
+      id: '/_manager/_overview/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof ManagerDashboardRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/riceNonRice': {
-      id: '/_manager/_forms/riceNonRice'
-      path: '/riceNonRice'
-      fullPath: '/riceNonRice'
-      preLoaderRoute: typeof ManagerFormsRiceNonRiceRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/production': {
-      id: '/_manager/_forms/production'
-      path: '/production'
-      fullPath: '/production'
-      preLoaderRoute: typeof ManagerFormsProductionRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/overview': {
-      id: '/_manager/_forms/overview'
-      path: '/overview'
-      fullPath: '/overview'
-      preLoaderRoute: typeof ManagerFormsOverviewRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/nutrientManagement': {
-      id: '/_manager/_forms/nutrientManagement'
-      path: '/nutrientManagement'
-      fullPath: '/nutrientManagement'
-      preLoaderRoute: typeof ManagerFormsNutrientManagementRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/monitoring': {
-      id: '/_manager/_forms/monitoring'
-      path: '/monitoring'
-      fullPath: '/monitoring'
-      preLoaderRoute: typeof ManagerFormsMonitoringRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/fieldData': {
-      id: '/_manager/_forms/fieldData'
-      path: '/fieldData'
-      fullPath: '/fieldData'
-      preLoaderRoute: typeof ManagerFormsFieldDataRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/damageAssessment': {
-      id: '/_manager/_forms/damageAssessment'
-      path: '/damageAssessment'
-      fullPath: '/damageAssessment'
-      preLoaderRoute: typeof ManagerFormsDamageAssessmentRouteImport
-      parentRoute: typeof ManagerRoute
-    }
-    '/_manager/_forms/culturalManagement': {
-      id: '/_manager/_forms/culturalManagement'
-      path: '/culturalManagement'
-      fullPath: '/culturalManagement'
-      preLoaderRoute: typeof ManagerFormsCulturalManagementRouteImport
-      parentRoute: typeof ManagerRoute
+      preLoaderRoute: typeof ManagerOverviewDashboardRouteImport
+      parentRoute: typeof ManagerOverviewRoute
     }
     '/_manager/_analytics/predictive': {
       id: '/_manager/_analytics/predictive'
       path: '/predictive'
       fullPath: '/predictive'
       preLoaderRoute: typeof ManagerAnalyticsPredictiveRouteImport
-      parentRoute: typeof ManagerRoute
+      parentRoute: typeof ManagerAnalyticsRoute
     }
     '/_manager/_analytics/descriptive': {
       id: '/_manager/_analytics/descriptive'
       path: '/descriptive'
       fullPath: '/descriptive'
       preLoaderRoute: typeof ManagerAnalyticsDescriptiveRouteImport
-      parentRoute: typeof ManagerRoute
+      parentRoute: typeof ManagerAnalyticsRoute
     }
     '/_manager/_analytics/comparative': {
       id: '/_manager/_analytics/comparative'
       path: '/comparative'
       fullPath: '/comparative'
       preLoaderRoute: typeof ManagerAnalyticsComparativeRouteImport
-      parentRoute: typeof ManagerRoute
+      parentRoute: typeof ManagerAnalyticsRoute
+    }
+    '/_manager/forms/$formType/': {
+      id: '/_manager/forms/$formType/'
+      path: '/'
+      fullPath: '/forms/$formType/'
+      preLoaderRoute: typeof ManagerFormsFormTypeIndexRouteImport
+      parentRoute: typeof ManagerFormsFormTypeRoute
+    }
+    '/_manager/forms/$formType/$mfid': {
+      id: '/_manager/forms/$formType/$mfid'
+      path: '/$mfid'
+      fullPath: '/forms/$formType/$mfid'
+      preLoaderRoute: typeof ManagerFormsFormTypeMfidRouteImport
+      parentRoute: typeof ManagerFormsFormTypeRoute
     }
   }
 }
 
-interface ManagerRouteChildren {
-  ManagerDashboardRoute: typeof ManagerDashboardRoute
-  ManagerMonitored_fieldsRoute: typeof ManagerMonitored_fieldsRoute
+interface ManagerAnalyticsRouteChildren {
   ManagerAnalyticsComparativeRoute: typeof ManagerAnalyticsComparativeRoute
   ManagerAnalyticsDescriptiveRoute: typeof ManagerAnalyticsDescriptiveRoute
   ManagerAnalyticsPredictiveRoute: typeof ManagerAnalyticsPredictiveRoute
-  ManagerFormsCulturalManagementRoute: typeof ManagerFormsCulturalManagementRoute
-  ManagerFormsDamageAssessmentRoute: typeof ManagerFormsDamageAssessmentRoute
-  ManagerFormsFieldDataRoute: typeof ManagerFormsFieldDataRoute
-  ManagerFormsMonitoringRoute: typeof ManagerFormsMonitoringRoute
-  ManagerFormsNutrientManagementRoute: typeof ManagerFormsNutrientManagementRoute
-  ManagerFormsOverviewRoute: typeof ManagerFormsOverviewRoute
-  ManagerFormsProductionRoute: typeof ManagerFormsProductionRoute
-  ManagerFormsRiceNonRiceRoute: typeof ManagerFormsRiceNonRiceRoute
 }
 
-const ManagerRouteChildren: ManagerRouteChildren = {
-  ManagerDashboardRoute: ManagerDashboardRoute,
-  ManagerMonitored_fieldsRoute: ManagerMonitored_fieldsRoute,
+const ManagerAnalyticsRouteChildren: ManagerAnalyticsRouteChildren = {
   ManagerAnalyticsComparativeRoute: ManagerAnalyticsComparativeRoute,
   ManagerAnalyticsDescriptiveRoute: ManagerAnalyticsDescriptiveRoute,
   ManagerAnalyticsPredictiveRoute: ManagerAnalyticsPredictiveRoute,
-  ManagerFormsCulturalManagementRoute: ManagerFormsCulturalManagementRoute,
-  ManagerFormsDamageAssessmentRoute: ManagerFormsDamageAssessmentRoute,
-  ManagerFormsFieldDataRoute: ManagerFormsFieldDataRoute,
-  ManagerFormsMonitoringRoute: ManagerFormsMonitoringRoute,
-  ManagerFormsNutrientManagementRoute: ManagerFormsNutrientManagementRoute,
+}
+
+const ManagerAnalyticsRouteWithChildren =
+  ManagerAnalyticsRoute._addFileChildren(ManagerAnalyticsRouteChildren)
+
+interface ManagerOverviewRouteChildren {
+  ManagerOverviewDashboardRoute: typeof ManagerOverviewDashboardRoute
+  ManagerOverviewMonitored_fieldsRoute: typeof ManagerOverviewMonitored_fieldsRoute
+}
+
+const ManagerOverviewRouteChildren: ManagerOverviewRouteChildren = {
+  ManagerOverviewDashboardRoute: ManagerOverviewDashboardRoute,
+  ManagerOverviewMonitored_fieldsRoute: ManagerOverviewMonitored_fieldsRoute,
+}
+
+const ManagerOverviewRouteWithChildren = ManagerOverviewRoute._addFileChildren(
+  ManagerOverviewRouteChildren,
+)
+
+interface ManagerFormsFormTypeRouteChildren {
+  ManagerFormsFormTypeMfidRoute: typeof ManagerFormsFormTypeMfidRoute
+  ManagerFormsFormTypeIndexRoute: typeof ManagerFormsFormTypeIndexRoute
+}
+
+const ManagerFormsFormTypeRouteChildren: ManagerFormsFormTypeRouteChildren = {
+  ManagerFormsFormTypeMfidRoute: ManagerFormsFormTypeMfidRoute,
+  ManagerFormsFormTypeIndexRoute: ManagerFormsFormTypeIndexRoute,
+}
+
+const ManagerFormsFormTypeRouteWithChildren =
+  ManagerFormsFormTypeRoute._addFileChildren(ManagerFormsFormTypeRouteChildren)
+
+interface ManagerFormsRouteChildren {
+  ManagerFormsFormTypeRoute: typeof ManagerFormsFormTypeRouteWithChildren
+  ManagerFormsOverviewRoute: typeof ManagerFormsOverviewRoute
+}
+
+const ManagerFormsRouteChildren: ManagerFormsRouteChildren = {
+  ManagerFormsFormTypeRoute: ManagerFormsFormTypeRouteWithChildren,
   ManagerFormsOverviewRoute: ManagerFormsOverviewRoute,
-  ManagerFormsProductionRoute: ManagerFormsProductionRoute,
-  ManagerFormsRiceNonRiceRoute: ManagerFormsRiceNonRiceRoute,
+}
+
+const ManagerFormsRouteWithChildren = ManagerFormsRoute._addFileChildren(
+  ManagerFormsRouteChildren,
+)
+
+interface ManagerRouteChildren {
+  ManagerAnalyticsRoute: typeof ManagerAnalyticsRouteWithChildren
+  ManagerOverviewRoute: typeof ManagerOverviewRouteWithChildren
+  ManagerFormsRoute: typeof ManagerFormsRouteWithChildren
+}
+
+const ManagerRouteChildren: ManagerRouteChildren = {
+  ManagerAnalyticsRoute: ManagerAnalyticsRouteWithChildren,
+  ManagerOverviewRoute: ManagerOverviewRouteWithChildren,
+  ManagerFormsRoute: ManagerFormsRouteWithChildren,
 }
 
 const ManagerRouteWithChildren =
   ManagerRoute._addFileChildren(ManagerRouteChildren)
 
+interface AdminAccessControlRouteChildren {
+  AdminAccessControlSecurityRoute: typeof AdminAccessControlSecurityRoute
+  AdminAccessControlUserManagementRoute: typeof AdminAccessControlUserManagementRoute
+}
+
+const AdminAccessControlRouteChildren: AdminAccessControlRouteChildren = {
+  AdminAccessControlSecurityRoute: AdminAccessControlSecurityRoute,
+  AdminAccessControlUserManagementRoute: AdminAccessControlUserManagementRoute,
+}
+
+const AdminAccessControlRouteWithChildren =
+  AdminAccessControlRoute._addFileChildren(AdminAccessControlRouteChildren)
+
+interface AdminConfigurationRouteChildren {
+  AdminConfigurationSettingsRoute: typeof AdminConfigurationSettingsRoute
+}
+
+const AdminConfigurationRouteChildren: AdminConfigurationRouteChildren = {
+  AdminConfigurationSettingsRoute: AdminConfigurationSettingsRoute,
+}
+
+const AdminConfigurationRouteWithChildren =
+  AdminConfigurationRoute._addFileChildren(AdminConfigurationRouteChildren)
+
+interface AdminOperationsRouteChildren {
+  AdminOperationsMaintenanceRoute: typeof AdminOperationsMaintenanceRoute
+  AdminOperationsReportsRoute: typeof AdminOperationsReportsRoute
+}
+
+const AdminOperationsRouteChildren: AdminOperationsRouteChildren = {
+  AdminOperationsMaintenanceRoute: AdminOperationsMaintenanceRoute,
+  AdminOperationsReportsRoute: AdminOperationsReportsRoute,
+}
+
+const AdminOperationsRouteWithChildren = AdminOperationsRoute._addFileChildren(
+  AdminOperationsRouteChildren,
+)
+
+interface AdminOverviewRouteChildren {
+  AdminOverviewDashboardRoute: typeof AdminOverviewDashboardRoute
+}
+
+const AdminOverviewRouteChildren: AdminOverviewRouteChildren = {
+  AdminOverviewDashboardRoute: AdminOverviewDashboardRoute,
+}
+
+const AdminOverviewRouteWithChildren = AdminOverviewRoute._addFileChildren(
+  AdminOverviewRouteChildren,
+)
+
 interface AdminRouteChildren {
-  AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminMaintenanceRoute: typeof AdminMaintenanceRoute
-  AdminReportsRoute: typeof AdminReportsRoute
-  AdminSecurityRoute: typeof AdminSecurityRoute
-  AdminSettingsRoute: typeof AdminSettingsRoute
-  AdminUser_managementRoute: typeof AdminUser_managementRoute
+  AdminAccessControlRoute: typeof AdminAccessControlRouteWithChildren
+  AdminConfigurationRoute: typeof AdminConfigurationRouteWithChildren
+  AdminOperationsRoute: typeof AdminOperationsRouteWithChildren
+  AdminOverviewRoute: typeof AdminOverviewRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminDashboardRoute: AdminDashboardRoute,
-  AdminMaintenanceRoute: AdminMaintenanceRoute,
-  AdminReportsRoute: AdminReportsRoute,
-  AdminSecurityRoute: AdminSecurityRoute,
-  AdminSettingsRoute: AdminSettingsRoute,
-  AdminUser_managementRoute: AdminUser_managementRoute,
+  AdminAccessControlRoute: AdminAccessControlRouteWithChildren,
+  AdminConfigurationRoute: AdminConfigurationRouteWithChildren,
+  AdminOperationsRoute: AdminOperationsRouteWithChildren,
+  AdminOverviewRoute: AdminOverviewRouteWithChildren,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  R404Route: R404Route,
   ManagerRoute: ManagerRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   Data_collectorRoute: Data_collectorRoute,

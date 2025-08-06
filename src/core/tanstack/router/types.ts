@@ -1,39 +1,32 @@
-import { FileRoutesByTo } from "./routeTree.gen";
-import { AnyRoute } from "@tanstack/react-router";
 import { LucideIcon } from "lucide-react";
-import { Role } from "@/features/users";
-import { SidebarStaticData } from "@/core/components/layout/Sidebar/types";
+import { FileRoutesByTo } from "./routeTree.gen";
+import { ColumnDef } from "@tanstack/react-table";
+import { AnyPathParams } from "@tanstack/react-router";
 
 // https://github.com/TanStack/router/discussions/824#discussioncomment-12342295
 export type Path = keyof FileRoutesByTo;
 
-export type RouteGroup
-  = "Core" | "Analytics" | "Forms" | "Overview" | "Access Control" | "Operations" | "Configuration" | "*";
+// marker type
+export type ParentPath = string
 
-export type RouteWithStaticData = AnyRoute & {
-  options: { staticData: SidebarStaticData }
-};
-
-export interface RouteStaticData {
-  routeFor: Role;
+export type RouteConfig<T extends string = string, P extends Path = Path> = {
+  id?: T;
+  role: string;
+  path?: P;
+  params?: AnyPathParams
   label: string;
   icon?: LucideIcon;
-  section: RouteGroup;
-  navItemOrder: number;
+  disabled?: boolean;
+  meta?: {
+    tableColumns?: ColumnDef<any, any>[]
+  }
+  children?: readonly RouteConfig[];
 }
 
-export type RouteMetadata = {
-  section: RouteGroup;
-  label: string;
-  icon: LucideIcon;
-  routeFor: Role;
-  navItemOrder: number;
-  showInSidebar: boolean;
-  sidebarOrder: number;
-};
-
-export type RouteBreadcrumb = {
-  section: RouteGroup;
-  title: string;
-  url: string;
-};
+export type RouteConfigIds<T> =
+  T extends { id: infer InferID extends string }
+    ? InferID
+    : never
+  | (T extends { children: ReadonlyArray<infer C> }
+      ? RouteConfigIds<C>
+      : never);
