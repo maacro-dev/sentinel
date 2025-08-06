@@ -4,12 +4,13 @@ import { QueryClient } from "@tanstack/react-query";
 import { queryClient } from "@/core/tanstack/query/client";
 import { Role } from "@/features/users";
 import { routeTree } from "./routeTree.gen";
-import { RouteGroup } from "./types";
+import { NotFound } from "@/core/components/NotFound";
 
 export type RouterContext = {
   queryClient: QueryClient;
 };
 
+export type SentinelRouter = typeof router;
 export const router = createRouter({
   routeTree: routeTree,
   defaultPreload: "intent",
@@ -18,7 +19,9 @@ export const router = createRouter({
   context: {
     queryClient: queryClient,
   },
+  defaultNotFoundComponent: NotFound
 });
+
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -28,11 +31,13 @@ declare module "@tanstack/react-router" {
 
 declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
-    routeFor?: Role;
+    isGroup?: boolean;
     label?: string;
-    icon?: LucideIcon;
-    group?: RouteGroup;
-    navItemOrder?: number;
-    disabled?: boolean;
+    role?: Role;
+    sidebar?: {
+      icon?: LucideIcon | undefined;
+      order?: number;
+      disabled?: boolean;
+    }
   }
 }
