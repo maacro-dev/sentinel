@@ -1910,4 +1910,3 @@ VALUES (
     '48',
     '1.6',
     'Sufficient');
-

@@ -1,8 +1,11 @@
 create schema if not exists analytics;
 
-CREATE OR REPLACE FUNCTION analytics.dashboard_seasonal_stat_comparisons()
-RETURNS JSONB
-LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION analytics.dashboard_summary()
+  RETURNS JSONB
+  LANGUAGE plpgsql
+  SECURITY DEFINER
+  SET search_path = ''
+AS $$
 DECLARE
     curr RECORD;
     prev RECORD;
@@ -26,16 +29,16 @@ DECLARE
     previous_pest_reports NUMERIC := 0;
     result JSONB;
 BEGIN
-    SELECT * INTO curr FROM seasons ORDER BY start_date DESC LIMIT 1;
+    SELECT * INTO curr FROM public.seasons ORDER BY start_date DESC LIMIT 1;
     IF NOT FOUND THEN
-        RETURN jsonb_build_object();
+        RETURN json_build_object();
     END IF;
 
-    SELECT * INTO prev FROM seasons
+    SELECT * INTO prev FROM public.seasons
     WHERE start_date < curr.start_date
     ORDER BY start_date DESC LIMIT 1;
     IF prev IS NULL THEN
-        RETURN jsonb_build_object();
+        RETURN json_build_object();
     END IF;
 
     SELECT
@@ -44,7 +47,7 @@ BEGIN
         COALESCE(COUNT(*) FILTER (WHERE season_id = curr.id), 0),
         COALESCE(COUNT(*) FILTER (WHERE season_id = prev.id), 0)
     INTO current_field_count, previous_field_count, current_forms_submitted, previous_forms_submitted
-    FROM field_activities
+    FROM public.field_activities
     WHERE season_id IN (curr.id, prev.id);
 
     SELECT
@@ -53,8 +56,8 @@ BEGIN
         COALESCE(COUNT(*) FILTER (WHERE da.observed_pest IS NOT NULL AND fa.season_id = curr.id), 0),
         COALESCE(COUNT(*) FILTER (WHERE da.observed_pest IS NOT NULL AND fa.season_id = prev.id), 0)
     INTO current_damage_reports, previous_damage_reports, current_pest_reports, previous_pest_reports
-    FROM field_activities fa
-    JOIN damage_assessments da ON da.id = fa.id
+    FROM public.field_activities fa
+    JOIN public.damage_assessments da ON da.id = fa.id
     WHERE fa.season_id IN (curr.id, prev.id);
 
     SELECT
@@ -65,8 +68,8 @@ BEGIN
         COALESCE(COUNT(*) FILTER (WHERE hr.irrigation_supply IN ('Not Enough', 'Not Sufficient') AND fa.season_id = curr.id), 0),
         COALESCE(COUNT(*) FILTER (WHERE hr.irrigation_supply IN ('Not Enough', 'Not Sufficient') AND fa.season_id = prev.id), 0)
     INTO current_total_area, previous_total_area, current_total_yield, previous_total_yield, current_not_sufficient, previous_not_sufficient
-    FROM field_activities fa
-    JOIN harvest_records hr ON hr.id = fa.id
+    FROM public.field_activities fa
+    JOIN public.harvest_records hr ON hr.id = fa.id
     WHERE fa.season_id IN (curr.id, prev.id);
 
     current_yield := CASE WHEN current_total_area > 0 THEN ROUND((current_total_yield / current_total_area) / 1000, 2) ELSE 0 END;
@@ -75,45 +78,45 @@ BEGIN
     SELECT
         COALESCE(ROUND(
             (SUM(CASE WHEN fa.season_id = curr.id AND (
-                (fa.activity_type = 'field_planning' AND fp.id IS NOT NULL) OR
-                (fa.activity_type = 'crop_establishment' AND ce.id IS NOT NULL) OR
-                (fa.activity_type = 'fertilization_record' AND fr.id IS NOT NULL) OR
-                (fa.activity_type = 'harvest_record' AND hr.id IS NOT NULL)
+                (fa.activity_type = 'field-data' AND fp.id IS NOT NULL) OR
+                (fa.activity_type = 'cultural-management' AND ce.id IS NOT NULL) OR
+                (fa.activity_type = 'nutrient-management' AND fr.id IS NOT NULL) OR
+                (fa.activity_type = 'production' AND hr.id IS NOT NULL)
             ) AND fa.verification_status = 'approved' THEN 1 ELSE 0 END) * 100.0) /
             NULLIF(COUNT(*) FILTER (WHERE fa.season_id = curr.id), 0), 2), 0),
         COALESCE(ROUND(
             (SUM(CASE WHEN fa.season_id = prev.id AND (
-                (fa.activity_type = 'field_planning' AND fp.id IS NOT NULL) OR
-                (fa.activity_type = 'crop_establishment' AND ce.id IS NOT NULL) OR
-                (fa.activity_type = 'fertilization_record' AND fr.id IS NOT NULL) OR
-                (fa.activity_type = 'harvest_record' AND hr.id IS NOT NULL)
+                (fa.activity_type = 'field-data' AND fp.id IS NOT NULL) OR
+                (fa.activity_type = 'cultural-management' AND ce.id IS NOT NULL) OR
+                (fa.activity_type = 'nutrient-management' AND fr.id IS NOT NULL) OR
+                (fa.activity_type = 'production' AND hr.id IS NOT NULL)
             ) AND fa.verification_status = 'approved' THEN 1 ELSE 0 END) * 100.0) /
             NULLIF(COUNT(*) FILTER (WHERE fa.season_id = prev.id), 0), 2), 0)
     INTO current_data_completeness, previous_data_completeness
-    FROM field_activities fa
-    LEFT JOIN field_plannings fp ON fp.id = fa.id AND fa.activity_type = 'field_planning'
-    LEFT JOIN crop_establishments ce ON ce.id = fa.id AND fa.activity_type = 'crop_establishment'
-    LEFT JOIN fertilization_records fr ON fr.id = fa.id AND fa.activity_type = 'fertilization_record'
-    LEFT JOIN harvest_records hr ON hr.id = fa.id AND fa.activity_type = 'harvest_record'
+    FROM public.field_activities fa
+    LEFT JOIN public.field_plannings fp ON fp.id = fa.id AND fa.activity_type = 'field-data'
+    LEFT JOIN public.crop_establishments ce ON ce.id = fa.id AND fa.activity_type = 'cultural-management'
+    LEFT JOIN public.fertilization_records fr ON fr.id = fa.id AND fa.activity_type = 'nutrient-management'
+    LEFT JOIN public.harvest_records hr ON hr.id = fa.id AND fa.activity_type = 'production'
     WHERE fa.season_id IN (curr.id, prev.id);
 
-    result := jsonb_build_object(
-      'periods', jsonb_build_object(
-        'current', jsonb_build_object(
+    result := json_build_object(
+      'seasons', json_build_object(
+        'current', json_build_object(
           'start_date', curr.start_date,
           'end_date', curr.end_date,
           'semester', curr.semester,
           'season_year', curr.season_year
         ),
-        'previous', jsonb_build_object(
+        'previous', json_build_object(
           'start_date', prev.start_date,
           'end_date', prev.end_date,
           'semester', prev.semester,
           'season_year', prev.season_year
         )
       ),
-      'stats', jsonb_build_array(
-        jsonb_build_object(
+      'data', json_build_array(
+        json_build_object(
           'name', 'field_count',
           'current_value', current_field_count,
           'previous_value', previous_field_count,
@@ -126,7 +129,7 @@ BEGIN
             2
           ) END
         ),
-        jsonb_build_object(
+        json_build_object(
           'name', 'form_submission',
           'current_value', current_forms_submitted,
           'previous_value', previous_forms_submitted,
@@ -139,7 +142,7 @@ BEGIN
             2
           ) END
         ),
-        jsonb_build_object(
+        json_build_object(
           'name', 'yield',
           'current_value', current_yield,
           'previous_value', previous_yield,
@@ -150,7 +153,7 @@ BEGIN
             2
           ) END
         ),
-        jsonb_build_object(
+        json_build_object(
           'name', 'harvested_area',
           'current_value', ROUND(current_total_area, 2),
           'previous_value', ROUND(previous_total_area, 2),
@@ -163,7 +166,7 @@ BEGIN
             2
           ) END
         ),
-        jsonb_build_object(
+        json_build_object(
           'name', 'irrigation',
           'current_value', current_not_sufficient,
           'previous_value', previous_not_sufficient,
@@ -176,7 +179,7 @@ BEGIN
             2
           ) END
         ),
-        jsonb_build_object(
+        json_build_object(
           'name', 'data_completeness',
           'current_value', current_data_completeness,
           'previous_value', previous_data_completeness,
@@ -189,7 +192,7 @@ BEGIN
             2
           ) END
         ),
-        jsonb_build_object(
+        json_build_object(
           'name', 'damage_report',
           'current_value', current_damage_reports,
           'previous_value', previous_damage_reports,
@@ -202,7 +205,7 @@ BEGIN
             2
           ) END
         ),
-        jsonb_build_object(
+        json_build_object(
           'name', 'pest_report',
           'current_value', current_pest_reports,
           'previous_value', previous_pest_reports,
@@ -223,20 +226,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE VIEW analytics.dashboard_yield_timeseries AS
-WITH monthly_yields AS (
-  SELECT
-    date_trunc('month', hr.harvest_date) AS month_start,
-    (hr.bags_harvested * hr.avg_bag_weight_kg) / nullif(hr.area_harvested, 0) / 1000.0 AS yield_t_ha
-  FROM harvest_records hr
-  JOIN field_activities fa ON hr.id = fa.id
-)
-SELECT
-  to_char(month_start, 'mon yyyy') AS month_year,
-  round(avg(yield_t_ha)::numeric, 2) AS avg_yield_t_ha
-FROM monthly_yields
-GROUP BY month_start
-ORDER BY month_start;
+
 
 CREATE OR REPLACE VIEW analytics.dashboard_barangay_yield_rankings AS
 WITH season_data AS (
@@ -274,24 +264,24 @@ barangay_ranking AS (
 )
 SELECT
   (
-    SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    SELECT COALESCE(json_agg(json_build_object(
       'barangay',       barangay,
       'province',       province,
       'municipality',   municipality,
       'avg_yield_t_per_ha', avg_yield_t_per_ha,
       'rank',           yield_rank
-    )), '[]'::jsonb)
+    )), '[]'::json)
     FROM barangay_ranking
     WHERE yield_rank <= 3
   ) AS top,
   (
-    SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    SELECT COALESCE(json_agg(json_build_object(
       'barangay',       barangay,
       'province',       province,
       'municipality',   municipality,
       'avg_yield_t_per_ha', avg_yield_t_per_ha,
       'rank',           yield_rank
-    )), '[]'::jsonb)
+    )), '[]'::json)
     FROM (
       SELECT *,
              RANK() OVER (ORDER BY avg_yield_t_per_ha ASC) AS reverse_rank
@@ -299,3 +289,247 @@ SELECT
     ) r
     WHERE reverse_rank <= 3
   ) AS bottom;
+
+
+
+CREATE OR REPLACE VIEW analytics.trend_overall_yield AS
+WITH latest_season AS (
+  SELECT
+    id,
+    start_date,
+    end_date,
+    semester,
+    season_year
+  FROM seasons
+  ORDER BY start_date DESC
+  LIMIT 1
+),
+yield_by_month AS (
+  SELECT
+    date_trunc('month', hr.harvest_date)::date AS date,
+    round(
+      avg(
+        (hr.bags_harvested * hr.avg_bag_weight_kg)
+        / nullif(hr.area_harvested, 0)
+        / 1000.0
+      )::numeric
+    , 2) AS avg_yield_t_ha
+  FROM harvest_records hr
+  JOIN field_activities fa
+    ON hr.id = fa.id
+  JOIN latest_season ls
+    ON fa.season_id = ls.id
+  GROUP BY 1
+  ORDER BY 1
+)
+SELECT
+  ( SELECT
+      json_build_object(
+        'start_date',  ls.start_date,
+        'end_date',    ls.end_date,
+        'semester',    ls.semester,
+        'season_year', ls.season_year
+      )
+    FROM latest_season ls
+  ) AS season,
+  ( SELECT
+      json_agg(
+        json_build_object(
+          'date',           ym.date,
+          'avg_yield_t_ha', ym.avg_yield_t_ha
+        )
+        ORDER BY ym.date
+      )
+    FROM yield_by_month ym
+  ) AS data;
+
+
+
+CREATE OR REPLACE VIEW analytics.trend_data_collection AS
+WITH latest_season AS (
+  SELECT id, start_date, end_date, semester, season_year
+  FROM seasons
+  ORDER BY start_date DESC
+  LIMIT 1
+),
+collection_rate AS (
+  SELECT
+    DATE(fa.collected_at)        AS date,
+    COUNT(*)                     AS data_collected
+  FROM field_activities fa
+  JOIN latest_season ls ON fa.season_id = ls.id
+  GROUP BY DATE(fa.collected_at)
+  ORDER BY DATE(fa.collected_at) ASC
+)
+SELECT
+  ( SELECT
+     json_build_object(
+       'start_date',    ls.start_date,
+       'end_date',      ls.end_date,
+       'semester',      ls.semester,
+       'season_year',   ls.season_year
+     )
+   FROM latest_season ls
+  ) AS season,
+  ( SELECT
+     json_agg(
+       json_build_object(
+         'date',                 cr.date,
+         'data_collected',       cr.data_collected
+       )
+     )
+   FROM collection_rate cr
+  ) AS data;
+
+
+
+CREATE OR REPLACE FUNCTION analytics.summary_form_progress()
+  RETURNS JSON
+  LANGUAGE plpgsql
+  SECURITY DEFINER
+  SET search_path = ''
+AS $$
+DECLARE
+  curr RECORD;
+  prev RECORD;
+  previous_total_forms NUMERIC := 0;
+  current_total_forms NUMERIC := 0;
+  previous_completed_forms NUMERIC := 0;
+  current_completed_forms NUMERIC := 0;
+  previous_pending_forms NUMERIC := 0;
+  current_pending_forms NUMERIC := 0;
+  previous_rejected_forms NUMERIC := 0;
+  current_rejected_forms NUMERIC := 0;
+  result JSONB;
+BEGIN
+  SELECT * INTO curr FROM public.seasons ORDER BY start_date DESC LIMIT 1;
+  IF NOT FOUND THEN
+    RETURN json_build_object();
+  END IF;
+
+  SELECT * INTO prev FROM public.seasons
+  WHERE start_date < curr.start_date
+  ORDER BY start_date DESC LIMIT 1;
+  IF prev IS NULL THEN
+    RETURN json_build_object();
+  END IF;
+
+  SELECT
+    COALESCE(COUNT(*) FILTER (WHERE fa.season_id = curr.id), 0),
+    COALESCE(COUNT(*) FILTER (WHERE fa.season_id = prev.id), 0),
+    COALESCE(COUNT(*) FILTER (WHERE fa.verification_status = 'approved' AND fa.season_id = curr.id), 0),
+    COALESCE(COUNT(*) FILTER (WHERE fa.verification_status = 'approved' AND fa.season_id = prev.id), 0),
+    COALESCE(COUNT(*) FILTER (WHERE fa.verification_status = 'pending' AND fa.season_id = curr.id), 0),
+    COALESCE(COUNT(*) FILTER (WHERE fa.verification_status = 'pending' AND fa.season_id = prev.id), 0),
+    COALESCE(COUNT(*) FILTER (WHERE fa.verification_status = 'rejected' AND fa.season_id = curr.id), 0),
+    COALESCE(COUNT(*) FILTER (WHERE fa.verification_status = 'rejected' AND fa.season_id = prev.id), 0)
+  INTO
+    current_total_forms,
+    previous_total_forms,
+    current_completed_forms,
+    previous_completed_forms,
+    current_pending_forms,
+    previous_pending_forms,
+    current_rejected_forms,
+    previous_rejected_forms
+  FROM public.field_activities fa
+  WHERE fa.season_id IN (curr.id, prev.id);
+
+  result := json_build_object(
+    'seasons', json_build_object(
+      'current', json_build_object(
+        'start_date', curr.start_date,
+        'end_date', curr.end_date,
+        'semester', curr.semester,
+        'season_year', curr.season_year
+      ),
+      'previous', json_build_object(
+        'start_date', prev.start_date,
+        'end_date', prev.end_date,
+        'semester', prev.semester,
+        'season_year', prev.season_year
+      )
+    ),
+    'data', json_build_array(
+      json_build_object(
+        'name', 'total_forms',
+        'current_value', current_total_forms,
+        'previous_value', previous_total_forms,
+        'percent_change', CASE
+          WHEN previous_total_forms = 0 THEN
+            CASE WHEN current_total_forms = 0 THEN 0.00 ELSE NULL END
+          ELSE ROUND(((current_total_forms - previous_total_forms)::NUMERIC / previous_total_forms) * 100, 2)
+        END
+      ),
+      json_build_object(
+        'name', 'completed_forms',
+        'current_value', current_completed_forms,
+        'previous_value', previous_completed_forms,
+        'percent_change', CASE
+          WHEN previous_completed_forms = 0 THEN
+            CASE WHEN current_completed_forms = 0 THEN 0.00 ELSE NULL END
+          ELSE ROUND(((current_completed_forms - previous_completed_forms)::NUMERIC / previous_completed_forms) * 100, 2)
+        END
+      ),
+      json_build_object(
+        'name', 'pending_forms',
+        'current_value', current_pending_forms,
+        'previous_value', previous_pending_forms,
+        'percent_change', CASE
+          WHEN previous_pending_forms = 0 THEN
+            CASE WHEN current_pending_forms = 0 THEN 0.00 ELSE NULL END
+          ELSE ROUND(((current_pending_forms - previous_pending_forms)::NUMERIC / previous_pending_forms) * 100, 2)
+        END
+      ),
+      json_build_object(
+        'name', 'rejected_forms',
+        'current_value', current_rejected_forms,
+        'previous_value', previous_rejected_forms,
+        'percent_change', CASE
+          WHEN previous_rejected_forms = 0 THEN
+            CASE WHEN current_rejected_forms = 0 THEN 0.00 ELSE NULL END
+          ELSE ROUND(((current_rejected_forms - previous_rejected_forms)::NUMERIC / previous_rejected_forms) * 100, 2)
+        END
+      )
+    )
+  );
+
+  RETURN result;
+END
+$$;
+
+
+-- TODO: add comparisons when data is available
+CREATE OR REPLACE VIEW analytics.summary_form_count AS
+WITH latest_season AS (
+  SELECT id, start_date, end_date, semester, season_year
+  FROM seasons
+  ORDER BY start_date DESC
+  LIMIT 1
+),
+counts AS (
+  SELECT
+    (SELECT COUNT(*) FROM field_plannings)       AS field_plannings_count,
+    (SELECT COUNT(*) FROM crop_establishments)   AS crop_establishments_count,
+    (SELECT COUNT(*) FROM fertilization_records) AS fertilization_records_count,
+    (SELECT COUNT(*) FROM harvest_records)       AS harvest_records_count,
+    (SELECT COUNT(*) FROM damage_assessments)    AS damage_assessments_count,
+    (SELECT COUNT(*) FROM monitoring_visits)     AS monitoring_visits_count
+)
+SELECT
+  json_build_object(
+    'start_date', ls.start_date,
+    'end_date',   ls.end_date,
+    'semester',   ls.semester,
+    'season_year',ls.season_year
+  ) AS season,
+  json_build_array(
+    json_build_object('form', 'field_plannings',       'count', c.field_plannings_count),
+    json_build_object('form', 'crop_establishments',   'count', c.crop_establishments_count),
+    json_build_object('form', 'fertilization_records', 'count', c.fertilization_records_count),
+    json_build_object('form', 'harvest_records',       'count', c.harvest_records_count),
+    json_build_object('form', 'damage_assessments',    'count', c.damage_assessments_count),
+    json_build_object('form', 'monitoring_visits',     'count', c.monitoring_visits_count)
+  ) AS data
+FROM latest_season ls
+CROSS JOIN counts c;

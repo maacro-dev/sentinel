@@ -1,8 +1,9 @@
 
 create function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer set search_path = ''
+  returns trigger
+  language plpgsql
+  security definer
+  set search_path = ''
 as $$
 begin
   insert into public.users (id, first_name, last_name, role, date_of_birth)
@@ -23,11 +24,14 @@ for each row execute procedure public.handle_new_user();
 
 
 create or replace function update_modified_column()
-returns trigger as $$
+  returns trigger
+  security definer
+  set search_path = ''
+as $$
 begin new.updated_at = now(); return new; end;
 $$ language plpgsql;
 
-create trigger update_field_activities before update on field_activities for each row execute function update_modified_column();
-create trigger update_farmers before update on farmers for each row execute function update_modified_column();
-create trigger update_fields before update on fields for each row execute function update_modified_column();
-create trigger update_users before update on users for each row execute function update_modified_column();
+create trigger update_field_activities before update on public.field_activities for each row execute function update_modified_column();
+create trigger update_farmers before update on public.farmers for each row execute function update_modified_column();
+create trigger update_fields before update on public.fields for each row execute function update_modified_column();
+create trigger update_users before update on public.users for each row execute function update_modified_column();

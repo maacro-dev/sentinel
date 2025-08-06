@@ -7,10 +7,11 @@ create or replace function public.create_seed_user(
   p_date_of_birth date,
   p_role public.user_role,
   p_created_at timestamptz default now()
-) returns void
-language plpgsql
-security definer
-set search_path = public, auth
+)
+  returns void
+  language plpgsql
+  security definer
+  set search_path = ''
 as $$
 begin
   insert into auth.users (
