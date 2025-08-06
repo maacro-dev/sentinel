@@ -13,5 +13,6 @@
     },
     "moduleResolution": "bundler",
     "module": "ESNext",
-  }
+  },
+  "exclude": ["./archive"],
 }
