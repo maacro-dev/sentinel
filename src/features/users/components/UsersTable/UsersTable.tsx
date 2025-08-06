@@ -7,14 +7,16 @@ import { UserFormInput } from "../../schemas"
 import { UsersTableToolbar } from "./UsersTableToolbar"
 
 export function UsersTable({ includeAdmin }: { includeAdmin: boolean }) {
+  "use no memo"; // TODO: remove after RC is compatible with TanStack Table v8
+
   const [dialogOpen, setDialogOpen] = useState(false)
   const { table, isLoading: areUsersLoading } = useUsersTable(includeAdmin)
   const { createUser, isLoading: isCreatingUser } = useCreateUser()
 
   const handleSubmit = useCallback(
     async (user: UserFormInput) => {
-      await createUser(user)
       setDialogOpen(false)
+      await createUser(user)
     },[createUser])
 
   if (areUsersLoading) {

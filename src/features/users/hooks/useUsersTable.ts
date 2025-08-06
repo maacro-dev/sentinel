@@ -6,7 +6,10 @@ import { useUsers } from "./useUsers"
 export const useUsersTable = (includeAdmin: boolean) => {
   const { data: users, isLoading } = useUsers({ includeAdmin })
   const columns = useMemo(() => UserColumns, [])
-  const table = useDataTable(users ?? [], columns).table
+  const table = useDataTable({
+    data: users,
+    columns: columns,
+  })
 
   return { table, isLoading }
 }

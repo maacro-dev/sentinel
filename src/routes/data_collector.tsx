@@ -1,6 +1,6 @@
 import { HumayLogo } from "@/core/components/HumayLogo";
 import { Button } from "@/core/components/ui/button";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CenteredLayout } from "@/core/components/Centered";
 import { Session, useSignOut } from "@/features/authentication";
 
@@ -11,7 +11,12 @@ export const Route = createFileRoute("/data_collector")({
 
 function RouteComponent() {
 
-  const { signOut } = useSignOut();
+  const navigate = useNavigate();
+  const { signOut } = useSignOut({
+    onSignOut: async () => {
+      navigate({ to: "/login", replace: true });
+    }
+  });
 
   return (
     <CenteredLayout>

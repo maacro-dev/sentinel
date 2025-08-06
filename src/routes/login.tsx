@@ -9,7 +9,7 @@ import { CenteredLayout } from "@/core/components/Centered";
 import { LoadingScreen } from "@/core/components/LoadingScreen";
 
 export const Route = createFileRoute("/login")({
-  beforeLoad: async () => await Session.restore(),
+  beforeLoad: async () => { await Session.restore(); },
   head: () => ({ meta: [{ title: "Login | Humay" }] }),
   validateSearch: routeRedirectSchema,
   component: RouteComponent,
