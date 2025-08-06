@@ -6,9 +6,10 @@ export function getAdminAuthClient() {
     Deno.env.get("SECRET_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     {
       auth: {
-        autoRefreshToken: true,
-        detectSessionInUrl: true
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: false
+      },
     }
-  }
   );
 }

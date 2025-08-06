@@ -1,15 +1,19 @@
-import { ChartConfig } from "@/core/components/ui/chart";
-import { StatMetadata } from "./types";
+import { SummaryConfig } from "./types";
 
-export const YIELD_CHART_CONFIG = {
-  avg_yield_t_ha: {
-    label: "Yield (t/ha)",
-    color: "var(--color-humay)",
-  }
-} satisfies ChartConfig;
+export const chartContainerDefaults = {
+  className: "aspect-auto min-h-[280px] w-full h-56",
+};
 
+export const barColors = [
+    "var(--color-humay)",
+    "var(--color-humay-2)",
+    "var(--color-humay-3)",
+    "var(--color-humay-4)",
+    "var(--color-humay-5)",
+    "var(--color-humay-6)",
+] as const
 
-export const DASHBOARD_STATS_CONFIG: Record<string, StatMetadata> = {
+export const DASHBOARD_SUMMARY_CONFIG: SummaryConfig = {
   field_count: {
     title: "Registered Fields",
     subtitle: "Fields registered this season",
@@ -49,5 +53,28 @@ export const DASHBOARD_STATS_CONFIG: Record<string, StatMetadata> = {
     title: "Pest Reports",
     subtitle: "Incidents reported this season",
     unit: "reports",
+  }
+}
+
+export const FORM_PROGRESS_CONFIG: SummaryConfig = {
+  "total_forms": {
+    title: "Total Forms",
+    subtitle: "Total number of forms submitted this season",
+    unit: "forms"
+  },
+  "completed_forms": {
+    title: "Completed Forms",
+    subtitle: "Total number of forms completed this season",
+    unit: "forms"
+  },
+  "pending_forms": {
+    title: "Pending Forms",
+    subtitle: "Total number of forms pending review",
+    unit: "forms"
+  },
+  "rejected_forms": {
+    title: "Rejected Forms",
+    subtitle: "Total number of forms rejected this season",
+    unit: "forms"
   }
 }

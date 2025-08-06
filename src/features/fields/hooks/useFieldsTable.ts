@@ -6,7 +6,10 @@ import { useDataTable } from "@/core/hooks"
 export const useFieldsTable = () => {
   const { data: fields, isLoading } = useFields()
   const columns = useMemo(() => FieldColumns, [])
-  const table = useDataTable(fields ?? [], columns).table
+  const table = useDataTable({
+    data: fields,
+    columns: columns,
+  })
 
   return { table, isLoading }
 }

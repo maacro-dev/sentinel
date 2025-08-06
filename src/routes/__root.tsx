@@ -1,5 +1,6 @@
 import {
   HeadContent,
+  Navigate,
   Outlet,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
@@ -8,6 +9,7 @@ import { Toaster } from "@/features/toast";
 // import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterContext } from "@/core/tanstack/router";
+import { Session } from "@/features/authentication";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
@@ -19,9 +21,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { rel: 'icon', href: 'favicon.ico' }
     ],
   }),
+
   component: RootComponent,
   errorComponent: ErrorComponent,
 });
+
 
 function RootComponent() {
   return (
@@ -36,6 +40,13 @@ function RootComponent() {
 }
 
 function ErrorComponent({ error }: { error: Error }) {
+
+  if (error.message.includes("JWSInvalidSignature")) {
+    Session._forceClearStorage();
+    return (
+      <Navigate to="/login" />
+    );
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center">

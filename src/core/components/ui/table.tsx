@@ -7,7 +7,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <table
       data-slot="table"
-      className={cn("w-full caption-bottom text-sm", className)}
+      className={cn("w-full text-sm", className)}
       {...props}
     />
   )
@@ -29,7 +29,6 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
       data-slot="table-body"
       className={
         cn(
-          "[&_tr:last-child]:border-0",
           className
         )}
       {...props}
@@ -50,18 +49,23 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   )
 }
 
-function TableRow({ className, children  }: React.ComponentProps<"tr">) {
+interface TableRowProps extends React.ComponentProps<"tr"> {
+  selected?: boolean;
+}
+
+function TableRow({ className, selected, ...props  }: TableRowProps) {
   return (
 
     <tr
       data-slot="table-row"
+      aria-selected={selected}
       className={cn(
-        "hover:bg-muted/25 data-[state=selected]:bg-muted border-b transition-colors",
+        "hover:bg-muted/25 aria-selected:bg-muted/40 border-b transition-colors",
         "p-2",
         "border-b border-b-muted-foreground/10",
         className
       )}
-      children={children}
+      {...props}
     />
   )
 }

@@ -11,7 +11,7 @@ export const useCreateUser = () => {
     mutationKey: ['createUser'] as const,
     mutationFn: Users.create,
     onMutate: () => notifyLoading(UserToasts.creating),
-    onSuccess: (_d, _v, id) => notifySuccess({ id, ...UserToasts.created }),
+    onSuccess: (d, _v, id) => notifySuccess({ id, message: UserToasts.created.message, description: d.message || UserToasts.created.description }),
     onError: (_d, _v, id) => notifyError({ id, ...UserToasts.createFailed }),
     onSettled: () => {
       queryClient.invalidateQueries(

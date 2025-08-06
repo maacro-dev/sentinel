@@ -1,4 +1,4 @@
-import * as z from "zod/v4-mini";
+import * as z from "zod/v4";
 import { ROLE_METADATA } from "../config";
 
 export type Role = keyof typeof ROLE_METADATA;

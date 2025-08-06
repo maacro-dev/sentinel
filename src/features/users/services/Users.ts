@@ -9,7 +9,8 @@ export class Users {
     const query = supabase
       .from("user_details")
       .select("*")
-      .order("created_at", { ascending: true });
+      .order("role")
+      .order("created_at", { ascending: false });
 
     if (!includeAdmin) {
       query.neq("role", "admin");

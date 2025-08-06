@@ -1,57 +1,92 @@
+import { DashboardData } from "../types";
 import { getSupabase } from "@/core/supabase";
-import { SeasonalStats, parseSeasonalStats } from "../schemas/seasonalStats";
-import { parseYieldTimeSeries, YieldTimeSeries } from "../schemas/yieldTimeSeries";
+import { parseDataCollectionTrend } from "../schemas/trends/dataCollectionTrend";
 import { parseBarangayYieldRanking } from "../schemas/barangayYield";
+import { parseSeasonSummary } from "../schemas/seasonSummary";
+import { parseOverallYieldTrend } from "../schemas/trends/overallYield";
+import { parseFormCountSummary } from "../schemas/summary/formCount";
 
 export class Analytics {
-  private constructor() {}
-
-  public static async getDashboardData(): Promise<{
-    seasonalStats: SeasonalStats;
-    yieldTimeSeries: YieldTimeSeries;
-    barangayYieldRanking: any;
-  }> {
-
+  public static async getDashboardData(): Promise<DashboardData> {
     const startTime = Date.now();
-
-    const seasonalStats = await this._getSeasonalStats();
-    const yieldTimeSeries = await this._getYieldTimeSeries();
-    const barangayYieldRanking = await this._getBarangayYieldRanking();
-
-    console.log("Dashboard data fetched in", Date.now() - startTime, "ms");
-    return { seasonalStats, yieldTimeSeries, barangayYieldRanking };
-  }
-
-  private static async _getSeasonalStats(): Promise<SeasonalStats> {
     const supabase = await getSupabase();
-    const { data, error } = await supabase
-      .schema("analytics")
-      .rpc("dashboard_seasonal_stat_comparisons")
 
-    if (error) throw error;
-    return parseSeasonalStats(data);
+    const { data: stats, error: seasonalError } = await supabase
+      .schema('analytics')
+      .rpc('dashboard_summary')
+
+    const { data: overallYield, error: yieldError } = await supabase
+      .schema('analytics')
+      .from('trend_overall_yield')
+      .select('*')
+      .maybeSingle();
+
+    const { data: barangayYield, error: barangayError } = await supabase
+      .schema('analytics')
+      .from('dashboard_barangay_yield_rankings')
+      .select('*')
+      .maybeSingle();
+
+    if (seasonalError || yieldError || barangayError) {
+      throw new Error("Error fetching dashboard data")
+    }
+
+    const seasonalStats = parseSeasonSummary(stats);
+    const overallYieldTrend = parseOverallYieldTrend(overallYield);
+    const barangayYieldRanking = parseBarangayYieldRanking(barangayYield);
+
+    console.log("Dashboard data took", Date.now() - startTime, "ms");
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    return { seasonalStats, overallYieldTrend, barangayYieldRanking };
   }
 
-  private static async _getYieldTimeSeries(): Promise<YieldTimeSeries> {
+  public static async getFormProgressSummary() {
     const supabase = await getSupabase();
-    const { data, error } = await supabase
-      .schema("analytics")
-      .from("dashboard_yield_timeseries")
-      .select("*")
 
-    if (error) throw error;
-    return parseYieldTimeSeries(data)
+    const { data, error } = await supabase
+      .schema('analytics')
+      .rpc("summary_form_progress")
+
+    if (error) {
+      throw error;
+    }
+
+    return parseSeasonSummary(data);
   }
 
-  private static async _getBarangayYieldRanking() {
+  public static async getFormCountSummary() {
     const supabase = await getSupabase();
-    const { data, error } = await supabase
-      .schema("analytics")
-      .from("dashboard_barangay_yield_rankings")
-      .select("*")
-      .maybeSingle()
 
-    if (error) throw error;
-    return parseBarangayYieldRanking(data)
+    const { data, error } = await supabase
+      .schema('analytics')
+      .from('summary_form_count')
+      .select('*')
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return parseFormCountSummary(data);
   }
+
+  public static async getDataCollectionTrend(){
+    const supabase = await getSupabase();
+
+    const { data, error } = await supabase
+      .schema('analytics')
+      .from('trend_data_collection')
+      .select('*')
+      .maybeSingle();
+
+    if (error) {
+      throw error
+    }
+
+    return parseDataCollectionTrend(data);
+  }
+
+  private constructor() {}
 }

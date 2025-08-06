@@ -1,5 +1,5 @@
 import { userDbSchema } from '@/features/users';
-import * as z from 'zod/v4-mini';
+import * as z from 'zod/v4';
 
 export const sessionSchema = z.object({
   access_token: z.string(),

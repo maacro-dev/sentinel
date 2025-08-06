@@ -1,6 +1,6 @@
 import { userDbSchema } from "@/features/users";
 import { sessionSchema } from "./session";
-import * as z from "zod/v4-mini";
+import * as z from "zod/v4";
 
 export type AuthResult = z.infer<typeof authResultSchema>;
 

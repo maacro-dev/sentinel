@@ -2,32 +2,32 @@
 @import "tw-animate-css";
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-Light.woff2') format('woff2');
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Light.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-SemiBold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -36,11 +36,23 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --radius-container: 0.725rem;
+
   --font-poppins: "Poppins", sans-serif;
   --font-jetbrains-mono: "JetBrains Mono", monospace;
-  --color-humay: oklch(62.7% 0.194 149.214);
+
+  --color-humay:   oklch(62.7% 0.194 149.214);
+  --color-humay-2: oklch(70%   0.194 149.214);
+  --color-humay-3: oklch(78%   0.194 149.214);
+  --color-humay-4: oklch(82%   0.194 149.214);
+  --color-humay-5: oklch(88%   0.194 149.214);
+  --color-humay-6: oklch(92%   0.194 149.214);
+
+  --text-2xs: 0.725rem;
+  --text-3xs: 0.7rem;
+
   --color-humay-bg: oklch(96.2% 0.044 156.743);
-  --color-humay-light: oklch(96.2% 0.044 156.743);
+  --color-humay-light: oklch(92.5% 0.084 155.995);
   --color-error: oklch(63.7% 0.237 25.331);
 }
 
@@ -49,12 +61,26 @@
 }
 
 .flex-center {
-  @apply justify-center items-center
+  @apply justify-center items-center;
 }
 
 .shadow-bottom {
-  @apply shadow-[0px_2px_8px_0px_#edf2f7]
+  @apply shadow-[0px_2px_8px_0px_#edf2f7];
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
 
 :root {
   --radius: 0.625rem;
@@ -170,8 +196,8 @@
   body {
     @apply bg-background text-foreground;
   }
-  html, body {
-    @apply h-screen
+  html,
+  body {
+    @apply h-screen;
   }
-
 }

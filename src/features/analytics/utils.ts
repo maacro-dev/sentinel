@@ -1,12 +1,19 @@
-import { DASHBOARD_STATS_CONFIG } from "./config";
-import { SeasonalStats } from "./schemas/seasonalStats";
-import { DashboardStat } from "./types";
+import { SeasonSummary } from "./schemas/seasonSummary";
+import { Stat, StatMetadata } from "./types";
 
-export function mapSeasonalStats(stats?: SeasonalStats): DashboardStat[] {
+export function mapSeasonSummary({
+  config,
+  stats,
+}: {
+  config: Record<string, StatMetadata>;
+  stats?: SeasonSummary;
+}): Stat[] {
   if (!stats) return [];
 
-  return stats.stats.map(({ name, current_value, percent_change }) => {
-    const { title, subtitle, unit } = DASHBOARD_STATS_CONFIG[name];
+  return stats.data
+    .filter(({ name }) => name in config)
+    .map(({ name, current_value, percent_change }) => {
+    const { title, subtitle, unit } = config[name];
 
     return {
       title,
@@ -18,6 +25,7 @@ export function mapSeasonalStats(stats?: SeasonalStats): DashboardStat[] {
   });
 }
 
+
 export function isAnyLoading(...queries: boolean[]) {
-  return queries.some(Boolean)
+  return queries.some(Boolean);
 }

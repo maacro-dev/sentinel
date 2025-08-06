@@ -1,15 +1,14 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { Field } from "../../schemas";
+import { createMfidColumn } from "../../columnHelpers";
+import { createViewActionColumn } from "@/core/components/utils/ColumnHelpers";
 
 const columnHelper = createColumnHelper<Field>();
+
 export const FieldColumns = [
-  columnHelper.accessor('mfid', {
-    cell: (info) => info.getValue(),
-    header: () => 'MFID',
-  }),
+  createMfidColumn(columnHelper),
   columnHelper.accessor(r => r.farmer_first_name + ' ' + r.farmer_last_name, {
     id: 'farmer',
-    cell: (info) => info.getValue(),
     header: () => 'Farmer',
   }),
   columnHelper.accessor('barangay', {
@@ -24,4 +23,5 @@ export const FieldColumns = [
     cell: (info) => info.getValue(),
     header: () => 'Province',
   }),
+  createViewActionColumn(columnHelper)
 ]

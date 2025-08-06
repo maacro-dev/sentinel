@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { HumayLogo } from "@/core/components/HumayLogo";
-import { SidebarLink } from "./SidebarItem";
+import { SidebarItem } from "./SidebarItem";
 import {
   Sidebar,
   SidebarHeader,
@@ -8,35 +8,33 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton
+  SidebarMenuButton,
+  SidebarProps
 } from "@/core/components/ui/sidebar";
-import { SidebarData } from "./types";
+import { SidebarNode } from "./types";
 
-interface LayoutSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  data: SidebarData;
+interface LayoutSidebarProps extends SidebarProps {
+  data: Array<SidebarNode>;
 }
 
 export const LayoutSidebar = memo(({ data, ...props }: LayoutSidebarProps) => {
-
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader className="border-b !h-16 py-2 px-4 flex justify-center items-start ">
-        {/* <SidebarMenuItem className="list-none"> */}
-          <SidebarMenuButton size="lg" className="hover:bg-transparent active:bg-transparent ">
-            <HumayLogo size={8} />
-          </SidebarMenuButton>
-        {/* </SidebarMenuItem> */}
+        <SidebarMenuButton size="lg" className="hover:bg-transparent active:bg-transparent ">
+          <HumayLogo size={8} />
+        </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
-        {data.map((section) => (
-          <SidebarGroup key={section.group}>
-            <SidebarGroupLabel>{section.group}</SidebarGroupLabel>
-            <SidebarMenu>
-              {section.items.map((item) => (
-                  <SidebarLink key={item.label} {...item} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
+        {data.map((group) => (
+           <SidebarGroup key={group.id}>
+             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+             <SidebarMenu>
+               {group.children?.map((node: SidebarNode) => (
+                 <SidebarItem key={node.id} node={node} />
+               ))}
+             </SidebarMenu>
+           </SidebarGroup>
         ))}
       </SidebarContent>
     </Sidebar>

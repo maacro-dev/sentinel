@@ -2,50 +2,55 @@ import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '../utils/style';
 
-export function ScrollIndicator() {
+
+//! Not working, needs to be fixed
+
+interface ScrollIndicatorProps {
+  scrollElement?: React.RefObject<HTMLDivElement | null>;
+}
+
+export function ScrollIndicator({ scrollElement }: ScrollIndicatorProps) {
   const [hidden, setHidden] = useState(true);
 
-  const updateVisibility = () => {
-    const isScrollable = document.body.scrollHeight > window.innerHeight;
-    const isAtTop = window.scrollY <= 10;
-    setHidden(!(isScrollable && isAtTop));
-  };
-
   useEffect(() => {
-    const handleScroll = () => {
-      updateVisibility();
-    };
-    const handleResize = () => {
-      updateVisibility();
+    const el = scrollElement?.current;
+    if (!el) return;
+
+    const update = () => {
+      const canScroll = el.scrollHeight > el.clientHeight;
+      const atTop     = el.scrollTop <= 10;
+      setHidden(!(canScroll && atTop));
     };
 
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleResize);
-    updateVisibility();
+    const onScroll = () => window.requestAnimationFrame(update);
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
+      el.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
     };
   }, []);
 
   const scrollToBottom = () => {
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: "smooth",
-    });
+    const el = scrollElement?.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   };
 
   return (
     <button
       onClick={scrollToBottom}
-      className={cn(
-        "fixed bottom-6 size-8 rounded-full bg-background shadow-sm flex",
-        "justify-center items-center cursor-pointer hover:bg-muted/20 transition-colors",
-        "left-1/2 transform -translate-x-1/2 animate-bounce transition-opacity opacity-70",
-        hidden && "opacity-0 pointer-events-none"
-      )}
       aria-label="Scroll to bottom"
+      className={cn(
+        'absolute bottom-6 left-1/2 transform -translate-x-1/2',
+        'w-8 h-8 rounded-full bg-background shadow-sm flex',
+        'justify-center items-center cursor-pointer hover:bg-muted/20 transition-colors',
+        'animate-bounce transition-opacity opacity-70',
+        hidden && 'opacity-0 pointer-events-none'
+      )}
     >
       <ChevronDown />
     </button>

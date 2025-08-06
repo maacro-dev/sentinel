@@ -5,7 +5,6 @@ export class Fields {
   private constructor() {}
 
   public static async getAll() {
-
     const startTime = Date.now();
 
     const supabase = await getSupabase();

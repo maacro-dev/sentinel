@@ -22,7 +22,7 @@ export const Motion = ({
   ...rest
 }: ExtendedMotionProps) => {
 
-  const baseClasses = "min-h-0 size-full flex flex-col gap-4 flex-1";
+  const baseClasses = "min-w-0 min-h-0 size-full flex flex-col gap-4";
 
   if (!Global.ENABLE_MOTIONS) {
     return <div className={cn(baseClasses, className)} {...rest}  />

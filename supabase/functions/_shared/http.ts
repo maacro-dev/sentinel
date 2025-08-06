@@ -5,14 +5,17 @@ const corsHeaders = {
   "Access-Control-Max-Age": "86400",
 }
 
+const responseHeaders = {
+  "Content-Type": "application/json",
+}
+
 export function response(
   body:   object,
   status = 200,
-  extra  = { "Content-Type": "application/json" }
 ) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, ...extra },
+    headers: { ...corsHeaders, ...responseHeaders },
   });
 }
 

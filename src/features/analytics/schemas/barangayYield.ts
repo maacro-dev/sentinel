@@ -1,4 +1,4 @@
-import * as z from "zod/v4-mini";
+import * as z from "zod/v4";
 
 export type BarangayYield = z.infer<typeof barangayYieldSchema>;
 const barangayYieldSchema = z.object({

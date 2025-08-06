@@ -7,15 +7,15 @@ import {
   CardContent,
 } from "@/core/components/ui/card";
 import { ChangeBadge } from "./ChangeBadge";
-import { DashboardStat } from "../types";
+import { Stat } from "../types";
 
-interface StatCardProps extends Omit<DashboardStat, "percent_change"> {
+interface StatCardProps extends Omit<Stat, "percent_change"> {
   percent_change?: number;
 }
 
 export const StatCard = memo(({ title, subtitle, current_value, unit, percent_change }: StatCardProps) => {
   return (
-    <Card className="flex flex-col justify-between py-0 p-6 gap-2 min-w-[200px] min-h-[180px]">
+    <Card className="rounded-container flex flex-col justify-between py-0 p-6 gap-2 min-w-[200px] min-h-[180px] flex-1">
       <CardHeader className="flex flex-col gap-1">
         <CardTitle className="leading-none font-semibold text-primary text-sm">
           {title}

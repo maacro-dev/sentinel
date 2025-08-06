@@ -1,17 +1,13 @@
-import { ComponentProps, memo } from "react";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-} from "@/core/components/ui/breadcrumb";
+import { ComponentProps, Fragment, memo } from "react";
 import { Separator } from "@/core/components/ui/separator";
-import { SidebarTrigger } from "@/core/components/ui/sidebar";
-import { HeaderBreadcrumbItem } from "./BreadcrumbItem";
 import { cn } from "@/core/utils/style";
-import { RouteBreadcrumb } from "@/core/tanstack/router/types";
 import { UserMenu } from "../UserMenu";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "../ui/breadcrumb";
+import { SidebarTrigger } from "../ui/sidebar";
+import { CrumbDef } from "@/core/utils/breadcrumb";
 
 interface LayoutHeaderProps extends ComponentProps<"header"> {
-  breadcrumbs: RouteBreadcrumb[];
+  breadcrumbs: Array<CrumbDef>;
 }
 
 export const LayoutHeader = memo(({
@@ -30,24 +26,47 @@ export const LayoutHeader = memo(({
     >
       <div className="flex items-center">
         <SidebarTrigger className="text-muted-foreground" />
-        <Separator
-          orientation="vertical"
-          className="mx-2 data-[orientation=vertical]:h-4"
-        />
-        <Breadcrumb>
-          <BreadcrumbList className="flex-nowrap">
-            {breadcrumbs.map((crumb, idx) => (
-              <HeaderBreadcrumbItem
-                key={crumb.url + idx}
-                section={crumb.section}
-                title={crumb.title}
-                url={crumb.url}
-              />
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4"/>
+        <Breadcrumbs data={breadcrumbs} />
       </div>
       <UserMenu />
     </header>
   );
 });
+
+
+export const Breadcrumbs = memo(({ data }: { data: Array<CrumbDef> }) => {
+  const isLast = (index: number, length: number) => index === length - 1;
+
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        {data.map((crumb, index) => (
+          <Fragment key={index}>
+            <Crumb crumb={crumb} isLast={isLast(index, data.length)} />
+            {index < data.length - 1 && <BreadcrumbSeparator />}
+          </Fragment>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+});
+
+export const Crumb = memo(({ crumb, isLast }: { crumb: CrumbDef, isLast: boolean }) => {
+  const { label, isDynamic, navigatable } = crumb;
+  const params = isDynamic ? crumb.params : undefined;
+  const url = isDynamic ? crumb.url : undefined;
+
+  return (
+    <BreadcrumbItem>
+      <BreadcrumbLink
+        className={isLast ? "font-semibold text-foreground" : "text-muted-foreground"}
+        to={url}
+        params={params}
+        enabled={isDynamic ? navigatable !== false : false}
+      >
+        {label}
+      </BreadcrumbLink>
+    </BreadcrumbItem>
+  );
+})

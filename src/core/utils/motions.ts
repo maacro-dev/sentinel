@@ -1,7 +1,7 @@
 import { MotionProps } from "motion/react";
 
 export const DEFAULT_OFFSET = 4;
-export const DEFAULT_MOTION_DURATION = 0.25;
+export const DEFAULT_MOTION_DURATION = 0.15;
 export const OPACITY_INITIAL = 0;
 export const OPACITY_FULL = 1;
 

@@ -1,4 +1,4 @@
-import * as z from "zod/v4-mini";
+import * as z from "zod/v4";
 import { userDbSchema } from "./userDb";
 import { roleSchema } from "./role";
 
@@ -30,7 +30,7 @@ export const userSchema = z.object({
 
 export const userArraySchema = z.array(userSchema);
 
-export function mapUser(user: unknown): User {
+export function parseUser(user: unknown): User {
   const result = userMappedSchema.safeParse(user);
   if (!result.success) {
     throw new Error(z.prettifyError(result.error));

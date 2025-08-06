@@ -1,4 +1,4 @@
-import * as z from "zod/v4-mini"
+import * as z from "zod/v4"
 import { roleSchema } from "./role";
 
 export type UserDB = z.infer<typeof userDbSchema>;
