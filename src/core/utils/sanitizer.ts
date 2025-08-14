@@ -1,7 +1,9 @@
-
-
 export class Sanitizer {
-  public static key(key: string, mappings: Record<string, string> = {}): string {
+  public static key(key?: string | null, mappings: Record<string, string> = {}): string {
+    if (key === null || key === undefined) {
+      return 'N/A';
+    }
+
     const mapLower: Record<string, string> = {};
     for (const [raw, val] of Object.entries(mappings)) {
       mapLower[raw.toLowerCase()] = val;
@@ -9,9 +11,10 @@ export class Sanitizer {
 
     const spaced = key
       .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-      .replace(/[_-]/g, ' ');
+      .replace(/[_-]/g, ' ')
+      .trim();
 
-    const words = spaced.split(' ');
+    const words = spaced.split(/\s+/).filter(Boolean);
 
     const titleCased = words.map(w => {
       const lower = w.toLowerCase();
