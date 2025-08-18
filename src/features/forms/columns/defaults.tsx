@@ -18,7 +18,7 @@ export const defaultColumns: ColumnDef<FormDataEntry, any>[] = [
   { accessorKey: 'season_year', header: 'Year', meta: { size: '2xs' } },
   {
     accessorKey: 'semester',
-    header: 'Year',
+    header: 'Semester',
     cell: (info) => <SemesterCell value={info.getValue()} />,
     meta: { size: '2xs' }
   },
