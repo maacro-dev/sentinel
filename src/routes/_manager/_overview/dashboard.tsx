@@ -8,6 +8,7 @@ import { BarangayYieldRankChart } from "@/features/analytics/components/Barangay
 import { OverallYieldTrendChart } from "@/features/analytics/components/OverallYieldTrendChart";
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
+import { ExpandableStatCard } from "@/features/analytics/components/ExpandableStatCard";
 
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
   loader: ({ context: { queryClient } }) => {
@@ -29,7 +30,11 @@ function RouteComponent() {
     <PageContainer>
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
         {stats.map((stat: Stat) => (
-          <StatCard key={stat.title} {...stat} />
+          <ExpandableStatCard
+            statCard={
+              <StatCard key={stat.title} {...stat} />
+            }
+          />
         ))}
       </div>
       <OverallYieldTrendChart data={trends} />
