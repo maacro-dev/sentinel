@@ -1,39 +1,33 @@
-import { createColumnHelper } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { User } from "../../schemas";
-import { UserActionsCell } from "./cells/UserActions";
 import { LastActiveCell } from "./cells/LastActive";
 import { RoleCell } from "./cells/Role";
+import { ViewActionCell } from "@/core/components/cells/ViewActionCell";
 
-const columnHelper = createColumnHelper<User>();
-
-export const UserColumns = [
-  columnHelper.accessor(
-    (row) => row.first_name + ' ' + row.last_name,
-    {
-      id: "name",
-      header: "Name",
-      cell: (info) => <span>{info.getValue()}</span>,
-    }
-  ),
-
-  columnHelper.accessor('email', {
-    header: "Email",
-    cell: (info) => <span>{info.getValue()}</span>,
-  }),
-
-  columnHelper.accessor('role', {
-    header: "Role",
-    cell: (info) => <RoleCell role={info.getValue()}/>,
-  }),
-
-  columnHelper.accessor('last_sign_in_at', {
-    header: "Last Sign In",
-    cell: (info) => <LastActiveCell lastActive={info.getValue()}/>,
-  }),
-
-  columnHelper.display({
+export const userTableColumns: ColumnDef<User, any>[] = [
+  {
+    id: 'name',
+    accessorFn: (row) => row.first_name + ' ' + row.last_name,
+    header: "Name",
+    meta: { size: 'sm' }
+  },
+  { accessorKey: 'email', header: 'Email', meta: { size: 'xs' } },
+  {
+    accessorKey: 'role',
+    header: 'Role',
+    cell: (info) => <RoleCell role={info.getValue()} />,
+    meta: { size: 'xs' }
+  },
+  {
+    accessorKey: 'last_sign_in_at',
+    header: 'Last Sign In',
+    cell: (info) => <LastActiveCell lastActive={info.getValue()} />,
+    meta: { size: 'xs' }
+  },
+  {
     id: "actions",
-    cell: (info) => <UserActionsCell user={info.row.original} />,
-    size: 20
-  })
+    header: 'Actions',
+    cell: () => <ViewActionCell />,
+    meta: { size: '2xs', textAlign: "center" }
+  },
 ]
