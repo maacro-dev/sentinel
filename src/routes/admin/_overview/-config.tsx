@@ -3,7 +3,7 @@ import { Home } from "lucide-react";
 
 export const adminOverviewGroupConfig = createRouteConfig("overview", {
   role: "admin",
-  label: "overview",
+  label: "Overview",
   children: [
     createRouteConfig("dashboard", {
       role: "admin",
