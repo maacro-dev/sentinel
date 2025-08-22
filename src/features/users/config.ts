@@ -1,6 +1,7 @@
+import { Path } from "@/core/tanstack/router/types";
 
 export const INCLUDE_ADMIN = false
-export const ROLE_METADATA = {
+export const ROLE_METADATA: Record<string, {label: string, redirect: Path}> = {
   admin: {
     label: "Admin",
     redirect: "/admin/dashboard",
