@@ -1,8 +1,9 @@
 import { DataTable } from "@/core/components/DataTable"
 import { TableSkeleton } from "@/core/components/TableSkeleton"
 import { useFieldsTable } from "../../hooks/useFieldsTable"
-import { FieldsTableToolbar } from "./FieldsTableToolbar"
-import { TablePagination } from "@/core/components/TablePagination";
+import { DefaultTablePagination } from "@/core/components/TablePagination";
+import { DefaultTableToolbar } from "@/core/components/TableToolbar";
+
 
 export function FieldsTable() {
   "use no memo"; // TODO: remove after RC is compatible with TanStack Table v8
@@ -17,11 +18,12 @@ export function FieldsTable() {
     <DataTable
       table={table}
       toolbar={
-        <FieldsTableToolbar
+        <DefaultTableToolbar
+          defaultSearchPlaceholder="Search mfid or farmer"
           onSearchChange={e => table.setGlobalFilter(e.target.value)}
         />
       }
-      pagination={<TablePagination table={table} />}
+      pagination={<DefaultTablePagination table={table} />}
     />
   )
 }
