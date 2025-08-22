@@ -4,7 +4,7 @@ import { FieldsTable } from "@/features/fields/components/FieldsTable/FieldsTabl
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
 
-export const Route = createFileRoute("/_manager/_overview/monitored_fields")({
+export const Route = createFileRoute("/_manager/_overview/monitored-fields")({
   component: RouteComponent,
   loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(fieldsQueryOptions());

@@ -30,7 +30,7 @@ import { Route as AdminAccessControlUserManagementRouteImport } from './../../..
 import { Route as AdminAccessControlSecurityRouteImport } from './../../../routes/admin/_accessControl/security'
 import { Route as ManagerFormsOverviewRouteImport } from './../../../routes/_manager/forms/overview'
 import { Route as ManagerFormsFormTypeRouteImport } from './../../../routes/_manager/forms/$formType'
-import { Route as ManagerOverviewMonitored_fieldsRouteImport } from './../../../routes/_manager/_overview/monitored_fields'
+import { Route as ManagerOverviewMonitoredFieldsRouteImport } from './../../../routes/_manager/_overview/monitored-fields'
 import { Route as ManagerOverviewDashboardRouteImport } from './../../../routes/_manager/_overview/dashboard'
 import { Route as ManagerAnalyticsPredictiveRouteImport } from './../../../routes/_manager/_analytics/predictive'
 import { Route as ManagerAnalyticsDescriptiveRouteImport } from './../../../routes/_manager/_analytics/descriptive'
@@ -140,10 +140,10 @@ const ManagerFormsFormTypeRoute = ManagerFormsFormTypeRouteImport.update({
   path: '/$formType',
   getParentRoute: () => ManagerFormsRoute,
 } as any)
-const ManagerOverviewMonitored_fieldsRoute =
-  ManagerOverviewMonitored_fieldsRouteImport.update({
-    id: '/monitored_fields',
-    path: '/monitored_fields',
+const ManagerOverviewMonitoredFieldsRoute =
+  ManagerOverviewMonitoredFieldsRouteImport.update({
+    id: '/monitored-fields',
+    path: '/monitored-fields',
     getParentRoute: () => ManagerOverviewRoute,
   } as any)
 const ManagerOverviewDashboardRoute =
@@ -194,7 +194,7 @@ export interface FileRoutesByFullPath {
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/dashboard': typeof ManagerOverviewDashboardRoute
-  '/monitored_fields': typeof ManagerOverviewMonitored_fieldsRoute
+  '/monitored-fields': typeof ManagerOverviewMonitoredFieldsRoute
   '/forms/$formType': typeof ManagerFormsFormTypeRouteWithChildren
   '/forms/overview': typeof ManagerFormsOverviewRoute
   '/admin/security': typeof AdminAccessControlSecurityRoute
@@ -217,7 +217,7 @@ export interface FileRoutesByTo {
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/dashboard': typeof ManagerOverviewDashboardRoute
-  '/monitored_fields': typeof ManagerOverviewMonitored_fieldsRoute
+  '/monitored-fields': typeof ManagerOverviewMonitoredFieldsRoute
   '/forms/overview': typeof ManagerFormsOverviewRoute
   '/admin/security': typeof AdminAccessControlSecurityRoute
   '/admin/user-management': typeof AdminAccessControlUserManagementRoute
@@ -247,7 +247,7 @@ export interface FileRoutesById {
   '/_manager/_analytics/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/_manager/_analytics/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/_manager/_overview/dashboard': typeof ManagerOverviewDashboardRoute
-  '/_manager/_overview/monitored_fields': typeof ManagerOverviewMonitored_fieldsRoute
+  '/_manager/_overview/monitored-fields': typeof ManagerOverviewMonitoredFieldsRoute
   '/_manager/forms/$formType': typeof ManagerFormsFormTypeRouteWithChildren
   '/_manager/forms/overview': typeof ManagerFormsOverviewRoute
   '/admin/_accessControl/security': typeof AdminAccessControlSecurityRoute
@@ -272,7 +272,7 @@ export interface FileRouteTypes {
     | '/descriptive'
     | '/predictive'
     | '/dashboard'
-    | '/monitored_fields'
+    | '/monitored-fields'
     | '/forms/$formType'
     | '/forms/overview'
     | '/admin/security'
@@ -295,7 +295,7 @@ export interface FileRouteTypes {
     | '/descriptive'
     | '/predictive'
     | '/dashboard'
-    | '/monitored_fields'
+    | '/monitored-fields'
     | '/forms/overview'
     | '/admin/security'
     | '/admin/user-management'
@@ -324,7 +324,7 @@ export interface FileRouteTypes {
     | '/_manager/_analytics/descriptive'
     | '/_manager/_analytics/predictive'
     | '/_manager/_overview/dashboard'
-    | '/_manager/_overview/monitored_fields'
+    | '/_manager/_overview/monitored-fields'
     | '/_manager/forms/$formType'
     | '/_manager/forms/overview'
     | '/admin/_accessControl/security'
@@ -495,11 +495,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerFormsFormTypeRouteImport
       parentRoute: typeof ManagerFormsRoute
     }
-    '/_manager/_overview/monitored_fields': {
-      id: '/_manager/_overview/monitored_fields'
-      path: '/monitored_fields'
-      fullPath: '/monitored_fields'
-      preLoaderRoute: typeof ManagerOverviewMonitored_fieldsRouteImport
+    '/_manager/_overview/monitored-fields': {
+      id: '/_manager/_overview/monitored-fields'
+      path: '/monitored-fields'
+      fullPath: '/monitored-fields'
+      preLoaderRoute: typeof ManagerOverviewMonitoredFieldsRouteImport
       parentRoute: typeof ManagerOverviewRoute
     }
     '/_manager/_overview/dashboard': {
@@ -564,12 +564,12 @@ const ManagerAnalyticsRouteWithChildren =
 
 interface ManagerOverviewRouteChildren {
   ManagerOverviewDashboardRoute: typeof ManagerOverviewDashboardRoute
-  ManagerOverviewMonitored_fieldsRoute: typeof ManagerOverviewMonitored_fieldsRoute
+  ManagerOverviewMonitoredFieldsRoute: typeof ManagerOverviewMonitoredFieldsRoute
 }
 
 const ManagerOverviewRouteChildren: ManagerOverviewRouteChildren = {
   ManagerOverviewDashboardRoute: ManagerOverviewDashboardRoute,
-  ManagerOverviewMonitored_fieldsRoute: ManagerOverviewMonitored_fieldsRoute,
+  ManagerOverviewMonitoredFieldsRoute: ManagerOverviewMonitoredFieldsRoute,
 }
 
 const ManagerOverviewRouteWithChildren = ManagerOverviewRoute._addFileChildren(
