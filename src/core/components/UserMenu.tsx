@@ -93,9 +93,8 @@ interface UserMenuDropdownItemProps extends ComponentProps<typeof DropdownMenuIt
 }
 
 export const UserMenuDropdownItem = ({ icon, label, ...props }: UserMenuDropdownItemProps) => {
-
   return (
-    <DropdownMenuItem className="text-xs p-2" {...props}>
+    <DropdownMenuItem className="!text-3xs p-2 text-muted-foreground" {...props}>
       {icon}{label}
     </DropdownMenuItem>
   )
