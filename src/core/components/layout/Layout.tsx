@@ -23,7 +23,7 @@ export const Layout = ({ role, children, ...props }: LayoutProps) => {
         <LayoutSidebar data={sidebarData}/>
         <SidebarInset className="size-full h-screen min-w-0 flex flex-col md:pl-0 !shadow-none">
           <LayoutHeader breadcrumbs={breadcrumbs} />
-          <div className="size-full min-h-0 min-w-0 flex-1 flex gap-4">
+          <div id="layout-parent" className="size-full min-h-0 min-w-0 flex-1 flex gap-4">
             {children}
           </div>
         </SidebarInset>

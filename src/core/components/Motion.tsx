@@ -13,19 +13,21 @@ export interface ExtendedMotionProps
   children?: ReactNode;
   duration?: number;
   className?: string;
+  id?: string;
 }
 
 export const Motion = ({
   motion = DEFAULT_FADE,
   duration,
   className,
+  id,
   ...rest
 }: ExtendedMotionProps) => {
 
   const baseClasses = "min-w-0 min-h-0 size-full flex flex-col gap-4";
 
   if (!Global.ENABLE_MOTIONS) {
-    return <div className={cn(baseClasses, className)} {...rest}  />
+    return <div id={id} className={cn(baseClasses, className)} {...rest}  />
   }
-  return <m.div {...motion} transition={{ duration }} className={cn(baseClasses, className)} {...rest}/>;
+  return <m.div {...motion} id={id} transition={{ duration }} className={cn(baseClasses, className)} {...rest}/>;
 };
