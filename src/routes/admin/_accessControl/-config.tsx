@@ -1,4 +1,5 @@
 import { createRouteConfig } from "@/core/tanstack/router/utils";
+import { userTableColumns } from "@/features/users/components/UsersTable/UserColumns";
 import { Shield, Users } from "lucide-react";
 
 export const adminAccessControlGroupConfig = createRouteConfig("accessControl", {
@@ -9,7 +10,10 @@ export const adminAccessControlGroupConfig = createRouteConfig("accessControl", 
       role: "admin",
       label: "User Management",
       path: "/admin/user-management",
-      icon: Users
+      icon: Users,
+      meta: {
+        tableColumns: userTableColumns
+      }
     }),
     createRouteConfig("security", {
       role: "admin",
