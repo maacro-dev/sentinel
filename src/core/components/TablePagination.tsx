@@ -3,9 +3,9 @@ import { useScrollArea } from "./ui/scroll-area";
 import { Pagination } from "./Pagination";
 import { useTablePagination } from "../hooks/useTablePagination";
 
-interface TablePaginationProps<T> { table: ReturnType<typeof useReactTable<T>> }
+interface DefaultTablePaginationProps<T> { table: ReturnType<typeof useReactTable<T>> }
 
-export function TablePagination<T>({ table }: TablePaginationProps<T>) {
+export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps<T>) {
   const { resetScroll } = useScrollArea();
   const {
     totalRows,
