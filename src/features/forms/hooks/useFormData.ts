@@ -1,47 +1,55 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormRouteType } from "@/routes/_manager/forms/-config";
-import { useMemo } from "react";
 import { formDataOptions, formDataByMfidOptions } from "../queries/options";
 import { FormDataEntry } from "../schemas/formData";
 
-type SingleResult = { data: FormDataEntry | null; isLoading: boolean; error?: Error };
-type ListResult = { data: FormDataEntry[]; isLoading: boolean; error?: Error };
-
-export function useFormData(formType: FormRouteType, mfid: string): SingleResult;
-export function useFormData(formType: FormRouteType, mfid?: undefined): ListResult;
-export function useFormData(formType: FormRouteType, mfid?: string): SingleResult | ListResult {
-  const qc = useQueryClient();
-
-  const listQuery = useQuery(formDataOptions({
-    formType,
-    enabled: !mfid,
-  }));
-
-  const cachedList = qc.getQueryData<FormDataEntry[]>(formDataOptions({ formType }).queryKey);
-  const listMap = useMemo(() => {
-    if (!cachedList) return null;
-    return new Map(cachedList.map((item) => [item.mfid, item]));
-  }, [cachedList]);
-
-  const shouldFetchEntry = Boolean(mfid && !listMap?.has(mfid));
-  const entryQuery = useQuery(formDataByMfidOptions({
-    formType,
-    mfid: mfid!,
-    enabled: shouldFetchEntry,
-  }));
-
-  if (mfid) {
-    if (listMap?.has(mfid)) {
-      return { data: listMap.get(mfid)!, isLoading: false };
-    }
-    return {
-      data: entryQuery.data ?? null,
-      isLoading: entryQuery.isLoading,
-    };
-  }
+export function useFormData(
+  formType: FormRouteType,
+  opts: { enabled?: boolean } = {}
+): { data: FormDataEntry[]; isLoading: boolean; error?: Error } {
+  const listQuery = useQuery(
+    formDataOptions({
+      formType,
+      enabled: opts.enabled ?? true,
+    })
+  );
 
   return {
     data: listQuery.data ?? [],
     isLoading: listQuery.isLoading,
+    error: listQuery.error as Error | undefined,
+  };
+}
+
+// Fetch a single entry
+export function useFormDetail(
+  formType: FormRouteType,
+  mfid: string,
+  opts: { enabled?: boolean } = {}
+): { data: FormDataEntry | null; isLoading: boolean; error?: Error } {
+  const qc = useQueryClient();
+
+  // optional cache optimization from list
+  const cachedList = qc.getQueryData<FormDataEntry[]>(
+    formDataOptions({ formType }).queryKey
+  );
+  const cachedItem = cachedList?.find((x) => x.mfid === mfid);
+
+  const entryQuery = useQuery(
+    formDataByMfidOptions({
+      formType,
+      mfid,
+      enabled: !cachedItem && (opts.enabled ?? true),
+    })
+  );
+
+  if (cachedItem) {
+    return { data: cachedItem, isLoading: false };
+  }
+
+  return {
+    data: entryQuery.data ?? null,
+    isLoading: entryQuery.isLoading,
+    error: entryQuery.error as Error | undefined,
   };
 }
