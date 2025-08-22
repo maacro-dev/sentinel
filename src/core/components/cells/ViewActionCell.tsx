@@ -15,12 +15,11 @@ interface ViewActionCellProps {
 export const ViewActionCell = memo(({ label = "More Details"}: ViewActionCellProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
-      <Button variant="ghost" className="border border-input cursor-pointer size-6 rounded-sm p-0">
-        <span className="sr-only">Open menu</span>
+      <Button variant="ghost" className="border border-input cursor-pointer size-6 rounded-sm p-0 flex-shrink-0">
         <MoreHorizontal className="h-4 w-4" />
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="font-jetbrains-mono">
+    <DropdownMenuContent align="end" className="w-24 font-jetbrains-mono">
       <DropdownMenuItem
         className="hover:cursor-pointer text-[0.7rem] text-muted-foreground flex justify-center items-center"
         onClick={() => {}}
