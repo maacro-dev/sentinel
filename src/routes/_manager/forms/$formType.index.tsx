@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { FormRouteType } from './-config';
 import { formDataOptions } from '@/features/forms/queries/options';
 import { FormDataTable } from '@/features/forms/components/FormDataTable';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FormDetailSheet } from '@/features/forms/components/FormDetailSheet';
 import { useFormDetail } from '@/features/forms/hooks/useFormData';
 import { FormDataEntry } from '@/features/forms/schemas/formData';
@@ -26,7 +26,13 @@ function RouteComponent() {
     { enabled: !!selectedMfid }
   );
 
-  console.log(data)
+  const handleOpenChange = useCallback((open: boolean) => {
+    setDetailOpen(open)
+    if (!open) {
+      setSelectedMfid(null)
+    }
+  }, [])
+
   return (
     <PageContainer>
       <FormDataTable
@@ -36,7 +42,13 @@ function RouteComponent() {
           setSelectedMfid(row.mfid)
         }}
       />
-      <FormDetailSheet data={data as FormDataEntry} open={detailOpen} onOpenChange={setDetailOpen} />
+      {selectedMfid && (
+        <FormDetailSheet
+          data={data as FormDataEntry}
+          open={detailOpen}
+          onOpenChange={handleOpenChange}
+        />
+      )}
     </PageContainer>
   )
 }
