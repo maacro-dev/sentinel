@@ -1,13 +1,12 @@
 import { DataTable } from "@/core/components/DataTable"
 import { TableSkeleton } from "@/core/components/TableSkeleton"
-import { useState, useCallback, memo, ChangeEvent } from "react"
+import { useState, useCallback, memo } from "react"
 import { useCreateUser } from "../../hooks/useCreateUser"
 import { useUsersTable } from "../../hooks/useUsersTable"
 import { UserFormInput } from "../../schemas"
 import { UserFormDialog } from "../UserFormDialog"
 import { DefaultTablePagination } from "@/core/components/TablePagination"
 import { DefaultTableToolbar } from "@/core/components/TableToolbar"
-
 
 interface UsersToolbarProps {
   onSearchChange: React.ChangeEventHandler<HTMLInputElement>
