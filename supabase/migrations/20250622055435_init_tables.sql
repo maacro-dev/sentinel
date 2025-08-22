@@ -231,7 +231,7 @@ create table damage_assessments( -- form 5
 
 create table monitoring_visits ( -- form 6
   id                                int primary key references field_activities(id) unique,
-  data_monitored                    date not null,
+  date_monitored                    date not null,
   crop_stage                        text not null,
   soil_moisture_status              text not null,
   avg_plant_height                  double precision null

@@ -138,6 +138,16 @@ select public.create_seed_user(
 );
 
 select public.create_seed_user(
+  '2511ad0f-3279-4118-ba1f-60b3883033cd',
+  'meladryyy@gmail.com',
+  '$2a$12$XLVI.ee9MiusfUnwCTcTJ.Xqrz591mHMq0BQ1yiYgS1X1vSg7u0hO',
+  'Mel Adry',
+  'Olivo',
+  '1990-01-01',
+  'data_collector'
+);
+
+select public.create_seed_user(
   'c2d8d22f-3987-4277-8945-634822e39320',
   'manager@humayapp.com',
   '$2a$10$jVGxs3MiNbzP/IyVb/dbR.8g13E2z0XuQyZxOb40fI84WpSDXoY9e',
@@ -145,6 +155,16 @@ select public.create_seed_user(
   'Manager',
   '1990-01-01',
   'data_manager'
+);
+
+select public.create_seed_user(
+  'c6079662-4714-4b49-b36e-34a052f06b1b',
+  'collector@humayapp.com',
+  '$2a$12$UqXDKFAm8OX3arfIaaw5m.kEo3kFweO6QxW6FcGFi3JLreQVMhJ8q',
+  'Data',
+  'Collector',
+  '1990-01-01',
+  'data_collector'
 );
 
 select public.create_seed_user(
