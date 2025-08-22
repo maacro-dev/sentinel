@@ -64,11 +64,11 @@ export const DataTable = <T,>({
                         width: getSizeClass(header.column.columnDef.meta?.size)
                       }}
                     >
-                    <div className="truncate">
-                      {header.isPlaceholder ? null :
-                        flexRender(header.column.columnDef.header, header.getContext())
-                      }
-                    </div>
+                      <div className="truncate">
+                        {header.isPlaceholder ? null :
+                          flexRender(header.column.columnDef.header, header.getContext())
+                        }
+                      </div>
                     </TableHead>
                   ))}
                 </TableRow>
@@ -107,19 +107,21 @@ export const DataTable = <T,>({
                       handler(e)
                     }}
                   >
-                    {row.getVisibleCells().map(cell => (
-                      <TableCell
+                    {row.getVisibleCells().map(cell => {
+                      const cellWidth = getSizeClass(cell.column.columnDef.meta?.size)
+
+                      return <TableCell
                         key={cell.id}
                         className={`pl-6 pr-0 text-muted-foreground text-3xs h-[82px]`}
                         align={cell.column.columnDef.meta?.textAlign || 'left'}
-                        style={{ width: getSizeClass(cell.column.columnDef.meta?.size) }}
+                        style={{ width: cellWidth, minWidth: cellWidth }}
                       >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </TableCell>
-                    ))}
+                    })}
                   </TableRow>
                 )
                 )}
