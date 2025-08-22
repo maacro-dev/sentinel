@@ -4,7 +4,7 @@ import { NavigateBack } from '@/core/components/NavigateBack'
 import { createCrumbLoader } from '@/core/utils/breadcrumb'
 import { flatten } from '@/core/utils/object'
 import { Sanitizer } from '@/core/utils/sanitizer'
-import { useFormData } from '@/features/forms/hooks/useFormData'
+import { useFormDetail } from '@/features/forms/hooks/useFormData'
 import { formKeyMappings } from '@/features/forms/mappings'
 import { createFileRoute } from '@tanstack/react-router'
 import { FormRouteType } from './-config'
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
 })
 function RouteComponent() {
   const { formType, mfid } = Route.useParams()
-  const { data, isLoading } = useFormData(formType as FormRouteType, mfid)
+  const { data, isLoading } = useFormDetail(formType as FormRouteType, mfid)
 
   if (isLoading) {
     return <PageContainer>Loading...</PageContainer>
