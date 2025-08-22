@@ -11,16 +11,18 @@ import { ScrollArea, ScrollAreaProvider, ScrollBar } from "@/core/components/ui/
 import { getSizeClass } from "../tanstack/table/size";
 import { cn } from "../utils/style";
 
-export interface DataTableProps<T> {
+export interface DataTableEvents<T> {
+  onRowClick?: (row: T) => void
+  onRowIntent?: (row: T) => void
+}
+
+export interface DataTableProps<T> extends DataTableEvents<T> {
   table: ReturnType<typeof useReactTable<T>>
   title?: React.ReactNode
   toolbar?: React.ReactNode
   secondaryToolbar?: React.ReactNode
-  emptyState?: React.ReactNode
   isLoading?: boolean
   pagination?: React.ReactNode
-  onRowClick?: (row: T) => void
-  onRowIntent?: (row: T) => void
 }
 
 export const DataTable = <T,>({
@@ -28,7 +30,6 @@ export const DataTable = <T,>({
   title,
   toolbar,
   secondaryToolbar,
-  emptyState,
   pagination,
   onRowClick,
   onRowIntent
@@ -75,21 +76,7 @@ export const DataTable = <T,>({
               ))}
             </TableHeader>
             <TableBody >
-              {rows.length === 0 ? (
-                <TableRow className="hover:bg-transparent even:bg-red-50 border-b-transparent h-60">
-                  <TableCell
-                    colSpan={table.getHeaderGroups()[0].headers.length}
-                    className="text-center text-xs text-muted-foreground min-h-56 py-8"
-                  >
-                    {emptyState || (
-                      <div className="flex flex-col gap-4 h-full">
-                        <h1 className="text-3xl font-medium tracking-widest">(つ•̀ꞈ•̀)つ</h1>
-                        <span className="text-muted-foreground/60">No results found</span>
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ) :
+              {rows.length === 0 ? <EmptyTableRow colSpan={table.getHeaderGroups()[0].headers.length} /> :
                 rows.map((row) => (
                   <TableRow
                     key={row.id}
@@ -134,3 +121,19 @@ export const DataTable = <T,>({
     </ScrollAreaProvider>
   )
 };
+
+const EmptyTableRow = ({ colSpan }: { colSpan: number | undefined }) => {
+  return (
+    <TableRow className="hover:bg-transparent even:bg-red-50 border-b-transparent h-60">
+      <TableCell
+        colSpan={colSpan}
+        className="text-center text-xs text-muted-foreground min-h-56 py-8"
+      >
+        <div className="flex flex-col gap-4 h-full">
+          <h1 className="text-3xl font-medium tracking-widest">(つ•̀ꞈ•̀)つ</h1>
+          <span className="text-muted-foreground/60">No results found</span>
+        </div>
+      </TableCell>
+    </TableRow>
+  )
+}
