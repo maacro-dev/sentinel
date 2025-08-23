@@ -1,10 +1,10 @@
 import { TableSkeleton } from "@/core/components/TableSkeleton";
 import { DataTable, DataTableEvents } from "@/core/components/DataTable";
 import { DefaultTablePagination } from "@/core/components/TablePagination";
-import { useFormDataTable } from "../hooks/useFormDataTable";
 import { FormRouteType } from "@/routes/_manager/forms/-config";
 import { DefaultTableToolbar } from "@/core/components/TableToolbar";
 import { useCallback } from "react";
+import { useFormEntriesTable } from "../hooks/useFormDataTable";
 
 interface FormDataTableProps<T> extends DataTableEvents<T> {
   formType: FormRouteType
@@ -17,7 +17,7 @@ export const FormDataTable = <T extends { mfid: string }>({
 }: FormDataTableProps<T>) => {
   "use no memo"; // TODO: remove after RC is compatible with TanStack Table v8
 
-  const { table, isLoading: isLoadingFieldData } = useFormDataTable(formType);
+  const { table, isLoading: isLoadingFieldData } = useFormEntriesTable(formType);
   const handleRowClick = useCallback((row: T) => {
     onRowClick?.(row)
   }, [])

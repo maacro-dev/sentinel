@@ -1,11 +1,11 @@
 import { useDataTable } from "@/core/hooks"
 import { useMemo } from "react"
-import { useFormData } from "./useFormData"
 import { getTableColumns } from "@/core/tanstack/util"
 import { formGroupConfig, FormRouteType } from "@/routes/_manager/forms/-config"
+import { useFormEntries } from "./useFormData"
 
-export const useFormDataTable = (formType: FormRouteType) => {
-  const { data: formData, isLoading } = useFormData(formType)
+export const useFormEntriesTable = (formType: FormRouteType) => {
+  const { data: formData, isLoading } = useFormEntries({ formType })
   const columns = useMemo(() => getTableColumns({ formType, config: formGroupConfig }), [formType])
   const table = useDataTable({
     data: formData,

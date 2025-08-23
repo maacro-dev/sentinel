@@ -5,8 +5,12 @@ import { formDataOptions } from '@/features/forms/queries/options';
 import { FormDataTable } from '@/features/forms/components/FormDataTable';
 import { useCallback, useState } from 'react';
 import { FormDetailSheet } from '@/features/forms/components/FormDetailSheet';
-import { useFormDetail } from '@/features/forms/hooks/useFormData';
 import { FormDataEntry } from '@/features/forms/schemas/formData';
+import { useSheetData } from '@/core/hooks/useSheetData';
+import { useCallback } from 'react';
+import { useFormEntry } from '@/features/forms/hooks/useFormData';
+import { defaultPaginationSearchSchema } from '@/core/components/TablePagination';
+import { mfidSchema } from '@/features/forms/schemas/searchParams';
 
 export const Route = createFileRoute('/_manager/forms/$formType/')({
   component: RouteComponent,
@@ -16,39 +20,34 @@ export const Route = createFileRoute('/_manager/forms/$formType/')({
 })
 
 function RouteComponent() {
+  const navigate = Route.useNavigate()
   const { formType } = Route.useParams();
-  const [detailOpen, setDetailOpen] = useState<boolean>(false)
-  const [selectedMfid, setSelectedMfid] = useState<string | null>(null);
+  const { mfid } = Route.useSearch()
 
-  const { data } = useFormDetail(
-    formType as FormRouteType,
-    selectedMfid!,
-    { enabled: !!selectedMfid }
-  );
+  const { data } = useFormEntry({
+    formType: formType as FormRouteType,
+    mfid: mfid!,
+    enabled: !!mfid
+  });
 
-  const handleOpenChange = useCallback((open: boolean) => {
-    setDetailOpen(open)
-    if (!open) {
-      setSelectedMfid(null)
-    }
-  }, [])
+  const sheet = useSheetData<FormDataEntry>({
+    key: mfid,
+    data: data ?? null,
+    onClose: () => navigate({ search: (prev) => ({ ...prev, mfid: undefined }) })
+  })
+
+  const handleOnRowClick = useCallback((row: { mfid: string }) => {
+    navigate({ to: ".", search: (prev) => ({ ...prev, mfid: row.mfid }) })
+  }, [navigate])
 
   return (
     <PageContainer>
-      <FormDataTable
-        formType={formType as FormRouteType}
-        onRowClick={(row) => {
-          setDetailOpen(true)
-          setSelectedMfid(row.mfid)
-        }}
-      />
-      {selectedMfid && (
+      <FormDataTable formType={formType as FormRouteType} onRowClick={handleOnRowClick} />
         <FormDetailSheet
-          data={data as FormDataEntry}
-          open={detailOpen}
-          onOpenChange={handleOpenChange}
+        data={sheet.data}
+        open={sheet.open}
+        onOpenChange={sheet.onOpenChange}
         />
-      )}
     </PageContainer>
   )
 }

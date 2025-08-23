@@ -7,8 +7,8 @@ import { Sanitizer } from "@/core/utils/sanitizer"
 import { formKeyMappings } from "../mappings"
 
 interface FormDetailSheetProps {
-  data: FormDataEntry,
-  open: boolean,
+  data: FormDataEntry | null
+  open: boolean
   onOpenChange: (open: boolean) => void
 }
 
@@ -17,16 +17,13 @@ export const FormDetailSheet = ({
   open,
   onOpenChange
 }: FormDetailSheetProps) => {
-
-  console.log(data)
+  if (!data) return null
 
   return (
-    <Sheet defaultOpen={false} open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent forceMount>
         <SheetHeader>
-          <SheetTitle>
-            {Sanitizer.key(data.activity_type)}
-          </SheetTitle>
+          <SheetTitle>{Sanitizer.key(data.activity_type)}</SheetTitle>
           <SheetDescription>
             MFID - {Sanitizer.value(data.mfid)}
           </SheetDescription>
@@ -38,7 +35,7 @@ export const FormDetailSheet = ({
                 key={key}
                 pair={{
                   key: Sanitizer.key(key, formKeyMappings),
-                  value: Sanitizer.value(value)
+                  value: Sanitizer.value(value),
                 }}
               />
             ))}
