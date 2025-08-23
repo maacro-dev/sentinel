@@ -7,6 +7,7 @@ import { ChartCard } from "../ChartCard";
 import { TimeRangeSelector } from "../TimeRangeSelector";
 import { InternalTrendChart } from "./InternalTrendChart";
 import { TrendChartDefaults } from "./Defaults";
+import { cn } from "@/core/utils/style";
 
 interface TrendChartProps<T extends object> {
   data: T[];
@@ -15,6 +16,7 @@ interface TrendChartProps<T extends object> {
   axisOptions?: AxisOptions;
   config?: ChartConfig;
   enableTimeRange?: boolean;
+  containerClass?: string;
 }
 
 export const TrendChart = memo(<T extends object>({
@@ -24,6 +26,7 @@ export const TrendChart = memo(<T extends object>({
   axisOptions,
   config = {},
   enableTimeRange = false,
+  containerClass
 }: TrendChartProps<T>) => {
 
   const { filteredData, timeRange, setTimeRange } = useTimeFilter({
@@ -41,7 +44,7 @@ export const TrendChart = memo(<T extends object>({
         component: <TimeRangeSelector timeRange={timeRange} setTimeRange={setTimeRange} />
       }}
     >
-      <ChartContainer config={config} className={chartContainerDefaults.className}>
+      <ChartContainer config={config} className={cn(chartContainerDefaults.className, containerClass)}>
         <InternalTrendChart
           data={filteredData}
           margin={TrendChartDefaults.margins}

@@ -14,11 +14,12 @@ const getColor = (v: number) => {
 }
 
 export const ChangeBadge = memo(({ value }: ChangeBadgeProps) => {
-  const baseClasses = "rounded-md align-middle py-0.5 px-1.5 text-[0.675rem]";
+  const baseClasses = "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
 
   return (
     <Badge variant="secondary" className={cn(baseClasses, getColor(value))}>
-      {value === 0 ? "No change" : <><TrendIcon value={value} />{value}%</>}
+      {/* {value === 0 ? "No change" : <><TrendIcon value={value} />{value}%</>} */}
+      <><TrendIcon value={value} />{value}%</>
     </Badge>
   );
 });

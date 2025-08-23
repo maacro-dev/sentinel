@@ -20,12 +20,12 @@ export const TimeRangeSelector = memo(({
 }: TimeRangeSelectorProps) => {
   return (
     <Select value={timeRange} onValueChange={(value: TimeRange) => setTimeRange(value)}>
-      <SelectTrigger className="shadow-none min-w-[160px] rounded-sm text-[0.7rem] text-primary/90">
+      <SelectTrigger className="shadow-none min-w-[140px] rounded-sm lt:!h-8 dt:!h-9 text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90">
         <SelectValue placeholder="Full season" />
       </SelectTrigger>
       <SelectContent className="rounded-xl">
         {defaultTimeRangeOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="rounded-lg text-xs">
+          <SelectItem key={option.value} value={option.value} className="rounded-lg bg-red-50 text-3xs lt:text-2xs hd:text-xs">
             {option.label}
           </SelectItem>
         ))}

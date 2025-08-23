@@ -47,14 +47,15 @@ function RouteComponent() {
     );
   }
 
+
   return (
-    <PageContainer className="flex-row">
-      <div className="flex-2 flex flex-col gap-4">
+    <PageContainer className="flex-col lg:flex-row">
+      <div className="flex-2 flex flex-row lg:flex-col gap-4">
         {formProgress.map((stat: Stat) => (
           <StatCard key={stat.title} {...stat} />
         ))}
       </div>
-      <div className="flex-5 flex flex-col gap-4">
+      <div className="flex-5 flex flex-row lg:flex-col gap-4">
         <DataCollectionTrendChart data={collectionTrend} />
         <FormCountBarChart data={formCount} />
       </div>

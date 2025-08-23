@@ -1,7 +1,7 @@
 import { ChartTooltipContent } from "@/core/components/ui/chart";
 
 export const BarChartDefaults = {
-  margins: { top: 32,  bottom: 40, left: 0, right: 0 },
+  margins: { top: 30,  bottom: 40, left: 0, right: 0 },
   axis: {
     tickLine: false,
     axisLine: false,

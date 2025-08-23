@@ -1,7 +1,7 @@
 import { SummaryConfig } from "./types";
 
 export const chartContainerDefaults = {
-  className: "aspect-auto min-h-[280px] w-full h-56",
+  className: "aspect-auto w-full min-h-40 lt:h-40 dt:h-48 hd:h-full",
 };
 
 export const barColors = [

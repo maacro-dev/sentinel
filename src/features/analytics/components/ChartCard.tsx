@@ -20,25 +20,23 @@ export const ChartCard = memo(({
   ...rest
 }: ChartCardProps) => {
   return (
-      <Card className="flex-1 " {...rest}>
-        <CardHeader className={options ? "flex items-center justify-between" : ""}>
-          <div className={options ? "" : "content"}>
-            { header.title && (
-              <CardTitle className="text-[clamp(0.9rem,1.85vw,1.1rem)]">
-                { header.title }
-              </CardTitle>
-            )}
-            { header.description && (
-              <CardDescription className="text-sm text-muted-foreground/75">
-                { header.description }
-              </CardDescription>
-            )}
-          </div>
-        { options && options.enabled && options.component}
-        </CardHeader>
-        <CardContent>
-          { children }
-        </CardContent>
-      </Card>
+    <Card className="flex-1" {...rest}>
+      <CardHeader className={options ? "flex items-center justify-between" : ""}>
+        <div className={options ? "" : "content"}>
+          {header.title && (
+            <CardTitle>{header.title}</CardTitle>
+          )}
+          {header.description && (
+            <CardDescription className="text-muted-foreground/75">
+              {header.description}
+            </CardDescription>
+          )}
+        </div>
+        {options && options.enabled && options.component}
+      </CardHeader>
+      <CardContent className="h-full justify-center items-center">
+        {children}
+      </CardContent>
+    </Card>
   )
 })
