@@ -13,8 +13,6 @@ import { ExpandableStatCard } from "@/features/analytics/components/ExpandableSt
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
   loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(dashboardDataOptions());
-
-
     return { breadcrumb: createCrumbLoader({ label: "Dashboard" }) }
   },
   head: () => ({ meta: [{ title: "Dashboard | Humay" }] }),
@@ -31,6 +29,7 @@ function RouteComponent() {
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
         {stats.map((stat: Stat) => (
           <ExpandableStatCard
+            key={stat.title}
             statCard={
               <StatCard key={stat.title} {...stat} />
             }
