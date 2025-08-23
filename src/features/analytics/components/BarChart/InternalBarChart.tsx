@@ -19,7 +19,7 @@ export const InternalBarChart = ({
 }: InternalBarChartProps) => {
 
   return (
-      <PrimitiveBarChart {...props} accessibilityLayer>
+      <PrimitiveBarChart {...props} accessibilityLayer {...BarChartDefaults.barChart}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey={axisKeys.X} {...BarChartDefaults.axis} {...axisOptions?.X} />
         <ChartTooltip {...BarChartDefaults.tooltip} />

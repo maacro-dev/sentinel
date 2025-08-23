@@ -1,12 +1,12 @@
 import { ChartTooltipContent } from "@/core/components/ui/chart";
 
 export const BarChartDefaults = {
-  margins: { top: 32,  bottom: 40, left: -32, right: -32 },
+  margins: { top: 32,  bottom: 40, left: 0, right: 0 },
   axis: {
     tickLine: false,
     axisLine: false,
     tickMargin: 40,
-    minTickGap: 16,
+    minTickGap: 0,
   },
   tooltip: {
     cursor: false,
@@ -14,7 +14,8 @@ export const BarChartDefaults = {
   },
   bar: {
     radius: 8,
-    maxBarSize: 56,
-    minPointSize: 10,
+  },
+  barChart: {
+    barCategoryGap: "24%"
   }
 }
