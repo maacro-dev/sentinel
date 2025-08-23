@@ -2,8 +2,14 @@ import { useReactTable } from "@tanstack/react-table"
 import { useScrollArea } from "./ui/scroll-area";
 import { Pagination } from "./Pagination";
 import { useTablePagination } from "../hooks/useTablePagination";
+import * as z from "zod/v4"
 
 interface DefaultTablePaginationProps<T> { table: ReturnType<typeof useReactTable<T>> }
+
+export const defaultPaginationSearchSchema = z.object({
+  page: z.number().catch(1),
+  pageSize: z.number().catch(10)
+})
 
 export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps<T>) {
   const { resetScroll } = useScrollArea();

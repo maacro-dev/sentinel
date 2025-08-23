@@ -3,7 +3,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { FormRouteType } from './-config';
 import { formDataOptions } from '@/features/forms/queries/options';
 import { FormDataTable } from '@/features/forms/components/FormDataTable';
-import { useCallback, useState } from 'react';
 import { FormDetailSheet } from '@/features/forms/components/FormDetailSheet';
 import { FormDataEntry } from '@/features/forms/schemas/formData';
 import { useSheetData } from '@/core/hooks/useSheetData';
@@ -14,6 +13,7 @@ import { mfidSchema } from '@/features/forms/schemas/searchParams';
 
 export const Route = createFileRoute('/_manager/forms/$formType/')({
   component: RouteComponent,
+  validateSearch: defaultPaginationSearchSchema.extend({ mfid: mfidSchema }),
   loader: ({ params, context: { queryClient } }) => {
     queryClient.ensureQueryData(formDataOptions({ formType: params.formType }));
   }
@@ -43,11 +43,11 @@ function RouteComponent() {
   return (
     <PageContainer>
       <FormDataTable formType={formType as FormRouteType} onRowClick={handleOnRowClick} />
-        <FormDetailSheet
+      <FormDetailSheet
         data={sheet.data}
         open={sheet.open}
         onOpenChange={sheet.onOpenChange}
-        />
+      />
     </PageContainer>
   )
 }

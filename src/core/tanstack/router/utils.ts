@@ -1,5 +1,13 @@
 import { RouteConfig } from "./types";
 
+export function searchParser(json: string) {
+  return JSON.parse(json, (_key, value) => {
+    if (value === null) return null;
+    if (typeof value === 'object') return value;
+    return String(value);
+  });
+}
+
 export function getParentId(path: string): string {
   const segments = path.split('/').filter(Boolean);
   if (segments.length <= 1) return '/';
