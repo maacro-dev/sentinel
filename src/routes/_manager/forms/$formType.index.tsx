@@ -1,7 +1,7 @@
 import { PageContainer } from '@/core/components/layout';
 import { createFileRoute } from '@tanstack/react-router'
 import { FormRouteType } from './-config';
-import { formDataOptions } from '@/features/forms/queries/options';
+import { formDataByMfidOptions, formDataOptions } from '@/features/forms/queries/options';
 import { FormDataTable } from '@/features/forms/components/FormDataTable';
 import { FormDetailSheet } from '@/features/forms/components/FormDetailSheet';
 import { FormDataEntry } from '@/features/forms/schemas/formData';
@@ -10,6 +10,7 @@ import { useCallback } from 'react';
 import { useFormEntry } from '@/features/forms/hooks/useFormData';
 import { defaultPaginationSearchSchema } from '@/core/components/TablePagination';
 import { mfidSchema } from '@/features/forms/schemas/searchParams';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/_manager/forms/$formType/')({
   component: RouteComponent,
@@ -20,9 +21,10 @@ export const Route = createFileRoute('/_manager/forms/$formType/')({
 })
 
 function RouteComponent() {
-  const navigate = Route.useNavigate()
   const { formType } = Route.useParams();
   const { mfid } = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const queryClient = useQueryClient()
 
   const { data } = useFormEntry({
     formType: formType as FormRouteType,
@@ -40,9 +42,23 @@ function RouteComponent() {
     navigate({ to: ".", search: (prev) => ({ ...prev, mfid: row.mfid }) })
   }, [navigate])
 
+  const handleOnRowIntent = useCallback((row: { mfid: string }) => {
+    queryClient.prefetchQuery(
+      formDataByMfidOptions({
+        formType: formType as FormRouteType,
+        mfid: row.mfid,
+        queryOptions: { staleTime: 1000 * 30 }
+      })
+    )
+  }, [queryClient, formType])
+
   return (
     <PageContainer>
-      <FormDataTable formType={formType as FormRouteType} onRowClick={handleOnRowClick} />
+      <FormDataTable
+        formType={formType as FormRouteType}
+        onRowClick={handleOnRowClick}
+        onRowIntent={handleOnRowIntent}
+      />
       <FormDetailSheet
         data={sheet.data}
         open={sheet.open}
