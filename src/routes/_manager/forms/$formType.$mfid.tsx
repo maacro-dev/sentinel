@@ -4,12 +4,12 @@ import { NavigateBack } from '@/core/components/NavigateBack'
 import { createCrumbLoader } from '@/core/utils/breadcrumb'
 import { flatten } from '@/core/utils/object'
 import { Sanitizer } from '@/core/utils/sanitizer'
-import { useFormEntry } from '@/features/forms/hooks/useFormEntries'
 import { formKeyMappings } from '@/features/forms/mappings'
 import { createFileRoute } from '@tanstack/react-router'
 import { FormRouteType } from './-config'
 import { formDataByMfidOptions } from '@/features/forms/queries/options'
 import { Separator } from '@/core/components/ui/separator'
+import { useFormEntry } from '@/features/forms/hooks/useFormData'
 
 export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
   component: RouteComponent,
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
 })
 function RouteComponent() {
   const { formType, mfid } = Route.useParams()
-  const { data, isLoading } = useFormEntry(formType as FormRouteType, mfid)
+  const { data, isLoading } = useFormEntry({ formType: formType as FormRouteType, mfid})
 
   if (isLoading) {
     return <PageContainer>Loading...</PageContainer>
