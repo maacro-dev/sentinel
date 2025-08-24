@@ -50,10 +50,30 @@
 
   --text-2xs: 0.725rem;
   --text-3xs: 0.7rem;
+  --text-4xs: 0.65rem;
+  --text-5xs: 0.6rem;
+  --text-6xs: 0.525rem;
+  --text-7xs: 0.5rem;
+
+  --breakpoint-lt: 1366px;
+  --breakpoint-dt: 1440px;
+  --breakpoint-hd: 1600px;
+  --breakpoint-max: 1920px;
+
+  --leading-lt: 1.325;
+  --leading-dt: 1.4;
+  --leading-hd: 1.5;
 
   --color-humay-bg: oklch(96.2% 0.044 156.743);
   --color-humay-light: oklch(92.5% 0.084 155.995);
   --color-error: oklch(63.7% 0.237 25.331);
+}
+
+.debug {
+  @apply outline-2 outline-red-300;
+}
+.debug-lime {
+  @apply outline-2 outline-lime-300;
 }
 
 .column {
