@@ -1,20 +1,14 @@
 import { PageContainer } from '@/core/components/layout';
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { FormRouteType } from './-config';
-import { formDataByMfidOptions, formDataOptions } from '@/features/forms/queries/options';
+import { formDataOptions } from '@/features/forms/queries/options';
 import { FormDataTable } from '@/features/forms/components/FormDataTable';
-import { FormDetailSheet } from '@/features/forms/components/FormDetailSheet';
-import { FormDataEntry } from '@/features/forms/schemas/formData';
-import { useSheetData } from '@/core/hooks/useSheetData';
 import { useCallback } from 'react';
-import { useFormEntry } from '@/features/forms/hooks/useFormData';
 import { defaultPaginationSearchSchema } from '@/core/components/TablePagination';
-import { mfidSchema } from '@/features/forms/schemas/searchParams';
-import { useQueryClient } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/_manager/forms/$formType/')({
   component: RouteComponent,
-  validateSearch: defaultPaginationSearchSchema.extend({ mfid: mfidSchema }),
+  validateSearch: defaultPaginationSearchSchema,
   loader: ({ params, context: { queryClient } }) => {
     queryClient.ensureQueryData(formDataOptions({ formType: params.formType }));
   }
@@ -22,35 +16,21 @@ export const Route = createFileRoute('/_manager/forms/$formType/')({
 
 function RouteComponent() {
   const { formType } = Route.useParams();
-  const { mfid } = Route.useSearch()
-  const navigate = Route.useNavigate()
-  const queryClient = useQueryClient()
-
-  const { data } = useFormEntry({
-    formType: formType as FormRouteType,
-    mfid: mfid!,
-    enabled: !!mfid
-  });
-
-  const sheet = useSheetData<FormDataEntry>({
-    key: mfid,
-    data: data ?? null,
-    onClose: () => navigate({ search: (prev) => ({ ...prev, mfid: undefined }) })
-  })
+  const { navigate, preloadRoute } = useRouter()
 
   const handleOnRowClick = useCallback((row: { mfid: string }) => {
-    navigate({ to: ".", search: (prev) => ({ ...prev, mfid: row.mfid }) })
+    navigate({
+      to: "/forms/$formType/$mfid",
+      params: { formType: formType, mfid: row.mfid }
+    })
   }, [navigate])
 
   const handleOnRowIntent = useCallback((row: { mfid: string }) => {
-    queryClient.prefetchQuery(
-      formDataByMfidOptions({
-        formType: formType as FormRouteType,
-        mfid: row.mfid,
-        queryOptions: { staleTime: 1000 * 30 }
-      })
-    )
-  }, [queryClient, formType])
+    preloadRoute({
+      to: "/forms/$formType/$mfid",
+      params: { formType: formType, mfid: row.mfid }
+    })
+  }, [])
 
   return (
     <PageContainer>
@@ -58,11 +38,6 @@ function RouteComponent() {
         formType={formType as FormRouteType}
         onRowClick={handleOnRowClick}
         onRowIntent={handleOnRowIntent}
-      />
-      <FormDetailSheet
-        data={sheet.data}
-        open={sheet.open}
-        onOpenChange={sheet.onOpenChange}
       />
     </PageContainer>
   )

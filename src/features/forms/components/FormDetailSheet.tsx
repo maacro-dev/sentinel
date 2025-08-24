@@ -6,6 +6,13 @@ import { flatten } from "@/core/utils/object"
 import { Sanitizer } from "@/core/utils/sanitizer"
 import { formKeyMappings } from "../mappings"
 
+/**
+ * UNUSED
+ *
+ * Supposed to be used for form detail
+ * [ replaced with full-page detail ]
+ */
+
 interface FormDetailSheetProps {
   data: FormDataEntry | null
   open: boolean

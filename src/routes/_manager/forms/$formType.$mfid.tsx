@@ -14,7 +14,15 @@ import { useFormEntry } from '@/features/forms/hooks/useFormData'
 export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
   component: RouteComponent,
   loader: ({ params, context: { queryClient } }) => {
-    queryClient.ensureQueryData(formDataByMfidOptions({ formType: params.formType as FormRouteType, mfid: params.mfid }))
+    queryClient.ensureQueryData(
+      formDataByMfidOptions({
+        formType: params.formType as FormRouteType,
+        mfid: params.mfid,
+        queryOptions: {
+          staleTime: 1000 * 60 * 2 // 2 mins
+        }
+      })
+    )
     return { breadcrumb: createCrumbLoader({ label: params.mfid }) }
   }
 })
