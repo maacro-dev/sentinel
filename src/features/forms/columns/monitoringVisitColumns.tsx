@@ -6,7 +6,7 @@ import { defaultColumns } from "./defaults";
 export const monitoringVisitColumns: ColumnDef<FormDataEntry, any>[] = [
   ...defaultColumns,
   {
-    accessorKey: 'form_data.date_monitored',
+    accessorKey: 'activity.formData.date_monitored',
     header: 'Date Monitored',
     cell: (info) => Sanitizer.key(info.getValue()),
     meta: { size: '2xs' }

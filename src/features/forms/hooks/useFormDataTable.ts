@@ -10,7 +10,7 @@ export const useFormEntriesTable = (formType: FormRouteType) => {
   const table = useDataTable({
     data: formData,
     columns: columns,
-    getRowId: (row) => row.mfid,
+    getRowId: (row) => row.field.mfid
   })
 
   return { table, isLoading, formType }

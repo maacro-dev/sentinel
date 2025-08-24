@@ -6,7 +6,7 @@ import { defaultColumns } from "./defaults";
 export const fieldDataColumns: ColumnDef<FormDataEntry, any>[] = [
   ...defaultColumns,
   {
-    accessorKey: 'form_data.total_field_area_ha',
+    accessorKey: 'activity.formData.total_field_area_ha',
     header: 'Field Area',
     cell: (info) => <UnitCell value={info.getValue()} unit="ha" />,
     meta: { size: '2xs' }

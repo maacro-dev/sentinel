@@ -6,7 +6,7 @@ import { defaultColumns } from "./defaults";
 export const culturalManagementColumns: ColumnDef<FormDataEntry, any>[] = [
   ...defaultColumns,
   {
-    accessorKey: 'form_data.actual_crop_establishment_method',
+    accessorKey: 'activity.formData.actual_crop_establishment_method',
     header: 'Actual Method',
     cell: (info) => Sanitizer.key(info.getValue()),
     meta: { size: '2xs' }

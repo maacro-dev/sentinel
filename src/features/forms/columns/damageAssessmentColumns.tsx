@@ -6,7 +6,7 @@ import { defaultColumns } from "./defaults";
 export const damageAssessmentColumns: ColumnDef<FormDataEntry, any>[] = [
   ...defaultColumns,
   {
-    accessorKey: 'form_data.cause',
+    accessorKey: 'activity.formData.cause',
     header: 'Cause',
     cell: (info) => Sanitizer.key(info.getValue()),
     meta: { size: '2xs' }

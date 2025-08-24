@@ -6,7 +6,7 @@ import { defaultColumns } from "./defaults";
 export const nutrientManagementColumns: ColumnDef<FormDataEntry, any>[] = [
   ...defaultColumns,
   {
-    accessorKey: 'form_data.applied_area_sqm',
+    accessorKey: 'activity.formData.applied_area_sqm',
     header: 'Applied Area',
     cell: (info) => <UnitCell value={info.getValue()} unit="sqm" />,
     meta: { size: '2xs' }

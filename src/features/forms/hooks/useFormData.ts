@@ -41,7 +41,7 @@ export function useFormEntry({
   const cachedList = qc.getQueryData<FormDataEntry[]>(
     formDataOptions({ formType }).queryKey
   );
-  const cachedItem = cachedList?.find((x) => x.mfid === mfid);
+  const cachedItem = cachedList?.find((x) => x.field.mfid === mfid);
 
   const entryQuery = useQuery(
     formDataByMfidOptions({

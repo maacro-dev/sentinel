@@ -18,17 +18,17 @@ function RouteComponent() {
   const { formType } = Route.useParams();
   const { navigate, preloadRoute } = useRouter()
 
-  const handleOnRowClick = useCallback((row: { mfid: string }) => {
+  const handleOnRowClick = useCallback((row: { field: { mfid: string }}) => {
     navigate({
       to: "/forms/$formType/$mfid",
-      params: { formType: formType, mfid: row.mfid }
+      params: { formType: formType, mfid: row.field.mfid }
     })
   }, [navigate])
 
-  const handleOnRowIntent = useCallback((row: { mfid: string }) => {
+  const handleOnRowIntent = useCallback((row: { field: { mfid: string }}) => {
     preloadRoute({
       to: "/forms/$formType/$mfid",
-      params: { formType: formType, mfid: row.mfid }
+      params: { formType: formType, mfid: row.field.mfid }
     })
   }, [])
 

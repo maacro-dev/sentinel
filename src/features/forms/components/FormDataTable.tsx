@@ -10,7 +10,7 @@ interface FormDataTableProps<T> extends DataTableEvents<T> {
   formType: FormRouteType
 }
 
-export const FormDataTable = <T extends { mfid: string }>({
+export const FormDataTable = <T extends { field: { mfid: string } }>({
   formType,
   onRowClick,
   onRowIntent,
