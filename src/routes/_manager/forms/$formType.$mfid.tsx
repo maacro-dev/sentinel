@@ -18,9 +18,6 @@ export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
       formDataByMfidOptions({
         formType: params.formType as FormRouteType,
         mfid: params.mfid,
-        queryOptions: {
-          staleTime: 1000 * 60 * 2 // 2 mins
-        }
       })
     )
     return { breadcrumb: createCrumbLoader({ label: params.mfid }) }

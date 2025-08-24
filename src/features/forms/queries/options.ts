@@ -13,7 +13,7 @@ export function formDataOptions({ formType, enabled }: FormDataOptions) {
     queryKey: ["form-data", formType] as const,
     queryFn: () => Forms.getFormData(formType as FormRouteType),
     enabled,
-    staleTime: 0,
+    staleTime: 1000 * 60 * 1, // 1min
     placeholderData: (prev) => prev
   })
 }
@@ -36,7 +36,7 @@ export function formDataByMfidOptions({
     queryKey: ["form-data-entry", formType, mfid] as const,
     queryFn: () => Forms.getFormDataByMfid(formType as FormRouteType, mfid),
     enabled: Boolean(mfid) && enabled,
-    staleTime: 0,
+    staleTime: Infinity,
     placeholderData: (prev) => prev,
     ...overrides
   })
