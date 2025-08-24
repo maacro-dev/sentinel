@@ -29,7 +29,7 @@ export const StatCard = memo(({ title, subtitle, current_value, unit, percent_ch
       </CardHeader>
       <CardContent className="flex flex-row items-center justify-between">
         <div className="space-x-1.5">
-          <span className="space-x-2 font-semibold text-md lt:text-lg dt:text-xl">
+          <span className="space-x-2 font-semibold text-lg lt:text-xl dt:text-2xl hd:text-3xl">
             {current_value ?? "-"}
           </span>
           <span className="text-5xs lt:text-4xs dt:text-3xs font-light text-muted-foreground">
