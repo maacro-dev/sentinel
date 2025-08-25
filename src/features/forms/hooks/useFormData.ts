@@ -1,7 +1,6 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { FormRouteType } from "@/routes/_manager/forms/-config";
 import { formDataOptions, formDataByMfidOptions } from "../queries/options";
-import { FormDataEntry } from "../schemas/formData";
 
 interface useFormEntriesOptions {
   formType: FormRouteType,
@@ -36,24 +35,13 @@ export function useFormEntry({
   mfid,
   enabled,
 }: useFormEntryOptions) {
-  const qc = useQueryClient();
-
-  const cachedList = qc.getQueryData<FormDataEntry[]>(
-    formDataOptions({ formType }).queryKey
-  );
-  const cachedItem = cachedList?.find((x) => x.field.mfid === mfid);
-
   const entryQuery = useQuery(
     formDataByMfidOptions({
       formType,
       mfid,
-      enabled: !cachedItem && (enabled ?? true),
+      enabled: enabled ?? true,
     })
   );
-
-  if (cachedItem) {
-    return { data: cachedItem, isLoading: false };
-  }
 
   return {
     data: entryQuery.data ?? null,
