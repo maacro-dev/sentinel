@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { useFields } from "./useFields"
 import { useDataTable } from "@/core/hooks"
-import { getTableColumnsByPath } from "@/core/tanstack/util"
+import { getTableColumnsByPath } from "@/core/tanstack/table/utils"
 import { overviewGroupConfig } from "@/routes/_manager/_overview/-config"
 
 export const useFieldsTable = () => {

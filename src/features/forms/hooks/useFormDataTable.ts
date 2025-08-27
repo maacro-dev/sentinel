@@ -1,6 +1,6 @@
 import { useDataTable } from "@/core/hooks"
 import { useMemo } from "react"
-import { getTableColumns } from "@/core/tanstack/util"
+import { getTableColumns } from "@/core/tanstack/table/utils"
 import { formGroupConfig, FormRouteType } from "@/routes/_manager/forms/-config"
 import { useFormEntries } from "./useFormData"
 
