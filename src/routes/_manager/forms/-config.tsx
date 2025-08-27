@@ -6,19 +6,13 @@ import { fieldDataColumns } from "@/features/forms/columns/fieldDataColumns";
 import { monitoringVisitColumns } from "@/features/forms/columns/monitoringVisitColumns";
 import { nutrientManagementColumns } from "@/features/forms/columns/nutrientManagementColumns";
 import { productionColumns } from "@/features/forms/columns/productionColumns";
-import { Activity, Cuboid, Folder, FormInput, Grid2X2, Leaf, PackagePlus, ShieldHalf } from "lucide-react";
+import { Activity, Cuboid, Folder, Grid2X2, PackagePlus, ShieldHalf } from "lucide-react";
 
 export type FormRouteType = RouteConfigIds<typeof formGroupConfig>
 export const formGroupConfig = createRouteConfig({
   role: "data_manager",
   label: "Forms",
   children: [
-    createRouteConfig({
-      role: "data_manager",
-      label: "Overview",
-      path: "/forms/overview",
-      icon: FormInput,
-    }),
     createRouteConfig("field-data", {
       role: "data_manager",
       label: 'Field Data',
@@ -79,16 +73,16 @@ export const formGroupConfig = createRouteConfig({
         tableColumns: damageAssessmentColumns,
       }
     }),
-    createRouteConfig("rice-non-rice", {
-      role: "data_manager",
-      label: "Rice / Non-Rice",
-      path: "/forms/$formType",
-      params: { formType: "rice-non-rice" },
-      icon: Leaf,
-      meta: {
-        tableColumns: [], //* TODO
-      },
-      disabled: true
-    }),
+    // createRouteConfig("rice-non-rice", {
+    //   role: "data_manager",
+    //   label: "Rice / Non-Rice",
+    //   path: "/forms/$formType",
+    //   params: { formType: "rice-non-rice" },
+    //   icon: Leaf,
+    //   meta: {
+    //     tableColumns: [], //* TODO
+    //   },
+    //   disabled: true
+    // }),
   ]
 });

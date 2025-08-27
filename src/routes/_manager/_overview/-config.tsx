@@ -1,6 +1,5 @@
 import { createRouteConfig } from "@/core/tanstack/router/utils";
-import { fieldTableColumns } from "@/features/fields/components/FieldsTable/fieldTableColumns";
-import { IdCard, LayoutDashboard } from "lucide-react";
+import { FormInput, LayoutDashboard } from "lucide-react";
 
 export const overviewGroupConfig = createRouteConfig("overview", {
   role: "data_manager",
@@ -12,14 +11,11 @@ export const overviewGroupConfig = createRouteConfig("overview", {
       path: "/dashboard",
       icon: LayoutDashboard,
     }),
-    createRouteConfig("monitored_fields", {
+    createRouteConfig({
       role: "data_manager",
-      label: "Fields",
-      path: "/monitored-fields",
-      icon: IdCard,
-      meta: {
-        tableColumns: fieldTableColumns
-      }
+      label: "Data Collection",
+      path: "/forms-overview",
+      icon: FormInput,
     }),
   ]
 });

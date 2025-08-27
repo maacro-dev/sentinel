@@ -10,7 +10,7 @@ import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { FormInput } from "lucide-react";
 import PlaceholderBody from "@/core/components/PlaceholderBody";
 
-export const Route = createFileRoute("/_manager/forms/overview")({
+export const Route = createFileRoute("/_manager/_overview/forms-overview")({
   component: RouteComponent,
   head: () => ({ meta: [{ title: "Overview | Humay" }] }),
   loader: ({ context: { queryClient } }) => {
