@@ -1,26 +1,44 @@
 import { Table } from "@tanstack/react-table";
-import { useCallback } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { clampPageIndex, normalizePageSize } from "../tanstack/table/utils";
 
 export function useTablePagination<TData>(
   table: Table<TData>,
   resetScroll: () => void
 ) {
+
   const totalRows = table.getCoreRowModel().rows.length;
-  const pageCount = table.getPageCount();
+  const maxPages = table.getPageCount();
   const currentPage = table.getState().pagination.pageIndex + 1;
   const pageSize = table.getState().pagination.pageSize;
   const navigate = useNavigate()
+  const { search } = useLocation()
+
+  useEffect(() => {
+    const { page, pageSize: rawSize } = search;
+    const safePage = clampPageIndex(page, maxPages);
+
+    if (currentPage !== safePage) {
+      table.setPageIndex(safePage - 1);
+    }
+
+    if (pageSize !== rawSize) {
+      table.setPageSize(normalizePageSize(rawSize));
+    }
+
+  }, [search, table, currentPage, pageSize, maxPages])
+
 
   const setPageSize = useCallback(
-    (size: number) => {
-      table.setPageSize(size);
+    (pageSize: number) => {
+      table.setPageSize(pageSize);
       navigate({
         to: ".",
         search: (prev) => ({
           ...prev,
           page: 1,
-          pageSize: size,
+          pageSize: pageSize,
         }),
       });
       resetScroll();
@@ -31,23 +49,25 @@ export function useTablePagination<TData>(
 
   const navigatePagination = useCallback(
     (oneBased: number) => {
-      const clamped = Math.min(Math.max(oneBased, 1), pageCount);
+      const clamped = Math.min(Math.max(oneBased, 1), maxPages);
+
       table.setPageIndex(clamped - 1);
       navigate({
         to: ".",
         search: (prev) => ({
           ...prev,
+
           page: clamped,
         }),
       });
       resetScroll();
     },
-    [pageCount, resetScroll, table]
+    [maxPages, resetScroll, table]
   );
 
   return {
     totalRows,
-    pageCount,
+    maxPages,
     currentPage,
     navigatePagination,
     pageSize,

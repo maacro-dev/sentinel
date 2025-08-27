@@ -15,7 +15,7 @@ export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps
   const { resetScroll } = useScrollArea();
   const {
     totalRows,
-    pageCount,
+    maxPages,
     currentPage,
     navigatePagination,
     pageSize,
@@ -34,7 +34,7 @@ export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps
           disabled={!table.getCanNextPage()}
         />
       </div>
-      <Pagination.Input current={currentPage} total={pageCount} navigateFn={navigatePagination}/>
+      <Pagination.Input current={currentPage} total={maxPages} navigateFn={navigatePagination}/>
       <Pagination.SizeSelector value={pageSize} onValueChange={setPageSize} />
       <Pagination.TotalRows totalRows={totalRows} />
     </Pagination>

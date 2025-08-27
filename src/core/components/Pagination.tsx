@@ -89,8 +89,9 @@ interface PaginationSizeSelectorProps extends ComponentProps<typeof SelectTrigge
 const PaginationSizeSelector = memo(({
   className, value, onValueChange, ...props
 }: PaginationSizeSelectorProps) => {
+
   return (
-    <Select defaultValue={String(value)} onValueChange={(val) => onValueChange(Number(val))}>
+    <Select value={String(value)} defaultValue={String(value)} onValueChange={(val) => onValueChange(Number(val))}>
       <SelectTrigger
         className={cn(
           "focus-visible:ring-transparent focus-visible:border-border !h-[32px] rounded-sm px-2 py-0 text-3xs text-muted-foreground shadow-none",
