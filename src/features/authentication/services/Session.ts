@@ -9,7 +9,6 @@ import { AUTH_TOKEN_KEY } from "../constants";
 import { ErrorHandler } from "./Error";
 
 export class Session {
-
   public static update(user: User) {
     this._state.setUser(user);
     this._state.setSignInTime(Date.now());
@@ -18,41 +17,48 @@ export class Session {
   public static clear() {
     this._state.setUser(null);
     this._state.setSignInTime(null);
-
     this._forceClearStorage();
   }
 
   public static async restore() {
-    if (this._state.isInitialized && this._state.user) {
-      throw redirect({ to: getRoleRedirect(this._state.user.role) });
+    if (this._state.user && this._state.signInTime) {
+      if (isSessionExpired(this._state.signInTime)) {
+        this.clear();
+      } else {
+        throw redirect({ to: getRoleRedirect(this._state.user.role) });
+      }
     }
 
     const user = await this._fetchUser();
-
     if (user) {
-      await this._commitFresh(user);
+      this.update(user)
       throw redirect({ to: getRoleRedirect(user.role) });
-    } else {
-      this.clear();
     }
+    this.clear();
   }
 
   public static async ensure({ role: requiredRole }: { role: Role }) {
-    if (this._state.isInitialized && this._state.user) {
+    if (this._state.user && this._state.signInTime) {
+      if (isSessionExpired(this._state.signInTime)) {
+        this.clear();
+        throw redirect({ to: "/login" });
+      }
+      if (this._state.user.role !== requiredRole) {
+        throw redirect({ to: "/unauthorized" });
+      }
       return;
     }
 
     const user = await this._fetchUser();
-
     if (!user) {
       this.clear();
       throw redirect({ to: "/login" });
     }
-    if (user.role !== requiredRole) throw redirect({ to: "/unauthorized" });
-
-    await this._commitFresh(user);
+    if (user.role !== requiredRole) {
+      throw redirect({ to: "/unauthorized" });
+    }
+    this.update(user);
   }
-
 
   private static async _fetchUser(): Promise<User | null> {
     const supabase = await getSupabase();
@@ -71,16 +77,6 @@ export class Session {
     return parseUser(data.session.user);
   }
 
-  private static async _commitFresh(user: User) {
-    if (isSessionExpired(this._state.signInTime)) {
-      this._forceClearStorage();
-      throw redirect({ to: "/login" });
-    }
-
-    this.update(user);
-    this._state.setIsInitialized(true);
-  }
-
   static _forceClearStorage() {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     sessionStorage.clear();
@@ -90,5 +86,5 @@ export class Session {
     return useSessionStore.getState();
   }
 
-  private constructor() {}
+  private constructor() { }
 }
