@@ -1,7 +1,7 @@
 import { useDataTable } from "@/core/hooks"
 import { useMemo } from "react"
 import { useUsers } from "./useUsers"
-import { getTableColumnsByPath } from "@/core/tanstack/util"
+import { getTableColumnsByPath } from "@/core/tanstack/table/utils"
 import { adminAccessControlGroupConfig } from "@/routes/admin/_accessControl/-config"
 
 export const useUsersTable = (includeAdmin: boolean) => {
