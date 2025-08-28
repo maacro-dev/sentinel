@@ -25,7 +25,7 @@ export const TimeRangeSelector = memo(({
       </SelectTrigger>
       <SelectContent className="rounded-xl">
         {defaultTimeRangeOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value} className="rounded-lg bg-red-50 text-3xs lt:text-2xs hd:text-xs">
+          <SelectItem key={option.value} value={option.value} className="rounded-lg text-3xs lt:text-2xs hd:text-xs">
             {option.label}
           </SelectItem>
         ))}
