@@ -29,10 +29,12 @@ export function useFormDetailNavigator(formType?: FormRouteType, mfid?: string) 
     if (isLoadingEntries) return;
     if (!entriesTable) return;
 
-    const rebuiltIds = entriesTable.getRowModel().rows.map((r) => r.original.field.mfid);
+    const rebuiltIds = entriesTable.getCoreRowModel().rows.map((r) => r.original.field.mfid);
+
     if (rebuiltIds.length === 0) return;
 
     setIds(rebuiltIds, formType);
+
     const idx = rebuiltIds.indexOf(mfid);
     setCurrentIndex(idx === -1 ? null : idx);
   }, [mfid, isLoadingEntries, entriesTable]);
