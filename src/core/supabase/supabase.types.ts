@@ -640,21 +640,21 @@ export type Database = {
         Row: {
           avg_plant_height: number | null
           crop_stage: string
-          data_monitored: string
+          date_monitored: string
           id: number
           soil_moisture_status: string
         }
         Insert: {
           avg_plant_height?: number | null
           crop_stage: string
-          data_monitored: string
+          date_monitored: string
           id: number
           soil_moisture_status: string
         }
         Update: {
           avg_plant_height?: number | null
           crop_stage?: string
-          data_monitored?: string
+          date_monitored?: string
           id?: number
           soil_moisture_status?: string
         }
@@ -671,6 +671,59 @@ export type Database = {
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "field_activity_details"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      predicted_yields: {
+        Row: {
+          field_id: number
+          generated_at: string
+          id: number
+          predicted_yield_t_ha: number
+          season_id: number
+        }
+        Insert: {
+          field_id: number
+          generated_at?: string
+          id?: number
+          predicted_yield_t_ha: number
+          season_id: number
+        }
+        Update: {
+          field_id?: number
+          generated_at?: string
+          id?: number
+          predicted_yield_t_ha?: number
+          season_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predicted_yields_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "field_details"
+            referencedColumns: ["field_id"]
+          },
+          {
+            foreignKeyName: "predicted_yields_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "fields"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "predicted_yields_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "current_season"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "predicted_yields_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
             referencedColumns: ["id"]
           },
         ]
@@ -941,14 +994,14 @@ export type Database = {
     Functions: {
       create_seed_user: {
         Args: {
-          p_id: string
+          p_created_at?: string
+          p_date_of_birth: string
           p_email: string
+          p_first_name: string
+          p_id: string
+          p_last_name: string
           p_password: string
           p_role: Database["public"]["Enums"]["user_role"]
-          p_last_name: string
-          p_date_of_birth: string
-          p_first_name: string
-          p_created_at?: string
         }
         Returns: undefined
       }
