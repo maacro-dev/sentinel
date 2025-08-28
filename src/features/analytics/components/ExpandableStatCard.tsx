@@ -16,14 +16,14 @@ export const ExpandableStatCard = ({ statCard }: ExpandableStatCardProps) => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Stat Detail
+            {/* Stat Detail */}
           </DialogTitle>
           <DialogDescription>
-            This is where the details of the stat card should be
+            {/* This is where the details of the stat card should be */}
           </DialogDescription>
         </DialogHeader>
         <div>
-          <Skeleton className="h-56 flex justify-center items-center text-foreground/20 text-4xl">
+          <Skeleton className="bg-transparent h-56 flex justify-center items-center text-foreground/20 text-4xl">
             (つ•̀ꞈ•̀)つ
           </Skeleton>
         </div>
