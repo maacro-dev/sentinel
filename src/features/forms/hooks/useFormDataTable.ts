@@ -12,6 +12,5 @@ export const useFormEntriesTable = (formType: FormRouteType) => {
     columns: columns,
     getRowId: (row) => row.field.mfid
   })
-
   return { table, isLoading, formType }
 }

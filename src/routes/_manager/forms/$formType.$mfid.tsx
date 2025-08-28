@@ -14,6 +14,7 @@ import { Skeleton } from '@/core/components/ui/skeleton'
 import { Button } from '@/core/components/ui/button'
 import { Textarea } from '@/core/components/ui/textarea'
 import { Camera, Combine, Grid2x2, SquareCheckBig, User } from 'lucide-react'
+import { useFormDetailNavigator } from '@/features/forms/hooks/useEntryNavigator'
 
 export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
   component: RouteComponent,
@@ -27,11 +28,21 @@ export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
     return { breadcrumb: createCrumbLoader({ label: params.mfid }) }
   }
 })
+
+
 function RouteComponent() {
   const { formType, mfid } = Route.useParams()
-  const { data, isLoading } = useFormEntry({ formType: formType as FormRouteType, mfid})
+  const { data, isLoading } = useFormEntry({ formType: formType as FormRouteType, mfid })
 
-  if (isLoading) {
+  const {
+    hasNext,
+    hasPrev,
+    goNext,
+    goPrev,
+    loading: navLoading,
+  } = useFormDetailNavigator(formType as FormRouteType, mfid);
+
+  if (isLoading || navLoading) {
     return <PageContainer>Loading...</PageContainer>
   }
 
@@ -40,8 +51,8 @@ function RouteComponent() {
       <div role="navigation-buttons" className='px-6 flex justify-between'>
         <NavBackButton label='Back' />
         <div className='flex items-center gap-6'>
-          <NavPreviousButton label="Previous" onClick={() => console.log("Previous")} />
-          <NavNextButton label='Next' onClick={() => console.log("Next")} />
+          <NavPreviousButton label="Previous" onClick={goPrev} disabled={!hasPrev} />
+          <NavNextButton label='Next' onClick={goNext} disabled={!hasNext} />
         </div>
       </div>
       <div className='flex flex-col gap-4'>
@@ -58,6 +69,7 @@ function RouteComponent() {
     </PageContainer>
   )
 }
+
 
 
 function DataGroup({ data, title, icon }: { data: FormDataGroup, title: string, icon: React.ReactNode }) {
@@ -98,7 +110,7 @@ function FormDataSection({ data, title }: { data: FormData, title: string }) {
   return (
     <section className='p-6 flex flex-col gap-4 border rounded-container '>
       <div className="flex gap-2.5 items-center">
-        <Combine className="size-4"/>
+        <Combine className="size-4" />
         <h1 className="text-base">{title}</h1>
       </div>
       <KVList className='gap-2.5' itemsPerColumn={5} containerClassName='gap-8'>
@@ -122,7 +134,7 @@ function ImagesSection({ images }: { images?: string[] | null }) {
   return (
     <section className='p-6 flex flex-col gap-4 border rounded-container '>
       <div className="flex gap-2.5 items-center">
-        <Camera className="size-4"/>
+        <Camera className="size-4" />
         <h1 className="text-base">Field Images</h1>
       </div>
       <div className='flex flex-row gap-4'>
@@ -139,7 +151,7 @@ function VerificationSection() {
   return (
     <section className='p-6 flex flex-col gap-6 border rounded-container '>
       <div className="flex gap-2.5 items-center">
-        <SquareCheckBig className="size-4"/>
+        <SquareCheckBig className="size-4" />
         <h1 className="text-base">Verification</h1>
       </div>
       <div className="space-y-2">
