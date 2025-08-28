@@ -6,7 +6,7 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
-  base: "./",
+  base: "/",
   server: {
     port: 3000,
   },
