@@ -38,10 +38,11 @@ interface NavButtonProps {
   label?: string;
   direction: "back" | "next" | "prev",
   className?: string;
-  onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined
+  onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined,
+  disabled?: boolean,
 }
 
-const NavButton = memo(({ label, direction, className, onClick }: NavButtonProps) => {
+const NavButton = memo(({ label, direction, className, onClick, disabled }: NavButtonProps) => {
   let leadingIcon: React.ReactNode = null;
   let trailingIcon: React.ReactNode = null;
 
@@ -67,6 +68,7 @@ const NavButton = memo(({ label, direction, className, onClick }: NavButtonProps
       leadingIcon={leadingIcon}
       trailingIcon={trailingIcon}
       onClick={onClick}
+      disabled={disabled}
     >
       {label}
     </PrimitiveNavButton>
