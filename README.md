@@ -1,61 +1,27 @@
 # Sentinel
 
-**The web application component of Hum-i**: A web and mobile-based multi-stage data acquisition and analysis system for rice cultivation.
+**Web component of Hum-i**: A web and mobile system for multi-stage rice cultivation data collection and analysis.
 
-🛠️ _Under development. This is an internal tool intended for use by partner agricultural organizations and research institutions._
+🛠️ *In development.*
 
 ## Overview
 
-Sentinel serves as a centralized platform for managing, analyzing, and visualizing rice cultivation data across various stages. It supports seamless integration with mobile clients, enabling real-time monitoring, comprehensive reporting, and informed decision-making for agricultural stakeholders.
+Sentinel centralizes rice cultivation data management, analysis, and visualization. It integrates with mobile clients for real-time monitoring and reporting.
 
-### Key Features:
+### Features
 
-- **Secure Authentication**
-  Role-based access control ensures only authorized users can perform actions aligned with their roles.
-
-- **Dashboard & Analytics**
-  Real-time KPI tracking, seasonal summaries, historical trends, and regional comparisons offer actionable insights.
-
-- **Data Management**
-
-  - View and verify field data by Monitoring Field ID (MFID) and crop growth stage
-  - Conduct quality checks: completeness, outlier detection, inconsistency flagging
-  - Generate barcoded MFIDs to link farmer and field records
-
-- **Farmer & Field Profiles**
-  Manage demographic and geographic information for farmers and fields.
-
-- **Form Data Sync & Review**
-  Monitor incoming field data submissions, review entries, and mark them as “Verified” or “Incomplete.”
-
-- **Reporting & Exporting**
-
-  - Generate compliance reports, damage assessments, and data summaries
-  - Export in PDF/CSV formats for external use
-
-- **System Configuration**
-  Customize validation rules, form templates, sync policies, and configure smart alerts for data issues or delays.
-
-- **User & Role Management**
-  Create, update, disable, or delete user accounts; assign roles and permissions accordingly.
-
-- **Yield Analysis & Farming Insights**
-  Analyze yield performance by season, geography, rice variety, and crop establishment method.
-  Track fertilizer usage, planting practices, and regional land use statistics.
-
-- **System Monitoring & Maintenance**
-  Audit logs, manual backups, and system usage reports ensure operational transparency and reliability.
-
-## Getting Started
-
-For full setup instructions, including prerequisites, installation steps, and environment configuration, see the [Setup Guide](./docs/setup.md).
-
-## Analytics
-
-Explore supported analytics capabilities in detail in the [Analytics Documentation](./docs/analytics.md).
+* **Role-based Authentication**
+* **Dashboard & Analytics**
+* **Data Verification**
+* **Farmer & Field Profiles**
+* **Form Sync & Review**
+* **Reporting & Exporting**
+* **Configuration**
+* **User & Role Management**
+* **Yield & Insights**
+* **System Monitoring**
 
 ## License
 
-This project is **proprietary and confidential**, intended solely for authorized use by affiliated agricultural organizations.
-
-All rights reserved © 2025 Humay.
+**Proprietary and confidential.**
+© 2025 Humay.
