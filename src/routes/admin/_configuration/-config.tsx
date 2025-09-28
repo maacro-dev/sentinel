@@ -9,7 +9,8 @@ export const adminConfigrationGroupConfig = createRouteConfig("configuration", {
       role: "admin",
       label: "Settings",
       path: "/admin/settings",
-      icon: Settings
+      icon: Settings,
+      disabled: true,
     }),
   ]
 });

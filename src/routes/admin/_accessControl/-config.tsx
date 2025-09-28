@@ -19,7 +19,8 @@ export const adminAccessControlGroupConfig = createRouteConfig("accessControl", 
       role: "admin",
       label: "System Security",
       path: "/admin/security",
-      icon: Shield
+      icon: Shield,
+      disabled: true,
     }),
   ]
 });

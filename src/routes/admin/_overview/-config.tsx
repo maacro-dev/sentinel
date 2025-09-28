@@ -10,6 +10,7 @@ export const adminOverviewGroupConfig = createRouteConfig("overview", {
       label: "Dashboard",
       path: "/admin/dashboard",
       icon: Home,
+      disabled: true
     }),
   ]
 });
