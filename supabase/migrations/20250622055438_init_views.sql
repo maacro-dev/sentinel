@@ -8,9 +8,13 @@ SELECT
 FROM users usr
 JOIN auth.users auth_user ON usr.id = auth_user.id;
 
-CREATE OR REPLACE VIEW current_season AS
-SELECT * FROM seasons
-WHERE now() BETWEEN start_date AND end_date;
+
+CREATE OR REPLACE VIEW latest_season AS
+SELECT *
+FROM seasons
+WHERE now() BETWEEN start_date AND end_date
+ORDER BY start_date DESC
+LIMIT 1;
 
 
 CREATE OR REPLACE VIEW addresses AS
@@ -61,21 +65,23 @@ SELECT
   fp.est_crop_establishment_date      AS est_crop_establishment_date, -- date
   fp.est_crop_establishment_method    AS est_crop_establishment_method, -- text
   fp.total_field_area_ha              AS total_field_area_ha, -- double precision
-  fp.ecosystem                        AS ecosystem, -- text
+  -- fp.ecosystem                        AS ecosystem, -- text
   fp.soil_type                        AS soil_type, -- text
-  fp.current_field_condition          AS current_field_condition, -- text
-  fp.crop_planted                     AS crop_planted, -- text
-  fp.crop_status                      AS crop_status -- text
+  fp.current_field_condition          AS current_field_condition -- text
+  -- fp.crop_planted                     AS crop_planted -- text
+  -- fp.crop_status                      AS crop_status -- text
 FROM field_activities fa
 JOIN field_plannings fp ON fa.id = fp.id
 JOIN fields ON fa.field_id = fields.id
 JOIN farmers ON fields.farmer_id = farmers.id
 JOIN addresses ON fields.barangay_id = addresses.barangay_id
-JOIN current_season cs ON cs.id = fa.season_id;
+JOIN latest_season cs ON cs.id = fa.season_id;
 
 
-DROP MATERIALIZED VIEW IF EXISTS field_activity_details;
-CREATE MATERIALIZED VIEW field_activity_details AS
+DROP VIEW IF EXISTS field_activity_details;
+
+DROP VIEW IF EXISTS field_activity_details;
+CREATE OR REPLACE VIEW field_activity_details AS
 SELECT
   f.mfid,
   cs.season_year,
@@ -91,7 +97,7 @@ SELECT
   fa.verified_at,
   fa.synced_at,
 
-  CONCAT(fm.first_name, ' ', fm.last_name)    AS farmer_name,
+  CONCAT(fm.first_name, ' ', fm.last_name) AS farmer_name,
   a.barangay,
   a.city_municipality AS municipality,
   a.province,
@@ -99,24 +105,21 @@ SELECT
   CASE fa.activity_type
     WHEN 'field-data' THEN to_jsonb(fp) - 'id'
     WHEN 'cultural-management' THEN to_jsonb(ce) - 'id'
-    WHEN 'nutrient-management' THEN to_jsonb(fr)   - 'id'
-    WHEN 'production' THEN to_jsonb(hr)         - 'id'
-    WHEN 'damage-assessment' THEN to_jsonb(da)      - 'id'
-    WHEN 'monitoring-visit' THEN to_jsonb(mv)       - 'id'
+    WHEN 'nutrient-management' THEN to_jsonb(fr) - 'id'
+    WHEN 'production' THEN to_jsonb(hr) - 'id'
+    WHEN 'damage-assessment' THEN to_jsonb(da) - 'id'
+    WHEN 'monitoring-visit' THEN to_jsonb(mv) - 'id'
     ELSE '{}'::jsonb
   END AS form_data
 
 FROM public.field_activities fa
-
-JOIN public.fields f       ON fa.field_id = f.id
-JOIN public.farmers fm     ON f.farmer_id = fm.id
-JOIN addresses a           ON f.barangay_id = a.barangay_id
-JOIN current_season cs     ON fa.season_id = cs.id
-
-LEFT JOIN public.field_plannings        fp ON fa.id = fp.id
-LEFT JOIN public.crop_establishments    ce ON fa.id = ce.id
-LEFT JOIN public.fertilization_records  fr ON fa.id = fr.id
-LEFT JOIN public.harvest_records        hr ON fa.id = hr.id
-LEFT JOIN public.damage_assessments     da ON fa.id = da.id
-LEFT JOIN public.monitoring_visits      mv ON fa.id = mv.id
-;
+LEFT JOIN public.fields f ON fa.field_id = f.id
+LEFT JOIN public.farmers fm ON f.farmer_id = fm.id
+LEFT JOIN addresses a ON f.barangay_id = a.barangay_id
+LEFT JOIN latest_season cs ON fa.season_id = cs.id
+LEFT JOIN public.field_plannings fp ON fa.id = fp.id
+LEFT JOIN public.crop_establishments ce ON fa.id = ce.id
+LEFT JOIN public.fertilization_records fr ON fa.id = fr.id
+LEFT JOIN public.harvest_records hr ON fa.id = hr.id
+LEFT JOIN public.damage_assessments da ON fa.id = da.id
+LEFT JOIN public.monitoring_visits mv ON fa.id = mv.id;

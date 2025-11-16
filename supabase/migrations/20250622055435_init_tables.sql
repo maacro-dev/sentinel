@@ -18,7 +18,7 @@ create type activity_type as enum (
   'rice-non-rice'
 );
 
-create type harvest_method as enum ('Manual', 'Mechanical');
+create type harvesting_method as enum ('Manual', 'Mechanical', 'Other');
 
 create table users (
   id            uuid references auth.users not null primary key,
@@ -127,13 +127,13 @@ create index idx_fa_field_id on field_activities using btree (field_id);
 create index idx_fa_season_id on field_activities using btree (season_id);
 create index idx_field_activities_season_field on field_activities (season_id, field_id);
 create index idx_fa_season_activity_type on field_activities (season_id, activity_type);
-CREATE INDEX idx_fa_field_data_id ON field_activities(id) WHERE activity_type = 'field-data';
-CREATE INDEX idx_fa_cultural_management_id ON field_activities(id) WHERE activity_type = 'cultural-management';
-CREATE INDEX idx_fa_nutrient_management_id ON field_activities(id) WHERE activity_type = 'nutrient-management';
-CREATE INDEX idx_fa_crop_cut_id ON field_activities(id) WHERE activity_type = 'crop_cut';
-CREATE INDEX idx_fa_production_id ON field_activities(id) WHERE activity_type = 'production';
-CREATE INDEX idx_fa_monitoring_visit_id ON field_activities(id) WHERE activity_type = 'monitoring-visit';
-CREATE INDEX idx_fa_damage_assessment_id ON field_activities(id) WHERE activity_type = 'damage-assessment';
+create index idx_fa_field_data_id on field_activities(id) where activity_type = 'field-data';
+create index idx_fa_cultural_management_id on field_activities(id) where activity_type = 'cultural-management';
+create index idx_fa_nutrient_management_id on field_activities(id) where activity_type = 'nutrient-management';
+create index idx_fa_crop_cut_id on field_activities(id) where activity_type = 'crop_cut';
+create index idx_fa_production_id on field_activities(id) where activity_type = 'production';
+create index idx_fa_monitoring_visit_id on field_activities(id) where activity_type = 'monitoring-visit';
+create index idx_fa_damage_assessment_id on field_activities(id) where activity_type = 'damage-assessment';
 create index idx_fa_collected_by on field_activities using btree (collected_by);
 create index idx_fa_verified_by on field_activities using btree (verified_by);
 create index idx_fa_collected_at on field_activities using btree (collected_at);
@@ -147,11 +147,10 @@ create table field_plannings ( -- form 1
   est_crop_establishment_date       date not null,
   est_crop_establishment_method     text not null,
   total_field_area_ha               double precision not null,
-  ecosystem                         text not null,
   soil_type                         text not null,
-  current_field_condition           text not null,
-  crop_planted                      text not null,
-  crop_status                       text not null
+  current_field_condition           text not null
+  -- crop_planted                      text not null
+  -- crop_status                       text not null
 );
 create index idx_fp_prep_start_date on field_plannings(land_preparation_start_date);
 create index idx_fp_establish_date on field_plannings(est_crop_establishment_date);
@@ -160,6 +159,7 @@ create table crop_establishments ( -- form 2
   id                                int primary key references field_activities(id) unique,
 
   -- min. 400sqm, can be equal but not greater than total_field_area_ha in field_plannings
+  ecosystem                         text not null,
   monitoring_field_area_sqm         double precision not null,
 
   actual_land_preparation_method    text not null,
@@ -184,12 +184,15 @@ create table crop_establishments ( -- form 2
   num_plants_3                      smallint null,
 
   rice_variety                      text not null,
+  -- rice_variety_type                 text not null check (rice_variety_type in ('NSIC Rc', 'PSB Rc', 'Other')),
+  -- rice_variety_name                 text not null,
+
   rice_variety_no                   text null,
   rice_variety_maturity_duration    smallint not null,
-  seed_class                        text not null,
+  seed_class                        text not null
   -- source_of_seed                    text not null, -- seed_producer, etc.
 
-  crop_growth_stage                 text not null -- flowering, tillering, etc.
+  -- crop_growth_stage                 text not null -- flowering, tillering, etc.
 );
 create index idx_ce_actual_date on crop_establishments(actual_crop_establishment_date);
 create index idx_ce_variety on crop_establishments(rice_variety);
@@ -223,12 +226,12 @@ create table harvest_records ( -- form 4
   id                                int primary key references field_activities(id) unique,
 
   harvest_date                      date not null,
-  harvesting_method                 harvest_method not null,
+  harvesting_method                 harvesting_method not null,
   bags_harvested                    int not null,
   avg_bag_weight_kg                 double precision not null,
 
   -- min. 0.04ha, can be equal but not greater than total_field_area_ha in field_plannings
-  area_harvested                    double precision not null,
+  area_harvested_ha                 double precision not null,
   irrigation_supply                 irrigation_supply not null
 );
 create index idx_hr_harvest_date on harvest_records(harvest_date);

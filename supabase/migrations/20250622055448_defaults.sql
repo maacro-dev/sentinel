@@ -176,3 +176,14 @@ select public.create_seed_user(
   '2000-01-01',
   'data_manager'
 );
+
+
+select public.create_seed_user(
+  '5f998b6f-2724-4453-a8ec-d5017afd831e',
+  'mawmao@humayapp.com',
+  '$2a$12$VgODp3JGz1CWqrYcwyOqS.dbuHPWmlN5uS1DS8hdcXiWDvGcQ1Omm',
+  'Mel Adry',
+  'Olivo',
+  '2003-04-30',
+  'data_collector'
+);

@@ -4,7 +4,7 @@ INSERT INTO "public"."harvest_records" (
     "harvesting_method",
     "bags_harvested",
     "avg_bag_weight_kg",
-    "area_harvested",
+    "area_harvested_ha",
     "irrigation_supply")
 VALUES (
     '715',

@@ -61,8 +61,8 @@ BEGIN
     WHERE fa.season_id IN (curr.id, prev.id);
 
     SELECT
-        COALESCE(SUM(hr.area_harvested) FILTER (WHERE fa.season_id = curr.id), 0),
-        COALESCE(SUM(hr.area_harvested) FILTER (WHERE fa.season_id = prev.id), 0),
+        COALESCE(SUM(hr.area_harvested_ha) FILTER (WHERE fa.season_id = curr.id), 0),
+        COALESCE(SUM(hr.area_harvested_ha) FILTER (WHERE fa.season_id = prev.id), 0),
         COALESCE(SUM(hr.bags_harvested * hr.avg_bag_weight_kg) FILTER (WHERE fa.season_id = curr.id), 0),
         COALESCE(SUM(hr.bags_harvested * hr.avg_bag_weight_kg) FILTER (WHERE fa.season_id = prev.id), 0),
         COALESCE(COUNT(*) FILTER (WHERE hr.irrigation_supply IN ('Not Enough', 'Not Sufficient') AND fa.season_id = curr.id), 0),
@@ -120,7 +120,7 @@ BEGIN
           'name', 'field_count',
           'current_value', current_field_count,
           'previous_value', previous_field_count,
-          'percent_change', CASE WHEN previous_field_count = 0 THEN CASE WHEN current_field_count = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+          'percent_change', CASE WHEN previous_field_count = 0 THEN CASE WHEN current_field_count = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (
                 current_field_count - previous_field_count
@@ -133,7 +133,7 @@ BEGIN
           'name', 'form_submission',
           'current_value', current_forms_submitted,
           'previous_value', previous_forms_submitted,
-          'percent_change', CASE WHEN previous_forms_submitted = 0 THEN CASE WHEN current_forms_submitted = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+          'percent_change', CASE WHEN previous_forms_submitted = 0 THEN CASE WHEN current_forms_submitted = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (
                 current_forms_submitted - previous_forms_submitted
@@ -146,7 +146,7 @@ BEGIN
           'name', 'yield',
           'current_value', current_yield,
           'previous_value', previous_yield,
-          'percent_change', CASE WHEN previous_yield = 0 THEN CASE WHEN current_yield = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+          'percent_change', CASE WHEN previous_yield = 0 THEN CASE WHEN current_yield = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (current_yield - previous_yield) / previous_yield
             ) * 100,
@@ -157,7 +157,7 @@ BEGIN
           'name', 'harvested_area',
           'current_value', ROUND(current_total_area, 2),
           'previous_value', ROUND(previous_total_area, 2),
-          'percent_change', CASE WHEN previous_total_area = 0 THEN CASE WHEN current_total_area = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+          'percent_change', CASE WHEN previous_total_area = 0 THEN CASE WHEN current_total_area = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (
                 current_total_area - previous_total_area
@@ -170,7 +170,7 @@ BEGIN
           'name', 'irrigation',
           'current_value', current_not_sufficient,
           'previous_value', previous_not_sufficient,
-          'percent_change', CASE WHEN previous_not_sufficient = 0 THEN CASE WHEN current_not_sufficient = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+          'percent_change', CASE WHEN previous_not_sufficient = 0 THEN CASE WHEN current_not_sufficient = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (
                 current_not_sufficient - previous_not_sufficient
@@ -183,7 +183,7 @@ BEGIN
           'name', 'data_completeness',
           'current_value', current_data_completeness,
           'previous_value', previous_data_completeness,
-          'percent_change', CASE WHEN previous_data_completeness = 0 THEN CASE WHEN current_data_completeness = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+          'percent_change', CASE WHEN previous_data_completeness = 0 THEN CASE WHEN current_data_completeness = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (
                 current_data_completeness - previous_data_completeness
@@ -196,7 +196,7 @@ BEGIN
           'name', 'damage_report',
           'current_value', current_damage_reports,
           'previous_value', previous_damage_reports,
-          'percent_change', CASE WHEN previous_damage_reports = 0 THEN CASE WHEN current_damage_reports = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+          'percent_change', CASE WHEN previous_damage_reports = 0 THEN CASE WHEN current_damage_reports = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (
                 current_damage_reports - previous_damage_reports
@@ -210,7 +210,7 @@ BEGIN
           'current_value', current_pest_reports,
           'previous_value', previous_pest_reports,
           'percent_change',
-            CASE WHEN previous_pest_reports = 0 THEN CASE WHEN current_pest_reports = 0 THEN 0.00 ELSE NULL END ELSE ROUND(
+            CASE WHEN previous_pest_reports = 0 THEN CASE WHEN current_pest_reports = 0 THEN 0.00 ELSE 100 END ELSE ROUND(
             (
               (
                 current_pest_reports - previous_pest_reports
@@ -242,13 +242,13 @@ harvest_agg AS (
     SELECT
         f.barangay_id,
         SUM(hr.bags_harvested * hr.avg_bag_weight_kg) AS total_kg,
-        SUM(hr.area_harvested) AS total_area
+        SUM(hr.area_harvested_ha) AS total_area
     FROM season_data sd
     JOIN field_activities fa ON fa.season_id = sd.season_id
     JOIN harvest_records hr ON hr.id = fa.id
     JOIN fields f ON fa.field_id = f.id
     GROUP BY f.barangay_id
-    HAVING SUM(hr.area_harvested) > 0
+    HAVING SUM(hr.area_harvested_ha) > 0
 ),
 barangay_ranking AS (
     SELECT
@@ -307,13 +307,7 @@ WITH latest_season AS (
 yield_by_month AS (
   SELECT
     date_trunc('month', hr.harvest_date)::date AS date,
-    round(
-      avg(
-        (hr.bags_harvested * hr.avg_bag_weight_kg)
-        / nullif(hr.area_harvested, 0)
-        / 1000.0
-      )::numeric
-    , 2) AS avg_yield_t_ha
+    round(avg((hr.bags_harvested * hr.avg_bag_weight_kg) / nullif(hr.area_harvested_ha, 0) / 1000.0)::numeric ,2) AS avg_yield_t_ha
   FROM harvest_records hr
   JOIN field_activities fa
     ON hr.id = fa.id
@@ -323,24 +317,26 @@ yield_by_month AS (
   ORDER BY 1
 )
 SELECT
-  ( SELECT
-      json_build_object(
+  coalesce(
+    (SELECT json_build_object(
         'start_date',  ls.start_date,
         'end_date',    ls.end_date,
         'semester',    ls.semester,
         'season_year', ls.season_year
-      )
-    FROM latest_season ls
+     )
+     FROM latest_season ls),
+    '{}'::json
   ) AS season,
-  ( SELECT
-      json_agg(
+  coalesce(
+    (SELECT json_agg(
         json_build_object(
           'date',           ym.date,
           'avg_yield_t_ha', ym.avg_yield_t_ha
         )
         ORDER BY ym.date
       )
-    FROM yield_by_month ym
+     FROM yield_by_month ym),
+    '[]'::json
   ) AS data;
 
 
@@ -354,31 +350,33 @@ WITH latest_season AS (
 ),
 collection_rate AS (
   SELECT
-    DATE(fa.collected_at)        AS date,
-    COUNT(*)                     AS data_collected
+    DATE(fa.collected_at) AS date,
+    COUNT(*) AS data_collected
   FROM field_activities fa
   JOIN latest_season ls ON fa.season_id = ls.id
   GROUP BY DATE(fa.collected_at)
-  ORDER BY DATE(fa.collected_at) ASC
 )
 SELECT
   ( SELECT
-     json_build_object(
-       'start_date',    ls.start_date,
-       'end_date',      ls.end_date,
-       'semester',      ls.semester,
-       'season_year',   ls.season_year
-     )
-   FROM latest_season ls
+      json_build_object(
+        'start_date',    ls.start_date,
+        'end_date',      ls.end_date,
+        'semester',      ls.semester,
+        'season_year',   ls.season_year
+      )
+    FROM latest_season ls
   ) AS season,
-  ( SELECT
-     json_agg(
-       json_build_object(
-         'date',                 cr.date,
-         'data_collected',       cr.data_collected
-       )
-     )
-   FROM collection_rate cr
+  COALESCE(
+    ( SELECT
+        json_agg(
+          json_build_object(
+            'date', cr.date,
+            'data_collected', cr.data_collected
+          )
+        )
+      FROM collection_rate cr
+    ),
+    '[]'::json
   ) AS data;
 
 
@@ -457,7 +455,7 @@ BEGIN
         'previous_value', previous_total_forms,
         'percent_change', CASE
           WHEN previous_total_forms = 0 THEN
-            CASE WHEN current_total_forms = 0 THEN 0.00 ELSE NULL END
+            CASE WHEN current_total_forms = 0 THEN 0.00 ELSE 100 END
           ELSE ROUND(((current_total_forms - previous_total_forms)::NUMERIC / previous_total_forms) * 100, 2)
         END
       ),
@@ -467,7 +465,7 @@ BEGIN
         'previous_value', previous_completed_forms,
         'percent_change', CASE
           WHEN previous_completed_forms = 0 THEN
-            CASE WHEN current_completed_forms = 0 THEN 0.00 ELSE NULL END
+            CASE WHEN current_completed_forms = 0 THEN 0.00 ELSE 100 END
           ELSE ROUND(((current_completed_forms - previous_completed_forms)::NUMERIC / previous_completed_forms) * 100, 2)
         END
       ),
@@ -477,7 +475,7 @@ BEGIN
         'previous_value', previous_pending_forms,
         'percent_change', CASE
           WHEN previous_pending_forms = 0 THEN
-            CASE WHEN current_pending_forms = 0 THEN 0.00 ELSE NULL END
+            CASE WHEN current_pending_forms = 0 THEN 0.00 ELSE 100 END
           ELSE ROUND(((current_pending_forms - previous_pending_forms)::NUMERIC / previous_pending_forms) * 100, 2)
         END
       ),
@@ -487,7 +485,7 @@ BEGIN
         'previous_value', previous_rejected_forms,
         'percent_change', CASE
           WHEN previous_rejected_forms = 0 THEN
-            CASE WHEN current_rejected_forms = 0 THEN 0.00 ELSE NULL END
+            CASE WHEN current_rejected_forms = 0 THEN 0.00 ELSE 100 END
           ELSE ROUND(((current_rejected_forms - previous_rejected_forms)::NUMERIC / previous_rejected_forms) * 100, 2)
         END
       )

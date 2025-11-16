@@ -74,12 +74,40 @@ create policy "Allow authenticated to read farmers"
   to authenticated
   using (true);
 
+create policy "Allow authenticated to insert farmers"
+    on farmers
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+create policy "Allow authenticated to update farmers"
+    on farmers
+    as permissive
+    for update
+    to authenticated
+    using (true);
+
 create policy "Allow authenticated to read fields"
   on fields
   as permissive
   for select
   to authenticated
   using (true);
+
+create policy "Allow authenticated to insert fields"
+    on fields
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+create policy "Allow authenticated to update fields"
+    on fields
+    as permissive
+    for update
+    to authenticated
+    using (true);
 
 create policy "Allow authenticated to read seasons"
   on seasons
@@ -95,12 +123,44 @@ create policy "Allow authenticated to read field_activities"
   to authenticated
   using (true);
 
+create policy "Allow authenticated to insert field_activities"
+    on field_activities
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+create policy "Allow authenticated to update field_activities"
+    on field_activities
+    as permissive
+    for update
+    to authenticated
+    using (true);
+
+
 create policy "Allow authenticated to read field_plannings"
   on field_plannings
   as permissive
   for select
   to authenticated
   using (true);
+
+
+create policy "Allow authenticated to insert field_plannings"
+    on field_plannings
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+
+create policy "Allow authenticated to update field_plannings"
+    on field_plannings
+    as permissive
+    for update
+    to authenticated
+    using (true);
+
 
 create policy "Allow authenticated to read crop_establishments"
   on crop_establishments
@@ -109,12 +169,44 @@ create policy "Allow authenticated to read crop_establishments"
   to authenticated
   using (true);
 
+
+create policy "Allow authenticated to insert crop_establishments"
+    on crop_establishments
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+
+create policy "Allow authenticated to update crop_establishments"
+    on crop_establishments
+    as permissive
+    for update
+    to authenticated
+    using (true);
+
 create policy "Allow authenticated to read fertilization_records"
   on fertilization_records
   as permissive
   for select
   to authenticated
   using (true);
+
+
+create policy "Allow authenticated to insert fertilization_records"
+    on fertilization_records
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+
+create policy "Allow authenticated to update fertilization_records"
+    on fertilization_records
+    as permissive
+    for update
+    to authenticated
+    using (true);
 
 create policy "Allow authenticated to read fertilizer_applications"
   on fertilizer_applications
@@ -123,12 +215,44 @@ create policy "Allow authenticated to read fertilizer_applications"
   to authenticated
   using (true);
 
+
+create policy "Allow authenticated to insert fertilizer_applications"
+    on fertilizer_applications
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+
+create policy "Allow authenticated to update fertilizer_applications"
+    on fertilizer_applications
+    as permissive
+    for update
+    to authenticated
+    using (true);
+
 create policy "Allow authenticated to read harvest_records"
   on harvest_records
   as permissive
   for select
   to authenticated
   using (true);
+
+
+create policy "Allow authenticated to insert harvest_records"
+    on harvest_records
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+
+create policy "Allow authenticated to update harvest_records"
+    on harvest_records
+    as permissive
+    for update
+    to authenticated
+    using (true);
 
 create policy "Allow authenticated to read damage_assessments"
   on damage_assessments
@@ -137,6 +261,21 @@ create policy "Allow authenticated to read damage_assessments"
   to authenticated
   using (true);
 
+create policy "Allow authenticated to insert damage_assessments"
+    on damage_assessments
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+
+create policy "Allow authenticated to update damage_assessments"
+    on damage_assessments
+    as permissive
+    for update
+    to authenticated
+    using (true);
+
 create policy "Allow authenticated to read monitoring visits"
   on monitoring_visits
   as permissive
@@ -144,6 +283,20 @@ create policy "Allow authenticated to read monitoring visits"
   to authenticated
   using (true);
 
+create policy "Allow authenticated to insert monitoring visits"
+    on monitoring_visits
+    as permissive
+    for insert
+    to authenticated
+    with check (true);
+
+
+create policy "Allow authenticated to update monitoring visits"
+    on monitoring_visits
+    as permissive
+    for update
+    to authenticated
+    using (true);
 
 -- views
 grant select on field_details to authenticated;
@@ -183,13 +336,19 @@ grant all on tables to service_role;
 
 
 -- analytics schema
+grant usage on schema spatial to anon, authenticated, service_role;
 grant usage on schema analytics to anon, authenticated, service_role;
+
 grant all on all tables in schema analytics to anon, authenticated, service_role;
 grant all on all routines in schema analytics to anon, authenticated, service_role;
 grant all on all sequences in schema analytics to anon, authenticated, service_role;
+
 alter default privileges for role postgres in schema analytics grant all on tables to anon, authenticated, service_role;
 alter default privileges for role postgres in schema analytics grant all on routines to anon, authenticated, service_role;
 alter default privileges for role postgres in schema analytics grant all on sequences to anon, authenticated, service_role;
+
+grant select, insert, update on all tables in schema "public" to authenticated;
+grant select, insert, update on all tables in schema "public" to anon;
 
 grant all privileges on all tables in schema public to service_role;
 alter default privileges in schema public grant all on tables to service_role;
