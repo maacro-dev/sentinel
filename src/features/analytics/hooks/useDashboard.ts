@@ -8,7 +8,7 @@ import { DASHBOARD_SUMMARY_CONFIG } from "../config"
 
 export const useAnalyticsDashboard = () => {
 
-const { data, isLoading, refetch: refetchDashboard } = useQuery(dashboardDataOptions())
+  const { data, isLoading } = useQuery(dashboardDataOptions())
 
   const seasonalStats: Array<Stat> = mapSeasonSummary({
     config: DASHBOARD_SUMMARY_CONFIG,
@@ -20,6 +20,5 @@ const { data, isLoading, refetch: refetchDashboard } = useQuery(dashboardDataOpt
     trends: data?.overallYieldTrend.data,
     ranks: data?.barangayYieldRanking,
     isLoading,
-    refetchDashboard
   }
 }

@@ -8,7 +8,6 @@ import { parseFormCountSummary } from "../schemas/summary/formCount";
 
 export class Analytics {
   public static async getDashboardData(): Promise<DashboardData> {
-    const startTime = Date.now();
     const supabase = await getSupabase();
 
     const { data: stats, error: seasonalError } = await supabase
@@ -35,7 +34,6 @@ export class Analytics {
     const overallYieldTrend = parseOverallYieldTrend(overallYield);
     const barangayYieldRanking = parseBarangayYieldRanking(barangayYield);
 
-    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     return { seasonalStats, overallYieldTrend, barangayYieldRanking };
   }

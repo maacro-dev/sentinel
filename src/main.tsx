@@ -9,7 +9,6 @@ import { router } from "./core/tanstack/router";
 import { useState, useEffect } from "react";
 import { getSupabase } from "@/core/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { useAnalyticsDashboard } from "./features/analytics/hooks/useDashboard";
 
 // Add react scan for development
 // if (import.meta.env.DEV) {
@@ -22,7 +21,7 @@ const rootElement = document.getElementById("root");
 
 const features = () => import("motion/react").then(m => m.domAnimation);
 
-function SupabaseRealtimeProvider({ dashboardFn }: { dashboardFn: () => void }) {
+function SupabaseRealtimeProvider() {
   const queryClient = useQueryClient();
   const [client, setClient] = useState<SupabaseClient | null>(null);
 
@@ -66,11 +65,10 @@ function SupabaseRealtimeProvider({ dashboardFn }: { dashboardFn: () => void }) 
 }
 
 function InnerApp() {
-  const { refetchDashboard } = useAnalyticsDashboard()
 
   return (
     <>
-      <SupabaseRealtimeProvider dashboardFn={refetchDashboard} />
+      <SupabaseRealtimeProvider />
       <LazyMotion features={features} strict>
         <RouterProvider router={router} />
       </LazyMotion>
