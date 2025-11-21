@@ -28,12 +28,17 @@ export class Forms {
   public static async getFormData(formType: FormRouteType): Promise<FormDataEntry[]> {
     const startTime = performance.now();
     const client = await this._client;
+
+    console.log("Fetching data from:", formType)
     const query = client
       .from("field_activity_details")
       .select("*")
       .eq("activity_type", formType);
 
+
     const { data, error } = await query;
+
+    console.log("Data fetched: ", data)
 
     if (error) {
       throw error;

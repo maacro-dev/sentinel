@@ -35,9 +35,7 @@ export class Analytics {
     const overallYieldTrend = parseOverallYieldTrend(overallYield);
     const barangayYieldRanking = parseBarangayYieldRanking(barangayYield);
 
-    console.log("Dashboard data took", Date.now() - startTime, "ms");
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     return { seasonalStats, overallYieldTrend, barangayYieldRanking };
   }

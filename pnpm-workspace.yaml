@@ -1,0 +1,3 @@
+onlyBuiltDependencies:
+  - supabase
+  - supabasesh

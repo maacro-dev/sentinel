@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import {
   dashboardDataOptions
 } from "@/features/analytics/queries/options"
@@ -8,7 +8,7 @@ import { DASHBOARD_SUMMARY_CONFIG } from "../config"
 
 export const useAnalyticsDashboard = () => {
 
-  const { data, isLoading } = useSuspenseQuery(dashboardDataOptions())
+const { data, isLoading, refetch: refetchDashboard } = useQuery(dashboardDataOptions())
 
   const seasonalStats: Array<Stat> = mapSeasonSummary({
     config: DASHBOARD_SUMMARY_CONFIG,
@@ -16,9 +16,10 @@ export const useAnalyticsDashboard = () => {
   })
 
   return {
-    stats: seasonalStats,
+    stats: seasonalStats || [],
     trends: data?.overallYieldTrend.data,
     ranks: data?.barangayYieldRanking,
-    isLoading
+    isLoading,
+    refetchDashboard
   }
 }

@@ -42,14 +42,8 @@ export type Database = {
       }
     }
     Functions: {
-      dashboard_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      summary_form_progress: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      dashboard_summary: { Args: never; Returns: Json }
+      summary_form_progress: { Args: never; Returns: Json }
     }
     Enums: {
       [_ in never]: never
@@ -137,7 +131,6 @@ export type Database = {
           actual_crop_establishment_date: string
           actual_crop_establishment_method: string
           actual_land_preparation_method: string
-          crop_growth_stage: string
           direct_seeding_method: string | null
           distance_between_plant_row_1: number | null
           distance_between_plant_row_2: number | null
@@ -145,6 +138,7 @@ export type Database = {
           distance_within_plant_row_1: number | null
           distance_within_plant_row_2: number | null
           distance_within_plant_row_3: number | null
+          ecosystem: string
           id: number
           monitoring_field_area_sqm: number
           num_plants_1: number | null
@@ -162,7 +156,6 @@ export type Database = {
           actual_crop_establishment_date: string
           actual_crop_establishment_method: string
           actual_land_preparation_method: string
-          crop_growth_stage: string
           direct_seeding_method?: string | null
           distance_between_plant_row_1?: number | null
           distance_between_plant_row_2?: number | null
@@ -170,6 +163,7 @@ export type Database = {
           distance_within_plant_row_1?: number | null
           distance_within_plant_row_2?: number | null
           distance_within_plant_row_3?: number | null
+          ecosystem: string
           id: number
           monitoring_field_area_sqm: number
           num_plants_1?: number | null
@@ -187,7 +181,6 @@ export type Database = {
           actual_crop_establishment_date?: string
           actual_crop_establishment_method?: string
           actual_land_preparation_method?: string
-          crop_growth_stage?: string
           direct_seeding_method?: string | null
           distance_between_plant_row_1?: number | null
           distance_between_plant_row_2?: number | null
@@ -195,6 +188,7 @@ export type Database = {
           distance_within_plant_row_1?: number | null
           distance_within_plant_row_2?: number | null
           distance_within_plant_row_3?: number | null
+          ecosystem?: string
           id?: number
           monitoring_field_area_sqm?: number
           num_plants_1?: number | null
@@ -459,7 +453,7 @@ export type Database = {
             foreignKeyName: "field_activities_season_id_fkey"
             columns: ["season_id"]
             isOneToOne: false
-            referencedRelation: "current_season"
+            referencedRelation: "latest_season"
             referencedColumns: ["id"]
           },
           {
@@ -487,10 +481,7 @@ export type Database = {
       }
       field_plannings: {
         Row: {
-          crop_planted: string
-          crop_status: string
           current_field_condition: string
-          ecosystem: string
           est_crop_establishment_date: string
           est_crop_establishment_method: string
           id: number
@@ -499,10 +490,7 @@ export type Database = {
           total_field_area_ha: number
         }
         Insert: {
-          crop_planted: string
-          crop_status: string
           current_field_condition: string
-          ecosystem: string
           est_crop_establishment_date: string
           est_crop_establishment_method: string
           id: number
@@ -511,10 +499,7 @@ export type Database = {
           total_field_area_ha: number
         }
         Update: {
-          crop_planted?: string
-          crop_status?: string
           current_field_condition?: string
-          ecosystem?: string
           est_crop_establishment_date?: string
           est_crop_establishment_method?: string
           id?: number
@@ -593,29 +578,29 @@ export type Database = {
       }
       harvest_records: {
         Row: {
-          area_harvested: number
+          area_harvested_ha: number
           avg_bag_weight_kg: number
           bags_harvested: number
           harvest_date: string
-          harvesting_method: Database["public"]["Enums"]["harvest_method"]
+          harvesting_method: Database["public"]["Enums"]["harvesting_method"]
           id: number
           irrigation_supply: Database["public"]["Enums"]["irrigation_supply"]
         }
         Insert: {
-          area_harvested: number
+          area_harvested_ha: number
           avg_bag_weight_kg: number
           bags_harvested: number
           harvest_date: string
-          harvesting_method: Database["public"]["Enums"]["harvest_method"]
+          harvesting_method: Database["public"]["Enums"]["harvesting_method"]
           id: number
           irrigation_supply: Database["public"]["Enums"]["irrigation_supply"]
         }
         Update: {
-          area_harvested?: number
+          area_harvested_ha?: number
           avg_bag_weight_kg?: number
           bags_harvested?: number
           harvest_date?: string
-          harvesting_method?: Database["public"]["Enums"]["harvest_method"]
+          harvesting_method?: Database["public"]["Enums"]["harvesting_method"]
           id?: number
           irrigation_supply?: Database["public"]["Enums"]["irrigation_supply"]
         }
@@ -716,7 +701,7 @@ export type Database = {
             foreignKeyName: "predicted_yields_season_id_fkey"
             columns: ["season_id"]
             isOneToOne: false
-            referencedRelation: "current_season"
+            referencedRelation: "latest_season"
             referencedColumns: ["id"]
           },
           {
@@ -813,30 +798,6 @@ export type Database = {
         }
         Relationships: []
       }
-      current_season: {
-        Row: {
-          end_date: string | null
-          id: number | null
-          season_year: string | null
-          semester: Database["public"]["Enums"]["semester"] | null
-          start_date: string | null
-        }
-        Insert: {
-          end_date?: string | null
-          id?: number | null
-          season_year?: string | null
-          semester?: Database["public"]["Enums"]["semester"] | null
-          start_date?: string | null
-        }
-        Update: {
-          end_date?: string | null
-          id?: number | null
-          season_year?: string | null
-          semester?: Database["public"]["Enums"]["semester"] | null
-          start_date?: string | null
-        }
-        Relationships: []
-      }
       field_activity_details: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"] | null
@@ -893,7 +854,7 @@ export type Database = {
             foreignKeyName: "field_activities_season_id_fkey"
             columns: ["season_id"]
             isOneToOne: false
-            referencedRelation: "current_season"
+            referencedRelation: "latest_season"
             referencedColumns: ["id"]
           },
           {
@@ -924,10 +885,7 @@ export type Database = {
           barangay: string | null
           collected_at: string | null
           collected_by: string | null
-          crop_planted: string | null
-          crop_status: string | null
           current_field_condition: string | null
-          ecosystem: string | null
           est_crop_establishment_date: string | null
           est_crop_establishment_method: string | null
           farmer_name: string | null
@@ -976,6 +934,16 @@ export type Database = {
         }
         Relationships: []
       }
+      latest_season: {
+        Row: {
+          end_date: string | null
+          id: number | null
+          season_year: string | null
+          semester: Database["public"]["Enums"]["semester"] | null
+          start_date: string | null
+        }
+        Relationships: []
+      }
       user_details: {
         Row: {
           created_at: string | null
@@ -1017,7 +985,7 @@ export type Database = {
         | "damage-assessment"
         | "rice-non-rice"
       gender: "male" | "female" | "other"
-      harvest_method: "Manual" | "Mechanical"
+      harvesting_method: "Manual" | "Mechanical" | "Other"
       irrigation_supply:
         | "Not Enough"
         | "Not Sufficient"
@@ -1167,7 +1135,7 @@ export const Constants = {
         "rice-non-rice",
       ],
       gender: ["male", "female", "other"],
-      harvest_method: ["Manual", "Mechanical"],
+      harvesting_method: ["Manual", "Mechanical", "Other"],
       irrigation_supply: [
         "Not Enough",
         "Not Sufficient",

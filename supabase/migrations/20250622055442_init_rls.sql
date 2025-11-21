@@ -352,3 +352,5 @@ grant select, insert, update on all tables in schema "public" to anon;
 
 grant all privileges on all tables in schema public to service_role;
 alter default privileges in schema public grant all on tables to service_role;
+
+grant execute on all functions in schema realtime to service_role;

@@ -17,12 +17,16 @@ export const Route = createFileRoute("/_manager/_overview/dashboard")({
   },
   head: () => ({ meta: [{ title: "Dashboard | Humay" }] }),
   component: RouteComponent,
-  pendingComponent: PendingComponent,
-  wrapInSuspense: true
+  // pendingComponent: PendingComponent,
+  // wrapInSuspense: true
 });
 
 function RouteComponent() {
-  const { stats, trends, ranks } = useAnalyticsDashboard();
+  const { stats, trends, ranks, isLoading } = useAnalyticsDashboard();
+
+  if (isLoading || !stats || !trends || !ranks) {
+      return <PendingComponent/>
+  }
 
   return (
     <PageContainer>
