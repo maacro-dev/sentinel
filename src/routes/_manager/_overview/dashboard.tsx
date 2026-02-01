@@ -16,9 +16,8 @@ export const Route = createFileRoute("/_manager/_overview/dashboard")({
     return { breadcrumb: createCrumbLoader({ label: "Dashboard" }) }
   },
   head: () => ({ meta: [{ title: "Dashboard | Humay" }] }),
+
   component: RouteComponent,
-  // pendingComponent: PendingComponent,
-  // wrapInSuspense: true
 });
 
 function RouteComponent() {

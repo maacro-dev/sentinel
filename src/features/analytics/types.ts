@@ -40,7 +40,7 @@ export interface DashboardData {
 }
 
 export type SummaryConfig = Record<string, StatMetadata>;
-export type Stat = Flatten<StatMetadata & { current_value: number; percent_change: number; }>;
+export type Stat = Flatten<StatMetadata & { current_value: number; previous_value: number; percent_change: number; }>;
 
 export interface StatMetadata {
   title: string;

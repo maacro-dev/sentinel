@@ -1,7 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import {
-  dashboardDataOptions
-} from "@/features/analytics/queries/options"
+import { dashboardDataOptions } from "@/features/analytics/queries/options"
 import { mapSeasonSummary } from "../utils"
 import { Stat } from "../types"
 import { DASHBOARD_SUMMARY_CONFIG } from "../config"

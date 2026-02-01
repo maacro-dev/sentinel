@@ -10,11 +10,7 @@ interface LayoutHeaderProps extends ComponentProps<"header"> {
   breadcrumbs: Array<CrumbDef>;
 }
 
-export const LayoutHeader = memo(({
-  breadcrumbs,
-  className,
-  ...props
-}: LayoutHeaderProps) => {
+export const LayoutHeader = memo(({ breadcrumbs, className, ...props }: LayoutHeaderProps) => {
   return (
     <header
       className={cn(
@@ -26,7 +22,7 @@ export const LayoutHeader = memo(({
     >
       <div className="flex items-center">
         <SidebarTrigger className="text-muted-foreground" />
-        <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4"/>
+        <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
         <Breadcrumbs data={breadcrumbs} />
       </div>
       <UserMenu />
@@ -55,15 +51,14 @@ export const Breadcrumbs = memo(({ data }: { data: Array<CrumbDef> }) => {
 export const Crumb = memo(({ crumb, isLast }: { crumb: CrumbDef, isLast: boolean }) => {
   const { label, isDynamic, navigatable } = crumb;
   const params = isDynamic ? crumb.params : undefined;
-  const url = isDynamic ? crumb.url : undefined;
+  const url = crumb.url;
+  const enabled = !isLast && (navigatable !== false);
 
   return (
     <BreadcrumbItem>
       <BreadcrumbLink
         className={isLast ? "font-semibold text-foreground" : "text-muted-foreground"}
-        to={url}
-        params={params}
-        enabled={isDynamic ? navigatable !== false : false}
+        to={url} params={params} enabled={enabled}
       >
         {label}
       </BreadcrumbLink>

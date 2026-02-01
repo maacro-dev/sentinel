@@ -3,6 +3,10 @@ import { CrumbDef, isBreadcrumbMatch } from "../utils/breadcrumb";
 import { useMemo } from "react";
 import { isDynamicRoute } from "../tanstack/router/utils";
 
+/**
+ * extracts breadcrumb metadata derived from each route's `loaderdata.breadcrumb` when available.
+ * filters to only routes that has breadcrumb metadata (defined at every route's `-config.tsx`).
+ */
 export const useBreadcrumbs = (): Array<CrumbDef> => {
   const matches = useMatches()
 

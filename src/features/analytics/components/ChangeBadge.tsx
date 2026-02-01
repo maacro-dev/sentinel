@@ -4,7 +4,8 @@ import { TrendIcon } from "./TrendIcon";
 import { memo } from "react";
 
 interface ChangeBadgeProps {
-  value: number;
+  currentValue: number;
+  previousValue: number;
 }
 
 const getColor = (v: number) => {
@@ -13,13 +14,14 @@ const getColor = (v: number) => {
   else return ""
 }
 
-export const ChangeBadge = memo(({ value }: ChangeBadgeProps) => {
+export const ChangeBadge = memo(({ currentValue, previousValue }: ChangeBadgeProps) => {
   const baseClasses = "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
+  const percent = ((currentValue - previousValue) / previousValue) * 100;
 
   return (
-    <Badge variant="secondary" className={cn(baseClasses, getColor(value))}>
-      {/* {value === 0 ? "No change" : <><TrendIcon value={value} />{value}%</>} */}
-      <><TrendIcon value={value} />{value}%</>
+    <Badge variant="secondary" className={cn(baseClasses, getColor(percent))}>
+      {currentValue === 0 ? "No change" : <><TrendIcon value={percent} />{percent}%</>}
+      {/* <><TrendIcon value={value} />{value}%</> */}
     </Badge>
   );
 });

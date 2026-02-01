@@ -8,19 +8,19 @@ import { parseFormCountSummary } from "../schemas/summary/formCount";
 
 export class Analytics {
   public static async getDashboardData(): Promise<DashboardData> {
-    const supabase = await getSupabase();
+    const client = await this._client;
 
-    const { data: stats, error: seasonalError } = await supabase
+    const { data: stats, error: seasonalError } = await client
       .schema('analytics')
       .rpc('dashboard_summary')
 
-    const { data: overallYield, error: yieldError } = await supabase
+    const { data: overallYield, error: yieldError } = await client
       .schema('analytics')
       .from('trend_overall_yield')
       .select('*')
       .maybeSingle();
 
-    const { data: barangayYield, error: barangayError } = await supabase
+    const { data: barangayYield, error: barangayError } = await client
       .schema('analytics')
       .from('dashboard_barangay_yield_rankings')
       .select('*')
@@ -31,17 +31,18 @@ export class Analytics {
     }
 
     const seasonalStats = parseSeasonSummary(stats);
-    const overallYieldTrend = parseOverallYieldTrend(overallYield);
-    const barangayYieldRanking = parseBarangayYieldRanking(barangayYield);
 
+    const overallYieldTrend = parseOverallYieldTrend(overallYield);
+
+    const barangayYieldRanking = parseBarangayYieldRanking(barangayYield);
 
     return { seasonalStats, overallYieldTrend, barangayYieldRanking };
   }
 
   public static async getFormProgressSummary() {
-    const supabase = await getSupabase();
+    const client = await this._client;
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .schema('analytics')
       .rpc("summary_form_progress")
 
@@ -49,13 +50,14 @@ export class Analytics {
       throw error;
     }
 
-    return parseSeasonSummary(data);
+    const formProgressSummary = parseSeasonSummary(data);
+    return formProgressSummary;
   }
 
   public static async getFormCountSummary() {
-    const supabase = await getSupabase();
+    const client = await this._client;
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .schema('analytics')
       .from('summary_form_count')
       .select('*')
@@ -65,13 +67,13 @@ export class Analytics {
       throw error;
     }
 
-    return parseFormCountSummary(data);
+    const formCountSummary = parseFormCountSummary(data);
+    return formCountSummary;
   }
 
-  public static async getDataCollectionTrend(){
-    const supabase = await getSupabase();
-
-    const { data, error } = await supabase
+  public static async getDataCollectionTrend() {
+    const client = await this._client;
+    const { data, error } = await client
       .schema('analytics')
       .from('trend_data_collection')
       .select('*')
@@ -84,5 +86,8 @@ export class Analytics {
     return parseDataCollectionTrend(data);
   }
 
-  private constructor() {}
+  private static get _client() {
+    return getSupabase();
+  }
+  private constructor() { }
 }

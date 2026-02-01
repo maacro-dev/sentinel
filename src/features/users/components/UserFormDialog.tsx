@@ -59,7 +59,7 @@ export function UserFormDialog({
       onOpenChange(v)
     }}>
       <DialogTrigger asChild>
-        <Button variant="default" disabled={disabled} className="min-w-32">
+        <Button variant="default" disabled={disabled} className="min-w-32 text-xs">
           <Plus /> Add New User
         </Button>
       </DialogTrigger>

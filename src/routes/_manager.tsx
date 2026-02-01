@@ -3,7 +3,7 @@ import { Session } from "@/features/authentication";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_manager")({
-  beforeLoad: async () => await Session.ensure({ role: "data_manager"}),
+  beforeLoad: async () => await Session.ensure({ role: "data_manager" }),
   component: RouteComponent,
 });
 

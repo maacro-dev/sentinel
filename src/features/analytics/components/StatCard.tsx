@@ -13,7 +13,7 @@ interface StatCardProps extends Omit<Stat, "percent_change"> {
   percent_change?: number;
 }
 
-export const StatCard = memo(({ title, subtitle, current_value, unit, percent_change }: StatCardProps) => {
+export const StatCard = memo(({ title, subtitle, current_value, previous_value, unit, percent_change }: StatCardProps) => {
   return (
     <Card
       role="stat-card"
@@ -36,7 +36,7 @@ export const StatCard = memo(({ title, subtitle, current_value, unit, percent_ch
             {unit}
           </span>
         </div>
-        {percent_change !== undefined && <ChangeBadge value={percent_change} />}
+        {percent_change !== undefined && <ChangeBadge currentValue={current_value} previousValue={previous_value} />}
       </CardContent>
     </Card>
   );

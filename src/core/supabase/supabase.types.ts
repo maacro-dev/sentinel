@@ -621,6 +621,27 @@ export type Database = {
           },
         ]
       }
+      mfids: {
+        Row: {
+          created_at: string
+          id: number
+          mfid: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          mfid: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          mfid?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       monitoring_visits: {
         Row: {
           avg_plant_height: number | null
@@ -880,46 +901,6 @@ export type Database = {
           },
         ]
       }
-      field_data_details: {
-        Row: {
-          barangay: string | null
-          collected_at: string | null
-          collected_by: string | null
-          current_field_condition: string | null
-          est_crop_establishment_date: string | null
-          est_crop_establishment_method: string | null
-          farmer_name: string | null
-          land_preparation_start_date: string | null
-          mfid: string | null
-          municipality: string | null
-          province: string | null
-          semester: Database["public"]["Enums"]["semester"] | null
-          soil_type: string | null
-          synced_at: string | null
-          total_field_area_ha: number | null
-          verification_status:
-            | Database["public"]["Enums"]["verification_status"]
-            | null
-          verified_at: string | null
-          year: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "field_activities_collected_by_fkey"
-            columns: ["collected_by"]
-            isOneToOne: false
-            referencedRelation: "user_details"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "field_activities_collected_by_fkey"
-            columns: ["collected_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       field_details: {
         Row: {
           barangay: string | null
@@ -941,6 +922,19 @@ export type Database = {
           season_year: string | null
           semester: Database["public"]["Enums"]["semester"] | null
           start_date: string | null
+        }
+        Relationships: []
+      }
+      mfid_details: {
+        Row: {
+          barangay: string | null
+          city_municipality: string | null
+          created_at: string | null
+          farmer_name: string | null
+          mfid: string | null
+          province: string | null
+          status: string | null
+          used_at: string | null
         }
         Relationships: []
       }

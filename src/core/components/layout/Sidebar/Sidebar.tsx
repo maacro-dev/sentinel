@@ -20,7 +20,7 @@ interface LayoutSidebarProps extends SidebarProps {
 export const LayoutSidebar = memo(({ data, ...props }: LayoutSidebarProps) => {
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
-      <SidebarHeader className="border-b !h-16 py-2 px-4 flex justify-center items-start ">
+      <SidebarHeader className="border-b h-16! py-2 px-4 flex justify-center items-start ">
         <SidebarMenuButton size="lg" className="hover:bg-transparent active:bg-transparent ">
           <HumayLogo size={8} />
         </SidebarMenuButton>

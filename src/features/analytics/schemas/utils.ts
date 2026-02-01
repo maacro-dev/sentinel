@@ -15,7 +15,7 @@ export const withSeason = <T extends z.ZodType>(dataSchema: T) => z.object({
 export const withSeasonComparison = <T extends z.ZodType>(dataSchema: T) => z.object({
   seasons: z.object({
     current: seasonsSchema,
-    previous: seasonsSchema,
+    previous: seasonsSchema.nullable(),
   }),
   data: z.array(dataSchema)
 });

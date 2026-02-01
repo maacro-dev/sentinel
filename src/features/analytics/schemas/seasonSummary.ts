@@ -12,5 +12,5 @@ export const seasonSummaryEntry = z.object({
 export type SeasonSummary = z.infer<typeof seasonSummarySchema>
 export const seasonSummarySchema = withSeasonComparison(seasonSummaryEntry)
 
-export const parseSeasonSummary =
-  Validator.create<SeasonSummary>(seasonSummarySchema)
+export const parseSeasonSummary = Validator.create<SeasonSummary>(seasonSummarySchema, "SeasonSummary")
+

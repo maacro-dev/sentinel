@@ -10,7 +10,7 @@ const responseHeaders = {
 }
 
 export function response(
-  body:   object,
+  body: object,
   status = 200,
 ) {
   return new Response(JSON.stringify(body), {

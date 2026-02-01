@@ -4,7 +4,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/unauthorized")({
-  component: RouteComponent
+  component: RouteComponent,
+  head: () => ({ meta: [{ title: "Unauthorized | Humay" }] }),
 });
 
 function RouteComponent() {

@@ -11,5 +11,4 @@ export type OverallYieldPoint = z.infer<typeof overallYieldPointSchema>;
 const overallYieldTrendSchema = withSeasonTrend(overallYieldPointSchema);
 export type OverallYieldTrend = z.infer<typeof overallYieldTrendSchema>;
 
-export const parseOverallYieldTrend =
-  Validator.create<OverallYieldTrend>(overallYieldTrendSchema);
+export const parseOverallYieldTrend = Validator.create<OverallYieldTrend>(overallYieldTrendSchema, "OverallYieldTrend");

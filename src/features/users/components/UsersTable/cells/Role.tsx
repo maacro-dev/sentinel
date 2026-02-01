@@ -16,7 +16,7 @@ const roleVariantMap: Record<
 
 export const RoleCell = memo(({ role }: { role: Role }) => {
   return (
-    <Badge variant={roleVariantMap[role]} className="text-xs py-1.5 px-2">
+    <Badge variant={roleVariantMap[role]} className="text-3xs py-1.5 px-2">
       {getRoleLabel(role)}
     </Badge>
   )

@@ -1,5 +1,6 @@
 import { getSupabase } from "@/core/supabase/supabase";
-import { userArraySchema, UserFormInput } from "../schemas";
+import { UserFormInput } from "../schemas";
+import { parseUserArray } from "../schemas/user";
 
 export class Users {
   private constructor() {}
@@ -20,7 +21,7 @@ export class Users {
     if (error) {
       throw error;
     }
-    return userArraySchema.parse(users);
+    return parseUserArray(users)
   }
 
   static async create(form: UserFormInput) {
@@ -30,8 +31,10 @@ export class Users {
     });
 
     if (error) {
-      throw error;
+      throw error
     }
+
+    console.log("data =", data)
     return data;
   }
 }

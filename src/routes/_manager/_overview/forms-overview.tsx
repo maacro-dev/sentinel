@@ -28,15 +28,13 @@ export const Route = createFileRoute("/_manager/_overview/forms-overview")({
   }
 });
 
-
 function RouteComponent() {
-
-
   const { formCount, formProgress, collectionTrend, isLoading } = useFormOverview();
 
   if (isLoading || !formCount || !formProgress || !collectionTrend) {
     return (
       <PageContainer>
+
         <PlaceholderBody />
         {/* <Card className="h-full">
           <CardContent className="flex-1 flex items-center justify-center">
@@ -46,7 +44,6 @@ function RouteComponent() {
       </PageContainer>
     );
   }
-
 
   return (
     <PageContainer className="flex-col lg:flex-row">

@@ -22,7 +22,12 @@ export interface CrumbLoaderDef {
   }
 }
 
-export const createCrumbLoader = ({ label, navigatable = true }: { label: string; navigatable?: boolean }) => {
+type CrumbLoaderProps = {
+  label: string;
+  navigatable?: boolean
+}
+
+export const createCrumbLoader = ({ label, navigatable = true }: CrumbLoaderProps) => {
   return { label, navigatable };
 }
 

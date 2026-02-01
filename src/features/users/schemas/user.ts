@@ -1,6 +1,7 @@
 import * as z from "zod/v4";
 import { userDbSchema } from "./userDb";
 import { roleSchema } from "./role";
+import { Validator } from "@/core/utils/validator";
 
 export type User = z.infer<typeof userSchema>;
 
@@ -29,6 +30,8 @@ export const userSchema = z.object({
 })
 
 export const userArraySchema = z.array(userSchema);
+
+export const parseUserArray = Validator.create<User[]>(userArraySchema)
 
 export function parseUser(user: unknown): User {
   const result = userMappedSchema.safeParse(user);

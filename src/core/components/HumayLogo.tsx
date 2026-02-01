@@ -1,13 +1,13 @@
 import Logo from "@/assets/logo.svg?react";
 
-interface HumayLogoProps {
+interface HumayLogoProps extends React.ComponentProps<"div">{
   size?: number;
   hideLabel?: boolean;
 }
 
-export function HumayLogo({ hideLabel = false, size = 12 }: HumayLogoProps) {
+export function HumayLogo({ hideLabel = false, size = 12, ...props }: HumayLogoProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" {...props}>
       <Logo className={`rounded-lg aspect-square size-${size}`} />
       {!hideLabel && (
         <div className="flex flex-col">

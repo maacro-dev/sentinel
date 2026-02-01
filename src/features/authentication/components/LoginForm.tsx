@@ -34,7 +34,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
       <CardHeader className="flex flex-col gap-4 w-full max-w-96">
         <HumayLogo />
         <div className="flex flex-col gap-2">
-          <CardTitle className="text-3xl">Login to your account</CardTitle>
+          <CardTitle className="">Login to your account</CardTitle>
           <CardDescription>Enter your credentials below to login</CardDescription>
         </div>
       </CardHeader>

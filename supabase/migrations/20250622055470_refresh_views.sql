@@ -1,1 +1,0 @@
--- REFRESH MATERIALIZED VIEW field_activity_details;

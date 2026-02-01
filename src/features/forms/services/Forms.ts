@@ -5,47 +5,33 @@ import { FormDataEntry, parseFormData, parseFormDataEntry } from "../schemas/for
 
 export class Forms {
   public static async getFormDataByMfid(formType: FormRouteType, mfid: string): Promise<FormDataEntry> {
-    const startTime = performance.now();
     const client = await this._client;
-    const query = client
+    const { data, error } = await client
       .from("field_activity_details")
       .select("*")
       .eq("mfid", mfid)
-      .eq("activity_type", formType).single();
-
-    const { data, error } = await query;
+      .eq("activity_type", formType)
+      .single();
 
     if (error) {
       throw error;
     }
 
-    const endTime = performance.now();
-    console.log(formType, "entry took", endTime - startTime, "ms");
     return parseFormDataEntry(data);
   }
 
 
   public static async getFormData(formType: FormRouteType): Promise<FormDataEntry[]> {
-    const startTime = performance.now();
     const client = await this._client;
-
-    console.log("Fetching data from:", formType)
-    const query = client
+    const { data, error } = await client
       .from("field_activity_details")
       .select("*")
       .eq("activity_type", formType);
-
-
-    const { data, error } = await query;
-
-    console.log("Data fetched: ", data)
 
     if (error) {
       throw error;
     }
 
-    const endTime = performance.now();
-    console.log(formType, "took", endTime - startTime, "ms");
     return parseFormData(data)
   }
 

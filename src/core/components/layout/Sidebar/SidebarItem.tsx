@@ -12,7 +12,7 @@ export function SidebarItem({ node }: { node: SidebarNode }) {
         <div className="flex items-center gap-2.5 text-primary/70 transition-colors">
           <node.icon className="size-4" />
         </div>
-        <span className="text-[0.7rem]">{node.label}</span>
+        <span className="text-3xs">{node.label}</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
     )
@@ -30,7 +30,7 @@ export function SidebarItem({ node }: { node: SidebarNode }) {
             activeProps={{ className: "text-primary/100 font-medium bg-accent" }}
           >
             <node.icon className="size-4" />
-            <span className="text-[0.7rem]">{node.label}</span>
+            <span className="text-3xs">{node.label}</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -48,7 +48,7 @@ export function SidebarItem({ node }: { node: SidebarNode }) {
           activeProps={{ className: "text-primary/100 font-medium bg-accent" }}
         >
           <node.icon className="size-4" />
-          <span className="text-[0.7rem]">{node.label}</span>
+          <span className="text-3xs">{node.label}</span>
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>

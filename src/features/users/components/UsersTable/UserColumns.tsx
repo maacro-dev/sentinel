@@ -16,7 +16,7 @@ export const userTableColumns: ColumnDef<User, any>[] = [
     accessorKey: 'role',
     header: 'Role',
     cell: (info) => <RoleCell role={info.getValue()} />,
-    meta: { size: 'xs' }
+    meta: { size: '2xs' }
   },
   {
     accessorKey: 'last_sign_in_at',

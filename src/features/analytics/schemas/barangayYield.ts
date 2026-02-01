@@ -1,3 +1,4 @@
+import { Validator } from "@/core/utils/validator";
 import * as z from "zod/v4";
 
 export type BarangayYield = z.infer<typeof barangayYieldSchema>;
@@ -15,10 +16,5 @@ export const barangayYieldRankingSchema = z.object({
   bottom: z.array(barangayYieldSchema)
 });
 
-export function parseBarangayYieldRanking(stats: unknown): BarangayYieldRanking {
-  const result = barangayYieldRankingSchema.safeParse(stats);
-  if (!result.success) {
-    throw new Error(z.prettifyError(result.error));
-  }
-  return result.data
-}
+export const parseBarangayYieldRanking = Validator.create<BarangayYieldRanking>(barangayYieldRankingSchema, "BarangayYieldRanking")
+

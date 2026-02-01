@@ -12,5 +12,4 @@ export type FormCount = z.infer<typeof formCountEntry>;
 export const formCountSummarySchema = withSeasonTrend(formCountEntry);
 export type FormCountSummary = z.infer<typeof formCountSummarySchema>;
 
-export const parseFormCountSummary =
-    Validator.create<FormCountSummary>(formCountSummarySchema);
+export const parseFormCountSummary = Validator.create<FormCountSummary>(formCountSummarySchema);

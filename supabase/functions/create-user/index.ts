@@ -2,7 +2,7 @@ import { getAdminAuthClient } from "@clients"
 import { preflight, response } from "@http"
 
 const EMAIL_API_URL = "https://api.resend.com/emails";
-const EMAIL_FROM = "sentinel.humayapp.com";
+const EMAIL_FROM = "sentinel@humayapp.com";
 const EMAIL_HEADERS = {
   "Content-Type": "application/json",
   Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
@@ -30,34 +30,6 @@ function generateTempPassword(length: number = 12): string {
     .join('');
 }
 
-async function sendWelcomeEmail(to: string, pendingUser: PendingUser): Promise<void> {
-  const body = {
-    from: EMAIL_FROM,
-    to: [to],
-    subject: "Welcome, ",
-    html: `<strong>Welcome to Sentinel!</strong><br><br>
-           Your account has been created successfully.<br>
-           <strong>Email:</strong> ${pendingUser.email}<br>
-           <strong>Password:</strong> ${pendingUser.password}<br><br>
-           Please log in to your account and change your password as soon as possible.<br>
-           <a href="https://app.humayapp.com/login">Login to Sentinel</a><br><br>
-           <strong>Note:</strong> This is a temporary password.
-           Please change it after your first login.<br><br>
-           <strong>Sentinel Team</strong>`,
-  };
-
-  const res = await fetch(EMAIL_API_URL, {
-    method: "POST",
-    headers: EMAIL_HEADERS,
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(`Failed to send email: ${res.status} - ${errorText}`);
-  }
-}
-
 
 Deno.serve(async (req: Request) => {
   try {
@@ -77,8 +49,7 @@ Deno.serve(async (req: Request) => {
     } = body;
 
     const supabase = getAdminAuthClient();
-    // const password = generateTempPassword();
-    const password = "christiegwapainosnos";
+    const password = generateTempPassword();
 
     const pendingUser = {
       role: role,
@@ -103,14 +74,11 @@ Deno.serve(async (req: Request) => {
       return response({ error: error?.message }, error?.status);
     }
 
-    try {
-      await sendWelcomeEmail(email, pendingUser);
-    } catch(err) {
-      return response({ success: true, message: `User created successfully. Email not sent. ${err instanceof Error ? err.message : err}` });
-    }
+    const { resetData, resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "http://sentinel-9cf.pages.dev/recovery"
+    })
 
-    return response({ success: true, message: "User created successfully. Email sent." });
-
+    return response({ success: true, message: "User created successfully. Email sent." }, 200);
 
   } catch (err) {
     console.error("Unhandled error:", err);

@@ -57,9 +57,9 @@ port = 54324
 # sender_name = "Admin"
 
 [storage]
-enabled = false
+enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
-file_size_limit = "50MiB"
+file_size_limit = "150MiB"
 
 # Image transformation API is available to Supabase Pro plan.
 # [storage.image_transformation]
@@ -74,8 +74,8 @@ file_size_limit = "50MiB"
 
 [auth]
 enabled = true
-site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000", "https://localhost:3000/recovery", "http://localhost:3000/new-user"]
 jwt_expiry = 3600
 signing_keys_path = "./signing_key.json"
 enable_refresh_token_rotation = true

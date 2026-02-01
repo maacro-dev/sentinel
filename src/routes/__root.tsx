@@ -5,6 +5,7 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { HumayLogo } from "@/core/components/HumayLogo";
+
 import { Toaster } from "@/features/toast";
 // import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
@@ -40,7 +41,6 @@ function RootComponent() {
 }
 
 function ErrorComponent({ error }: { error: Error }) {
-
   if (error.message.includes("JWSInvalidSignature")) {
     Session._forceClearStorage();
     return (
