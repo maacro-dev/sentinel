@@ -1,5 +1,6 @@
 import { getSupabase } from "@/core/supabase/supabase";
 import { parseMfidTable, parseMfidTableRow } from "../schemas/mfid-table.schema";
+import { MfidFormInput } from "../schemas/mfid-create.schema";
 
 
 export class Mfid {
@@ -32,9 +33,21 @@ export class Mfid {
     return parseMfidTableRow(data)
   }
 
+  static async create(form: MfidFormInput) {
+    const client = await getSupabase()
+    const { data, error } = await client.functions.invoke("create-mfid", {
+      body: form,
+    });
+
+    if (error) {
+      throw error
+    }
+
+    console.log("data =", data)
+    return data;
+  }
 
   private static get _client() {
     return getSupabase();
   }
-  static async create() { }
 }

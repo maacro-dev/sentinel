@@ -13,3 +13,19 @@ export function getAdminAuthClient() {
     }
   );
 }
+
+
+export function getClient() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SECRET_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    {
+      auth: {
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        persistSession: false
+      },
+    }
+  );
+}
+

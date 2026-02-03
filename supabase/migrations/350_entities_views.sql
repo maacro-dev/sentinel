@@ -15,17 +15,22 @@ select
     else 'used'
   end as status,
   m.mfid,
-  concat(fa.first_name, ' ', fa.last_name) as farmer_name,
+  -- concat only if farmer exists
+  case
+    when fa.id is not null then concat_ws(' ', fa.first_name, fa.last_name)
+    else null
+  end as farmer_name,
   a.barangay,
   a.city_municipality,
   a.province,
-  m.created_at                as created_at,
-  m.used_at                   as used_at
+  m.created_at as created_at,
+  m.used_at    as used_at
 from mfids m
-left join fields f            on f.mfid = m.mfid
-join addresses a              on f.barangay_id = a.barangay_id
-join farmers fa               on f.farmer_id = fa.id
+left join fields f      on f.mfid = m.mfid
+left join addresses a   on f.barangay_id = a.barangay_id
+left join farmers fa    on f.farmer_id = fa.id
 order by m.mfid;
+
 
 
 -- field table view

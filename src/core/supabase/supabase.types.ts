@@ -967,6 +967,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      generate_mfid: {
+        Args: { p_municity: string; p_province: string }
+        Returns: string
+      }
     }
     Enums: {
       activity_type:

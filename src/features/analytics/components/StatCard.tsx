@@ -20,7 +20,7 @@ export const StatCard = memo(({ title, subtitle, current_value, previous_value, 
       className="flex-1 h-full flex flex-col gap-2.5 justify-between hover:cursor-pointer rounded-container hover:shadow-sm transition-all"
     >
       <CardHeader className="flex flex-col gap-1 lt:gap-1.5 dt:gap-2">
-        <CardTitle className="leading-none font-semibold text-primary" >
+        <CardTitle className="leading-none font-medium text-primary" >
           {title}
         </CardTitle>
         <CardDescription className="text-left font-light text-muted-foreground">

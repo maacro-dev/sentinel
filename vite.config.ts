@@ -8,9 +8,14 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig({
   base: "/",
   server: {
+    hmr: {
+      host: "127.0.0.1",
+    },
+    host: "127.0.0.1",
     port: 3000,
   },
   preview: {
+    host: "127.0.0.1",
     port: 3001,
   },
   plugins: [
@@ -26,10 +31,10 @@ export default defineConfig({
       babel: {
         plugins: [["babel-plugin-react-compiler", {
           target: "19",
-            sources: (filename: string) => {
-              return filename.indexOf("src/core/lib") !== -1;
-            },
-          }]],
+          sources: (filename: string) => {
+            return filename.indexOf("src/core/lib") !== -1;
+          },
+        }]],
       },
     }),
   ],

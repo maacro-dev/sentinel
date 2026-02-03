@@ -5,12 +5,12 @@ const mfidStatusSchema = z.enum(["available", "used"])
 export const mfidRowSchema = z.object({
   mfid: z.string(),
   created_at: z.string(),
-  used_at: z.string(),
+  used_at: z.string().nullable(),
   status: mfidStatusSchema,
-  farmer_name: z.string(),
-  barangay: z.string(),
-  city_municipality: z.string(),
-  province: z.string(),
+  farmer_name: z.string().nullable(),
+  barangay: z.string().nullable(),
+  city_municipality: z.string().nullable(),
+  province: z.string().nullable(),
 })
 
 export const mfidTableSchema = z.array(mfidRowSchema);

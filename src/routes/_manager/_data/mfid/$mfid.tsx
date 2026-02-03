@@ -50,9 +50,9 @@ function MfidCard({ data, status, mfid }: MfidCardProps) {
       <MfidCardHeader status={status} mfid={mfid} />
       <div className='flex'>
         <div className='flex-3 flex flex-col gap-6 size-full'>
-          <KVItem pair={{ key: "Farmer", value: data.farmer_name }} />
-          <MfidAddress data={data}/>
-          <MfidTimestamp data={data}/>
+          <KVItem pair={{ key: "Farmer", value: data.farmer_name ?? "N/A" }} />
+          <MfidAddress data={data} />
+          <MfidTimestamp data={data} />
         </div>
         <div className='flex-2 flex justify-center items-center'>
           <MfidQR mfid={mfid} />
@@ -87,9 +87,9 @@ function MfidStatusBadge({ status }: { status: MfidStatus }) {
 function MfidAddress({ data }: Pick<MfidCardProps, "data">) {
   return (
     <div className='flex gap-8'>
-      <KVItem pair={{ key: "Barangay", value: data.barangay }} />
-      <KVItem pair={{ key: "City / Municipality", value: data.city_municipality }} />
-      <KVItem pair={{ key: "Province", value: data.province }} />
+      <KVItem pair={{ key: "Barangay", value: data.barangay ?? "N/A" }} />
+      <KVItem pair={{ key: "City / Municipality", value: data.city_municipality ?? "N/A" }} />
+      <KVItem pair={{ key: "Province", value: data.province ?? "N/A" }} />
     </div>
   );
 }

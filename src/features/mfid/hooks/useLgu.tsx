@@ -29,12 +29,12 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
     [cities, selectedMunicityName]
   );
 
-  const municityId = selectedMunicity?.id ?? null;
+  // const municityId = selectedMunicity?.id ?? null;
 
-  const { data: barangays = [], isLoading: isLoadingBarangays } = useBarangaysByMunicity({
-    cityId: municityId ?? undefined,
-    enabled: Boolean(municityId),
-  });
+  // const { data: barangays = [], isLoading: isLoadingBarangays } = useBarangaysByMunicity({
+  //   cityId: municityId ?? undefined,
+  //   enabled: Boolean(municityId),
+  // });
 
   const prevProvinceRef = useRef(selectedProvinceName);
   const prevMunicityRef = useRef(selectedMunicityName);
@@ -50,13 +50,13 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
 
     if (prevProvinceRef.current !== selectedProvinceName) {
       form.setValue("city_municipality", "", { shouldValidate: false });
-      form.setValue("barangay", "", { shouldValidate: false });
+      // form.setValue("barangay", "", { shouldValidate: false });
       prevProvinceRef.current = selectedProvinceName;
       prevMunicityRef.current = "";
     }
 
     if (prevMunicityRef.current !== selectedMunicityName) {
-      form.setValue("barangay", "", { shouldValidate: false });
+      // form.setValue("barangay", "", { shouldValidate: false });
       prevMunicityRef.current = selectedMunicityName;
     }
   }, [selectedProvinceName, selectedMunicityName, form]);
@@ -64,10 +64,10 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
   return {
     provinces,
     cities,
-    barangays,
+    // barangays,
     isLoadingProvinces,
     isLoadingMunicities,
-    isLoadingBarangays
+    // isLoadingBarangays
   };
 }
 

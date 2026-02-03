@@ -3,9 +3,10 @@ import { DefaultTablePagination } from "@/core/components/TablePagination";
 import { TableSkeleton } from "@/core/components/TableSkeleton";
 import { DefaultTableToolbar } from "@/core/components/TableToolbar";
 import { useMfidTable } from "../../hooks/useMfidTable";
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { MfidFormDialog } from "../MfidFormDialog";
 import { MfidFormInput } from "../../schemas/mfid-create.schema";
+import { useCreateMfid } from "../../hooks/useCreateMfid";
 
 export interface MfidTableProps<T> extends DataTableEvents<T> { }
 
@@ -16,6 +17,13 @@ export const MfidTable = <T extends { mfid: string }>({
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const { table, isLoading: areMfidLoading } = useMfidTable()
+  const { createMfid, isLoading: isCreatingMfid } = useCreateMfid()
+
+  const handleSubmit = useCallback(
+    async (user: MfidFormInput) => {
+      setDialogOpen(false)
+      await createMfid(user)
+    }, [createMfid])
 
   if (areMfidLoading) {
     return <TableSkeleton />
@@ -30,9 +38,7 @@ export const MfidTable = <T extends { mfid: string }>({
           dialogDisable={false}
           dialogOpen={dialogOpen}
           setDialogOpen={setDialogOpen}
-          onDialogSubmit={async (input) => {
-            console.log("input =", input)
-          }}
+          onDialogSubmit={handleSubmit}
         />
       }
       onRowClick={(row) => {

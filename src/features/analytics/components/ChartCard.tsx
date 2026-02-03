@@ -24,7 +24,7 @@ export const ChartCard = memo(({
       <CardHeader className={options ? "flex items-center justify-between" : ""}>
         <div className={options ? "" : "content"}>
           {header.title && (
-            <CardTitle>{header.title}</CardTitle>
+            <CardTitle className="font-medium">{header.title}</CardTitle>
           )}
           {header.description && (
             <CardDescription className="text-muted-foreground/75">

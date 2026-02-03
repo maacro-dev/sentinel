@@ -57,7 +57,7 @@ export const Crumb = memo(({ crumb, isLast }: { crumb: CrumbDef, isLast: boolean
   return (
     <BreadcrumbItem>
       <BreadcrumbLink
-        className={isLast ? "font-semibold text-foreground" : "text-muted-foreground"}
+        className={isLast ? "font-medium text-foreground" : "text-muted-foreground"}
         to={url} params={params} enabled={enabled}
       >
         {label}

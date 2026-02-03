@@ -45,17 +45,17 @@ export function MfidFormDialog({
     defaultValues: {
       province: "",
       city_municipality: "",
-      barangay: ""
+      // barangay: ""
     },
   });
 
   const {
     provinces,
     cities,
-    barangays,
+    // barangays,
     isLoadingProvinces,
     isLoadingMunicities,
-    isLoadingBarangays,
+    // isLoadingBarangays,
   } = useLguHierarchy(form);
 
   const handleSubmit = (input: MfidFormInput) => {
@@ -86,9 +86,7 @@ export function MfidFormDialog({
         <form id="mfid-create-form" onSubmit={form.handleSubmit(handleSubmit)}>
           <DialogHeader className="mb-6 pb-4 border-b">
             <DialogTitle>Create MFID</DialogTitle>
-            <DialogDescription>
-              Enter the details to create a new MFID record.
-            </DialogDescription>
+            <DialogDescription> Enter the details to create a new MFID.  </DialogDescription>
           </DialogHeader>
 
           <FieldGroup>
@@ -109,16 +107,6 @@ export function MfidFormDialog({
               options={cities.map((c) => c.name)}
               disabled={!form.watch("province")}
               isLoading={isLoadingMunicities}
-            />
-
-            <FormSelect
-              form={form}
-              name="barangay"
-              label="Barangay"
-              placeholder="Select a barangay"
-              options={barangays.map((b) => b.name)}
-              disabled={!form.watch("city_municipality")}
-              isLoading={isLoadingBarangays}
             />
           </FieldGroup>
 

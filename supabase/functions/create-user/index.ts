@@ -40,13 +40,7 @@ Deno.serve(async (req: Request) => {
 
     const body = await req.json();
 
-    const {
-      first_name,
-      last_name,
-      email,
-      role,
-      date_of_birth,
-    } = body;
+    const { first_name, last_name, email, role, date_of_birth } = body;
 
     const supabase = getAdminAuthClient();
     const password = generateTempPassword();
@@ -74,9 +68,7 @@ Deno.serve(async (req: Request) => {
       return response({ error: error?.message }, error?.status);
     }
 
-    const { resetData, resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://sentinel-9cf.pages.dev/recovery"
-    })
+    const { resetData, resetError } = await supabase.auth.resetPasswordForEmail(email)
 
     return response({ success: true, message: "User created successfully. Email sent." }, 200);
 
