@@ -2,11 +2,12 @@
 
 ## todo
 
-- mfid generation
-
 - drill down on stat cards
 
 - import
+    - validations
+    -
+
 
 - user management flow (create, update)
 
@@ -33,7 +34,6 @@
     - analytics queries always filter `is_active`
 
     ### maybe
-
         - add a staging area to the imported file
 
 

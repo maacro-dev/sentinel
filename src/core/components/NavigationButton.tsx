@@ -42,7 +42,7 @@ interface NavButtonProps {
   disabled?: boolean,
 }
 
-const NavButton = memo(({ label, direction, className, onClick, disabled }: NavButtonProps) => {
+export const NavButton = memo(({ label, direction, className, onClick, disabled }: NavButtonProps) => {
   let leadingIcon: React.ReactNode = null;
   let trailingIcon: React.ReactNode = null;
 
@@ -61,7 +61,7 @@ const NavButton = memo(({ label, direction, className, onClick, disabled }: NavB
   return (
     <PrimitiveNavButton
       className={cn(
-        "!px-0 text-muted-foreground items-center hover:bg-transparent cursor-pointer w-fit",
+        "px-0! text-muted-foreground items-center hover:bg-transparent cursor-pointer w-fit",
         label ? "gap-2 text-xs" : "size-7",
         className
       )}

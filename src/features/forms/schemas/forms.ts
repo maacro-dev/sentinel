@@ -8,4 +8,5 @@ export const formsSchema = z.enum([
   "damage_assessments",
   "monitoring_visits",
 ]  as const)
+
 export type Form = z.infer<typeof formsSchema>;

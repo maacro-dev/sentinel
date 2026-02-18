@@ -30,12 +30,14 @@ create table crop_establishments (
   distance_within_plant_row_1       double precision null,
   distance_within_plant_row_2       double precision null,
   distance_within_plant_row_3       double precision null,
+
   -- if direct-seeded
   seeding_rate_kg_ha                double precision null,
   direct_seeding_method             text null,
   num_plants_1                      smallint null,
   num_plants_2                      smallint null,
   num_plants_3                      smallint null,
+
   rice_variety                      text not null,
   rice_variety_no                   text null,
   rice_variety_maturity_duration    smallint not null,
@@ -83,7 +85,6 @@ create table harvest_records (
 );
 create index idx_hr_harvest_date on harvest_records(harvest_date);
 
-
 -- optional
 create table damage_assessments(
   id                                int primary key references field_activities(id) unique,
@@ -94,7 +95,6 @@ create table damage_assessments(
   affected_area_ha                  double precision not null,
   observed_pest                     text null
 );
-
 
 -- optional
 create table monitoring_visits (

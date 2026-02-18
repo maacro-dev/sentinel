@@ -7,3 +7,9 @@ export function formatDate(date: string | Date) {
     day: 'numeric',
   }).format(dateObj);
 }
+
+
+export function isValidDate(str: string): boolean {
+  const d = new Date(str);
+  return !isNaN(d.getTime()) && d.toDateString() !== "Invalid Date";
+};

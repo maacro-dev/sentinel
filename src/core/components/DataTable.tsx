@@ -38,7 +38,6 @@ export const DataTable = <T,>({
         {(title || toolbar) && (
           <div className="w-full flex justify-between items-center p-4 gap-2">
             {title && typeof title === 'string' ? <span className="text-2xl font-semibold">{title}</span> : title}
-
             {toolbar}
           </div>
         )}
