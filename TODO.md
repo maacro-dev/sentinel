@@ -2,12 +2,11 @@
 
 ## todo
 
+- kung mag add sa mobile app sang farmer kag field to an imported data, it must be updated
+
 - drill down on stat cards
 
 - import
-    - validations
-    -
-
 
 - user management flow (create, update)
 

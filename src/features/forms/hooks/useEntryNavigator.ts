@@ -1,4 +1,4 @@
-import { FormRouteType } from "@/routes/_manager/forms/-config";
+import { FormType } from "@/routes/_manager/forms/-config";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useCallback } from "react";
 import { useTableStore } from "../store";
@@ -7,10 +7,10 @@ import { useShallow } from "zustand/react/shallow";
 
 // TODO: refactor this. sakit sa mata
 
-export function useFormDetailNavigator(formType?: FormRouteType, mfid?: string) {
+export function useFormDetailNavigator(formType?: FormType, mfid?: string) {
   const navigate = useNavigate();
 
-  const { table: entriesTable, isLoading: isLoadingEntries } = useFormEntriesTable(formType as FormRouteType);
+  const { table: entriesTable, isLoading: isLoadingEntries } = useFormEntriesTable(formType as FormType);
   const { ids, currentIndex, formType: storedFormType, setIds, setCurrentIndex } = useTableStore(
     useShallow((s) => ({
       ids: s.ids,

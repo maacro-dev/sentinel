@@ -1,5 +1,5 @@
 import { SESSION_STORAGE } from "@/core/utils/zustand";
-import { FormRouteType } from "@/routes/_manager/forms/-config";
+import { FormType } from "@/routes/_manager/forms/-config";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -8,11 +8,11 @@ import { persist } from "zustand/middleware";
 interface TableState {
   ids: string[]
   currentIndex: number | null
-  formType: FormRouteType | null | undefined
+  formType: FormType | null | undefined
 }
 
 interface TableActions {
-  setIds: (ids: string[], formType?: FormRouteType | null | undefined) => void;
+  setIds: (ids: string[], formType?: FormType | null | undefined) => void;
   setCurrentIndex: (index: number | null) => void
   clear: () => void
 }

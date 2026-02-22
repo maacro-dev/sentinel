@@ -25,8 +25,8 @@ export type RouteConfig<T extends string = string, P extends Path = Path> = {
 
 export type RouteConfigIds<T> =
   T extends { id: infer InferID extends string }
-    ? InferID
-    : never
+  ? InferID
+  : never
   | (T extends { children: ReadonlyArray<infer C> }
-      ? RouteConfigIds<C>
-      : never);
+    ? RouteConfigIds<C>
+    : never);

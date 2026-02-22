@@ -10,31 +10,26 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
 import ProgressCircle from '@/core/components/ProgressCircle';
 import { plural } from '@/core/utils/string';
+import { Button } from '@/core/components/ui/button';
+import { Checkbox } from '@/core/components/ui/checkbox';
+import { Label } from '@/core/components/ui/label';
 
 interface DataPreviewProps {
   data: ImportRow[];
   issues: ImportIssue[];
-  onReviewFixes: () => void;
+  onCancel: () => void;
   onContinueAnyway: () => void;
 }
 
-export function DataPreview({ data, issues, onReviewFixes, onContinueAnyway }: DataPreviewProps) {
+export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPreviewProps) {
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
   const [filterColumn, setFilterColumn] = useState<string | null>(null);
 
   const errorIssues = issues.filter(i => i.level === 'error');
+
   const errorRowsSet = new Set(errorIssues.map(i => i.row));
   const errorRowsCount = errorRowsSet.size;
   const hasErrors = errorRowsCount > 0
-  const totalErrors = errorIssues.length;
-
-  const errorColumns = useMemo(() => {
-    const colCount: Record<string, number> = {};
-    errorIssues.forEach(i => {
-      colCount[i.col] = (colCount[i.col] || 0) + 1;
-    });
-    return Object.entries(colCount).map(([col, count]) => ({ col, count }));
-  }, [errorIssues]);
 
   const filteredData = useMemo<PreviewRow[]>(() => {
     return data
@@ -56,90 +51,34 @@ export function DataPreview({ data, issues, onReviewFixes, onContinueAnyway }: D
   }, [data, showOnlyErrors, filterColumn, errorRowsSet, issues]);
 
 
-  console.log(filteredData)
-
   return (
-    <div className="max-w-7xl">
-      <h1 className="text-lg font-bold text-foreground">Review Your Data</h1>
-      <p className="text-sm text-muted-foreground mb-4">Check the preview below and fix any issues before importing</p>
-
-      <div className="bg-white border rounded-lg p-4 mb-4 space-y-3">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            {hasErrors ? (
-              <>
-                <AlertCircle className="w-5 h-5 text-red-600" />
-                <span className="text-sm font-medium">
-                  {plural(errorRowsCount, 'row')} contain {plural(totalErrors, 'error')}
-                </span>
-              </>
-            ) : (
-              <>
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium">
-                  Your data looks good!
-                </span>
-              </>
-            )}
-          </div>
-
-          {hasErrors && (
-            <label className="ml-auto flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap">
-              <input
-                type="checkbox"
-                checked={showOnlyErrors}
-                onChange={e => setShowOnlyErrors(e.target.checked)}
-                className="rounded"
-              />
-              <span>Show only errors</span>
-            </label>
-          )}
+    <div className='h-full flex flex-col justify-center items-center'>
+      <div className="w-full lg:max-w-3/5">
+        <h1 className="text-lg font-bold text-foreground">Review Your Data</h1>
+        <p className="text-sm text-muted-foreground mb-4">Check the preview below and fix any issues before importing</p>
+        <div className="flex flex-col gap-4">
+          <DataQualityWidget
+            issues={issues}
+            totalRows={data.length}
+            filterColumn={filterColumn}
+            onFilterColumn={setFilterColumn}
+            showOnlyErrors={showOnlyErrors}
+            onShowOnlyErrorsChange={(e) => setShowOnlyErrors(e === true)}
+          />
+          <DataPreviewTable data={filteredData} issues={issues} totalRows={data.length} />
         </div>
-
-        {errorColumns.length > 0 && (
-          <div className="flex flex-wrap flex-col gap-2 pt-2 border-t">
-            <div className="flex gap-4">
-              <span className="text-xs text-muted-foreground">Issues by column</span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {errorColumns.map(({ col, count }) => (
-                <button
-                  key={col}
-                  onClick={() => setFilterColumn(filterColumn === col ? null : col)}
-                  className={`px-2 py-0.5 text-xs rounded-full border transition-colors ${filterColumn === col
-                    ? 'bg-red-100 border-red-300 text-red-800 font-medium'
-                    : 'bg-secondary border-border hover:bg-secondary/80'
-                    }`}
-                  title={`${col} (${count} error${count !== 1 ? 's' : ''})`}
-                >
-                  <span className="max-w-[100px] truncate inline-block align-middle">
-                    {col.replace(/_/g, ' ')}
-                  </span>
-                  <span className="ml-1 text-[10px] opacity-80">({count})</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <DataPreviewTable data={filteredData} issues={issues} totalRows={data.length} />
-        <DataQualityWidget
-          issues={issues}
-          totalRows={data.length}
-          filterColumn={filterColumn}
-          onFilterColumn={setFilterColumn}
-        />
-      </div>
-
-      <div className="flex gap-4 justify-center mt-8">
-        <button onClick={onReviewFixes} className="px-8 py-3 bg-accent text-accent-foreground font-semibold rounded-lg hover:bg-accent/90">
-          Review Fixes
-        </button>
-        <button onClick={onContinueAnyway} className="px-8 py-3 bg-secondary text-secondary-foreground font-semibold rounded-lg hover:bg-secondary/80">
-          Continue Anyway
-        </button>
+        <div className="flex flex-col gap-3 justify-start mt-6 ">
+          <Button className="w-full" onClick={onContinueAnyway}>
+            {hasErrors ? "Continue Anyway" : "Continue"}
+          </Button>
+          <Button
+            className='w-full'
+            variant="outline"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -150,11 +89,16 @@ interface DataQualityWidgetProps {
   totalRows: number;
   filterColumn: string | null;
   onFilterColumn: (col: string | null) => void;
+  showOnlyErrors: boolean,
+  onShowOnlyErrorsChange: (value: boolean) => void
 }
 
-function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn }: DataQualityWidgetProps) {
+function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn, showOnlyErrors, onShowOnlyErrorsChange }: DataQualityWidgetProps) {
   const errorIssues = issues.filter(i => i.level === 'error');
+  const totalErrors = errorIssues.length;
+
   const errorRowsCount = new Set(errorIssues.map(i => i.row)).size;
+  const hasErrors = errorRowsCount > 0
   const cleanRowsCount = totalRows - errorRowsCount;
   const cleanPercentage = totalRows > 0 ? Math.round((cleanRowsCount / totalRows) * 100) : 100;
 
@@ -181,36 +125,67 @@ function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn }: 
         total: c.messages.reduce((sum, m) => sum + m.cnt, 0),
         messages: c.messages,
       }))
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 3);
+      .sort((a, b) => b.total - a.total);
   }, [issuesByColumn]);
 
   return (
-    <div className="bg-white border rounded-lg p-4 h-fit max-h-[500px] overflow-y-auto">
-      <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
+    <div className="bg-white border rounded-container p-4 h-fit max-h-56 lg:max-h-64 overflow-y-auto">
+      <h3 className="text-sm font-semibold flex items-center gap-1.5 mb-3">
         <CheckCircle2 className="w-4 h-4 text-emerald-600" />
         Data Quality
       </h3>
 
-      <div className="flex items-center justify-center mb-4">
-        <ProgressCircle percentage={cleanPercentage} />
+      <div className="flex items-center justify-center mb-2">
+        <ProgressCircle percentage={cleanPercentage} size={60} textClassName='text-xs font-medium' />
       </div>
 
       <div className="text-xs text-center text-muted-foreground mb-4">
         {cleanRowsCount} of {totalRows} rows error‑free
       </div>
 
+      <div className="flex w-full justify-between mb-2">
+        <div className="flex items-center gap-2">
+          {hasErrors ? (
+            <>
+              <AlertCircle className="w-4 h-4 text-red-600" />
+              <span className="text-xs font-medium">
+                {plural(errorRowsCount, 'row')} contain {plural(totalErrors, 'error')}
+              </span>
+            </>
+          ) : (
+            <>
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-medium">
+                Your data looks good!
+              </span>
+            </>
+          )}
+        </div>
+        {hasErrors && (
+          <div className="flex gap-2">
+            <Checkbox
+              className='hover:cursor-pointer'
+              id="errors-checkbox"
+              name="errors-checkbox"
+              checked={showOnlyErrors}
+              onCheckedChange={e => onShowOnlyErrorsChange(e === true)}
+            />
+            <Label htmlFor="errors-checkbox" className='font-normal text-xs hover:underline hover:cursor-pointer'>Show only errors</Label>
+          </div>
+        )}
+      </div>
+
       {topColumns.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-1">
           <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Issues
           </h4>
           {topColumns.map(({ col, total, messages }) => (
-            <div key={col} className="text-xs">
-              <div className="flex items-center justify-between mb-1">
+            <div key={col} className="">
+              <div className="flex items-center justify-between">
                 <button
                   onClick={() => onFilterColumn(filterColumn === col ? null : col)}
-                  className={`font-medium hover:underline ${filterColumn === col ? 'text-red-600' : 'text-foreground'
+                  className={`text-xs font-medium hover:underline ${filterColumn === col ? 'text-red-600' : 'text-foreground'
                     }`}
                 >
                   {col.replace(/_/g, ' ')}
@@ -219,12 +194,11 @@ function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn }: 
               </div>
               <div className="space-y-1 pl-1.5">
                 {messages.slice(0, 2).map(({ msg, cnt }) => (
-                  <div key={msg} className="flex items-center justify-between text-[10px] text-muted-foreground">
+                  <div key={msg} className="flex items-center justify-between text-2xs text-muted-foreground">
                     <span className="" title={msg}>
                       {msg}
-                      {/* {msg.length > 20 ? msg.slice(0, 20) + '…' : msg} */}
                     </span>
-                    <span>{cnt}</span>
+                    {/* <span>{cnt}</span> */}
                   </div>
                 ))}
                 {messages.length > 2 && (
@@ -250,7 +224,10 @@ interface DataPreviewTableProps {
 function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
   const columns = useMemo<ColumnDef<PreviewRow>[]>(() => {
     if (data.length === 0) return [];
-    return Object.keys(data[0]).map((key) => ({
+
+    const keys = Object.keys(data[0]).filter(key => key !== '_originalIndex');
+
+    return keys.map((key) => ({
       accessorKey: key,
       header: () => <span className="text-3xs font-normal">{key.replace(/_/g, ' ')}</span>,
       cell: ({ row, getValue }) => {
@@ -258,7 +235,7 @@ function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
         const rowIdx = row.original._originalIndex ?? row.index;
         const hasError = issues.some(i => i.row === rowIdx && i.col === key && i.level === 'error');
         return (
-          <span className={hasError ? 'bg-red-100 font-medium text-red-900 px-1 py-0.5 rounded' : ''}>
+          <span className={hasError ? 'bg-red-200/60 font-medium text-red-600 px-2 py-0.5 rounded' : ''}>
             {value || '(empty)'}
           </span>
         );
@@ -282,7 +259,7 @@ function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
 
   return (
     <div className="lg:col-span-2 rounded-lg border overflow-hidden">
-      <div className="overflow-x-auto min-h-96 max-h-96 overflow-y-auto">
+      <div className="overflow-x-auto overflow-y-auto min-h-40 max-h-40 lg:min-h-64 lg:max-h-64">
         <Table className="w-full text-sm">
           <TableHeader className="sticky top-0 bg-secondary z-10">
             {table.getHeaderGroups().map(headerGroup => (
@@ -306,7 +283,7 @@ function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
                     }`}
                 >
                   {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id} className="text-3xs px-4 py-3 whitespace-nowrap">
+                    <TableCell key={cell.id} className={`text-3xs px-4 py-3 whitespace-nowrap ${rowHasError ? 'text-red-500' : ''}`}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -316,7 +293,7 @@ function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="bg-secondary py-2 text-xs text-muted-foreground text-center">
+      <div className="bg-secondary py-2 text-2xs flex justify-center items-center text-muted-foreground text-center">
         Showing {data.length} of {totalRows} rows
       </div>
     </div>

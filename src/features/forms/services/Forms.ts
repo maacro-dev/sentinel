@@ -1,10 +1,9 @@
 import { getSupabase } from "@/core/supabase";
-import { FormRouteType } from "@/routes/_manager/forms/-config";
+import { FormType } from "@/routes/_manager/forms/-config";
 import { FormDataEntry, parseFormData, parseFormDataEntry } from "../schemas/formData";
 
-
 export class Forms {
-  public static async getFormDataByMfid(formType: FormRouteType, mfid: string): Promise<FormDataEntry> {
+  public static async getFormDataByMfid(formType: FormType, mfid: string): Promise<FormDataEntry> {
     const client = await this._client;
     const { data, error } = await client
       .from("field_activity_details")
@@ -21,7 +20,7 @@ export class Forms {
   }
 
 
-  public static async getFormData(formType: FormRouteType): Promise<FormDataEntry[]> {
+  public static async getFormData(formType: FormType): Promise<FormDataEntry[]> {
     const client = await this._client;
     const { data, error } = await client
       .from("field_activity_details")

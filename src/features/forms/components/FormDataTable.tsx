@@ -1,13 +1,13 @@
 import { TableSkeleton } from "@/core/components/TableSkeleton";
 import { DataTable, DataTableEvents } from "@/core/components/DataTable";
 import { DefaultTablePagination } from "@/core/components/TablePagination";
-import { FormRouteType } from "@/routes/_manager/forms/-config";
+import { FormType } from "@/routes/_manager/forms/-config";
 import { DefaultTableToolbar } from "@/core/components/TableToolbar";
 import { useFormEntriesTable } from "../hooks/useFormDataTable";
 import { useTableStore } from "../store";
 
 interface FormDataTableProps<T> extends DataTableEvents<T> {
-  formType: FormRouteType
+  formType: FormType
 }
 
 export const FormDataTable = <T extends { field: { mfid: string } }>({

@@ -14,7 +14,6 @@ export function getAdminAuthClient() {
   );
 }
 
-
 export function getClient() {
   return createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -27,5 +26,30 @@ export function getClient() {
       },
     }
   );
+}
+
+
+export function getClientWithAuthorization(request) {
+
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    {
+      global: {
+        headers: { Authorization: request.headers.get('Authorization')! },
+      },
+      auth: {
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        persistSession: false
+      },
+    }
+  );
+
+  return {
+    supabase,
+    token: request.headers.get('Authorization').replace('Bearer ', '')!
+  }
 }
 

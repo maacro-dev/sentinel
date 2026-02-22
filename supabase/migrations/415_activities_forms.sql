@@ -21,6 +21,7 @@ create table crop_establishments (
   actual_land_preparation_method    text not null,
   actual_crop_establishment_date    date not null,
   actual_crop_establishment_method  text not null,
+
   -- if transplanted
   sowing_date                       date null,
   seedling_age_at_transplanting     smallint null check (seedling_age_at_transplanting between 1 and 100),

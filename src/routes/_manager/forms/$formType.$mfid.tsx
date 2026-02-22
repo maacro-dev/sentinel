@@ -4,7 +4,7 @@ import { createCrumbLoader } from '@/core/utils/breadcrumb'
 import { Sanitizer } from '@/core/utils/sanitizer'
 import { formKeyMappings } from '@/features/forms/mappings'
 import { createFileRoute } from '@tanstack/react-router'
-import { FormRouteType } from './-config'
+import { FormType } from './-config'
 import { formDataByMfidOptions } from '@/features/forms/queries/options'
 import { Separator } from '@/core/components/ui/separator'
 import { useFormEntry } from '@/features/forms/hooks/useFormData'
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
   loader: ({ params, context: { queryClient } }) => {
     queryClient.ensureQueryData(
       formDataByMfidOptions({
-        formType: params.formType as FormRouteType,
+        formType: params.formType as FormType,
         mfid: params.mfid,
       })
     )
@@ -32,7 +32,7 @@ export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
 
 function RouteComponent() {
   const { formType, mfid } = Route.useParams()
-  const { data, isLoading } = useFormEntry({ formType: formType as FormRouteType, mfid })
+  const { data, isLoading } = useFormEntry({ formType: formType as FormType, mfid })
 
   const {
     hasNext,
@@ -40,7 +40,7 @@ function RouteComponent() {
     goNext,
     goPrev,
     loading: navLoading,
-  } = useFormDetailNavigator(formType as FormRouteType, mfid);
+  } = useFormDetailNavigator(formType as FormType, mfid);
 
   if (isLoading || navLoading) {
     return <PageContainer>Loading...</PageContainer>

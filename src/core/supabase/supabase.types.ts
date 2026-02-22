@@ -266,31 +266,31 @@ export type Database = {
       }
       farmers: {
         Row: {
-          cellphone_no: string
+          cellphone_no: string | null
           created_at: string
-          date_of_birth: string
+          date_of_birth: string | null
           first_name: string
-          gender: Database["public"]["Enums"]["gender"]
+          gender: Database["public"]["Enums"]["gender"] | null
           id: number
           last_name: string
           updated_at: string
         }
         Insert: {
-          cellphone_no: string
+          cellphone_no?: string | null
           created_at?: string
-          date_of_birth: string
+          date_of_birth?: string | null
           first_name: string
-          gender: Database["public"]["Enums"]["gender"]
+          gender?: Database["public"]["Enums"]["gender"] | null
           id?: number
           last_name: string
           updated_at?: string
         }
         Update: {
-          cellphone_no?: string
+          cellphone_no?: string | null
           created_at?: string
-          date_of_birth?: string
+          date_of_birth?: string | null
           first_name?: string
-          gender?: Database["public"]["Enums"]["gender"]
+          gender?: Database["public"]["Enums"]["gender"] | null
           id?: number
           last_name?: string
           updated_at?: string
@@ -539,7 +539,7 @@ export type Database = {
           created_at?: string
           farmer_id: number
           id?: number
-          location: unknown
+          location?: unknown
           mfid: string
           updated_at?: string
         }

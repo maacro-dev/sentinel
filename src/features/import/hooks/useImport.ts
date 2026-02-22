@@ -1,12 +1,18 @@
 import { Form } from "@/features/forms/schemas/forms";
 import { datasetSchemas, FieldSchema } from "@/features/forms/schemas/import-schema";
+import { useMutation } from "@tanstack/react-query";
 import Papa from "papaparse";
 import { useEffect, useState } from "react";
+import { Import } from "../services/Import";
+import { ImportToasts } from "../toastMessages";
+import { useToast } from "@/features/toast";
 
 export type ImportRow = Record<string, unknown>;
+
 export type PreviewRow = ImportRow & {
   _originalIndex: number;
 };
+
 export type ImportIssue = {
   row: number;
   col: string;
@@ -15,22 +21,53 @@ export type ImportIssue = {
   value: any;
 };
 
+export type FileError = {
+  message: string;
+  missingColumns?: string[];
+} | null;
+
 export function useImport(initialDataset?: Form) {
+
+  const { notifyLoading, notifySuccess, notifyError } = useToast()
+
   const [datasetType, setDatasetType] = useState<Form | null>(initialDataset || null);
   const [rawData, setRawData] = useState<ImportRow[]>([]);
   const [issues, setIssues] = useState<ImportIssue[]>([]);
-  const [fileError, setFileError] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<FileError>(null);
 
   useEffect(() => {
     setFileError(null);
   }, [datasetType]);
 
-  const validateFileCompatibility = (data: ImportRow[], datasetType: Form): string | null => {
+  const importMutation = useMutation({
+    mutationKey: ['import', datasetType] as const,
+    mutationFn: ({ datasetType, data }: { datasetType: Form; data: ImportRow[] }) => {
+      return Import.create(datasetType, data)
+    },
+    onMutate: () => notifyLoading(ImportToasts.creating),
+    onSuccess: (d, _v, id) => notifySuccess({ id, message: ImportToasts.created.message, description: d.message || ImportToasts.created.description }),
+    onError: (_d, _v, id) => notifyError({ id, ...ImportToasts.createFailed }),
+  });
+
+  const importFn = () => {
+    if (!datasetType) return Promise.reject('No dataset selected');
+    return importMutation.mutateAsync({ datasetType, data: rawData });
+  };
+
+
+  const validateFileCompatibility = (
+    data: ImportRow[],
+    datasetType: Form
+  ): FileError => {
     const schema = datasetSchemas[datasetType];
-    if (!schema) return "Unknown dataset type";
+    if (!schema) {
+      return { message: "Unknown dataset type" };
+    }
 
     const headers = data.length > 0 ? Object.keys(data[0]) : [];
-    if (headers.length === 0) return "The CSV file appears to be empty or has no headers.";
+    if (headers.length === 0) {
+      return { message: "The CSV file appears to be empty or has no headers." };
+    }
 
     const requiredFields = schema
       .filter(f => f.required ?? true)
@@ -39,8 +76,10 @@ export function useImport(initialDataset?: Form) {
     const missingFields = requiredFields.filter(f => !headers.includes(f));
 
     if (missingFields.length > 0) {
-      return `The selected file is missing required columns for ${datasetType}: ${missingFields.join(', ')}.
-      Please ensure you have selected the correct dataset type.`;
+      return {
+        message: `The selected file is missing required columns for ${datasetType}.`,
+        missingColumns: missingFields,
+      };
     }
 
     return null;
@@ -122,5 +161,11 @@ export function useImport(initialDataset?: Form) {
     fileError,
     handleFiles,
     reset,
+
+    importFn: importFn,
+    isImporting: importMutation.isPending,
+    importError: importMutation.error,
+    importSuccess: importMutation.isSuccess,
+    importReset: importMutation.reset,
   };
 }

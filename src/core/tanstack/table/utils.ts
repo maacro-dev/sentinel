@@ -1,8 +1,8 @@
-import { FormRouteType } from "@/routes/_manager/forms/-config";
+import { FormType } from "@/routes/_manager/forms/-config";
 import { Path, RouteConfig } from "../router/types";
 
 export function getTableColumns({ formType, config }: {
-  formType: FormRouteType;
+  formType: FormType;
   config: RouteConfig;
 }) {
   const form = config.children?.find(child => child.id === formType);

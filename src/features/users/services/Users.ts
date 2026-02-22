@@ -34,7 +34,6 @@ export class Users {
       throw error
     }
 
-    console.log("data =", data)
     return data;
   }
 }

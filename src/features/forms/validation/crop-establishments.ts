@@ -1,7 +1,7 @@
 import { FieldSchema } from "../schemas/import-schema";
 import { baseFieldsValidation } from "./base";
 
-export const cropEstablishmentsValidation: FieldSchema[]  = [
+export const cropEstablishmentsValidation: FieldSchema[] = [
   ...baseFieldsValidation,
 
   { name: 'ecosystem' },
@@ -12,7 +12,7 @@ export const cropEstablishmentsValidation: FieldSchema[]  = [
       return isNaN(parseFloat(v)) ? 'Must be a number' : null
     }
   },
-  { name: 'actual_land_preparation_method' },
+  // { name: 'actual_land_preparation_method' },
   { name: 'actual_crop_establishment_date' },
   { name: 'actual_crop_establishment_method' },
   { name: 'sowing_date' },
@@ -24,8 +24,12 @@ export const cropEstablishmentsValidation: FieldSchema[]  = [
     },
     required: false
   },
-  { name: 'distance_between_plant_row', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'distance_within_plant_row', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'distance_between_plant_row_1', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'distance_between_plant_row_2', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'distance_between_plant_row_3', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'distance_within_plant_row_1', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'distance_within_plant_row_2', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'distance_within_plant_row_3', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
   {
     name: 'seeding_rate_kg_ha',
     validate: (v) => {
@@ -34,7 +38,9 @@ export const cropEstablishmentsValidation: FieldSchema[]  = [
     },
   },
   { name: 'direct_seeding_method' },
-  { name: 'avg_num_plants', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'num_plants_1', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'num_plants_2', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
+  { name: 'num_plants_3', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
   { name: 'rice_variety' },
   { name: 'rice_variety_no' },
   { name: 'rice_variety_maturity_duration' },

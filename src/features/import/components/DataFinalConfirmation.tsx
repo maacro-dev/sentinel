@@ -1,50 +1,110 @@
 
 import React from 'react';
-import { CheckCircle, Lock, AlertTriangle } from 'lucide-react';
+import { Lock, AlertTriangle } from 'lucide-react';
 import { ImportRow, ImportIssue } from '../hooks/useImport';
+import { Button } from '@/core/components/ui/button';
+import { Field } from '@/core/components/ui/field';
+import { Checkbox } from '@/core/components/ui/checkbox';
+import { Label } from '@/core/components/ui/label';
 
 interface DataFinalConfirmationProps {
   data: ImportRow[];
   issues: ImportIssue[];
-  onImport: () => void;
-  onGoBack: () => void;
+  onImport: (cleanedData: ImportRow[]) => void;
+  onCancel: () => void;
 }
 
-export function DataFinalConfirmation({ data, issues, onImport, onGoBack }: DataFinalConfirmationProps) {
+export function DataFinalConfirmation({ data, issues, onImport, onCancel }: DataFinalConfirmationProps) {
+  const errorRows = React.useMemo(
+    () => new Set(issues.filter(i => i.level === 'error').map(i => i.row)),
+    [issues]
+  );
+
+  const cleanedData = React.useMemo(
+    () => data.filter((_, idx) => !errorRows.has(idx)),
+    [data, errorRows]
+  );
+
+  const keptWarnings = React.useMemo(
+    () => issues.filter(i => i.level === 'warning' && !errorRows.has(i.row)),
+    [issues, errorRows]
+  );
+
   const [understood, setUnderstood] = React.useState(false);
-  const warnings = issues.length;
+
+  const totalRows = data.length;
+  const importRows = cleanedData.length;
+  const skippedRows = errorRows.size;
+  const warningCount = keptWarnings.length;
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Final Confirmation</h1>
-        <div className="bg-white rounded-xl p-8 border border-border mb-8">
-          <h3 className="font-semibold text-lg mb-6 flex items-center gap-2"><CheckCircle className="w-6 h-6 text-emerald-600" /> Import Summary</h3>
-          <div className="space-y-4 mb-8">
-            <div className="flex justify-between pb-4 border-b"><span>Total Rows</span><span className="font-semibold">{data.length}</span></div>
-            <div className="flex justify-between pb-4 border-b"><span>Columns</span><span className="font-semibold">{Object.keys(data[0] || {}).length}</span></div>
-            <div className="flex justify-between"><span>Remaining Warnings</span><span className="font-semibold text-amber-600">{warnings}</span></div>
+    <div className='h-full flex flex-col justify-center items-center'>
+      <div className="w-3/5">
+        <h1 className="text-lg font-bold text-foreground">Confirm import</h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          Review the summary below. Rows with errors will be skipped automatically.
+        </p>
+        <div className="bg-white rounded-container p-4 border border-border mb-4 w-full">
+          <div className="space-y-4">
+            <div className="flex justify-between pb-2 border-b">
+              <span className="text-sm text-muted-foreground">Total rows</span>
+              <span className="font-semibold">{totalRows}</span>
+            </div>
+            <div className="flex justify-between pb-2 border-b">
+              <span className="text-sm text-muted-foreground">
+                Rows to Import
+              </span>
+              <span className="font-semibold text-emerald-700">{importRows}</span>
+            </div>
+            {skippedRows > 0 && (
+              <div className="flex justify-between pb-2 border-b">
+                <span className="text-sm text-muted-foreground">
+                  Rows with errors (skipped)
+                </span>
+                <span className="font-semibold text-red-600">{skippedRows}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">
+                Warnings
+              </span>
+              <span className="font-semibold text-amber-600">{warningCount}</span>
+            </div>
           </div>
-          <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-6">
-            <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2"><Lock className="w-5 h-5" /> After Import</h4>
-            <p className="text-sm text-blue-800">Dataset becomes read‑only to keep reports accurate.</p>
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-container px-4 py-3 text-sm text-blue-800 flex items-center gap-3">
+            <Lock className="size-4 text-blue-600" />
+            <span>After import, the data is not editable.</span>
           </div>
         </div>
-        {warnings > 0 && (
-          <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-6 mb-8">
-            <h3 className="font-semibold text-amber-900 mb-4 flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> Remaining Warnings ({warnings})</h3>
-            <p className="text-sm text-amber-800">These won't prevent import but may affect analysis.</p>
-          </div>
-        )}
-        <div className="bg-white rounded-xl p-6 border border-border mb-8">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" checked={understood} onChange={e => setUnderstood(e.target.checked)} className="mt-1 w-5 h-5" />
-            <span className="text-foreground font-medium">I understand this dataset becomes read‑only after import</span>
-          </label>
+        <div className="bg-white rounded-container p-4 border border-border mb-6">
+          <Field orientation="horizontal">
+            <Checkbox
+              className='hover:cursor-pointer'
+              id="understood-checkbox"
+              name="understood-checkbox"
+              checked={understood}
+              onCheckedChange={e => setUnderstood(e === true)}
+            />
+            <Label htmlFor="understood-checkbox" className='font-normal hover:underline hover:cursor-pointer'>
+              I understand the dataset will be read‑only after import
+            </Label>
+          </Field>
         </div>
-        <div className="flex gap-4 justify-center">
-          <button onClick={onImport} disabled={!understood} className="px-8 py-3 bg-accent text-accent-foreground rounded-lg disabled:opacity-50">Import Data</button>
-          <button onClick={onGoBack} className="px-8 py-3 bg-secondary text-secondary-foreground rounded-lg">Go Back</button>
+        <div className="flex flex-col gap-3">
+          <Button
+            className='w-full'
+            onClick={() => onImport(cleanedData)}
+            disabled={!understood}
+          >
+            Import {importRows} {importRows === 1 ? 'row' : 'rows'}
+          </Button>
+          <Button
+            className='w-full'
+            variant="outline"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ export const fieldPlanningsValidation: FieldSchema[] = [
 
 
   field({ name: 'gender' }),
+
   {
     name: 'date_of_birth',
     validate: (v) => {

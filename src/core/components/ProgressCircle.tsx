@@ -3,12 +3,14 @@ type ProgressCircleProps = {
   percentage: number;
   size?: number;
   strokeWidth?: number;
+  textClassName?: string,
 };
 
 export default function ProgressCircle({
   percentage,
   size = 80,
   strokeWidth = 8,
+  textClassName = ""
 }: ProgressCircleProps) {
   const cleanPercentage = Math.min(100, Math.max(0, percentage));
   const radius = (size - strokeWidth) / 2;
@@ -49,7 +51,7 @@ export default function ProgressCircle({
           />
         </svg>
 
-        <div className="absolute inset-0 grid place-items-center text-sm font-bold leading-none">
+        <div className={`absolute inset-0 grid place-items-center font-bold leading-none ${textClassName}`}>
           {cleanPercentage}%
         </div>
       </div>

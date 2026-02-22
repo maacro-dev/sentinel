@@ -2,7 +2,16 @@ import { Button } from "@/core/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/core/components/ui/empty";
 import { Database } from 'lucide-react';
 import { Form } from '@/features/forms/schemas/forms';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/core/components/ui/dialog"
+import { FileError } from "../hooks/useImport";
 
 interface DatasetSelectorProps {
   onSelect: (type: Form) => void;
@@ -22,11 +31,16 @@ const forms = [
 interface DatasetSelectorProps {
   onSelect: (type: Form) => void;
   onFileHandle: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string | null;
+  fileError?: FileError | null;
 }
 
-export function DatasetSelector({ onSelect, onFileHandle, error }: DatasetSelectorProps) {
+export function DatasetSelector({ onSelect, onFileHandle, fileError }: DatasetSelectorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [errorOpen, setErrorOpen] = useState(false)
+
+  useEffect(() => {
+    if (fileError) setErrorOpen(true)
+  }, [fileError])
 
   const handleDatasetClick = (type: Form) => {
     onSelect(type);
@@ -34,44 +48,60 @@ export function DatasetSelector({ onSelect, onFileHandle, error }: DatasetSelect
   };
 
   return (
-    <div className='h-full flex flex-col justify-center items-center'>
-      <Empty className="border border-muted-foreground/40 border-dashed max-h-[500px] w-3/5">
-        <EmptyHeader>
-          <EmptyMedia variant="icon"><Database /></EmptyMedia>
-          <EmptyTitle>Choose Dataset Type</EmptyTitle>
-          <EmptyDescription className="text-sm max-w-[70ch]">
-            Select the type of data you're importing, then pick a CSV file.
-          </EmptyDescription>
-        </EmptyHeader>
-        <div className="grid grid-cols-2 gap-4">
-          {forms.map(type => (
-            <Button
-              className="text-xs"
-              key={type}
-              variant="outline"
-              onClick={() => handleDatasetClick(type)}
-            >
-              {type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-            </Button>
-          ))}
-        </div>
-
-        {error && (
-          <div className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
-            {error}
+    <>
+      <div className='h-full flex flex-col justify-center items-center'>
+        <Empty className="border border-muted-foreground/40 border-dashed max-h-[500px] w-3/5">
+          <EmptyHeader>
+            <EmptyMedia variant="icon"><Database /></EmptyMedia>
+            <EmptyTitle>Choose Dataset Type</EmptyTitle>
+            <EmptyDescription className="text-sm max-w-[70ch]">
+              Select the type of data you're importing, then pick a CSV file.
+            </EmptyDescription>
+          </EmptyHeader>
+          <div className="grid grid-cols-2 gap-4">
+            {forms.map(type => (
+              <Button
+                className="text-xs"
+                key={type}
+                variant="outline"
+                onClick={() => handleDatasetClick(type)}
+              >
+                {type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+              </Button>
+            ))}
           </div>
-        )}
+          <EmptyContent />
+        </Empty>
 
-        <EmptyContent />
-      </Empty>
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept=".csv"
+          onChange={onFileHandle}
+        />
+      </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        accept=".csv"
-        onChange={onFileHandle}
-      />
-    </div>
+      <Dialog open={errorOpen} onOpenChange={setErrorOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import Error</DialogTitle>
+            <DialogDescription className="mt-1.5">
+              <p>{fileError?.message}</p>
+              <ul className="ml-6 list-disc [&>li]:mt-2">
+                {fileError?.missingColumns?.map(col => (
+                  <li>{col}</li>
+                ))}
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setErrorOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

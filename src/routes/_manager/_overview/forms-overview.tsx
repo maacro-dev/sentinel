@@ -12,15 +12,15 @@ import PlaceholderBody from "@/core/components/PlaceholderBody";
 
 export const Route = createFileRoute("/_manager/_overview/forms-overview")({
   component: RouteComponent,
-  head: () => ({ meta: [{ title: "Overview | Humay" }] }),
+  head: () => ({ meta: [{ title: "Data Collection | Humay" }] }),
   loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(dataCollectionTrendOptions())
     queryClient.ensureQueryData(formCountSummaryOptions())
-    return { breadcrumb: createCrumbLoader({ label: "Overview" }) }
+    return { breadcrumb: createCrumbLoader({ label: "Data Collection" }) }
   },
   staticData: {
     role: "data_manager",
-    label: "Overview",
+    label: "Data Collection",
     sidebar: {
       order: 0,
       icon: FormInput,

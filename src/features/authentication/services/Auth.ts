@@ -6,7 +6,7 @@ import { User } from "@/features/users";
 
 
 export class Auth {
-  private constructor() {}
+  private constructor() { }
 
   public static async signIn(credentials: Credentials): Promise<User> {
     console.log("Auth.signIn — starting sign in process...");

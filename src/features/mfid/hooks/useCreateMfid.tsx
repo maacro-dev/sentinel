@@ -15,7 +15,7 @@ export const useCreateMfid = () => {
     onSuccess: (d, _v, id) => notifySuccess({ id, message: MfidToasts.created.message, description: d.message || MfidToasts.created.description }),
     onError: (_d, _v, id) => notifyError({ id, ...MfidToasts.createFailed }),
     onSettled: () => {
-      queryClient.invalidateQueries( mfidsQueryOptions());
+      queryClient.invalidateQueries(mfidsQueryOptions());
     },
   })
 

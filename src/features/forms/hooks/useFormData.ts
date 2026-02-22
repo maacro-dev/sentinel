@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { FormRouteType } from "@/routes/_manager/forms/-config";
+import { FormType } from "@/routes/_manager/forms/-config";
 import { formDataOptions, formDataByMfidOptions } from "../queries/options";
 
 interface useFormEntriesOptions {
-  formType: FormRouteType,
+  formType: FormType,
   enabled?: boolean,
 }
 
 interface useFormEntryOptions {
-  formType: FormRouteType,
+  formType: FormType,
   mfid: string,
   enabled?: boolean,
 }

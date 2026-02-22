@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@clients": "../_shared/clients.ts",
+    "@http": "../_shared/http.ts"
+  }
+}
+

@@ -1,17 +1,17 @@
 import { queryOptions, UseQueryOptions } from "@tanstack/react-query";
 import { Forms } from "../services/Forms";
-import { FormRouteType } from "@/routes/_manager/forms/-config";
+import { FormType } from "@/routes/_manager/forms/-config";
 
 
 export interface FormDataOptions {
-  formType: FormRouteType | (string & {});
+  formType: FormType | (string & {});
   enabled?: boolean;
 }
 
 export function formDataOptions({ formType, enabled }: FormDataOptions) {
   return queryOptions({
     queryKey: ["form-data", formType] as const,
-    queryFn: () => Forms.getFormData(formType as FormRouteType),
+    queryFn: () => Forms.getFormData(formType as FormType),
     enabled,
     staleTime: 1000 * 60 * 1, // 1min
     placeholderData: (prev) => prev
@@ -20,7 +20,7 @@ export function formDataOptions({ formType, enabled }: FormDataOptions) {
 
 
 export interface FormDataByMfidOptions {
-  formType: FormRouteType | (string & {});
+  formType: FormType | (string & {});
   mfid: string;
   enabled?: boolean;
   queryOptions?: Partial<UseQueryOptions<any>>
@@ -34,7 +34,7 @@ export function formDataByMfidOptions({
 }: FormDataByMfidOptions) {
   return queryOptions({
     queryKey: ["form-data-entry", formType, mfid] as const,
-    queryFn: () => Forms.getFormDataByMfid(formType as FormRouteType, mfid),
+    queryFn: () => Forms.getFormDataByMfid(formType as FormType, mfid),
     enabled: Boolean(mfid) && enabled,
     staleTime: Infinity,
     placeholderData: (prev) => prev,

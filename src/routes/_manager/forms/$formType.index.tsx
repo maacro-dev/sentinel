@@ -1,6 +1,6 @@
 import { PageContainer } from '@/core/components/layout';
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { FormRouteType } from './-config';
+import { FormType } from './-config';
 import { formDataOptions } from '@/features/forms/queries/options';
 import { FormDataTable } from '@/features/forms/components/FormDataTable';
 import { useCallback } from 'react';
@@ -35,7 +35,7 @@ function RouteComponent() {
   return (
     <PageContainer>
       <FormDataTable
-        formType={formType as FormRouteType}
+        formType={formType as FormType}
         onRowClick={handleOnRowClick}
         onRowIntent={handleOnRowIntent}
       />

@@ -8,7 +8,7 @@ import { nutrientManagementColumns } from "@/features/forms/columns/nutrientMana
 import { productionColumns } from "@/features/forms/columns/productionColumns";
 import { Activity, Cuboid, Folder, Grid2X2, PackagePlus, ShieldHalf } from "lucide-react";
 
-export type FormRouteType = RouteConfigIds<typeof formGroupConfig>
+export type FormType = RouteConfigIds<typeof formGroupConfig>
 export const formGroupConfig = createRouteConfig({
   role: "data_manager",
   label: "Forms",
@@ -73,16 +73,5 @@ export const formGroupConfig = createRouteConfig({
         tableColumns: damageAssessmentColumns,
       }
     }),
-    // createRouteConfig("rice-non-rice", {
-    //   role: "data_manager",
-    //   label: "Rice / Non-Rice",
-    //   path: "/forms/$formType",
-    //   params: { formType: "rice-non-rice" },
-    //   icon: Leaf,
-    //   meta: {
-    //     tableColumns: [], //* TODO
-    //   },
-    //   disabled: true
-    // }),
   ]
 });
