@@ -17,6 +17,7 @@ import {
   DialogFooter,
 } from "@/core/components/ui/dialog"
 import { Button } from "@/core/components/ui/button"
+import { parse } from 'path'
 
 export const Route = createFileRoute('/_manager/_data/import')({
   loader: () => ({ breadcrumb: createCrumbLoader({ label: "Import" }) }),
@@ -27,7 +28,7 @@ export const Route = createFileRoute('/_manager/_data/import')({
 type ImportStep = 'upload' | 'preview' | 'confirm' | 'success'
 
 function RouteComponent() {
-  const { datasetType, setDatasetType, rawData, issues, fileError, handleFiles, reset, importFn } = useImport();
+  const { datasetType, setDatasetType, rawData, parsedData, issues, fileError, handleFiles, reset, importFn } = useImport();
   const [step, setStep] = useState<ImportStep>('upload')
 
   const [cancelOpen, setCancelOpen] = useState(false)
@@ -38,28 +39,20 @@ function RouteComponent() {
     setDatasetType(null)
   }
 
-  const { cleanedData, cleanedIssues } = useMemo(() => {
-    const errorRows = new Set(
-      issues
-        .filter(i => i.level === 'error')
-        .map(i => i.row)
-    );
-    const cleaned = rawData.filter((_, idx) => !errorRows.has(idx));
-    const cleanedWarnings = issues.filter(
-      i => i.level === 'warning' && !errorRows.has(i.row)
-    );
-    return { cleanedData: cleaned, cleanedIssues: cleanedWarnings };
-  }, [rawData, issues]);
-
   useEffect(() => {
     if (rawData.length) setStep('preview')
   }, [rawData])
 
 
   const doImport = async () => {
+
     try {
-      await importFn();
+      const result = await importFn(parsedData);
+
+      console.log(result)
+
       setStep('success');
+
     } catch (err) {
 
     }
@@ -107,7 +100,7 @@ function RouteComponent() {
 
       {step === 'success' && (
         <DataSuccess
-          rowsImported={cleanedData.length}
+          rowsImported={parsedData.length}
           onImportAnother={handleNewImport}
         />
       )}

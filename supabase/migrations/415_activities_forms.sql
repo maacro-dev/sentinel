@@ -6,7 +6,7 @@ create table field_plannings (
   est_crop_establishment_date       date not null,
   est_crop_establishment_method     text not null,
   total_field_area_ha               double precision not null,
-  soil_type                         text not null,
+  soil_type                         text null, -- N/A
   current_field_condition           text not null
 );
 create index idx_fp_prep_start_date on field_plannings(land_preparation_start_date);

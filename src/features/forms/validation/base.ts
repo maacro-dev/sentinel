@@ -1,9 +1,37 @@
 import { FieldSchema } from "../schemas/import-schema";
-import { field } from "../utils";
+import { field, strclean } from "../utils";
+import * as z from "zod/v4"
 
 const nameRegex = /^[A-Za-z\s\-,.]+$/;
 
-const tempMfidRegex = /^06(40|60|19|03|79)\d{2}\d{3}$/;
+const tempMfidRegex = /^60(04|06|19|30|45|79)\d{2}\d{3}$/;
+
+
+export const baseFields = z.object({
+  province: z.string().transform(strclean),
+  municity: z.string().transform(strclean),
+
+  barangay: z.string()
+    .transform(str => strclean(str)
+      .replace(/\bSto\./gi, "Santo")
+      .replace(/\bSta\./gi, "Santa")
+      .replace(/\b\p{L}[\p{L}\p{M}']*(?:-\p{L}[\p{L}\p{M}']*)*/gu, word =>
+        word[0].toUpperCase() + word.slice(1).toLowerCase()
+      )
+      .replace(/\bBitoon\.?\b/gi, "Bito-on")
+      .replace(/mambiranan pequiño/gi, "Mambiranan Pequeño")
+      .replace(/cubay-napultan/gi, "Cubay-Napultan")
+      .replace(/intongcan/gi, "Intungcan")
+      .replace(/\bIii\b/g, "III")
+      .replace(/\bIi\b/g, "II")
+    ),
+
+  mfid: z.string().regex(/^60(04|06|19|30|45|79)\d{2}\d{3}$/, 'Not a valid Monitoring Field ID'),
+  first_name: z.string().regex(/^[A-Za-z\s\-,.]+$/, 'Only letters, spaces, hyphens, commas, periods allowed'),
+  last_name: z.string().regex(/^[A-Za-z\s\-,.]+$/, 'Only letters, spaces, hyphens, commas, periods allowed'),
+  collected_by: z.string().transform(strclean),
+  collected_at: z.string().transform(strclean),
+})
 
 
 export const baseFieldsValidation: FieldSchema[] = [

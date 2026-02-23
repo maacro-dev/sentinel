@@ -1,0 +1,1 @@
+select * from latest_season

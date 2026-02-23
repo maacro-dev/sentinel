@@ -377,11 +377,11 @@ export type Database = {
       field_activities: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
-          collected_at: string
-          collected_by: string
+          collected_at: string | null
+          collected_by: string | null
           field_id: number
           id: number
-          image_urls: Json
+          image_urls: Json | null
           remarks: string | null
           season_id: number
           synced_at: string | null
@@ -392,11 +392,11 @@ export type Database = {
         }
         Insert: {
           activity_type: Database["public"]["Enums"]["activity_type"]
-          collected_at?: string
-          collected_by: string
+          collected_at?: string | null
+          collected_by?: string | null
           field_id: number
           id?: number
-          image_urls: Json
+          image_urls?: Json | null
           remarks?: string | null
           season_id: number
           synced_at?: string | null
@@ -407,11 +407,11 @@ export type Database = {
         }
         Update: {
           activity_type?: Database["public"]["Enums"]["activity_type"]
-          collected_at?: string
-          collected_by?: string
+          collected_at?: string | null
+          collected_by?: string | null
           field_id?: number
           id?: number
-          image_urls?: Json
+          image_urls?: Json | null
           remarks?: string | null
           season_id?: number
           synced_at?: string | null
@@ -486,7 +486,7 @@ export type Database = {
           est_crop_establishment_method: string
           id: number
           land_preparation_start_date: string
-          soil_type: string
+          soil_type: string | null
           total_field_area_ha: number
         }
         Insert: {
@@ -495,7 +495,7 @@ export type Database = {
           est_crop_establishment_method: string
           id: number
           land_preparation_start_date: string
-          soil_type: string
+          soil_type?: string | null
           total_field_area_ha: number
         }
         Update: {
@@ -504,7 +504,7 @@ export type Database = {
           est_crop_establishment_method?: string
           id?: number
           land_preparation_start_date?: string
-          soil_type?: string
+          soil_type?: string | null
           total_field_area_ha?: number
         }
         Relationships: [
@@ -967,10 +967,47 @@ export type Database = {
         }
         Returns: undefined
       }
+      find_barangay_id: {
+        Args: { p_barangay: string; p_municity: string; p_province: string }
+        Returns: number
+      }
+      find_or_create_farmer: {
+        Args: {
+          p_cellphone_no: string
+          p_date_of_birth: string
+          p_first_name: string
+          p_gender: string
+          p_last_name: string
+        }
+        Returns: number
+      }
       generate_mfid: {
         Args: { p_municity: string; p_province: string }
         Returns: string
       }
+      handle_mfid: {
+        Args: {
+          p_auto_create_mfid?: boolean
+          p_barangay_id: number
+          p_farmer_id: number
+          p_location: unknown
+          p_mfid: string
+        }
+        Returns: number
+      }
+      import_data_transaction: {
+        Args: {
+          p_auto_create_mfid?: boolean
+          p_data: Json
+          p_dataset_type: string
+        }
+        Returns: Json
+      }
+      import_field_plannings: {
+        Args: { p_auto_create_mfid?: boolean; p_data: Json }
+        Returns: Json
+      }
+      parse_flexible_date: { Args: { date_str: string }; Returns: string }
     }
     Enums: {
       activity_type:

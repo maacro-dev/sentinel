@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { ImportRow, ImportIssue, PreviewRow } from '../hooks/useImport';
 import { useState, useMemo } from 'react';
 import {
@@ -23,33 +23,53 @@ interface DataPreviewProps {
 
 export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPreviewProps) {
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
+  const [showOnlyWarnings, setShowOnlyWarnings] = useState(false);
   const [filterColumn, setFilterColumn] = useState<string | null>(null);
+  const [filterLevel, setFilterLevel] = useState<'error' | 'warning' | null>(null);
 
   const errorIssues = issues.filter(i => i.level === 'error');
-
+  const warningIssues = issues.filter(i => i.level === 'warning');
   const errorRowsSet = new Set(errorIssues.map(i => i.row));
+  const warningRowsSet = new Set(warningIssues.map(i => i.row));
+
   const errorRowsCount = errorRowsSet.size;
-  const hasErrors = errorRowsCount > 0
+  const warningRowsCount = warningRowsSet.size;
+  const hasErrors = errorRowsCount > 0;
+  const hasWarnings = warningRowsCount > 0;
 
   const filteredData = useMemo<PreviewRow[]>(() => {
     return data
       .map((row, idx) => ({ ...row, _originalIndex: idx }))
       .filter((row) => {
-        if (showOnlyErrors && !errorRowsSet.has(row._originalIndex)) return false;
-        if (
-          filterColumn &&
-          !issues.some(
-            i =>
-              i.row === row._originalIndex &&
-              i.col === filterColumn &&
-              i.level === 'error'
-          )
-        )
-          return false;
+        const rowIdx = row._originalIndex;
+        const hasError = errorRowsSet.has(rowIdx);
+        const hasWarning = warningRowsSet.has(rowIdx);
+
+        // Apply "show only errors/warnings" toggles
+        if (showOnlyErrors && showOnlyWarnings) {
+          if (!hasError && !hasWarning) return false;
+        } else if (showOnlyErrors) {
+          if (!hasError) return false;
+        } else if (showOnlyWarnings) {
+          if (!hasWarning) return false;
+        }
+
+        // Apply column filter if set
+        if (filterColumn && filterLevel) {
+          const hasIssueInColumn = issues.some(
+            i => i.row === rowIdx && i.col === filterColumn && i.level === filterLevel
+          );
+          if (!hasIssueInColumn) return false;
+        }
+
         return true;
       });
-  }, [data, showOnlyErrors, filterColumn, errorRowsSet, issues]);
+  }, [data, showOnlyErrors, showOnlyWarnings, filterColumn, filterLevel, errorRowsSet, warningRowsSet, issues]);
 
+  const handleFilterChange = (column: string | null, level?: 'error' | 'warning' | null) => {
+    setFilterColumn(column);
+    setFilterLevel(level ?? null);
+  };
 
   return (
     <div className='h-full flex flex-col justify-center items-center'>
@@ -61,11 +81,20 @@ export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPr
             issues={issues}
             totalRows={data.length}
             filterColumn={filterColumn}
-            onFilterColumn={setFilterColumn}
+            filterLevel={filterLevel}
+            onFilterChange={handleFilterChange}
             showOnlyErrors={showOnlyErrors}
-            onShowOnlyErrorsChange={(e) => setShowOnlyErrors(e === true)}
+            onShowOnlyErrorsChange={setShowOnlyErrors}
+            showOnlyWarnings={showOnlyWarnings}
+            onShowOnlyWarningsChange={setShowOnlyWarnings}
           />
-          <DataPreviewTable data={filteredData} issues={issues} totalRows={data.length} />
+          <DataPreviewTable
+            data={filteredData}
+            issues={issues}
+            totalRows={data.length}
+            errorRowsSet={errorRowsSet}
+            warningRowsSet={warningRowsSet}
+          />
         </div>
         <div className="flex flex-col gap-3 justify-start mt-6 ">
           <Button className="w-full" onClick={onContinueAnyway}>
@@ -88,45 +117,94 @@ interface DataQualityWidgetProps {
   issues: ImportIssue[];
   totalRows: number;
   filterColumn: string | null;
-  onFilterColumn: (col: string | null) => void;
-  showOnlyErrors: boolean,
-  onShowOnlyErrorsChange: (value: boolean) => void
+  filterLevel: 'error' | 'warning' | null;
+  onFilterChange: (column: string | null, level?: 'error' | 'warning' | null) => void;
+  showOnlyErrors: boolean;
+  onShowOnlyErrorsChange: (value: boolean) => void;
+  showOnlyWarnings: boolean;
+  onShowOnlyWarningsChange: (value: boolean) => void;
 }
 
-function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn, showOnlyErrors, onShowOnlyErrorsChange }: DataQualityWidgetProps) {
+function DataQualityWidget({
+  issues,
+  totalRows,
+  filterColumn,
+  filterLevel,
+  onFilterChange,
+  showOnlyErrors,
+  onShowOnlyErrorsChange,
+  showOnlyWarnings,
+  onShowOnlyWarningsChange,
+}: DataQualityWidgetProps) {
   const errorIssues = issues.filter(i => i.level === 'error');
+  const warningIssues = issues.filter(i => i.level === 'warning');
+
   const totalErrors = errorIssues.length;
+  const totalWarnings = warningIssues.length;
 
   const errorRowsCount = new Set(errorIssues.map(i => i.row)).size;
-  const hasErrors = errorRowsCount > 0
-  const cleanRowsCount = totalRows - errorRowsCount;
+  const warningRowsCount = new Set(warningIssues.map(i => i.row)).size;
+
+  const hasErrors = errorRowsCount > 0;
+  const hasWarnings = warningRowsCount > 0;
+
+  const cleanRowsCount = totalRows - errorRowsCount; // rows without errors (may still have warnings)
   const cleanPercentage = totalRows > 0 ? Math.round((cleanRowsCount / totalRows) * 100) : 100;
 
   const issuesByColumn = useMemo(() => {
-    const map = new Map<string, { col: string; messages: Map<string, number> }>();
+    const errorMap = new Map<string, { col: string; messages: Map<string, number> }>();
     errorIssues.forEach(issue => {
-      if (!map.has(issue.col)) {
-        map.set(issue.col, { col: issue.col, messages: new Map() });
+      if (!errorMap.has(issue.col)) {
+        errorMap.set(issue.col, { col: issue.col, messages: new Map() });
       }
-      const colData = map.get(issue.col)!;
+      const colData = errorMap.get(issue.col)!;
       const count = colData.messages.get(issue.message) || 0;
       colData.messages.set(issue.message, count + 1);
     });
-    return Array.from(map.values()).map(({ col, messages }) => ({
-      col,
-      messages: Array.from(messages.entries()).map(([msg, cnt]) => ({ msg, cnt })),
-    }));
-  }, [errorIssues]);
 
-  const topColumns = useMemo(() => {
-    return issuesByColumn
+    const warningMap = new Map<string, { col: string; messages: Map<string, number> }>();
+    warningIssues.forEach(issue => {
+      if (!warningMap.has(issue.col)) {
+        warningMap.set(issue.col, { col: issue.col, messages: new Map() });
+      }
+      const colData = warningMap.get(issue.col)!;
+      const count = colData.messages.get(issue.message) || 0;
+      colData.messages.set(issue.message, count + 1);
+    });
+
+    return {
+      errors: Array.from(errorMap.values()).map(({ col, messages }) => ({
+        col,
+        messages: Array.from(messages.entries()).map(([msg, cnt]) => ({ msg, cnt })),
+      })),
+      warnings: Array.from(warningMap.values()).map(({ col, messages }) => ({
+        col,
+        messages: Array.from(messages.entries()).map(([msg, cnt]) => ({ msg, cnt })),
+      })),
+    };
+  }, [errorIssues, warningIssues]);
+
+  console.log(issuesByColumn)
+
+  const topErrorColumns = useMemo(() => {
+    return issuesByColumn.errors
       .map(c => ({
         col: c.col,
         total: c.messages.reduce((sum, m) => sum + m.cnt, 0),
         messages: c.messages,
       }))
       .sort((a, b) => b.total - a.total);
-  }, [issuesByColumn]);
+  }, [issuesByColumn.errors]);
+
+  const topWarningColumns = useMemo(() => {
+    return issuesByColumn.warnings
+      .map(c => ({
+        col: c.col,
+        total: c.messages.reduce((sum, m) => sum + m.cnt, 0),
+        messages: c.messages,
+      }))
+      .sort((a, b) => b.total - a.total);
+  }, [issuesByColumn.warnings]);
 
   return (
     <div className="bg-white border rounded-container p-4 h-fit max-h-56 lg:max-h-64 overflow-y-auto">
@@ -143,13 +221,17 @@ function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn, sh
         {cleanRowsCount} of {totalRows} rows error‑free
       </div>
 
-      <div className="flex w-full justify-between mb-2">
+      <div className="flex flex-col w-full justify-between mb-5 gap-2">
         <div className="flex items-center gap-2">
-          {hasErrors ? (
+          {hasErrors || hasWarnings ? (
             <>
               <AlertCircle className="w-4 h-4 text-red-600" />
               <span className="text-xs font-medium">
                 {plural(errorRowsCount, 'row')} contain {plural(totalErrors, 'error')}
+              </span>
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <span className="text-xs font-medium">
+                {plural(warningRowsCount, 'row')} have {plural(totalWarnings, 'warning')}
               </span>
             </>
           ) : (
@@ -162,30 +244,53 @@ function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn, sh
           )}
         </div>
         {hasErrors && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-1">
             <Checkbox
               className='hover:cursor-pointer'
               id="errors-checkbox"
-              name="errors-checkbox"
               checked={showOnlyErrors}
               onCheckedChange={e => onShowOnlyErrorsChange(e === true)}
             />
-            <Label htmlFor="errors-checkbox" className='font-normal text-xs hover:underline hover:cursor-pointer'>Show only errors</Label>
+            <Label htmlFor="errors-checkbox" className='font-normal text-xs hover:underline hover:cursor-pointer'>
+              Show only errors
+            </Label>
+          </div>
+        )}
+
+        {hasWarnings && (
+          <div className="flex gap-2">
+            <Checkbox
+              className='hover:cursor-pointer'
+              id="warnings-checkbox"
+              checked={showOnlyWarnings}
+              onCheckedChange={e => onShowOnlyWarningsChange(e === true)}
+            />
+            <Label htmlFor="warnings-checkbox" className='font-normal text-xs hover:underline hover:cursor-pointer'>
+              Show only warnings
+            </Label>
           </div>
         )}
       </div>
 
-      {topColumns.length > 0 && (
-        <div className="space-y-1">
-          <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Issues
+      {/* Error issues list */}
+      {topErrorColumns.length > 0 && (
+        <div className="space-y-1 mb-6">
+          <h4 className="text-2xs font-medium uppercase flex items-center gap-1 text-red-600">
+            <AlertCircle className="w-3 h-3 " /> Errors
           </h4>
-          {topColumns.map(({ col, total, messages }) => (
+          {topErrorColumns.map(({ col, total, messages }) => (
             <div key={col} className="">
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => onFilterColumn(filterColumn === col ? null : col)}
-                  className={`text-xs font-medium hover:underline ${filterColumn === col ? 'text-red-600' : 'text-foreground'
+                  onClick={() =>
+                    onFilterChange(
+                      filterColumn === col && filterLevel === 'error' ? null : col,
+                      'error'
+                    )
+                  }
+                  className={`text-xs font-medium hover:underline ${filterColumn === col && filterLevel === 'error'
+                    ? 'text-red-600'
+                    : 'text-foreground'
                     }`}
                 >
                   {col.replace(/_/g, ' ')}
@@ -198,7 +303,49 @@ function DataQualityWidget({ issues, totalRows, filterColumn, onFilterColumn, sh
                     <span className="" title={msg}>
                       {msg}
                     </span>
-                    {/* <span>{cnt}</span> */}
+                  </div>
+                ))}
+                {messages.length > 2 && (
+                  <div className="text-[10px] text-muted-foreground italic">
+                    +{messages.length - 2} more
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {topWarningColumns.length > 0 && (
+        <div className="space-y-1">
+          <h4 className="text-2xs font-medium uppercase flex items-center gap-1 text-amber-600">
+            <AlertTriangle className="w-3 h-3 " /> Warnings
+          </h4>
+          {topWarningColumns.map(({ col, total, messages }) => (
+            <div key={col} className="">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() =>
+                    onFilterChange(
+                      filterColumn === col && filterLevel === 'warning' ? null : col,
+                      'warning'
+                    )
+                  }
+                  className={`text-xs font-medium hover:underline ${filterColumn === col && filterLevel === 'warning'
+                      ? 'text-amber-600'
+                      : 'text-foreground'
+                    }`}
+                >
+                  {col.replace(/_/g, ' ')}
+                </button>
+                <span className="text-muted-foreground">{total}</span>
+              </div>
+              <div className="space-y-1 pl-1.5">
+                {messages.slice(0, 2).map(({ msg, cnt }) => (
+                  <div key={msg} className="flex items-center justify-between text-2xs text-muted-foreground">
+                    <span className="" title={msg}>
+                      {msg}
+                    </span>
                   </div>
                 ))}
                 {messages.length > 2 && (
@@ -219,9 +366,11 @@ interface DataPreviewTableProps {
   data: PreviewRow[];
   issues: ImportIssue[];
   totalRows: number;
+  errorRowsSet: Set<number>;
+  warningRowsSet: Set<number>;
 }
 
-function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
+function DataPreviewTable({ data, issues, totalRows, errorRowsSet, warningRowsSet }: DataPreviewTableProps) {
   const columns = useMemo<ColumnDef<PreviewRow>[]>(() => {
     if (data.length === 0) return [];
 
@@ -234,8 +383,15 @@ function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
         const value = getValue() as string;
         const rowIdx = row.original._originalIndex ?? row.index;
         const hasError = issues.some(i => i.row === rowIdx && i.col === key && i.level === 'error');
+        const hasWarning = !hasError && issues.some(i => i.row === rowIdx && i.col === key && i.level === 'warning');
+        let bgColor = '';
+        if (hasError) {
+          bgColor = 'bg-red-200/60 font-medium text-red-600 px-2 py-0.5 rounded';
+        } else if (hasWarning) {
+          bgColor = 'bg-amber-100/60 font-medium text-amber-700 px-2 py-0.5 rounded';
+        }
         return (
-          <span className={hasError ? 'bg-red-200/60 font-medium text-red-600 px-2 py-0.5 rounded' : ''}>
+          <span className={bgColor}>
             {value || '(empty)'}
           </span>
         );
@@ -275,15 +431,21 @@ function DataPreviewTable({ data, issues, totalRows }: DataPreviewTableProps) {
           <TableBody>
             {table.getRowModel().rows.map(row => {
               const rowIdx = (row.original as any)._originalIndex ?? row.index;
-              const rowHasError = issues.some(i => i.row === rowIdx && i.level === 'error');
+              const rowHasError = errorRowsSet.has(rowIdx);
+              const rowHasWarning = !rowHasError && warningRowsSet.has(rowIdx);
+              let rowBg = '';
+              if (rowHasError) {
+                rowBg = 'bg-red-100/50 hover:bg-red-100/50';
+              } else if (rowHasWarning) {
+                rowBg = 'bg-amber-50/80 hover:bg-amber-50/80';
+              }
               return (
                 <TableRow
                   key={row.id}
-                  className={`border-b border-border transition-colors ${rowHasError ? 'bg-red-100/50 hover:bg-red-100/50' : 'hover:bg-background'
-                    }`}
+                  className={`border-b border-border transition-colors ${rowBg} hover:bg-background`}
                 >
                   {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id} className={`text-3xs px-4 py-3 whitespace-nowrap ${rowHasError ? 'text-red-500' : ''}`}>
+                    <TableCell key={cell.id} className={`text-3xs px-4 py-3 whitespace-nowrap ${rowHasError ? 'text-red-500' : rowHasWarning ? 'text-amber-700' : ''}`}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
