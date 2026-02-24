@@ -1,3 +1,4 @@
+import { Validator } from "@/core/utils/validator";
 import * as z from "zod/v4";
 
 export type SemesterDateRange = {
@@ -17,3 +18,17 @@ export const seasonsSchema = z.object({
   start_date: z.string(),
   season_year: z.string(),
 });
+
+export type SeasonRow = z.infer<typeof seasonRowSchema>;
+export const seasonRowSchema = z.object({
+  id: z.number(),
+  end_date: z.string(),
+  semester: semesterSchema,
+  start_date: z.string(),
+  season_year: z.string(),
+});
+
+export type SeasonTable = z.infer<typeof seasonsTableSchema>
+export const seasonsTableSchema = z.array(seasonRowSchema)
+
+export const parseSeasonsTable = Validator.create<SeasonTable>(seasonsTableSchema)

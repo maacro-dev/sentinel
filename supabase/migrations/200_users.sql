@@ -1,45 +1,41 @@
-
-create table users (
-  id            uuid references auth.users not null primary key,
-  role          user_role not null,
-  first_name    text not null,
-  last_name     text not null,
-  date_of_birth date not null,
-  created_at    timestamptz default now() not null,
-  updated_at    timestamptz default now() not null
+create table users(
+    id              uuid not null references auth.users primary key,
+    role            user_role not null,
+    first_name      text not null,
+    last_name       text not null,
+    date_of_birth   date not null,
+    created_at      timestamptz not null default now() ,
+    updated_at      timestamptz not null default now()
 );
 
 
--- public.users + internal auth.users
 create or replace view user_details as
-select
-  usr.*,
-  auth_user.email,
-  auth_user.last_sign_in_at
-from users usr
-join auth.users auth_user on usr.id = auth_user.id;
+    select
+        v_user.*,
+        auth_user.email,
+        auth_user.last_sign_in_at
+    from users v_user
+    join auth.users auth_user on v_user.id = auth_user.id;
 
 
 create function public.handle_new_user()
-  returns trigger
-  language plpgsql
-  security definer
-  set search_path = ''
-as $$
+    returns trigger
+    language plpgsql
+    security definer
+    set search_path = ''
+    as $$
 begin
-  insert into public.users (id, first_name, last_name, role, date_of_birth)
-  values (
-    new.id,
-    coalesce(new.raw_user_meta_data->>'first_name', 'N/A'),
-    coalesce(new.raw_user_meta_data->>'last_name', 'N/A'),
-    coalesce(new.raw_user_meta_data->>'role', 'pending')::public.user_role,
-    coalesce((new.raw_user_meta_data->>'date_of_birth')::date, current_date)
-  );
-  return new;
+    insert into public.users(id, first_name, last_name, role, date_of_birth)
+	values(
+        new.id,
+        coalesce(new.raw_user_meta_data ->> 'first_name', 'n/a'),
+	    coalesce(new.raw_user_meta_data ->> 'last_name', 'n/a'),
+        coalesce(new.raw_user_meta_data ->> 'role', 'pending')::public.user_role,
+        coalesce((new.raw_user_meta_data ->> 'date_of_birth')::date, current_date));
+    return new;
 end;
 $$;
 
-
 create or replace trigger on_auth_user_created
-after insert on auth.users
-for each row execute procedure public.handle_new_user();
+    after insert on auth.users for each row
+    execute procedure public.handle_new_user();

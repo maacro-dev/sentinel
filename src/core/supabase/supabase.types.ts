@@ -954,6 +954,10 @@ export type Database = {
       }
     }
     Functions: {
+      check_duplicate_activities: {
+        Args: { p_activity_type: string; p_rows: Json }
+        Returns: Json
+      }
       create_seed_user: {
         Args: {
           p_created_at?: string
@@ -971,16 +975,33 @@ export type Database = {
         Args: { p_barangay: string; p_municity: string; p_province: string }
         Returns: number
       }
+      find_or_create_collector_id: {
+        Args: { p_collector_json: Json }
+        Returns: string
+      }
       find_or_create_farmer: {
         Args: {
-          p_cellphone_no: string
-          p_date_of_birth: string
+          p_cellphone_no?: string
+          p_date_of_birth?: string
           p_first_name: string
-          p_gender: string
+          p_gender?: string
           p_last_name: string
         }
         Returns: number
       }
+      find_season_id_by_date:
+        | {
+            Args: { p_date: string }
+            Returns: {
+              error: true
+            } & "Could not choose the best candidate function between: public.find_season_id_by_date(p_date => text), public.find_season_id_by_date(p_date => date). Try renaming the parameters or the function itself in the database so function overloading can be resolved"
+          }
+        | {
+            Args: { p_date: string }
+            Returns: {
+              error: true
+            } & "Could not choose the best candidate function between: public.find_season_id_by_date(p_date => text), public.find_season_id_by_date(p_date => date). Try renaming the parameters or the function itself in the database so function overloading can be resolved"
+          }
       generate_mfid: {
         Args: { p_municity: string; p_province: string }
         Returns: string
@@ -990,7 +1011,7 @@ export type Database = {
           p_auto_create_mfid?: boolean
           p_barangay_id: number
           p_farmer_id: number
-          p_location: unknown
+          p_location?: unknown
           p_mfid: string
         }
         Returns: number
@@ -1007,7 +1028,12 @@ export type Database = {
         Args: { p_auto_create_mfid?: boolean; p_data: Json }
         Returns: Json
       }
-      parse_flexible_date: { Args: { date_str: string }; Returns: string }
+      import_harvest_records: {
+        Args: { p_auto_create_mfid?: boolean; p_data: Json }
+        Returns: Json
+      }
+      parse_date: { Args: { date_str: string }; Returns: string }
+      parse_timestamptz: { Args: { timestamptz_str: string }; Returns: string }
     }
     Enums: {
       activity_type:
@@ -1027,8 +1053,13 @@ export type Database = {
         | "Sufficient"
         | "Excessive"
       semester: "first" | "second"
-      user_role: "admin" | "data_manager" | "data_collector" | "pending"
-      verification_status: "pending" | "approved" | "rejected"
+      user_role:
+        | "admin"
+        | "data_manager"
+        | "data_collector"
+        | "pending"
+        | "inactive"
+      verification_status: "pending" | "approved" | "rejected" | "unknown"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1178,8 +1209,14 @@ export const Constants = {
         "Excessive",
       ],
       semester: ["first", "second"],
-      user_role: ["admin", "data_manager", "data_collector", "pending"],
-      verification_status: ["pending", "approved", "rejected"],
+      user_role: [
+        "admin",
+        "data_manager",
+        "data_collector",
+        "pending",
+        "inactive",
+      ],
+      verification_status: ["pending", "approved", "rejected", "unknown"],
     },
   },
 } as const

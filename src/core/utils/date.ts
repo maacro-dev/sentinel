@@ -1,3 +1,9 @@
+import leven from "leven";
+
+const MONTHS = [
+  "january", "february", "march", "april", "may", "june",
+  "july", "august", "september", "october", "november", "december"
+];
 
 export function formatDate(date: string | Date) {
   const dateObj = date instanceof Date ? date : new Date(date);
@@ -8,9 +14,40 @@ export function formatDate(date: string | Date) {
   }).format(dateObj);
 }
 
+
+function normalizeMonth(input: string, maxDist = 2): string {
+  const lower = input.toLowerCase();
+
+  let best: string = input;   // never null
+  let bestDist = Infinity;
+
+  for (const m of MONTHS) {
+    const d = leven(lower, m);
+    if (d < bestDist) {
+      bestDist = d;
+      best = m;
+    }
+  }
+
+  return bestDist <= maxDist ? best : input;
+}
+
+function fixMonthTypos(str: string) {
+  return str.replace(/[a-zA-Z]+/g, word => normalizeMonth(word));
+}
+
+
 export const toIso = (val?: string) => {
   if (!val) return val;
-  return new Date(val).toISOString();
+
+  const normalized = fixMonthTypos(val);
+
+  const parsed = Date.parse(normalized);
+  if (isNaN(parsed)) {
+    throw new Error(`Invalid date: ${val}`);
+  }
+
+  return new Date(parsed).toISOString();
 };
 
 export const isAtLeastAge = (dateStr: string | Date, minAge: number = 16) => {

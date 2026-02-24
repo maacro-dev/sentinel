@@ -8,20 +8,22 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
-import ProgressCircle from '@/core/components/ProgressCircle';
 import { plural } from '@/core/utils/string';
 import { Button } from '@/core/components/ui/button';
 import { Checkbox } from '@/core/components/ui/checkbox';
 import { Label } from '@/core/components/ui/label';
+import { Form } from '@/features/forms/schemas/forms';
+import { getFormLabel } from '@/features/forms/utils';
 
 interface DataPreviewProps {
+  datasetType: Form,
   data: ImportRow[];
   issues: ImportIssue[];
   onCancel: () => void;
   onContinueAnyway: () => void;
 }
 
-export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPreviewProps) {
+export function DataPreview({ datasetType, data, issues, onCancel, onContinueAnyway }: DataPreviewProps) {
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
   const [showOnlyWarnings, setShowOnlyWarnings] = useState(false);
   const [filterColumn, setFilterColumn] = useState<string | null>(null);
@@ -33,9 +35,7 @@ export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPr
   const warningRowsSet = new Set(warningIssues.map(i => i.row));
 
   const errorRowsCount = errorRowsSet.size;
-  const warningRowsCount = warningRowsSet.size;
   const hasErrors = errorRowsCount > 0;
-  const hasWarnings = warningRowsCount > 0;
 
   const filteredData = useMemo<PreviewRow[]>(() => {
     return data
@@ -45,7 +45,7 @@ export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPr
         const hasError = errorRowsSet.has(rowIdx);
         const hasWarning = warningRowsSet.has(rowIdx);
 
-        // Apply "show only errors/warnings" toggles
+        // apply "show only errors/warnings" toggles
         if (showOnlyErrors && showOnlyWarnings) {
           if (!hasError && !hasWarning) return false;
         } else if (showOnlyErrors) {
@@ -54,7 +54,7 @@ export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPr
           if (!hasWarning) return false;
         }
 
-        // Apply column filter if set
+        // apply column filter if set
         if (filterColumn && filterLevel) {
           const hasIssueInColumn = issues.some(
             i => i.row === rowIdx && i.col === filterColumn && i.level === filterLevel
@@ -74,7 +74,7 @@ export function DataPreview({ data, issues, onCancel, onContinueAnyway }: DataPr
   return (
     <div className='h-full flex flex-col justify-center items-center'>
       <div className="w-full lg:max-w-3/5">
-        <h1 className="text-lg font-bold text-foreground">Review Your Data</h1>
+        <h1 className="text-lg font-bold text-foreground">Review Your Data ({getFormLabel(datasetType)})</h1>
         <p className="text-sm text-muted-foreground mb-4">Check the preview below and fix any issues before importing</p>
         <div className="flex flex-col gap-4">
           <DataQualityWidget
@@ -213,15 +213,15 @@ function DataQualityWidget({
         Data Quality
       </h3>
 
-      <div className="flex items-center justify-center mb-2">
+      {/* <div className="flex items-center justify-center mb-2">
         <ProgressCircle percentage={cleanPercentage} size={60} textClassName='text-xs font-medium' />
-      </div>
+      </div> */}
 
-      <div className="text-xs text-center text-muted-foreground mb-4">
+      {/* <div className="text-xs text-center text-muted-foreground mb-4">
         {cleanRowsCount} of {totalRows} rows error‑free
-      </div>
+      </div> */}
 
-      <div className="flex flex-col w-full justify-between mb-5 gap-2">
+      <div className={`flex flex-col w-full justify-between gap-2 ${hasErrors || hasWarnings ? 'mb-4' : ''}`}>
         <div className="flex items-center gap-2">
           {hasErrors || hasWarnings ? (
             <>
@@ -332,8 +332,8 @@ function DataQualityWidget({
                     )
                   }
                   className={`text-xs font-medium hover:underline ${filterColumn === col && filterLevel === 'warning'
-                      ? 'text-amber-600'
-                      : 'text-foreground'
+                    ? 'text-amber-600'
+                    : 'text-foreground'
                     }`}
                 >
                   {col.replace(/_/g, ' ')}

@@ -1,20 +1,23 @@
 
 import React from 'react';
-import { Lock, AlertTriangle } from 'lucide-react';
-import { ImportRow, ImportIssue } from '../hooks/useImport';
+import { Lock } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
 import { Field } from '@/core/components/ui/field';
 import { Checkbox } from '@/core/components/ui/checkbox';
 import { Label } from '@/core/components/ui/label';
+import { Form } from '@/features/forms/schemas/forms';
+import { ImportRow, ImportIssue } from '../types';
+import { getFormLabel } from '@/features/forms/utils';
 
 interface DataFinalConfirmationProps {
+  datasetType: Form,
   data: ImportRow[];
   issues: ImportIssue[];
   onImport: (cleanedData: ImportRow[]) => void;
   onCancel: () => void;
 }
 
-export function DataFinalConfirmation({ data, issues, onImport, onCancel }: DataFinalConfirmationProps) {
+export function DataFinalConfirmation({ datasetType, data, issues, onImport, onCancel }: DataFinalConfirmationProps) {
   const errorRows = React.useMemo(
     () => new Set(issues.filter(i => i.level === 'error').map(i => i.row)),
     [issues]
@@ -40,7 +43,7 @@ export function DataFinalConfirmation({ data, issues, onImport, onCancel }: Data
   return (
     <div className='h-full flex flex-col justify-center items-center'>
       <div className="w-3/5">
-        <h1 className="text-lg font-bold text-foreground">Confirm import</h1>
+        <h1 className="text-lg font-bold text-foreground">Confirm Import - ({getFormLabel(datasetType)})</h1>
         <p className="text-sm text-muted-foreground mb-6">
           Review the summary below. Rows with errors will be skipped automatically.
         </p>

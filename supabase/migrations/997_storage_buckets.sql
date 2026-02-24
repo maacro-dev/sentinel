@@ -1,13 +1,11 @@
-insert into storage.buckets (id, name, allowed_mime_types)
-values ('form-images', 'form-images', ARRAY['image/webp']);
+INSERT INTO storage.buckets(id, name, allowed_mime_types)
+    VALUES ('form-images', 'form-images', ARRAY['image/webp']);
 
-create policy "allow authenticated uploads"
-on storage.objects for insert to authenticated with check (
-  bucket_id = 'form-images'
-);
+CREATE POLICY "allow authenticated uploads" ON storage.objects
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (bucket_id = 'form-images');
 
-create policy "allow authenticated reads"
-on storage.objects for select to authenticated using (
-  bucket_id = 'form-images'
-);
-
+CREATE POLICY "allow authenticated reads" ON storage.objects
+    FOR SELECT TO authenticated
+        USING (bucket_id = 'form-images');

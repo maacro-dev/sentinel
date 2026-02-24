@@ -9,12 +9,15 @@ export class Auth {
   private constructor() { }
 
   public static async signIn(credentials: Credentials): Promise<User> {
-    console.log("Auth.signIn — starting sign in process...");
+    console.log("Auth.signIn —  starting sign in process...");
     const startTime = Date.now();
     const supabase = await getSupabase();
     const { data, error } = await supabase.auth.signInWithPassword(credentials);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error signing in — ", error)
+      throw error
+    };
 
     console.log("User signed in in", Date.now() - startTime, "ms");
 

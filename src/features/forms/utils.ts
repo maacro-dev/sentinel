@@ -1,7 +1,12 @@
 import { FORM_LABELS } from "./config";
+import { ACTIVITY_TYPE } from "./mappings";
+import { Form } from "./schemas/forms";
 import { FieldSchema } from "./schemas/import-schema";
 import * as z from "zod/v4"
 
+export function getActivityType(form: Form): string {
+  return ACTIVITY_TYPE[form]
+}
 
 export function getFormLabel(value: string): string {
   return FORM_LABELS[value as keyof typeof FORM_LABELS] || value;

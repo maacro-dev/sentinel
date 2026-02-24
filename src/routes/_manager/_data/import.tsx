@@ -7,7 +7,7 @@ import { DatasetSelector } from '@/features/import/components/DatasetSelector'
 import { DataSuccess } from '@/features/import/components/DataSuccess'
 import { useImport } from '@/features/import/hooks/useImport'
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   DialogFooter,
 } from "@/core/components/ui/dialog"
 import { Button } from "@/core/components/ui/button"
-import { parse } from 'path'
+import { Spinner } from '@/core/components/ui/spinner'
 
 export const Route = createFileRoute('/_manager/_data/import')({
   loader: () => ({ breadcrumb: createCrumbLoader({ label: "Import" }) }),
@@ -28,10 +28,10 @@ export const Route = createFileRoute('/_manager/_data/import')({
 type ImportStep = 'upload' | 'preview' | 'confirm' | 'success'
 
 function RouteComponent() {
-  const { datasetType, setDatasetType, rawData, parsedData, issues, fileError, handleFiles, reset, importFn } = useImport();
+  const [cancelOpen, setCancelOpen] = useState(false)
   const [step, setStep] = useState<ImportStep>('upload')
 
-  const [cancelOpen, setCancelOpen] = useState(false)
+  const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn } = useImport();
 
   const confirmCancel = () => {
     setCancelOpen(false)
@@ -40,21 +40,17 @@ function RouteComponent() {
   }
 
   useEffect(() => {
-    if (rawData.length) setStep('preview')
-  }, [rawData])
-
+    if (rawData.length && !isProcessing) {
+      setStep('preview');
+    }
+  }, [rawData, isProcessing]);
 
   const doImport = async () => {
-
     try {
-      const result = await importFn(parsedData);
-
-      console.log(result)
-
+      await importFn(parsedData, fileName);
       setStep('success');
-
     } catch (err) {
-
+      console.error("error importing", fileName, "-", err)
     }
   };
 
@@ -66,21 +62,31 @@ function RouteComponent() {
   return (
     <PageContainer>
       {step === 'upload' && (
-        <DatasetSelector
-          onSelect={setDatasetType}
-          onFileHandle={handleFiles}
-          fileError={fileError}
-        />
+        <>
+          {isProcessing ? (
+            <div className="flex flex-col items-center justify-center h-full">
+              <Spinner className="size-10" />
+              <p className="text-muted-foreground text-sm">Processing your data...</p>
+            </div>
+          ) : (
+            <DatasetSelector
+              onSelect={setDatasetType}
+              onFileHandle={handleFiles}
+              fileError={fileError}
+            />
+          )}
+        </>
       )}
-      {step === 'preview' && (
+      {step === 'preview' && datasetType && (
         <DataPreview
+          datasetType={datasetType}
           data={rawData}
           issues={issues}
           onContinueAnyway={() => setStep('confirm')}
           onCancel={() => setCancelOpen(true)}
         />
       )}
-      {step === 'confirm' && (
+      {step === 'confirm' && datasetType && (
         <>
           <NavButton
             label='Back'
@@ -90,6 +96,7 @@ function RouteComponent() {
             }}
           />
           <DataFinalConfirmation
+            datasetType={datasetType}
             data={rawData}
             issues={issues}
             onImport={doImport}

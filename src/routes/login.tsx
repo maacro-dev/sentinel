@@ -25,7 +25,7 @@ function RouteComponent() {
   });
 
   if (isLoading) {
-    return <LoadingScreen message="Hold on — we're signing you in..." />;
+    return <LoadingScreen message="Hold on —  we're signing you in..." />;
   }
 
   return (

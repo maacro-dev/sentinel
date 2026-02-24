@@ -4,11 +4,11 @@ import { ImportRow } from '../hooks/useImport';
 
 export class Import {
 
-  static async create(form: Form, data: ImportRow[]) {
+  static async create(form: Form, data: ImportRow[], fileName: string) {
     const supabase = await this._client;
 
     const { data: result, error } = await supabase.functions.invoke("import", {
-      body: { form, data },
+      body: { form, data, fileName },
     });
 
     if (error) {

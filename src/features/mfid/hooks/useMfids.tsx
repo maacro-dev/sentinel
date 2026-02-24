@@ -8,6 +8,7 @@ export const useMfids = () => {
 }
 
 export interface UseMfidsProps { mfid: string }
+
 export const useMfid = ({ mfid }: UseMfidsProps) => {
   const { data, isLoading } = useQuery(mfidQueryOptions(mfid))
   return {

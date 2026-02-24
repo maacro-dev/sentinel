@@ -2,7 +2,9 @@
 
 ## todo
 
-- kung mag add sa mobile app sang farmer kag field to an imported data, it must be updated
+- import
+    - kung mag add sa mobile app sang farmer kag field to an imported data, it must be updated
+    - check if row (form type, mfid, season) is already present, ignore make a warning
 
 - drill down on stat cards
 
@@ -35,5 +37,5 @@
     ### maybe
         - add a staging area to the imported file
 
-
+- create notification based on all the toasts that are shown
 

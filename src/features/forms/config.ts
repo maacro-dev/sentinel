@@ -8,3 +8,4 @@ export const FORM_LABELS: Record<Form, string> = {
   monitoring_visits: "Monitoring Visit",
   damage_assessments: "Damage Assessment",
 }
+

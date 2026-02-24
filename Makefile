@@ -7,3 +7,6 @@ restart:
 
 dev:
 	@pnpm run dev
+
+format-sql:
+	@./format_sql.sh

@@ -4,11 +4,22 @@ import {
   parseBarangays,
   parseCityMunicipalities,
   parseCityMunicipality,
+  parseLocations,
   parseProvince,
   parseProvinces
 } from "../schemas/lgu.schema";
 
 export class Lgu {
+
+  static async getAllBarangaysWithLocation() {
+    const client = await this._client;
+    const { data, error } = await client
+      .from("addresses")
+      .select("id:barangay_id, province, municity:city_municipality, barangay");
+    if (error) throw error;
+
+    return parseLocations(data)
+  }
 
   static async getAllProvinces() {
     const client = await this._client;

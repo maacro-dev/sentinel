@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { provincesQueryOptions, provinceQueryOptions, municitiesByProvinceQueryOptions, municityQueryOptions, barangaysByMunicityQueryOptions, barangayQueryOptions } from "../queries/options";
-import { Province, CityMunicipality, Barangay } from "../schemas/lgu.schema";
+import { Province, CityMunicipality, Barangay, Location } from "../schemas/lgu.schema";
 import { UseFormReturn } from "react-hook-form";
 import { useMemo, useRef, useEffect } from "react";
 import { MfidFormInput } from "../schemas/mfid-create.schema";
+import { Lgu } from "../services/Lgu";
+import leven from "leven";
 
 export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
 
@@ -28,13 +30,6 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
     () => cities.find((c: CityMunicipality) => c.name === selectedMunicityName),
     [cities, selectedMunicityName]
   );
-
-  // const municityId = selectedMunicity?.id ?? null;
-
-  // const { data: barangays = [], isLoading: isLoadingBarangays } = useBarangaysByMunicity({
-  //   cityId: municityId ?? undefined,
-  //   enabled: Boolean(municityId),
-  // });
 
   const prevProvinceRef = useRef(selectedProvinceName);
   const prevMunicityRef = useRef(selectedMunicityName);
@@ -127,3 +122,68 @@ export const useBarangay = ({ id }: { id: number }) => {
   return { data: data as Barangay | undefined, isLoading };
 };
 
+export const useAllBarangaysWithLocation = () => {
+  return useQuery({
+    queryKey: ["barangays-with-location"],
+    queryFn: () => Lgu.getAllBarangaysWithLocation(),
+    staleTime: Infinity, // cache forever
+  });
+};
+
+
+
+
+export interface LocationMatch {
+  id: number;
+  province: string;
+  municity: string;
+  barangay: string;
+  score: number; // lower is better
+  matchedFields: { province: boolean; municity: boolean; barangay: boolean };
+}
+
+export function findBestLocationMatch(
+  inputProvince: string,
+  inputMunicity: string,
+  inputBarangay: string,
+  locations: Location[]
+
+): LocationMatch | null {
+  const normalize = (s: string) => s.toLowerCase().trim();
+
+  const normProvince = normalize(inputProvince);
+  const normMunicity = normalize(inputMunicity);
+  const normBarangay = normalize(inputBarangay);
+
+  let best: LocationMatch | null = null;
+  let bestScore = Infinity;
+
+  for (const loc of locations) {
+    const provDist = leven(normProvince, normalize(loc.province));
+    const municDist = leven(normMunicity, normalize(loc.municity));
+    const brgyDist = leven(normBarangay, normalize(loc.barangay));
+
+    const totalScore = provDist + municDist * 2 + brgyDist * 3;
+    const maxLenProv = Math.max(normProvince.length, loc.province.length);
+    const maxLenMunic = Math.max(normMunicity.length, loc.municity.length);
+    const maxLenBrgy = Math.max(normBarangay.length, loc.barangay.length);
+
+    const provOk = provDist <= maxLenProv * 0.3;
+    const municOk = municDist <= maxLenMunic * 0.3;
+    const brgyOk = brgyDist <= maxLenBrgy * 0.4; // barangay more lenient
+
+    if (provOk && municOk && brgyOk && totalScore < bestScore) {
+      bestScore = totalScore;
+      best = {
+        id: loc.id,
+        province: loc.province,
+        municity: loc.municity,
+        barangay: loc.barangay,
+        score: totalScore,
+        matchedFields: { province: provOk, municity: municOk, barangay: brgyOk },
+      };
+    }
+  }
+
+  return best;
+}

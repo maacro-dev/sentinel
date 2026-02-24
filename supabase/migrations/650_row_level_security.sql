@@ -1,275 +1,279 @@
 -- -- Users [READ]
 -- create policy "Allow logged-in read access"
---   on users
---   as permissive
---   for select
---   to public
---   using ( auth.uid() = id );
-
+-- on users
+-- as permissive
+-- for select
+-- to public
+-- using ( auth.uid() = id );
 -- -- Users [INSERT]
 -- create policy "Allow individual insert access"
---   on users
---   as permissive
---   for insert
---   to public
---   with check ( auth.uid() = id );
-
+-- on users
+-- as permissive
+-- for insert
+-- to public
+-- with CHECK (auth.uid() = id );
 -- create policy "Allow individual update access"
---   on users
---   as permissive
---   for update
---   to public
---   using ( auth.uid() = id );
-
+-- on users
+-- as permissive
+-- for update
+-- to public
+-- using ( auth.uid() = id );
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE barangays ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE cities_municipalities ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE provinces ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE farmers ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE fields ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE seasons ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE field_activities ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE field_plannings ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE crop_establishments ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE fertilization_records ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE fertilizer_applications ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE harvest_records ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE damage_assessments ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE monitoring_visits ENABLE ROW LEVEL SECURITY;
 
-create policy "Allow authenticated to read users"
-  on users as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read users" ON users AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read barangays"
-  on barangays as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read barangays" ON barangays AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read cities_municipalities"
-  on cities_municipalities as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read cities_municipalities" ON cities_municipalities AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read provinces"
-  on provinces as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read provinces" ON provinces AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read farmers"
-  on farmers as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read farmers" ON farmers AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to insert farmers"
-    on farmers as permissive
-    for insert to authenticated
-    with check (true);
+CREATE POLICY "Allow authenticated to insert farmers" ON farmers AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to update farmers"
-    on farmers as permissive
-    for update to authenticated
-    using (true);
+CREATE POLICY "Allow authenticated to update farmers" ON farmers AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read fields"
-  on fields as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read fields" ON fields AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to insert fields"
-    on fields as permissive
-    for insert to authenticated
-    with check (true);
+CREATE POLICY "Allow authenticated to insert fields" ON fields AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to update fields"
-    on fields as permissive
-    for update to authenticated
-    using (true);
+CREATE POLICY "Allow authenticated to update fields" ON fields AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read seasons"
-  on seasons as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read seasons" ON seasons AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read field_activities"
-  on field_activities as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read field_activities" ON field_activities AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to insert field_activities"
-    on field_activities as permissive
-    for insert to authenticated
-    with check (true);
+CREATE POLICY "Allow authenticated to insert field_activities" ON field_activities AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to update field_activities"
-    on field_activities as permissive
-    for update to authenticated
-    using (true);
+CREATE POLICY "Allow authenticated to update field_activities" ON field_activities AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
+CREATE POLICY "Allow authenticated to read field_plannings" ON field_plannings AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read field_plannings"
-  on field_plannings as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to insert field_plannings" ON field_plannings AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
+CREATE POLICY "Allow authenticated to update field_plannings" ON field_plannings AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to insert field_plannings"
-    on field_plannings as permissive
-    for insert to authenticated
-    with check (true);
+CREATE POLICY "Allow authenticated to read crop_establishments" ON crop_establishments AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
+CREATE POLICY "Allow authenticated to insert crop_establishments" ON crop_establishments AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to update field_plannings"
-    on field_plannings as permissive
-    for update to authenticated
-    using (true);
+CREATE POLICY "Allow authenticated to update crop_establishments" ON crop_establishments AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
+CREATE POLICY "Allow authenticated to read fertilization_records" ON fertilization_records AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read crop_establishments"
-  on crop_establishments as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to insert fertilization_records" ON fertilization_records AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
+CREATE POLICY "Allow authenticated to update fertilization_records" ON fertilization_records AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to insert crop_establishments"
-    on crop_establishments as permissive
-    for insert to authenticated
-    with check (true);
+CREATE POLICY "Allow authenticated to read fertilizer_applications" ON fertilizer_applications AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
+CREATE POLICY "Allow authenticated to insert fertilizer_applications" ON fertilizer_applications AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to update crop_establishments"
-    on crop_establishments as permissive
-    for update to authenticated
-    using (true);
+CREATE POLICY "Allow authenticated to update fertilizer_applications" ON fertilizer_applications AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to read fertilization_records"
-  on fertilization_records as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to read harvest_records" ON harvest_records AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
+CREATE POLICY "Allow authenticated to insert harvest_records" ON harvest_records AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to insert fertilization_records"
-    on fertilization_records as permissive
-    for insert to authenticated
-    with check (true);
+CREATE POLICY "Allow authenticated to update harvest_records" ON harvest_records AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
+CREATE POLICY "Allow authenticated to read damage_assessments" ON damage_assessments AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to update fertilization_records"
-    on fertilization_records as permissive
-    for update to authenticated
-    using (true);
+CREATE POLICY "Allow authenticated to insert damage_assessments" ON damage_assessments AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to read fertilizer_applications"
-  on fertilizer_applications as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to update damage_assessments" ON damage_assessments AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to insert fertilizer_applications"
-    on fertilizer_applications as permissive
-    for insert to authenticated
-    with check (true);
+CREATE POLICY "Allow authenticated to read monitoring visits" ON monitoring_visits AS permissive
+    FOR SELECT TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to update fertilizer_applications"
-    on fertilizer_applications as permissive
-    for update to authenticated
-    using (true);
+CREATE POLICY "Allow authenticated to insert monitoring visits" ON monitoring_visits AS permissive
+    FOR INSERT
+        TO authenticated
+        WITH CHECK (TRUE);
 
-create policy "Allow authenticated to read harvest_records"
-  on harvest_records as permissive
-  for select to authenticated
-  using (true);
+CREATE POLICY "Allow authenticated to update monitoring visits" ON monitoring_visits AS permissive
+    FOR UPDATE TO authenticated
+        USING (TRUE);
 
-create policy "Allow authenticated to insert harvest_records"
-    on harvest_records as permissive
-    for insert to authenticated
-    with check (true);
+GRANT SELECT ON field_details TO authenticated;
 
-create policy "Allow authenticated to update harvest_records"
-    on harvest_records as permissive
-    for update to authenticated
-    using (true);
+GRANT SELECT ON user_details TO authenticated;
 
-create policy "Allow authenticated to read damage_assessments"
-  on damage_assessments as permissive
-  for select to authenticated
-  using (true);
+GRANT SELECT ON mfid_details TO authenticated;
 
-create policy "Allow authenticated to insert damage_assessments"
-    on damage_assessments as permissive
-    for insert to authenticated
-    with check (true);
+GRANT SELECT ON field_activity_details TO authenticated;
 
-create policy "Allow authenticated to update damage_assessments"
-    on damage_assessments as permissive
-    for update to authenticated
-    using (true);
+GRANT SELECT ON analytics.dashboard_barangay_yield_rankings TO authenticated;
 
-create policy "Allow authenticated to read monitoring visits"
-  on monitoring_visits as permissive
-  for select to authenticated
-  using (true);
+GRANT SELECT ON analytics.trend_data_collection TO authenticated;
 
-create policy "Allow authenticated to insert monitoring visits"
-    on monitoring_visits as permissive
-    for insert to authenticated
-    with check (true);
+GRANT SELECT ON analytics.trend_overall_yield TO authenticated;
 
-create policy "Allow authenticated to update monitoring visits"
-    on monitoring_visits as permissive
-    for update to authenticated
-    using (true);
+GRANT SELECT ON analytics.summary_form_count TO authenticated;
 
+GRANT SELECT ON users TO authenticated;
 
-grant select on field_details to authenticated;
-grant select on user_details to authenticated;
-grant select on mfid_details to authenticated;
-grant select on field_activity_details to authenticated;
-grant select on analytics.dashboard_barangay_yield_rankings to authenticated;
-grant select on analytics.trend_data_collection to authenticated;
-grant select on analytics.trend_overall_yield to authenticated;
-grant select on analytics.summary_form_count to authenticated;
+GRANT SELECT ON barangays TO authenticated;
 
-grant select on users to authenticated;
-grant select on barangays to authenticated;
-grant select on cities_municipalities to authenticated;
-grant select on provinces to authenticated;
-grant select on users to authenticated, public;
-grant select on farmers to authenticated;
-grant select on fields to authenticated;
-grant select on seasons to authenticated;
-grant select on field_activities to authenticated;
-grant select on field_plannings to authenticated;
-grant select on crop_establishments to authenticated;
-grant select on fertilization_records to authenticated;
-grant select on fertilizer_applications to authenticated;
-grant select on harvest_records to authenticated;
-grant select on damage_assessments to authenticated;
-grant select on monitoring_visits to authenticated;
+GRANT SELECT ON cities_municipalities TO authenticated;
 
-grant all privileges on users to service_role;
-grant all privileges on user_details to service_role;
+GRANT SELECT ON provinces TO authenticated;
 
-alter default privileges in schema public
-grant all on tables to service_role;
+GRANT SELECT ON users TO authenticated, public;
 
-grant usage on schema spatial to anon, authenticated, service_role;
-grant usage on schema analytics to anon, authenticated, service_role;
+GRANT SELECT ON farmers TO authenticated;
 
-grant all on all tables in schema analytics to anon, authenticated, service_role;
-grant all on all routines in schema analytics to anon, authenticated, service_role;
-grant all on all sequences in schema analytics to anon, authenticated, service_role;
+GRANT SELECT ON fields TO authenticated;
 
-alter default privileges for role postgres in schema analytics grant all on tables to anon, authenticated, service_role;
-alter default privileges for role postgres in schema analytics grant all on routines to anon, authenticated, service_role;
-alter default privileges for role postgres in schema analytics grant all on sequences to anon, authenticated, service_role;
+GRANT SELECT ON seasons TO authenticated;
 
-grant select, insert, update on all tables in schema public to authenticated;
-grant select, insert, update on all tables in schema public to anon;
+GRANT SELECT ON field_activities TO authenticated;
 
-grant all privileges on all tables in schema public to service_role;
-alter default privileges in schema public grant all on tables to service_role;
+GRANT SELECT ON field_plannings TO authenticated;
 
-grant execute on all functions in schema realtime to service_role;
+GRANT SELECT ON crop_establishments TO authenticated;
+
+GRANT SELECT ON fertilization_records TO authenticated;
+
+GRANT SELECT ON fertilizer_applications TO authenticated;
+
+GRANT SELECT ON harvest_records TO authenticated;
+
+GRANT SELECT ON damage_assessments TO authenticated;
+
+GRANT SELECT ON monitoring_visits TO authenticated;
+
+GRANT ALL privileges ON users TO service_role;
+
+GRANT ALL privileges ON user_details TO service_role;
+
+ALTER DEFAULT privileges IN SCHEMA public GRANT ALL ON tables TO service_role;
+
+GRANT usage ON SCHEMA spatial TO anon, authenticated, service_role;
+
+GRANT usage ON SCHEMA analytics TO anon, authenticated, service_role;
+
+GRANT ALL ON ALL tables IN SCHEMA analytics TO anon, authenticated, service_role;
+
+GRANT ALL ON ALL ROUTINES IN SCHEMA analytics TO anon, authenticated, service_role;
+
+GRANT ALL ON ALL sequences IN SCHEMA analytics TO anon, authenticated, service_role;
+
+ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON tables TO anon, authenticated, service_role;
+
+ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+
+ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON sequences TO anon, authenticated, service_role;
+
+GRANT SELECT, INSERT, UPDATE ON ALL tables IN SCHEMA public TO authenticated;
+
+GRANT SELECT, INSERT, UPDATE ON ALL tables IN SCHEMA public TO anon;
+
+GRANT ALL privileges ON ALL tables IN SCHEMA public TO service_role;
+
+ALTER DEFAULT privileges IN SCHEMA public GRANT ALL ON tables TO service_role;
+
+GRANT EXECUTE ON ALL functions IN SCHEMA realtime TO service_role;

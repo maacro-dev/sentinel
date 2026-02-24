@@ -1,48 +1,47 @@
-import { FieldSchema } from "../schemas/import-schema";
-import { baseFieldsValidation } from "./base";
 
-export const cropEstablishmentsValidation: FieldSchema[] = [
-  ...baseFieldsValidation,
+import * as z from "zod/v4"
+import { baseFields } from "./base";
+import { strclean } from "../utils";
+import { toIso } from "@/core/utils/date";
 
-  { name: 'ecosystem' },
-  {
-    name: 'monitoring_field_area_sqm',
-    validate: (v) => {
-      if (v === "N/A") return "warning: Review please. Daw ka imposible man nga wala monitoring field area? @everyone"
-      return isNaN(parseFloat(v)) ? 'Must be a number' : null
-    }
-  },
-  // { name: 'actual_land_preparation_method' },
-  { name: 'actual_crop_establishment_date' },
-  { name: 'actual_crop_establishment_method' },
-  { name: 'sowing_date' },
-  {
-    name: 'seedling_age_at_transplanting',
-    validate: (v) => {
-      if (v == "N/A") return null;
-      return isNaN(parseFloat(v)) ? 'Must be a number' : null
-    },
-    required: false
-  },
-  { name: 'distance_between_plant_row_1', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'distance_between_plant_row_2', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'distance_between_plant_row_3', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'distance_within_plant_row_1', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'distance_within_plant_row_2', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'distance_within_plant_row_3', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  {
-    name: 'seeding_rate_kg_ha',
-    validate: (v) => {
-      if (v == "N/A") return null;
-      return isNaN(parseFloat(v)) ? 'Must be a number' : null
-    },
-  },
-  { name: 'direct_seeding_method' },
-  { name: 'num_plants_1', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'num_plants_2', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'num_plants_3', validate: (v) => isNaN(parseFloat(v)) ? 'Must be a number' : null },
-  { name: 'rice_variety' },
-  { name: 'rice_variety_no' },
-  { name: 'rice_variety_maturity_duration' },
-  { name: 'seed_class' },
-]
+
+export const crop_establishments_schema = baseFields.extend({
+  ecosystem: z.string().transform(strclean),
+
+  monitoring_field_area_sqm: z.string()
+    .refine(val => val !== "N/A", "warning: Review please. Daw ka imposible man nga wala monitoring field area? @everyone")
+    .refine(val => !isNaN(parseFloat(val)), "Must be a number")
+    .transform(Number),
+
+  actual_crop_establishment_date: z.string().transform(strclean).transform(toIso),
+  actual_crop_establishment_method: z.string().transform(strclean),
+  sowing_date: z.string().transform(strclean).transform(toIso),
+
+  seedling_age_at_transplanting: z.string()
+    .optional()
+    .refine(val => val === undefined || val === "N/A" || !isNaN(parseFloat(val)), "Must be a number")
+    .transform(val => val === undefined || val === "N/A" ? undefined : Number(val)),
+
+  distance_between_plant_row_1: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+  distance_between_plant_row_2: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+  distance_between_plant_row_3: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+
+  distance_within_plant_row_1: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+  distance_within_plant_row_2: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+  distance_within_plant_row_3: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+
+  seeding_rate_kg_ha: z.string()
+    .refine(val => val === "N/A" || !isNaN(parseFloat(val)), "Must be a number")
+    .transform(val => val === "N/A" ? undefined : Number(val)),
+
+  direct_seeding_method: z.string().transform(strclean),
+
+  num_plants_1: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+  num_plants_2: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+  num_plants_3: z.string().refine(val => !isNaN(parseFloat(val)), "Must be a number").transform(Number),
+
+  rice_variety: z.string().transform(strclean),
+  rice_variety_no: z.string().transform(strclean),
+  rice_variety_maturity_duration: z.string().transform(strclean),
+  seed_class: z.string().transform(strclean),
+});
