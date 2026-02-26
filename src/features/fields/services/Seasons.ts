@@ -6,10 +6,13 @@ export class Seasons {
 
   public static async getAll(): Promise<SeasonRow[]> {
     const client = await this._client
+    const today = new Date().toISOString().split("T")[0];
     const { data, error } = await client
       .from("seasons")
       .select("*")
-      ;
+      .lte('start_date', today)
+      .order("start_date", { ascending: false })
+
     if (error) {
       throw error;
     }

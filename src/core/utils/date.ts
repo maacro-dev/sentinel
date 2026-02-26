@@ -5,6 +5,7 @@ const MONTHS = [
   "july", "august", "september", "october", "november", "december"
 ];
 
+
 export function formatDate(date: string | Date) {
   const dateObj = date instanceof Date ? date : new Date(date);
   return new Intl.DateTimeFormat('en-US', {
@@ -14,11 +15,21 @@ export function formatDate(date: string | Date) {
   }).format(dateObj);
 }
 
+export function formatDateShort(date: string | Date) {
+  const dateObj = date instanceof Date ? date : new Date(date);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+  }).format(dateObj);
+}
+
+
+
 
 function normalizeMonth(input: string, maxDist = 2): string {
   const lower = input.toLowerCase();
 
-  let best: string = input;   // never null
+  let best = input;// never null
   let bestDist = Infinity;
 
   for (const m of MONTHS) {

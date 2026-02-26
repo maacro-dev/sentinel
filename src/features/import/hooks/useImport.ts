@@ -30,7 +30,7 @@ export function useImport(initialDataset?: Form) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { data: locations = [], isLoading: locationsLoading } = useAllBarangaysWithLocation();
-  const { data: seasons = [], isLoading: seasonsLoading } = useSeasons();
+  const { data: seasons, isLoading: seasonsLoading } = useSeasons();
 
   const rowsForDuplicateCheck = useMemo(() => {
     if (!rawData.length || !seasons.length || !datasetType) return [];

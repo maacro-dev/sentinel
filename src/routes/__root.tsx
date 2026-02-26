@@ -7,7 +7,7 @@ import {
 import { HumayLogo } from "@/core/components/HumayLogo";
 
 import { Toaster } from "@/features/toast";
-// import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterContext } from "@/core/tanstack/router";
 import { Session } from "@/features/authentication";
@@ -33,7 +33,7 @@ function RootComponent() {
     <>
       <HeadContent />
       <Outlet />
-      {/* <TanStackRouterDevtools /> */}
+      <TanStackRouterDevtools />
       {/* <ReactQueryDevtools /> */}
       <Toaster />
     </>
@@ -57,11 +57,11 @@ function ErrorComponent({ error }: { error: Error }) {
           <h2 className="text-2xl text-muted-foreground">Something went wrong</h2>
         </div>
         <p className={
-            `w-fit text-pretty border-2
+          `w-fit text-pretty border-2
             text-muted-foreground text-sm
             border-red-300 px-3 py-2 mt-2
             rounded-lg inline-flex bg-red-50`
-          }>
+        }>
           {error.message}
         </p>
       </div>

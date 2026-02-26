@@ -34,13 +34,7 @@ function RouteComponent() {
   if (isLoading || !formCount || !formProgress || !collectionTrend) {
     return (
       <PageContainer>
-
         <PlaceholderBody />
-        {/* <Card className="h-full">
-          <CardContent className="flex-1 flex items-center justify-center">
-            <p className="text-muted-foreground">Loading...</p>
-          </CardContent>
-        </Card> */}
       </PageContainer>
     );
   }

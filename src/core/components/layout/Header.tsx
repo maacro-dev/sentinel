@@ -5,27 +5,27 @@ import { UserMenu } from "../UserMenu";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "../ui/breadcrumb";
 import { SidebarTrigger } from "../ui/sidebar";
 import { CrumbDef } from "@/core/utils/breadcrumb";
+import { SeasonSelector } from "@/features/analytics/components/SeasonSelector";
 
 interface LayoutHeaderProps extends ComponentProps<"header"> {
   breadcrumbs: Array<CrumbDef>;
 }
 
 export const LayoutHeader = memo(({ breadcrumbs, className, ...props }: LayoutHeaderProps) => {
+
+  const headerClasses = cn("h-16 sticky top-0 z-20 flex w-full shrink-0 items-center justify-between gap-2 px-4 py-4", "border-b border-border bg-white", className)
+
   return (
-    <header
-      className={cn(
-        "h-16 sticky top-0 z-20 flex w-full shrink-0 items-center justify-between gap-2 px-4 py-4",
-        "border-b border-border bg-white",
-        className
-      )}
-      {...props}
-    >
+    <header className={headerClasses} {...props} >
       <div className="flex items-center">
         <SidebarTrigger className="text-muted-foreground" />
         <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
         <Breadcrumbs data={breadcrumbs} />
       </div>
-      <UserMenu />
+      <div className="flex gap-4">
+        <SeasonSelector />
+        <UserMenu />
+      </div>
     </header>
   );
 });

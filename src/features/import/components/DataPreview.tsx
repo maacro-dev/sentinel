@@ -1,5 +1,4 @@
 import { AlertCircle, CheckCircle2, CheckCircle, AlertTriangle } from 'lucide-react';
-import { ImportRow, ImportIssue, PreviewRow } from '../hooks/useImport';
 import { useState, useMemo } from 'react';
 import {
   useReactTable,
@@ -14,6 +13,7 @@ import { Checkbox } from '@/core/components/ui/checkbox';
 import { Label } from '@/core/components/ui/label';
 import { Form } from '@/features/forms/schemas/forms';
 import { getFormLabel } from '@/features/forms/utils';
+import { ImportRow, ImportIssue, PreviewRow } from '../types';
 
 interface DataPreviewProps {
   datasetType: Form,
@@ -21,9 +21,10 @@ interface DataPreviewProps {
   issues: ImportIssue[];
   onCancel: () => void;
   onContinueAnyway: () => void;
+  seasonLabel?: string;
 }
 
-export function DataPreview({ datasetType, data, issues, onCancel, onContinueAnyway }: DataPreviewProps) {
+export function DataPreview({ datasetType, data, issues, onCancel, onContinueAnyway, seasonLabel }: DataPreviewProps) {
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
   const [showOnlyWarnings, setShowOnlyWarnings] = useState(false);
   const [filterColumn, setFilterColumn] = useState<string | null>(null);
@@ -45,7 +46,6 @@ export function DataPreview({ datasetType, data, issues, onCancel, onContinueAny
         const hasError = errorRowsSet.has(rowIdx);
         const hasWarning = warningRowsSet.has(rowIdx);
 
-        // apply "show only errors/warnings" toggles
         if (showOnlyErrors && showOnlyWarnings) {
           if (!hasError && !hasWarning) return false;
         } else if (showOnlyErrors) {
@@ -54,11 +54,8 @@ export function DataPreview({ datasetType, data, issues, onCancel, onContinueAny
           if (!hasWarning) return false;
         }
 
-        // apply column filter if set
         if (filterColumn && filterLevel) {
-          const hasIssueInColumn = issues.some(
-            i => i.row === rowIdx && i.col === filterColumn && i.level === filterLevel
-          );
+          const hasIssueInColumn = issues.some(i => i.row === rowIdx && i.col === filterColumn && i.level === filterLevel);
           if (!hasIssueInColumn) return false;
         }
 
@@ -74,7 +71,7 @@ export function DataPreview({ datasetType, data, issues, onCancel, onContinueAny
   return (
     <div className='h-full flex flex-col justify-center items-center'>
       <div className="w-full lg:max-w-3/5">
-        <h1 className="text-lg font-bold text-foreground">Review Your Data ({getFormLabel(datasetType)})</h1>
+        <h1 className="text-lg font-bold text-foreground">Review Your Data ({getFormLabel(datasetType)} - {seasonLabel})</h1>
         <p className="text-sm text-muted-foreground mb-4">Check the preview below and fix any issues before importing</p>
         <div className="flex flex-col gap-4">
           <DataQualityWidget

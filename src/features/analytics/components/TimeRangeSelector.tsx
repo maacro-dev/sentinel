@@ -3,7 +3,7 @@ import { TimeRange } from "../types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 
 const defaultTimeRangeOptions: Array<{ value: TimeRange; label: string }> = [
-  { value: "season",  label: "Current Season" },
+  { value: "season",  label: "Overall" },
   { value: "7d",      label: "Last 7 days" },
   { value: "30d",     label: "Last 30 days" },
   { value: "90d",     label: "Last 90 days" },
@@ -20,10 +20,10 @@ export const TimeRangeSelector = memo(({
 }: TimeRangeSelectorProps) => {
   return (
     <Select value={timeRange} onValueChange={(value: TimeRange) => setTimeRange(value)}>
-      <SelectTrigger className="shadow-none min-w-[140px] rounded-sm lt:!h-8 dt:!h-9 text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90">
+      <SelectTrigger className="shadow-none min-w-[140px] rounded-sm lt:h-8! dt:h-9! text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90">
         <SelectValue placeholder="Full season" />
       </SelectTrigger>
-      <SelectContent className="rounded-xl">
+      <SelectContent className="rounded-xl" position="popper">
         {defaultTimeRangeOptions.map((option) => (
           <SelectItem key={option.value} value={option.value} className="rounded-lg text-3xs lt:text-2xs hd:text-xs">
             {option.label}

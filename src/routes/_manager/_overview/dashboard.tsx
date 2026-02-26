@@ -9,14 +9,10 @@ import { OverallYieldTrendChart } from "@/features/analytics/components/OverallY
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { ExpandableStatCard } from "@/features/analytics/components/ExpandableStatCard";
-import { Import } from "@/features/import/services/Import";
 
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
   loader: async ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(dashboardDataOptions());
-
-    await Import.create("field_plannings", []);
-
     return { breadcrumb: createCrumbLoader({ label: "Dashboard" }) }
   },
   head: () => ({ meta: [{ title: "Dashboard | Humay" }] }),
@@ -27,7 +23,7 @@ function RouteComponent() {
   const { stats, trends, ranks, isLoading } = useAnalyticsDashboard();
 
   if (isLoading || !stats || !trends || !ranks) {
-      return <PendingComponent/>
+    return <PendingComponent />
   }
 
   return (

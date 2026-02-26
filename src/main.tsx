@@ -8,7 +8,6 @@ import { LazyMotion } from "motion/react";
 import { router } from "./core/tanstack/router";
 import { RealtimeListener } from "./core/supabase/realtime";
 
-// Add react scan for development
 // if (import.meta.env.DEV) {
 //   const script = document.createElement("script");
 //   script.src = "https://cdn.jsdelivr.net/npm/react-scan/dist/auto.global.js";

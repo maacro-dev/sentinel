@@ -10,9 +10,9 @@ export const managerGroupConfig = createRouteConfig("manager", {
   label: "Manager",
   children: [
     overviewGroupConfig,
-    dataGroupConfig,
     analyticsGroupConfig,
     formGroupConfig,
+    dataGroupConfig,
   ]
 });
 
