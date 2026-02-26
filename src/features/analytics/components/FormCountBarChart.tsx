@@ -2,9 +2,9 @@ import { memo } from "react";
 import { FormCount } from "../schemas/summary/formCount";
 import { getFormLabel } from "@/features/forms/utils";
 import { ChartConfig } from "@/core/components/ui/chart";
-import { FormTicks } from "./FormTicks";
 import { TickProps } from "../types";
 import { BarChart } from "./BarChart";
+import { DefaultTicks } from "./DefaultTicks";
 
 const config = {
   field_plannings: {
@@ -46,7 +46,7 @@ export const FormCountBarChart = memo(({ data }: { data: Array<FormCount> }) => 
       X: {
         interval: 0,
         tickFormatter: (value: string) => getFormLabel(value),
-        tick: ({ x, y, payload }: TickProps) => <FormTicks x={x} y={y} payload={payload} />,
+        tick: ({ x, y, payload }: TickProps) => <DefaultTicks x={x} y={y} payload={payload} />,
       }
     }}
   />

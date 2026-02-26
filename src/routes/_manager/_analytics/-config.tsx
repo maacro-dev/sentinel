@@ -1,7 +1,7 @@
 import { createRouteConfig } from "@/core/tanstack/router/utils";
 import { ChartArea, GitCompare, TrendingUpDown } from "lucide-react";
 
-export const analyticsGroupConfig = createRouteConfig("analytics",{
+export const analyticsGroupConfig = createRouteConfig("analytics", {
   role: "data_manager",
   label: "Analytics",
   children: [
@@ -10,7 +10,6 @@ export const analyticsGroupConfig = createRouteConfig("analytics",{
       label: "Descriptive",
       path: "/descriptive",
       icon: ChartArea,
-      disabled: true
     }),
     createRouteConfig("comparative", {
       role: "data_manager",

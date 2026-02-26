@@ -11,6 +11,7 @@ const statusVariants = cva(
         verified: "bg-green-100 text-green-800",
         pending: "bg-yellow-100 text-yellow-800",
         rejected: "bg-red-100 text-red-800",
+        unknown: "bg-neutral-300"
       },
     },
     defaultVariants: {
@@ -24,8 +25,7 @@ interface VerificationStatusCellProps extends VariantProps<typeof statusVariants
 }
 
 export const VerificationStatusCell = ({ value, variant }: VerificationStatusCellProps) => {
-
-  const v = value === "unknown" ? "unavailable" : value
+  const v = value === "unknown" ? "imported" : value
 
   return (
     <span className={cn(statusVariants({ variant }))}>

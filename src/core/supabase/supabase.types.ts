@@ -20,6 +20,7 @@ export type Database = {
         Returns: Json
       }
       dashboard_summary: { Args: { p_season_id?: number }; Returns: Json }
+      province_yields: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_progress: { Args: { p_season_id?: number }; Returns: Json }
       trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
@@ -812,6 +813,7 @@ export type Database = {
           mfid: string | null
           municipality: string | null
           province: string | null
+          remarks: string | null
           season_id: number | null
           season_year: string | null
           semester: Database["public"]["Enums"]["semester"] | null

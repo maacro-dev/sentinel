@@ -9,12 +9,12 @@ export const defaultColumns: ColumnDef<FormDataEntry, any>[] = [
   {
     accessorKey: 'activity.verificationStatus',
     header: 'Status',
-    cell: (info) => <VerificationStatusCell value={info.getValue()} />,
+    cell: (info) => <VerificationStatusCell value={info.getValue()} variant={info.getValue()} />,
     meta: { size: '3xs' }
   },
-  { accessorKey: 'field.mfid', header: 'MFID', meta: { size: '2xs' } },
-  { accessorKey: 'field.municipality', header: 'Municipality', meta: { size: 'xs' } },
-  { accessorKey: 'field.barangay', header: 'Barangay', meta: { size: 'xs' } },
+  { accessorKey: 'field.mfid', header: 'MFID', meta: { size: '3xs' } },
+  { accessorKey: 'field.municipality', header: 'Municipality', meta: { size: '2xs' } },
+  { accessorKey: 'field.barangay', header: 'Barangay', meta: { size: '2xs' } },
   { accessorKey: 'season.year', header: 'Year', meta: { size: '2xs' } },
   {
     accessorKey: 'season.semester',

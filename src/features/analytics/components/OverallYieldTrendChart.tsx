@@ -15,6 +15,7 @@ export const OverallYieldTrendChart = memo(({ data }: { data: Array<OverallYield
       axisOptions={{ X: { interval: 0 } }}
       config={{ avg_yield_t_ha: { label: "Average Yield (t/ha)" } }}
       containerClass="min-h-64"
+      cardClass="min-h-96 max-h-96"
     />
   )
 })

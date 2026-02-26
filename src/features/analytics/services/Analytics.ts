@@ -1,9 +1,10 @@
-import { DashboardData } from "../types";
+import { DashboardData, DescriptiveAnalyticsData } from "../types";
 import { getSupabase } from "@/core/supabase";
 import { parseDataCollectionTrend } from "../schemas/trends/dataCollectionTrend";
 import { parseBarangayYieldRanking } from "../schemas/barangayYield";
 import { parseSeasonSummary } from "../schemas/seasonSummary";
 import { parseOverallYieldTrend } from "../schemas/trends/overallYield";
+import { parseProvinceYields } from "../schemas/yieldByProvince";
 import { parseFormCountSummary } from "../schemas/summary/formCount";
 
 export class Analytics {
@@ -71,6 +72,24 @@ export class Analytics {
 
     return parseDataCollectionTrend(data);
   }
+
+
+  public static async getDescriptiveAnalyticsData(seasonId?: number): Promise<DescriptiveAnalyticsData> {
+    const client = await this._client;
+
+    const { data: provinceYieldsRaw, error: provinceYieldsError } = await client
+      .schema('analytics')
+      .rpc('province_yields', { p_season_id: seasonId });
+
+    if (provinceYieldsError) {
+      throw new Error("Error fetching descriptive analytics data.");
+    }
+
+    return {
+      provinceYields: parseProvinceYields(provinceYieldsRaw)
+    }
+  }
+
 
   private static get _client() {
     return getSupabase();

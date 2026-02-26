@@ -5,8 +5,8 @@ import { memo } from "react";
 import { TickProps } from "../types";
 import { getResponsiveFontSize } from "./chartUtils";
 
+export const DefaultTicks = memo(({ x, y, payload }: TickProps) => {
 
-export const FormTicks = memo(({ x, y, payload }: TickProps) => {
   const label = useFormLabel(payload.value as Form);
   const fontSize = getResponsiveFontSize({
     width: useChartWidth(),

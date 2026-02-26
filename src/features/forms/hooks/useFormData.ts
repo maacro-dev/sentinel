@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { FormType } from "@/routes/_manager/forms/-config";
 import { formDataOptions, formDataByMfidOptions } from "../queries/options";
+import { FormDataEntry } from "../schemas/formData";
 
 interface useFormEntriesOptions {
   formType: FormType;
@@ -34,23 +35,10 @@ export function useFormEntries({
   };
 }
 
-export function useFormEntry({
-  formType,
-  mfid,
-  seasonId,
-  enabled,
-}: useFormEntryOptions) {
-  const entryQuery = useQuery(
-    formDataByMfidOptions({
-      formType,
-      mfid,
-      seasonId,
-      enabled: enabled ?? true,
-    })
-  );
-
+export function useFormEntry({ formType, mfid, seasonId, enabled, }: useFormEntryOptions) {
+  const { data, isLoading } = useQuery(formDataByMfidOptions({ formType, mfid, seasonId, enabled: enabled ?? true, }));
   return {
-    data: entryQuery.data ?? null,
-    isLoading: entryQuery.isLoading,
+    data: data as FormDataEntry,
+    isLoading: isLoading,
   };
 }

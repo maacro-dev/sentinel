@@ -3,11 +3,8 @@ import { FormType } from "@/routes/_manager/forms/-config";
 import { FormDataEntry, parseFormData, parseFormDataEntry } from "../schemas/formData";
 
 export class Forms {
-  public static async getFormDataByMfid(
-    formType: FormType,
-    mfid: string,
-    seasonId?: number
-  ): Promise<FormDataEntry> {
+  public static async getFormDataByMfid(formType: FormType, mfid: string, seasonId?: number): Promise<FormDataEntry> {
+
     const client = await this._client;
     let query = client
       .from("field_activity_details")
@@ -29,10 +26,7 @@ export class Forms {
   }
 
 
-  public static async getFormData(
-    formType: FormType,
-    seasonId?: number
-  ): Promise<FormDataEntry[]> {
+  public static async getFormData(formType: FormType, seasonId?: number): Promise<FormDataEntry[]> {
     const client = await this._client;
     let query = client
       .from("field_activity_details")

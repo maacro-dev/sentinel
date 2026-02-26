@@ -27,6 +27,7 @@ export const formDataEntryResponseSchema = z.object({
   barangay: z.string(),
   municipality: z.string(),
   province: z.string(),
+  remarks: z.string(),
   form_data: z.record(z.string(), z.any()),
 });
 
@@ -54,6 +55,7 @@ const seasonSchema = z.object({
 const activitySchema = z.object({
   type: z.string(),
   verificationStatus: z.string(),
+  remarks: z.string(),
   formData: z.any()
 });
 
@@ -79,7 +81,8 @@ export const formDataEntrySchema = formDataEntryResponseSchema.transform((data) 
   activity: {
     type: data.activity_type,
     verificationStatus: data.verification_status,
-    formData: data.form_data
+    formData: data.form_data,
+    remarks: data.remarks,
   } as Activity
 }));
 

@@ -4,10 +4,11 @@ import type { BarangayYieldRanking } from "./schemas/barangayYield";
 import type { OverallYieldTrend } from "./schemas/trends/overallYield";
 import type { XAxisProps, YAxisProps } from "recharts";
 import type { TickItem } from "recharts/types/util/types";
+import { ProvinceYield } from "./schemas/yieldByProvince";
 
 export type TickProps = {
-  x: number;
-  y: number;
+  x: number | string;
+  y: number | string;
   payload: TickItem;
 }
 
@@ -37,6 +38,10 @@ export interface DashboardData {
   seasonalStats: SeasonSummary;
   overallYieldTrend: OverallYieldTrend;
   barangayYieldRanking: BarangayYieldRanking;
+}
+
+export interface DescriptiveAnalyticsData {
+  provinceYields: Array<ProvinceYield>
 }
 
 export type SummaryConfig = Record<string, StatMetadata>;

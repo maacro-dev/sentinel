@@ -1,4 +1,5 @@
 import { Validator } from "@/core/utils/validator";
+
 import * as z from "zod/v4";
 
 export type BarangayYield = z.infer<typeof barangayYieldSchema>;
@@ -17,4 +18,5 @@ export const barangayYieldRankingSchema = z.object({
 });
 
 export const parseBarangayYieldRanking = Validator.create<BarangayYieldRanking>(barangayYieldRankingSchema, "BarangayYieldRanking")
+
 

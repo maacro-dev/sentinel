@@ -40,7 +40,7 @@ export function formDataByMfidOptions({
     queryFn: () => Forms.getFormDataByMfid(formType as FormType, mfid, seasonId),
     enabled: Boolean(mfid) && enabled,
     staleTime: Infinity,
-    placeholderData: (prev) => prev,
+    // placeholderData: (prev) => prev,
     ...overrides
   })
 }

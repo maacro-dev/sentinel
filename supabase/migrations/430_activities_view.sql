@@ -20,6 +20,7 @@ create or replace view public.field_activity_details as
         fa.activity_type                         as activity_type,
         fa.collected_by                          as collected_by,
         fa.verified_by                           as verified_by,
+        fa.remarks                               as remarks,
         fa.verification_status                   as verification_status,
         fa.collected_at                          as collected_at,
         fa.verified_at                           as verified_at,

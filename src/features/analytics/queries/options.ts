@@ -33,3 +33,9 @@ export const formCountSummaryOptions = (seasonId?: number) => {
     refetchOnWindowFocus: true
   });
 }
+
+export const descriptiveAnalyticsDataOptions = (seasonId?: number) => ({
+  queryKey: ['descriptive-analytics-data', seasonId] as const,
+  queryFn: () => Analytics.getDescriptiveAnalyticsData(seasonId),
+  refetchOnWindowFocus: true,
+});

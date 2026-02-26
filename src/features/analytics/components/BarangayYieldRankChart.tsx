@@ -23,7 +23,12 @@ export const BarangayYieldRankChart = memo(({
         <CardDescription className="text-sm">{description}</CardDescription>
       </CardHeader>
       <CardContent className="min-h-40 flex flex-col gap-4">
-        {data.map((barangay, index) => (
+        {data.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+            No data available for this period
+          </div>
+        ) :
+          data.map((barangay, index) => (
             <div key={barangay.barangay} className="flex flex-row justify-between items-end">
               <div className="flex flex-row items-center">
                 <span className="text-muted-foreground text-3xs">{index + 1}</span>
@@ -33,13 +38,15 @@ export const BarangayYieldRankChart = memo(({
                 </div>
               </div>
               <div className="flex flex-col items-end ml-auto">
-                <span className={cn("font-semibold text-base",ranking === "top" ? "text-humay" : "text-red-600")}>
+                <span className={cn("font-semibold text-base", ranking === "top" ? "text-humay" : "text-red-600")}>
                   {barangay.avg_yield_t_per_ha}
                   <span className="text-muted-foreground/60 align-middle ml-2 font-normal text-4xs">t/ha</span>
                 </span>
               </div>
             </div>
-        ))}
+          ))
+        }
+
       </CardContent>
     </Card>
   )

@@ -17,6 +17,7 @@ interface TrendChartProps<T extends object> {
   config?: ChartConfig;
   enableTimeRange?: boolean;
   containerClass?: string;
+  cardClass?: string;
   isEmpty: boolean;
 }
 
@@ -28,6 +29,7 @@ export const TrendChart = memo(<T extends object>({
   config = {},
   enableTimeRange = false,
   isEmpty = false,
+  cardClass,
   containerClass
 }: TrendChartProps<T>) => {
   const { filteredData, timeRange, setTimeRange } = useTimeFilter({
@@ -38,6 +40,7 @@ export const TrendChart = memo(<T extends object>({
 
   return (
     <ChartCard
+      className={cardClass}
       header={header}
       config={config}
       options={{

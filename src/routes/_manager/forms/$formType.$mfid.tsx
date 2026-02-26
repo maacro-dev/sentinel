@@ -6,7 +6,6 @@ import { formKeyMappings } from '@/features/forms/mappings'
 import { createFileRoute } from '@tanstack/react-router'
 import { FormType } from './-config'
 import { formDataByMfidOptions } from '@/features/forms/queries/options'
-import { Separator } from '@/core/components/ui/separator'
 import { useFormEntry } from '@/features/forms/hooks/useFormData'
 import { NavBackButton, NavNextButton, NavPreviousButton } from '@/core/components/NavigationButton'
 import { FormDataEntry, FormDataGroup } from '@/features/forms/schemas/formData'
@@ -34,13 +33,10 @@ function RouteComponent() {
   const { formType, mfid } = Route.useParams()
   const { data, isLoading } = useFormEntry({ formType: formType as FormType, mfid })
 
-  const {
-    hasNext,
-    hasPrev,
-    goNext,
-    goPrev,
-    loading: navLoading,
-  } = useFormDetailNavigator(formType as FormType, mfid);
+  const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, mfid);
+
+
+  console.log(data.activity)
 
   if (isLoading || navLoading) {
     return <PageContainer>Loading...</PageContainer>
@@ -58,16 +54,13 @@ function RouteComponent() {
       <div className='flex flex-col gap-4'>
         <GeneralSection data={data} />
         <FormDataSection data={data.activity.formData} title={'Activity Data'} />
-        <ImagesSection />
-        <VerificationSection />
+        {data.activity.verificationStatus !== "unknown" && (
+          <>
+            <ImagesSection />
+            <VerificationSection />
+          </>
+        )}
       </div>
-      <Separator className="my-8" />
-
-      {/* <div className='flex-col gap-6 h-full rounded-xl flex items-center justify-center p-4'>
-        <h1 className="text-3xl font-medium tracking-widest">(つ•̀ꞈ•̀)つ</h1>
-        <span className="text-muted-foreground/60 text-xs">To be implemented soon...</span>
-      </div> */}
-
     </PageContainer>
   )
 }
