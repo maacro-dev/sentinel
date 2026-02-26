@@ -2,34 +2,34 @@ import { queryOptions } from "@tanstack/react-query";
 import { Analytics } from "../services/Analytics";
 
 
-export const dashboardDataOptions = () => {
+export const dashboardDataOptions = (seasonId?: number) => {
   return queryOptions({
-    queryKey: ["dashboard-data"] as const,
-    queryFn: () => Analytics.getDashboardData(),
-    refetchOnWindowFocus: true
+    queryKey: ["dashboard-data", seasonId] as const,
+    queryFn: () => Analytics.getDashboardData(seasonId),
+    refetchOnWindowFocus: true,
   });
 }
 
-export const formProgressSummaryOptions = () => {
+export const formProgressSummaryOptions = (seasonId?: number) => {
   return queryOptions({
-    queryKey: ["form-summary"] as const,
-    queryFn: () => Analytics.getFormProgressSummary(),
-    refetchOnWindowFocus: true
+    queryKey: ["form-summary", seasonId] as const,
+    queryFn: () => Analytics.getFormProgressSummary(seasonId),
+    refetchOnWindowFocus: true,
   });
-}
+};
 
-export const dataCollectionTrendOptions = () => {
+export const dataCollectionTrendOptions = (seasonId?: number) => {
   return queryOptions({
-    queryKey: ["data-collection-rate"] as const,
-    queryFn: () => Analytics.getDataCollectionTrend(),
+    queryKey: ["data-collection-rate", seasonId] as const,
+    queryFn: () => Analytics.getDataCollectionTrend(seasonId),
     refetchOnWindowFocus: true
   });
 };
 
-export const formCountSummaryOptions = () => {
+export const formCountSummaryOptions = (seasonId?: number) => {
   return queryOptions({
-    queryKey: ["form-count-summary"] as const,
-    queryFn: () => Analytics.getFormCountSummary(),
+    queryKey: ["form-count-summary", seasonId] as const,
+    queryFn: () => Analytics.getFormCountSummary(seasonId),
     refetchOnWindowFocus: true
   });
 }

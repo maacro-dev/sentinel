@@ -17,6 +17,7 @@ interface TrendChartProps<T extends object> {
   config?: ChartConfig;
   enableTimeRange?: boolean;
   containerClass?: string;
+  isEmpty: boolean;
 }
 
 export const TrendChart = memo(<T extends object>({
@@ -26,9 +27,9 @@ export const TrendChart = memo(<T extends object>({
   axisOptions,
   config = {},
   enableTimeRange = false,
+  isEmpty = false,
   containerClass
 }: TrendChartProps<T>) => {
-
   const { filteredData, timeRange, setTimeRange } = useTimeFilter({
     data: data,
     dateKey: axisKeys.X,
@@ -44,16 +45,22 @@ export const TrendChart = memo(<T extends object>({
         component: <TimeRangeSelector timeRange={timeRange} setTimeRange={setTimeRange} />
       }}
     >
-      <ChartContainer config={config} className={cn(chartContainerDefaults.className, containerClass)}>
-        <InternalTrendChart
-          data={filteredData}
-          margin={TrendChartDefaults.margins}
-          axisKeys={axisKeys}
-          enableTimeRange={enableTimeRange}
-          axisOptions={axisOptions}
-          timeRange={timeRange}
-        />
-      </ChartContainer>
+      {isEmpty ? (
+        <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+          No data available for this period
+        </div>
+      ) : (
+        <ChartContainer config={config} className={cn(chartContainerDefaults.className, containerClass)}>
+          <InternalTrendChart
+            data={filteredData}
+            margin={TrendChartDefaults.margins}
+            axisKeys={axisKeys}
+            enableTimeRange={enableTimeRange}
+            axisOptions={axisOptions}
+            timeRange={timeRange}
+          />
+        </ChartContainer>
+      )}
     </ChartCard>
-  )
+  );
 }) as <T extends object>(props: TrendChartProps<T>) => JSX.Element;

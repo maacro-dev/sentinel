@@ -8,13 +8,13 @@ import { FORM_PROGRESS_CONFIG } from "../config"
 import { Stat } from "../types"
 import { mapSeasonSummary } from "../utils"
 
-export const useFormOverview = () => {
+export const useFormOverview = (seasonId?: number) => {
 
-  const { data: formCount, isLoading: isLoadingCount } = useQuery(formCountSummaryOptions())
+  const { data: formCount, isLoading: isLoadingCount } = useQuery(formCountSummaryOptions(seasonId))
 
-  const { data: formProgress, isLoading: isLoadingSummary } = useQuery(formProgressSummaryOptions())
+  const { data: formProgress, isLoading: isLoadingSummary } = useQuery(formProgressSummaryOptions(seasonId));
 
-  const { data: dataCollectionTrend, isLoading: isLoadingDataCollection } = useQuery(dataCollectionTrendOptions())
+  const { data: dataCollectionTrend, isLoading: isLoadingDataCollection } = useQuery(dataCollectionTrendOptions(seasonId))
 
   const mappedFormProgress: Array<Stat> = mapSeasonSummary({
     config: FORM_PROGRESS_CONFIG,

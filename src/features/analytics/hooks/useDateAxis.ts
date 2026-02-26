@@ -39,7 +39,7 @@ export const useDateAxis = ({ enabled, data, timeRange }: { enabled?: boolean, d
   const tooltipFormatter = useMemo(() => {
     return (value: string | number) => {
       const date = new Date(value);
-      return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric",  year: "numeric" });
     }
   }, []);
 

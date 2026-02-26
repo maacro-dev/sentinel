@@ -5,17 +5,18 @@ import { FormType } from "@/routes/_manager/forms/-config";
 
 export interface FormDataOptions {
   formType: FormType | (string & {});
+  seasonId?: number;
   enabled?: boolean;
 }
 
-export function formDataOptions({ formType, enabled }: FormDataOptions) {
+export function formDataOptions({ formType, seasonId, enabled }: FormDataOptions) {
   return queryOptions({
-    queryKey: ["form-data", formType] as const,
-    queryFn: () => Forms.getFormData(formType as FormType),
+    queryKey: ["form-data", formType, seasonId] as const,
+    queryFn: () => Forms.getFormData(formType as FormType, seasonId),
     enabled,
-    staleTime: 1000 * 60 * 1, // 1min
-    placeholderData: (prev) => prev
-  })
+    staleTime: 1000 * 60 * 1,
+    placeholderData: (prev) => prev,
+  });
 }
 
 
@@ -23,6 +24,7 @@ export interface FormDataByMfidOptions {
   formType: FormType | (string & {});
   mfid: string;
   enabled?: boolean;
+  seasonId?: number;
   queryOptions?: Partial<UseQueryOptions<any>>
 }
 
@@ -30,11 +32,12 @@ export function formDataByMfidOptions({
   formType,
   mfid,
   enabled = true,
+  seasonId,
   queryOptions: overrides = {}
 }: FormDataByMfidOptions) {
   return queryOptions({
-    queryKey: ["form-data-entry", formType, mfid] as const,
-    queryFn: () => Forms.getFormDataByMfid(formType as FormType, mfid),
+    queryKey: ["form-data-entry", formType, mfid, seasonId] as const,
+    queryFn: () => Forms.getFormDataByMfid(formType as FormType, mfid, seasonId),
     enabled: Boolean(mfid) && enabled,
     staleTime: Infinity,
     placeholderData: (prev) => prev,

@@ -16,6 +16,7 @@ export const Route = createFileRoute('/_manager/forms/$formType/')({
 
 function RouteComponent() {
   const { formType } = Route.useParams();
+  const { seasonId } = Route.useSearch()
   const { navigate, preloadRoute } = useRouter()
 
   const handleOnRowClick = useCallback((row: { field: { mfid: string } }) => {
@@ -35,6 +36,7 @@ function RouteComponent() {
   return (
     <PageContainer>
       <FormDataTable
+        seasonId={seasonId}
         formType={formType as FormType}
         onRowClick={handleOnRowClick}
         onRowIntent={handleOnRowIntent}

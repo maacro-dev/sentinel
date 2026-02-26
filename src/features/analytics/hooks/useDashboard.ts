@@ -4,9 +4,9 @@ import { mapSeasonSummary } from "../utils"
 import { Stat } from "../types"
 import { DASHBOARD_SUMMARY_CONFIG } from "../config"
 
-export const useAnalyticsDashboard = () => {
+export const useAnalyticsDashboard = (seasonId?: number) => {
 
-  const { data, isLoading } = useQuery(dashboardDataOptions())
+  const { data, isLoading } = useQuery(dashboardDataOptions(seasonId))
 
   const seasonalStats: Array<Stat> = mapSeasonSummary({
     config: DASHBOARD_SUMMARY_CONFIG,

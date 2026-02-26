@@ -62,10 +62,12 @@ function RouteComponent() {
         <VerificationSection />
       </div>
       <Separator className="my-8" />
-      <div className='flex-col gap-6 h-full rounded-xl flex items-center justify-center p-4'>
+
+      {/* <div className='flex-col gap-6 h-full rounded-xl flex items-center justify-center p-4'>
         <h1 className="text-3xl font-medium tracking-widest">(つ•̀ꞈ•̀)つ</h1>
         <span className="text-muted-foreground/60 text-xs">To be implemented soon...</span>
-      </div>
+      </div> */}
+
     </PageContainer>
   )
 }
@@ -130,7 +132,9 @@ function FormDataSection({ data, title }: { data: FormData, title: string }) {
 }
 
 function ImagesSection({ images }: { images?: string[] | null }) {
-  console.log(images)
+
+  // should say unavailable if no images found
+
   return (
     <section className='p-6 flex flex-col gap-4 border rounded-container '>
       <div className="flex gap-2.5 items-center">

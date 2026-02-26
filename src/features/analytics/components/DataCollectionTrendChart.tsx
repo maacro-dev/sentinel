@@ -2,7 +2,11 @@ import { memo } from "react"
 import { TrendChart } from "./TrendChart"
 import { DataCollectionPoint } from "../schemas/trends/dataCollectionTrend"
 
-export const DataCollectionTrendChart = memo(({ data }: { data: Array<DataCollectionPoint> }) => {
+interface DataCollectionTrendChartProps {
+  data: Array<DataCollectionPoint>;
+}
+
+export const DataCollectionTrendChart = memo(({ data  }: DataCollectionTrendChartProps) => {
   return (
     <TrendChart
       data={data}
@@ -10,12 +14,10 @@ export const DataCollectionTrendChart = memo(({ data }: { data: Array<DataCollec
         title: "Data Collection Trend",
         description: "Tracking data collection trend by time window"
       }}
+      isEmpty={data.length === 0}
       axisKeys={{ X: "date", Y: "data_collected" }}
-      axisOptions={{
-        X: { interval: "equidistantPreserveStart" }
-      }}
+      axisOptions={{ X: { interval: "equidistantPreserveStart" } }}
       config={{ data_collected: { label: "Data Collected" } }}
-      enableTimeRange={true}
     />
-  )
-})
+  );
+});

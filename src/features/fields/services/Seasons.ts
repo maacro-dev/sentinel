@@ -1,6 +1,6 @@
 import { getSupabase } from "@/core/supabase";
 import { isValidDate } from "@/core/utils/date";
-import { parseSeasonsTable, SeasonRow } from "../schemas/seasons";
+import { parseSeasonRow, parseSeasonsTable, SeasonRow } from "../schemas/seasons";
 
 export class Seasons {
 
@@ -17,6 +17,26 @@ export class Seasons {
       throw error;
     }
     return parseSeasonsTable(data)
+  }
+
+  public static async getById(id?: number): Promise<SeasonRow | null> {
+    if (id === undefined || id === null) return null
+
+    const client = await this._client
+
+    const { data, error } = await client
+      .from("seasons")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle()
+
+    if (error) {
+      throw error
+    }
+
+    if (!data) return null
+
+    return parseSeasonRow(data)
   }
 
   public static async getSeasonIdByDate(date: string) {

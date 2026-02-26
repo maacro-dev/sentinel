@@ -24,9 +24,12 @@ interface VerificationStatusCellProps extends VariantProps<typeof statusVariants
 }
 
 export const VerificationStatusCell = ({ value, variant }: VerificationStatusCellProps) => {
+
+  const v = value === "unknown" ? "unavailable" : value
+
   return (
     <span className={cn(statusVariants({ variant }))}>
-      {capitalizeFirst(value)}
+      {capitalizeFirst(v)}
     </span>
   );
 }

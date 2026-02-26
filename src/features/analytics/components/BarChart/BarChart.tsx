@@ -12,6 +12,7 @@ interface BarChartProps<T> {
   axisKeys: AxisKeys<T>;
   axisOptions?: AxisOptions;
   config?: ChartConfig;
+  isEmpty: boolean
 }
 
 export const BarChart = memo(<T extends object>({
@@ -19,19 +20,30 @@ export const BarChart = memo(<T extends object>({
   header,
   axisKeys,
   axisOptions,
+  isEmpty = false,
   config = {},
 }: BarChartProps<T>) => {
+
+  console.log(data)
+
   return (
     <ChartCard header={header}>
-      <ChartContainer config={config} className={chartContainerDefaults.className}>
-        <InternalBarChart
-          data={data}
-          margin={BarChartDefaults.margins}
-          axisKeys={axisKeys}
-          axisOptions={axisOptions}
-          config={config}
-        />
-      </ChartContainer>
+      {isEmpty ? (
+        <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+          No data available for this period
+        </div>
+      ) : (
+        <ChartContainer config={config} className={chartContainerDefaults.className}>
+          <InternalBarChart
+            data={data}
+            margin={BarChartDefaults.margins}
+            axisKeys={axisKeys}
+            axisOptions={axisOptions}
+            config={config}
+          />
+        </ChartContainer>
+      )}
+
     </ChartCard>
   );
 }) as <T extends object>(props: BarChartProps<T>) => JSX.Element;

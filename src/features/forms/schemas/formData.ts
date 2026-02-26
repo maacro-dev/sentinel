@@ -17,7 +17,7 @@ export const formDataEntryResponseSchema = z.object({
     "damage-assessment",
     "monitoring-visit",
   ]),
-  verification_status: z.enum(['pending', 'approved', 'rejected']),
+  verification_status: z.enum(['pending', 'approved', 'rejected', 'unknown']),
   collected_by: z.nullable(z.string()),
   verified_by: z.nullable(z.string()),
   collected_at: z.iso.datetime({ offset: true }),

@@ -24,14 +24,12 @@ export function resolveDynamicRoute(path: string, value: string): string {
   return path.replace(/\$\w+/g, value);
 }
 
-export function createRouteConfig<TKey extends string,TConfig extends Omit<RouteConfig<TKey>, 'id'>>(
+export function createRouteConfig<TKey extends string, TConfig extends Omit<RouteConfig<TKey>, 'id'>>(
   id: TKey,
   config: TConfig
 ): { id: TKey } & TConfig;
 
-export function createRouteConfig<TConfig extends Omit<RouteConfig<string>, 'id'>>(
-  config: TConfig
-): { id?: string } & TConfig;
+export function createRouteConfig<TConfig extends Omit<RouteConfig<string>, 'id'>>(config: TConfig): { id?: string } & TConfig;
 
 export function createRouteConfig(...args: any[]) {
   if (args.length === 1) {

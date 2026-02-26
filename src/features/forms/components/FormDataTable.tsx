@@ -7,17 +7,19 @@ import { useFormEntriesTable } from "../hooks/useFormDataTable";
 import { useTableStore } from "../store";
 
 interface FormDataTableProps<T> extends DataTableEvents<T> {
-  formType: FormType
+  formType: FormType;
+  seasonId?: number;
 }
 
 export const FormDataTable = <T extends { field: { mfid: string } }>({
   formType,
+  seasonId,
   onRowClick,
   onRowIntent,
 }: FormDataTableProps<T>) => {
-  "use no memo"; // TODO: remove after RC is compatible with TanStack Table v8
+  "use no memo";
 
-  const { table, isLoading: isLoadingFieldData } = useFormEntriesTable(formType);
+  const { table, isLoading: isLoadingFieldData } = useFormEntriesTable(formType, seasonId);
   const setIds = useTableStore((state) => state.setIds);
   const setCurrentIndex = useTableStore((state) => state.setCurrentIndex);
 
@@ -30,7 +32,6 @@ export const FormDataTable = <T extends { field: { mfid: string } }>({
       <DataTable
         table={table}
         toolbar={
-
           <DefaultTableToolbar
             onSearchChange={e => table.setGlobalFilter(e.target.value)}
             defaultSearchPlaceholder="Search anything..."
@@ -38,7 +39,7 @@ export const FormDataTable = <T extends { field: { mfid: string } }>({
         }
         pagination={<DefaultTablePagination table={table} />}
         onRowClick={(row) => {
-          const rows = table.getCoreRowModel().rows
+          const rows = table.getCoreRowModel().rows;
           const ids = rows.map((row) => row.id);
           const index = rows.filter(r => r.id === row.field.mfid)[0].index;
 
@@ -49,5 +50,5 @@ export const FormDataTable = <T extends { field: { mfid: string } }>({
         onRowIntent={onRowIntent}
       />
     </>
-  )
-}
+  );
+};

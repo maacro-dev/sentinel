@@ -4,14 +4,20 @@ import { useMemo } from "react"
 import { formatSeasonLabel, getSeasonDisplayLabel, isCurrentSeason } from "../util"
 import { useSearch } from "@tanstack/react-router"
 
+export const useSeason = (id?: number) => {
+  return useQuery({
+    queryKey: ["season", id] as const,
+    queryFn: () => Seasons.getById(id),
+    staleTime: 6000 * 60 * 60,
+  })
+}
+
 export const useSeasons = () => {
-  const { data, isLoading } = useQuery({
+  return useQuery({
     queryKey: ["seasons"] as const,
     queryFn: () => Seasons.getAll(),
     staleTime: 6000 * 60 * 60,
-    select: (data) => data ?? [],
   })
-  return { data: data ?? [], isLoading }
 }
 
 export function useSeasonOptions() {
@@ -31,7 +37,7 @@ export function useSeasonOptions() {
 
 export function useCurrentSeason() {
   const { seasonId } = useSearch({ strict: false });
-  const { data: seasons, isLoading  } = useSeasons();
+  const { data: seasons = [], isLoading } = useSeasons();
 
   const selectedSeason = useMemo(() => {
     if (!seasons.length) return undefined;

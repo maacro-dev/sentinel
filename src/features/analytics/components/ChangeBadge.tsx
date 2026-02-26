@@ -2,11 +2,7 @@ import { cn } from "@/core/utils/style";
 import { Badge } from "@/core/components/ui/badge";
 import { TrendIcon } from "./TrendIcon";
 import { memo } from "react";
-
-interface ChangeBadgeProps {
-  currentValue: number;
-  previousValue: number;
-}
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/core/components/ui/tooltip";
 
 const getColor = (v: number) => {
   if (v > 0) return "bg-green-100 text-green-600";
@@ -14,14 +10,51 @@ const getColor = (v: number) => {
   else return ""
 }
 
-export const ChangeBadge = memo(({ currentValue, previousValue }: ChangeBadgeProps) => {
-  const baseClasses = "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
-  const percent = ((currentValue - previousValue) / previousValue) * 100;
+interface ChangeBadgeProps {
+  currentValue: number;
+  previousValue?: number; // could be no data on previous season
+}
 
-  return (
-    <Badge variant="secondary" className={cn(baseClasses, getColor(percent))}>
-      {currentValue === 0 ? "No change" : <><TrendIcon value={percent} />{percent}%</>}
-      {/* <><TrendIcon value={value} />{value}%</> */}
-    </Badge>
-  );
-});
+export const ChangeBadge = memo(
+  ({ currentValue, previousValue }: ChangeBadgeProps) => {
+    const baseClasses =
+      "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
+
+    const percent =
+      previousValue && previousValue !== 0
+        ? ((currentValue - previousValue) / previousValue) * 100
+        : undefined;
+
+    const hasChange = typeof percent === "number" && isFinite(percent);
+    const showTooltip = previousValue == null;
+
+    const badge = (
+      <Badge
+        variant="secondary"
+        className={cn(baseClasses, hasChange ? getColor(percent) : undefined)}
+      >
+        {!hasChange ? (
+          "Unavailable"
+        ) : percent === 0 ? (
+          "No change"
+        ) : (
+          <>
+            <TrendIcon value={percent} />
+            {percent}%
+          </>
+        )}
+      </Badge>
+    );
+
+    if (!showTooltip) return badge;
+
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{badge}</TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p className="text-5xs">No data from the previous season</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+);

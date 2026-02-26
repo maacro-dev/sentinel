@@ -9,11 +9,11 @@ export const productionColumns: ColumnDef<FormDataEntry, any>[] = [
   {
     id: 'yield',
     accessorFn: (row) => Calc.yield({
-      areaHarvested: row.activity.formData.area_harvested,
+      areaHarvested: row.activity.formData.area_harvested ?? row.activity.formData.area_harvested_ha,
       avgBagWeightKg: row.activity.formData.avg_bag_weight_kg,
       bagsHarvested: row.activity.formData.bags_harvested
     }),
-    header: 'Applied Area',
+    header: 'Yield',
     cell: (info) => <UnitCell value={info.getValue()} unit="kg/ha" />,
     meta: { size: '2xs' }
   },

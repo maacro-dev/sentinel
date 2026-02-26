@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { StatCard } from "@/features/analytics/components";
-import { dataCollectionTrendOptions, formCountSummaryOptions } from "@/features/analytics/queries/options";
+import { dataCollectionTrendOptions, formCountSummaryOptions, formProgressSummaryOptions } from "@/features/analytics/queries/options";
 import { DataCollectionTrendChart } from "@/features/analytics/components/DataCollectionTrendChart";
 import { Stat } from "@/features/analytics/types";
 import { useFormOverview } from "@/features/analytics/hooks/useFormOverview";
@@ -9,13 +9,18 @@ import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { FormInput } from "lucide-react";
 import PlaceholderBody from "@/core/components/PlaceholderBody";
+import { useSeason } from "@/features/fields/hooks/useSeasons";
 
 export const Route = createFileRoute("/_manager/_overview/forms-overview")({
   component: RouteComponent,
   head: () => ({ meta: [{ title: "Data Collection | Humay" }] }),
-  loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(dataCollectionTrendOptions())
-    queryClient.ensureQueryData(formCountSummaryOptions())
+  loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
+  loader: ({ context: { queryClient }, deps: { seasonId } }) => {
+
+    queryClient.ensureQueryData(dataCollectionTrendOptions(seasonId))
+    queryClient.ensureQueryData(formCountSummaryOptions(seasonId))
+    queryClient.ensureQueryData(formProgressSummaryOptions(seasonId))
+
     return { breadcrumb: createCrumbLoader({ label: "Data Collection" }) }
   },
   staticData: {
@@ -29,9 +34,11 @@ export const Route = createFileRoute("/_manager/_overview/forms-overview")({
 });
 
 function RouteComponent() {
-  const { formCount, formProgress, collectionTrend, isLoading } = useFormOverview();
+  const { seasonId } = Route.useSearch()
+  const { data: season, isLoading: seasonLoading } = useSeason(seasonId)
+  const { formCount, formProgress, collectionTrend, isLoading } = useFormOverview(seasonId);
 
-  if (isLoading || !formCount || !formProgress || !collectionTrend) {
+  if (isLoading || !formCount || !formProgress || !collectionTrend || seasonLoading || !season) {
     return (
       <PageContainer>
         <PlaceholderBody />

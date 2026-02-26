@@ -206,14 +206,6 @@ GRANT SELECT ON mfid_details TO authenticated;
 
 GRANT SELECT ON field_activity_details TO authenticated;
 
-GRANT SELECT ON analytics.dashboard_barangay_yield_rankings TO authenticated;
-
-GRANT SELECT ON analytics.trend_data_collection TO authenticated;
-
-GRANT SELECT ON analytics.trend_overall_yield TO authenticated;
-
-GRANT SELECT ON analytics.summary_form_count TO authenticated;
-
 GRANT SELECT ON users TO authenticated;
 
 GRANT SELECT ON barangays TO authenticated;

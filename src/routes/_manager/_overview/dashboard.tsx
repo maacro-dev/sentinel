@@ -11,8 +11,10 @@ import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { ExpandableStatCard } from "@/features/analytics/components/ExpandableStatCard";
 
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
-  loader: async ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(dashboardDataOptions());
+  loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
+  loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
+
+    queryClient.ensureQueryData(dashboardDataOptions(seasonId));
     return { breadcrumb: createCrumbLoader({ label: "Dashboard" }) }
   },
   head: () => ({ meta: [{ title: "Dashboard | Humay" }] }),
@@ -20,7 +22,9 @@ export const Route = createFileRoute("/_manager/_overview/dashboard")({
 });
 
 function RouteComponent() {
-  const { stats, trends, ranks, isLoading } = useAnalyticsDashboard();
+
+  const { seasonId } = Route.useSearch()
+  const { stats, trends, ranks, isLoading } = useAnalyticsDashboard(seasonId);
 
   if (isLoading || !stats || !trends || !ranks) {
     return <PendingComponent />

@@ -41,6 +41,7 @@ export const FormCountBarChart = memo(({ data }: { data: Array<FormCount> }) => 
     data={data}
     header={header}
     axisKeys={{ X: "form", Y: "count" }}
+    isEmpty={data.every(fc => fc.count === 0)}
     axisOptions={{
       X: {
         interval: 0,

@@ -12,38 +12,18 @@ export type Database = {
       [_ in never]: never
     }
     Views: {
-      dashboard_barangay_yield_rankings: {
-        Row: {
-          bottom: Json | null
-          top: Json | null
-        }
-        Relationships: []
-      }
-      summary_form_count: {
-        Row: {
-          data: Json | null
-          season: Json | null
-        }
-        Relationships: []
-      }
-      trend_data_collection: {
-        Row: {
-          data: Json | null
-          season: Json | null
-        }
-        Relationships: []
-      }
-      trend_overall_yield: {
-        Row: {
-          data: Json | null
-          season: Json | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      dashboard_summary: { Args: never; Returns: Json }
-      summary_form_progress: { Args: never; Returns: Json }
+      dashboard_barangay_yield_rankings: {
+        Args: { p_season_id?: number }
+        Returns: Json
+      }
+      dashboard_summary: { Args: { p_season_id?: number }; Returns: Json }
+      summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
+      summary_form_progress: { Args: { p_season_id?: number }; Returns: Json }
+      trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
+      trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
     }
     Enums: {
       [_ in never]: never

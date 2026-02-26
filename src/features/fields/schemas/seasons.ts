@@ -31,4 +31,5 @@ export const seasonRowSchema = z.object({
 export type SeasonTable = z.infer<typeof seasonsTableSchema>
 export const seasonsTableSchema = z.array(seasonRowSchema)
 
+export const parseSeasonRow = Validator.create<SeasonRow>(seasonRowSchema)
 export const parseSeasonsTable = Validator.create<SeasonTable>(seasonsTableSchema)

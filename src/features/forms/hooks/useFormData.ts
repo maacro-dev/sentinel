@@ -3,23 +3,27 @@ import { FormType } from "@/routes/_manager/forms/-config";
 import { formDataOptions, formDataByMfidOptions } from "../queries/options";
 
 interface useFormEntriesOptions {
-  formType: FormType,
-  enabled?: boolean,
+  formType: FormType;
+  seasonId?: number;
+  enabled?: boolean;
 }
 
 interface useFormEntryOptions {
-  formType: FormType,
-  mfid: string,
-  enabled?: boolean,
+  formType: FormType;
+  mfid: string;
+  seasonId?: number;
+  enabled?: boolean;
 }
 
 export function useFormEntries({
   formType,
+  seasonId,
   enabled,
 }: useFormEntriesOptions) {
   const listQuery = useQuery(
     formDataOptions({
       formType,
+      seasonId,
       enabled: enabled ?? true,
     })
   );
@@ -33,12 +37,14 @@ export function useFormEntries({
 export function useFormEntry({
   formType,
   mfid,
+  seasonId,
   enabled,
 }: useFormEntryOptions) {
   const entryQuery = useQuery(
     formDataByMfidOptions({
       formType,
       mfid,
+      seasonId,
       enabled: enabled ?? true,
     })
   );
