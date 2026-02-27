@@ -61,17 +61,18 @@ begin
     from jsonb_each(
         (
             select jsonb_object_agg(
-                (elem->>'mfid') || '|' || (elem->>'season_id')::text,  -- Fixed: use elem->>'mfid'
+                (elem->>'mfid') || '|' || (elem->>'season_id')::text,
                 exists (
                     select 1
-                    from field_activities fa
-                    join fields f on fa.field_id = f.id
-                    where f.mfid = (elem->>'mfid')  -- Fixed: use elem->>'mfid'
+                    from public.field_activities fa
+                    join public.fields f on fa.field_id = f.id
+                    join public.mfids m on f.mfid_id = m.id  -- join to get mfid string
+                    where m.mfid = (elem->>'mfid')
                         and fa.season_id = (elem->>'season_id')::int
-                        and fa.activity_type = p_activity_type::activity_type
+                        and fa.activity_type = p_activity_type::public.activity_type
                 )
             )
-            from jsonb_array_elements(p_rows) as elem  -- Added alias 'elem'
+            from jsonb_array_elements(p_rows) as elem
         )
     );
 

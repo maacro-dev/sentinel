@@ -49,7 +49,7 @@ export const ProvinceYieldsBarChart = memo(({ data }: ProvinceYieldsBarChartProp
         },
         Y: { tickFormatter: (value: number) => `${value} t/ha`, },
       }}
-      cardClass="max-h-[25rem]"
+      cardClass="min-h-94 max-h-[25rem]"
     />
   );
 });

@@ -15,7 +15,11 @@ export const crop_establishments_schema = baseFields.extend({
 
   actual_crop_establishment_date: z.string().transform(strclean).transform(toIso),
   actual_crop_establishment_method: z.string().transform(strclean),
-  sowing_date: z.string().transform(strclean).transform(toIso),
+
+  sowing_date: z.string()
+    .transform(strclean)
+    .refine(val => val === "N/A" || !isNaN(Date.parse(val)), "Invalid date")
+    .transform(val => val === "N/A" ? undefined : toIso(val)),
 
   seedling_age_at_transplanting: z.string()
     .optional()

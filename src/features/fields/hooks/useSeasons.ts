@@ -37,21 +37,22 @@ export function useSeasonOptions() {
 
 export function useCurrentSeason() {
   const { seasonId } = useSearch({ strict: false });
-  const { data: seasons = [], isLoading } = useSeasons();
+  const { data: season = [], isLoading } = useSeasons();
 
   const selectedSeason = useMemo(() => {
-    if (!seasons.length) return undefined;
-    if (seasonId) return seasons.find(s => s.id === seasonId);
-    return seasons.find(s => isCurrentSeason(s)) ?? seasons[0];
-  }, [seasons, seasonId]);
+    if (!season.length) return undefined;
+    if (seasonId) return season.find(s => s.id === seasonId);
+    return season.find(s => isCurrentSeason(s)) ?? season[0];
+  }, [season, seasonId]);
 
   const seasonLabel = useMemo(() => {
     if (!selectedSeason) return '';
-    return getSeasonDisplayLabel(selectedSeason, seasons);
-  }, [selectedSeason, seasons]);
+    return getSeasonDisplayLabel(selectedSeason, season);
+  }, [selectedSeason, season]);
 
   return {
     id: seasonId,
+    seasons: season,
     selected: selectedSeason,
     label: seasonLabel,
     isLoading

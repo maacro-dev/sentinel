@@ -6,6 +6,7 @@ import { parseSeasonSummary } from "../schemas/seasonSummary";
 import { parseOverallYieldTrend } from "../schemas/trends/overallYield";
 import { parseProvinceYields } from "../schemas/yieldByProvince";
 import { parseFormCountSummary } from "../schemas/summary/formCount";
+import { parseCropMethodSummary } from "../schemas/summary/method";
 
 export class Analytics {
   public static async getDashboardData(seasonId?: number): Promise<DashboardData> {
@@ -81,12 +82,17 @@ export class Analytics {
       .schema('analytics')
       .rpc('province_yields', { p_season_id: seasonId });
 
-    if (provinceYieldsError) {
+    const { data: methodSummaryRaw, error: methodSummaryError } = await client
+      .schema('analytics')
+      .rpc('crop_establishment_method_summary', { p_season_id: seasonId });
+
+    if (provinceYieldsError || methodSummaryError) {
       throw new Error("Error fetching descriptive analytics data.");
     }
 
     return {
-      provinceYields: parseProvinceYields(provinceYieldsRaw)
+      provinceYields: parseProvinceYields(provinceYieldsRaw),
+      cropMethodSummary: parseCropMethodSummary(methodSummaryRaw)
     }
   }
 

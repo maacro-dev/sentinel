@@ -21,6 +21,7 @@ create table crop_establishments(
     actual_land_preparation_method      text not null,
     actual_crop_establishment_date      date not null,
     actual_crop_establishment_method    text not null,
+
     -- if transplanted
     sowing_date                         date null,
     seedling_age_at_transplanting       smallint null check (seedling_age_at_transplanting between 1 and 100),
@@ -30,15 +31,20 @@ create table crop_establishments(
     distance_within_plant_row_1         double precision null,
     distance_within_plant_row_2         double precision null,
     distance_within_plant_row_3         double precision null,
+
     -- if direct-seeded
     seeding_rate_kg_ha                  double precision null,
     direct_seeding_method               text null,
     num_plants_1                        smallint null,
     num_plants_2                        smallint null,
     num_plants_3                        smallint null,
+
+
+    -- more fields
     rice_variety                        text not null,
     rice_variety_no                     text null,
     rice_variety_maturity_duration      smallint not null,
+
     seed_class                          text not null
     -- source_of_seed 		            text not null, -- seed_producer, etc.
     -- crop_growth_stage		        text not null -- flowering, tillering, etc.

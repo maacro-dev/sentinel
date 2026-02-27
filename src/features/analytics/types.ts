@@ -5,6 +5,7 @@ import type { OverallYieldTrend } from "./schemas/trends/overallYield";
 import type { XAxisProps, YAxisProps } from "recharts";
 import type { TickItem } from "recharts/types/util/types";
 import { ProvinceYield } from "./schemas/yieldByProvince";
+import { CropMethodSummary } from "./schemas/summary/method";
 
 export type TickProps = {
   x: number | string;
@@ -42,9 +43,11 @@ export interface DashboardData {
 
 export interface DescriptiveAnalyticsData {
   provinceYields: Array<ProvinceYield>
+  cropMethodSummary: CropMethodSummary;
 }
 
 export type SummaryConfig = Record<string, StatMetadata>;
+
 export type Stat = Flatten<StatMetadata & { current_value: number; previous_value: number; percent_change: number; }>;
 
 export interface StatMetadata {

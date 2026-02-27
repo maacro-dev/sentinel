@@ -8,7 +8,7 @@ import { ImportToasts } from "../toastMessages";
 import { useToast } from "@/features/toast";
 import { getActivityType } from "@/features/forms/utils";
 import { useAllBarangaysWithLocation } from "@/features/mfid/hooks/useLgu";
-import { useSeasons } from "@/features/fields/hooks/useSeasons";
+import { useCurrentSeason, useSeason, useSeasons } from "@/features/fields/hooks/useSeasons";
 import { findSeasonId } from "@/features/fields/util";
 import { useCheckDuplicates } from "@/features/mfid/hooks/useCheckDuplicates";
 import { ImportRow, ImportIssue, FileError, ValidationContext } from "../types";
@@ -30,7 +30,8 @@ export function useImport(initialDataset?: Form) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { data: locations = [], isLoading: locationsLoading } = useAllBarangaysWithLocation();
-  const { data: seasons, isLoading: seasonsLoading } = useSeasons();
+
+  const { data: seasons = [], isLoading: seasonsLoading } = useSeasons();
 
   const rowsForDuplicateCheck = useMemo(() => {
     if (!rawData.length || !seasons.length || !datasetType) return [];
@@ -103,6 +104,9 @@ export function useImport(initialDataset?: Form) {
           e.target.value = "";
           return;
         }
+
+        console.log("raw data =", data)
+
         setFileError(null);
         setFileName(file.name)
         setRawData(data);

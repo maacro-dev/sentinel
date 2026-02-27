@@ -19,16 +19,22 @@ export const Route = createFileRoute("/_manager/_analytics/descriptive")({
 function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
-  const { provinceYields, isLoading } = useDescriptiveAnalytics(seasonId)
+  const { provinceYields, methodSummary, isLoading } = useDescriptiveAnalytics(seasonId)
 
-  if (isLoading || !provinceYields) {
+  if (isLoading || !provinceYields || !methodSummary) {
     return <PendingComponent />
   }
 
   return (
     <PageContainer>
       <ProvinceYieldsBarChart data={provinceYields} />
-      <p className="text-sm text-muted-foreground">More to be added...</p>
+      <div className="flex h-full gap-4 ">
+        <div className="flex-5 bg-muted/50 rounded-xl debug" />
+        <div className="flex-2 flex flex-col gap-4">
+          <div className="flex-1 bg-muted/50 rounded-xl debug" />
+          <div className="flex-1 bg-muted/50 rounded-xl debug" />
+        </div>
+      </div>
     </PageContainer>
   );
 }

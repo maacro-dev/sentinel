@@ -95,7 +95,7 @@ begin
 end;
 $$;
 
-create or replace function handle_mfid(
+create or replace function public.handle_mfid(
     p_mfid text,
     p_farmer_id int,
     p_barangay_id int,
@@ -104,38 +104,46 @@ create or replace function handle_mfid(
 )
     returns int
     language plpgsql
+    set search_path = ''
 as $$
 declare
     v_field_id int;
     v_mfid_id int;
 begin
-
-    -- if field with this mfid already exists, just return its id
-    select id into v_field_id from public.fields where mfid = p_mfid;
-
-    if v_field_id is not null then
-        return v_field_id;
-    end if;
-
-    -- ensure mfid exists in the mfids table (or create it)
-    select id into v_mfid_id from public.mfids where mfid = p_mfid;
+    -- 1. Get or create the MFID record
+    select id into v_mfid_id
+    from public.mfids
+    where mfid = p_mfid;
 
     if v_mfid_id is null then
         if p_auto_create_mfid then
-            insert into public.mfids (mfid) values (p_mfid) returning id into v_mfid_id;
+            insert into public.mfids (mfid)
+            values (p_mfid)
+            returning id into v_mfid_id;
         else
-            -- for error reporting
             raise exception 'MFID % not found in mfids table and auto‑create is disabled', p_mfid;
+        end if;
+    else
+        -- 2. Check if a field already uses this MFID
+        select id into v_field_id
+        from public.fields
+        where mfid_id = v_mfid_id;
+
+        if v_field_id is not null then
+            -- Field already exists – return it
+            return v_field_id;
         end if;
     end if;
 
-    -- create the field
-    insert into public.fields (farmer_id, barangay_id, mfid, location)
-    values (p_farmer_id, p_barangay_id, p_mfid, p_location)
+    -- 3. No existing field – create one
+    insert into public.fields (farmer_id, barangay_id, mfid_id, location)
+    values (p_farmer_id, p_barangay_id, v_mfid_id, p_location)
     returning id into v_field_id;
 
-    -- mark mfid as used
-    update public.mfids set used_at = now() where id = v_mfid_id and used_at is null;
+    -- 4. Mark the MFID as used (only if it was unused)
+    update public.mfids
+    set used_at = now()
+    where id = v_mfid_id and used_at is null;
 
     return v_field_id;
 end;
