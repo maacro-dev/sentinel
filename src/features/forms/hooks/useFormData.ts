@@ -21,14 +21,7 @@ export function useFormEntries({
   seasonId,
   enabled,
 }: useFormEntriesOptions) {
-  const listQuery = useQuery(
-    formDataOptions({
-      formType,
-      seasonId,
-      enabled: enabled ?? true,
-    })
-  );
-
+  const listQuery = useQuery(formDataOptions({ formType, seasonId, enabled: enabled ?? true, }));
   return {
     data: listQuery.data ?? [],
     isLoading: listQuery.isLoading,

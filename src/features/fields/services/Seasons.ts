@@ -20,23 +20,26 @@ export class Seasons {
   }
 
   public static async getById(id?: number): Promise<SeasonRow | null> {
-    if (id === undefined || id === null) return null
+    const client = await this._client;
+    const today = new Date().toISOString().split("T")[0];
 
-    const client = await this._client
+    let query = client.from("seasons").select("*");
 
-    const { data, error } = await client
-      .from("seasons")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle()
-
-    if (error) {
-      throw error
+    if (id === undefined || id === null) {
+      query = query
+        .lte("start_date", today)
+        .order("start_date", { ascending: false })
+        .limit(1);
+    } else {
+      query = query.eq("id", id);
     }
 
-    if (!data) return null
+    const { data, error } = await query.maybeSingle();
 
-    return parseSeasonRow(data)
+    if (error) throw error;
+    if (!data) return null;
+
+    return parseSeasonRow(data);
   }
 
   public static async getSeasonIdByDate(date: string) {

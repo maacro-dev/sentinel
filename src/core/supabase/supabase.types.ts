@@ -512,7 +512,7 @@ export type Database = {
           farmer_id: number
           id: number
           location: unknown
-          mfid: string
+          mfid_id: number
           updated_at: string
         }
         Insert: {
@@ -521,7 +521,7 @@ export type Database = {
           farmer_id: number
           id?: number
           location?: unknown
-          mfid: string
+          mfid_id: number
           updated_at?: string
         }
         Update: {
@@ -530,7 +530,7 @@ export type Database = {
           farmer_id?: number
           id?: number
           location?: unknown
-          mfid?: string
+          mfid_id?: number
           updated_at?: string
         }
         Relationships: [
@@ -553,6 +553,13 @@ export type Database = {
             columns: ["farmer_id"]
             isOneToOne: false
             referencedRelation: "farmers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fields_mfid_id_fkey"
+            columns: ["mfid_id"]
+            isOneToOne: true
+            referencedRelation: "mfids"
             referencedColumns: ["id"]
           },
         ]

@@ -2,8 +2,7 @@
 -- for querying a form
 -- TODO: metadata has 2 tables, this only uses `fertilization_records`
 create or replace view public.field_activity_details as
-    select f.mfid,
-        case fa.activity_type
+    select case fa.activity_type
             when 'field-data'                    then to_jsonb(fp) - 'id'
             when 'cultural-management'           then to_jsonb(ce) - 'id'
             when 'nutrient-management'           then to_jsonb(fr) - 'id'
@@ -12,8 +11,9 @@ create or replace view public.field_activity_details as
             when 'monitoring-visit'              then to_jsonb(mv) - 'id'
             else '{}'::jsonb
         end                                      as form_data,
-        s.season_year                             as season_year,
-        s.semester                                as semester,
+        m.mfid                                   as mfid,
+        s.season_year                            as season_year,
+        s.semester                               as semester,
         fa.id                                    as id,
         fa.field_id                              as field_id,
         fa.season_id                             as season_id,
@@ -32,6 +32,7 @@ create or replace view public.field_activity_details as
     from public.field_activities fa
     join public.seasons s                        on fa.season_id = s.id
     left join public.fields f                    on fa.field_id = f.id
+    left join public.mfids m on f.mfid_id = m.id
     left join public.farmers fm                  on f.farmer_id = fm.id
     left join addresses a                        on f.barangay_id = a.barangay_id
     left join public.field_plannings fp          on fa.id = fp.id

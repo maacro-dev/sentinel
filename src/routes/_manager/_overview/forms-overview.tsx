@@ -34,6 +34,7 @@ export const Route = createFileRoute("/_manager/_overview/forms-overview")({
 });
 
 function RouteComponent() {
+
   const { seasonId } = Route.useSearch()
   const { data: season, isLoading: seasonLoading } = useSeason(seasonId)
   const { formCount, formProgress, collectionTrend, isLoading } = useFormOverview(seasonId);

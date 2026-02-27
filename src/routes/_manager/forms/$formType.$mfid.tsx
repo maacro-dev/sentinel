@@ -17,11 +17,13 @@ import { useFormDetailNavigator } from '@/features/forms/hooks/useEntryNavigator
 
 export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
   component: RouteComponent,
-  loader: ({ params, context: { queryClient } }) => {
+  loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
+  loader: ({ params, context: { queryClient }, deps: { seasonId } }) => {
     queryClient.ensureQueryData(
       formDataByMfidOptions({
         formType: params.formType as FormType,
         mfid: params.mfid,
+        seasonId: seasonId
       })
     )
     return { breadcrumb: createCrumbLoader({ label: params.mfid }) }
@@ -31,12 +33,11 @@ export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
 
 function RouteComponent() {
   const { formType, mfid } = Route.useParams()
-  const { data, isLoading } = useFormEntry({ formType: formType as FormType, mfid })
+  const { seasonId } = Route.useSearch()
+
+  const { data, isLoading } = useFormEntry({ formType: formType as FormType, mfid, seasonId: seasonId })
 
   const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, mfid);
-
-
-  console.log(data.activity)
 
   if (isLoading || navLoading) {
     return <PageContainer>Loading...</PageContainer>

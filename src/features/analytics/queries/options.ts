@@ -6,7 +6,7 @@ export const dashboardDataOptions = (seasonId?: number) => {
   return queryOptions({
     queryKey: ["dashboard-data", seasonId] as const,
     queryFn: () => Analytics.getDashboardData(seasonId),
-    refetchOnWindowFocus: true,
+    // refetchOnWindowFocus: true,
   });
 }
 
