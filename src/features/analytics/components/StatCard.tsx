@@ -41,3 +41,35 @@ export const StatCard = memo(({ title, subtitle, current_value, previous_value, 
     </Card>
   );
 });
+
+
+interface StatCardMinimalProps extends Omit<Stat, "previous_value" | "percent_change"> {}
+
+export const StatCardMinimal = memo(({ title, subtitle, current_value, unit }: StatCardMinimalProps) => {
+  return (
+    <Card
+      role="stat-card-simple"
+      className="flex-1 h-full flex flex-col gap-2.5 justify-between hover:cursor-pointer rounded-container hover:shadow-sm transition-all"
+    >
+      <CardHeader className="flex flex-col gap-0.5 lt:gap-1 dt:gap-1.5">
+        <CardTitle className="leading-none font-medium text-primary">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-left font-light text-muted-foreground">
+          {subtitle}
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="flex flex-row items-center justify-between">
+        <div className="space-x-1.5">
+          <span className="space-x-2 font-semibold text-lg lt:text-xl dt:text-2xl hd:text-3xl">
+            {current_value ?? "-"}
+          </span>
+          <span className="text-5xs lt:text-4xs dt:text-3xs font-light text-muted-foreground">
+            {unit}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});

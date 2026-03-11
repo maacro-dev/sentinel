@@ -33,6 +33,10 @@ export const zodNumberRange = (min: number, max: number) =>
 
 
 export const strclean = (val: string) => val.replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim()
+export const strcleanOpt = (val?: string) =>
+  val?.replace(/[\r\n]+/g, " ")
+     .replace(/\s+/g, " ")
+     .trim() ?? ""
 
 export const parseNameParts = (name: string): { first?: string; last?: string; warning?: string } => {
   const cleaned = name.trim();

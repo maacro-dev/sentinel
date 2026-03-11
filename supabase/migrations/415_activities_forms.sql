@@ -18,7 +18,7 @@ create table crop_establishments(
     id                                  int primary key references field_activities(id) unique,
     ecosystem                           text not null,
     monitoring_field_area_sqm           double precision not null,
-    actual_land_preparation_method      text not null,
+    -- actual_land_preparation_method      text not null,
     actual_crop_establishment_date      date not null,
     actual_crop_establishment_method    text not null,
 

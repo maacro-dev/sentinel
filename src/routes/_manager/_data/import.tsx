@@ -18,6 +18,7 @@ import {
 } from "@/core/components/ui/dialog"
 import { Button } from "@/core/components/ui/button"
 import { Spinner } from '@/core/components/ui/spinner'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/_manager/_data/import')({
   loader: () => ({ breadcrumb: createCrumbLoader({ label: "Import" }) }),
@@ -30,8 +31,9 @@ type ImportStep = 'upload' | 'preview' | 'confirm' | 'success'
 function RouteComponent() {
   const [cancelOpen, setCancelOpen] = useState(false)
   const [step, setStep] = useState<ImportStep>('upload')
+  const queryClient = useQueryClient()
 
-  const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn } = useImport();
+  const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn, datasetSeasonId } = useImport();
 
   const confirmCancel = () => {
     setCancelOpen(false)
@@ -49,6 +51,13 @@ function RouteComponent() {
     try {
       await importFn(parsedData, fileName);
       setStep('success');
+
+      queryClient.invalidateQueries({ queryKey: ['form-data'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
+      queryClient.invalidateQueries({ queryKey: ['form-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['data-collection-trend'] });
+      queryClient.invalidateQueries({ queryKey: ['form-count-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['descriptive-analytics-data'] });
     } catch (err) {
       console.error("error importing", fileName, "-", err)
     }

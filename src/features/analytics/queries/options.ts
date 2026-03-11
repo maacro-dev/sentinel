@@ -39,3 +39,26 @@ export const descriptiveAnalyticsDataOptions = (seasonId?: number) => ({
   queryFn: () => Analytics.getDescriptiveAnalyticsData(seasonId),
   refetchOnWindowFocus: true,
 });
+
+// should combine three below to a single (comparative data options)
+
+export const yieldByLocationOptions = (filters: Parameters<typeof Analytics.getYieldByLocation>[0]) =>
+  queryOptions({
+    queryKey: ['yield-analytics', filters] as const,
+    queryFn: () => Analytics.getYieldByLocation(filters),
+    staleTime: 1000 * 60 * 5,
+  });
+
+export const yieldByMethodOptions = (filters: Parameters<typeof Analytics.getYieldByMethod>[0]) =>
+  queryOptions({
+    queryKey: ['yield-by-method', filters] as const,
+    queryFn: () => Analytics.getYieldByMethod(filters),
+    staleTime: 1000 * 60 * 5,
+  });
+
+export const yieldByVarietyOptions = (filters: Parameters<typeof Analytics.getYieldByVariety>[0]) =>
+  queryOptions({
+    queryKey: ['yield-by-variety', filters] as const,
+    queryFn: () => Analytics.getYieldByVariety(filters),
+    staleTime: 1000 * 60 * 5,
+  });

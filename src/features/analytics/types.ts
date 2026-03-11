@@ -6,6 +6,8 @@ import type { XAxisProps, YAxisProps } from "recharts";
 import type { TickItem } from "recharts/types/util/types";
 import { ProvinceYield } from "./schemas/yieldByProvince";
 import { CropMethodSummary } from "./schemas/summary/method";
+import { RiceVarietySummary } from "./schemas/summary/variety";
+import React from "react";
 
 export type TickProps = {
   x: number | string;
@@ -42,16 +44,24 @@ export interface DashboardData {
 }
 
 export interface DescriptiveAnalyticsData {
-  provinceYields: Array<ProvinceYield>
+  provinceYields: Array<ProvinceYield>;
   cropMethodSummary: CropMethodSummary;
+  riceVarietySummary: RiceVarietySummary;
 }
 
 export type SummaryConfig = Record<string, StatMetadata>;
 
-export type Stat = Flatten<StatMetadata & { current_value: number; previous_value: number; percent_change: number; }>;
+export type Stat = Flatten<StatMetadata & { current_value: number | string; previous_value: number; percent_change: number; }>;
 
 export interface StatMetadata {
   title: string;
   subtitle: string;
   unit: string;
 }
+
+
+
+
+export type ComparativeView = "yield-location" | "yield-method" | "yield-variety" | "damage-location" | "damage-cause"
+export type ComparativeViewProps = { data?: any; isLoading: boolean }
+export type ComparativeViewComponent = React.ComponentType<ComparativeViewProps>

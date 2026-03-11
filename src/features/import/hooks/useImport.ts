@@ -8,7 +8,7 @@ import { ImportToasts } from "../toastMessages";
 import { useToast } from "@/features/toast";
 import { getActivityType } from "@/features/forms/utils";
 import { useAllBarangaysWithLocation } from "@/features/mfid/hooks/useLgu";
-import { useCurrentSeason, useSeason, useSeasons } from "@/features/fields/hooks/useSeasons";
+import { useSeasons } from "@/features/fields/hooks/useSeasons";
 import { findSeasonId } from "@/features/fields/util";
 import { useCheckDuplicates } from "@/features/mfid/hooks/useCheckDuplicates";
 import { ImportRow, ImportIssue, FileError, ValidationContext } from "../types";
@@ -25,7 +25,7 @@ export function useImport(initialDataset?: Form) {
   const [issues, setIssues] = useState<ImportIssue[]>([]);
 
   const [fileError, setFileError] = useState<FileError>(null);
-  const [fileName, setFileName] = useState<string>('');
+  const [fileName, setFileName] = useState<string>("");
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -70,9 +70,14 @@ export function useImport(initialDataset?: Form) {
     }
   }, [rawData, locations, seasons, duplicateMap, datasetType, isContextLoading]);
 
+  const datasetSeasonId = useMemo(() => {
+    if (!parsedData.length) return null;
+    return parsedData[0].season_id ?? null;
+  }, [parsedData]);
+
   const importMutation = useMutation({
     mutationKey: ["import", datasetType] as const,
-    mutationFn: ({ datasetType, data, fileName }: { datasetType: Form; data: ImportRow[], fileName: string }) =>
+    mutationFn: ({ datasetType, data, fileName }: { datasetType: Form; data: ImportRow[]; fileName: string }) =>
       Import.create(datasetType, data, fileName),
     onMutate: () => notifyLoading(ImportToasts.creating),
     onSuccess: (response, _variables, toastId) =>
@@ -87,6 +92,7 @@ export function useImport(initialDataset?: Form) {
 
   const importFn = (data: ImportRow[], fileName: string) => {
     if (!datasetType) return Promise.reject("No dataset selected");
+    console.log('Sending to server:', parsedData);
     return importMutation.mutateAsync({ datasetType, data, fileName });
   };
 
@@ -105,10 +111,10 @@ export function useImport(initialDataset?: Form) {
           return;
         }
 
-        console.log("raw data =", data)
+        console.log("raw data =", data);
 
         setFileError(null);
-        setFileName(file.name)
+        setFileName(file.name);
         setRawData(data);
         setIsProcessing(true);
       },
@@ -121,7 +127,7 @@ export function useImport(initialDataset?: Form) {
     setIssues([]);
     setDatasetType(null);
     setFileError(null);
-    setFileName('');
+    setFileName("");
     setIsProcessing(false);
     importMutation.reset();
   };
@@ -131,6 +137,7 @@ export function useImport(initialDataset?: Form) {
     setDatasetType,
     rawData,
     parsedData,
+    datasetSeasonId,
     issues,
     fileError,
     fileName,
@@ -154,18 +161,77 @@ function parseAllRows(
 ): { parsed: ImportRow[]; issues: ImportIssue[] } {
   const issues: ImportIssue[] = [];
   const parsed: ImportRow[] = [];
+  const seenKeys = new Set<string>();
+  const seasonSet = new Set<number>();
+  // Store per-season row details for debugging
+  const seasonDetails: Map<number, Array<{ index: number; mfid: string; collected_at: string; seasonId: number }>> = new Map();
 
   rows.forEach((row, index) => {
     const result = validateRow(row, index, context);
 
+    // Collect season ID if row has parsed data
+    if (result.parsed) {
+      const seasonId = result.parsed.season_id;
+      const mfid = result.parsed.mfid as string;
+      const collected_at = result.parsed.collected_at as string;
+      if (typeof seasonId === "number") {
+        seasonSet.add(seasonId);
+        // Store details for logging
+        if (!seasonDetails.has(seasonId)) {
+          seasonDetails.set(seasonId, []);
+        }
+        seasonDetails.get(seasonId)!.push({
+          index,
+          mfid,
+          collected_at,
+          seasonId,
+        });
+      }
+
+      const key = `${mfid}|${seasonId}`;
+      if (seenKeys.has(key)) {
+        issues.push({
+          row: index,
+          col: "duplicate",
+          message: "This MFID and season combination appears more than once in the file.",
+          level: "error",
+          value: `${mfid} in season ${seasonId}`,
+        });
+        // Skip this row – do not add to parsed
+        return;
+      }
+      seenKeys.add(key);
+    }
+
     if (result.issues.length > 0) {
       issues.push(...result.issues);
+      // If there's an error, skip adding to parsed
       if (result.issues.some((i) => i.level === "error")) {
         return;
       }
     }
+
     if (result.parsed) parsed.push(result.parsed);
   });
+
+  if (seasonSet.size > 1) {
+    console.warn("Multiple seasons detected in the import file:");
+    seasonDetails.forEach((details, seasonId) => {
+      console.group(`Season ${seasonId}:`);
+      details.forEach(d => {
+        console.log(`  Row ${d.index}: MFID=${d.mfid}, collected_at=${d.collected_at}`);
+      });
+      console.groupEnd();
+    });
+    issues.push({
+      row: -1,
+      col: "season_id",
+      message: "All rows in the dataset must belong to the same season.",
+      level: "error",
+      value: Array.from(seasonSet).join(", "),
+    });
+    return { parsed: [], issues };
+  }
 
   return { parsed, issues };
 }

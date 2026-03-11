@@ -8,6 +8,7 @@ import { TimeRangeSelector } from "../TimeRangeSelector";
 import { InternalTrendChart } from "./InternalTrendChart";
 import { TrendChartDefaults } from "./Defaults";
 import { cn } from "@/core/utils/style";
+import { Global } from "@/core/config";
 
 interface TrendChartProps<T extends object> {
   data: T[];
@@ -50,7 +51,7 @@ export const TrendChart = memo(<T extends object>({
     >
       {isEmpty ? (
         <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-          No data available for this period
+          {Global.NO_DATA_MESSAGE}
         </div>
       ) : (
         <ChartContainer config={config} className={cn(chartContainerDefaults.className, containerClass)}>

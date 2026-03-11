@@ -8,10 +8,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 function Pagination({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
-      className={cn(
-        "flex items-center gap-1.5 px-4 py-2.5 border-t",
-        className
-      )}
+      className={cn("flex items-center gap-1.5 px-4 py-2.5 border-t", className)}
       {...props}
     />
   );
@@ -122,7 +119,7 @@ export const PaginationTotalRows = memo(({
   ...props
 }: PaginationTotalRowsProps) => {
   return (
-    <span className={cn("text-3xs text-muted-foreground/75", className)} {...props}>
+    <span className={cn("text-2xs text-muted-foreground/75", className)} {...props}>
       {totalRows} records
     </span>
   );

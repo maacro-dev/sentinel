@@ -16,7 +16,6 @@ export const analyticsGroupConfig = createRouteConfig("analytics", {
       label: "Comparative",
       path: "/comparative",
       icon: GitCompare,
-      disabled: true
     }),
     createRouteConfig("predictive", {
       role: "data_manager",

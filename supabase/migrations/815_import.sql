@@ -128,6 +128,184 @@ begin
 end;
 $$;
 
+create or replace function public.import_crop_establishments(
+    p_data jsonb,
+    p_auto_create_mfid boolean default true
+)
+    returns jsonb
+    language plpgsql
+as $$
+declare
+    v_imported int := 0;
+    v_errors text[] := '{}';
+
+    v_row record;
+
+    v_farmer_id int;
+    v_barangay_id int;
+    v_field_id int;
+    v_season_id int;
+    v_activity_id int;
+    v_collector_id uuid;
+    v_collected_at timestamptz;
+
+    -- crop establishment specific dates
+    v_actual_date date;
+    v_sowing_date date;
+begin
+    for v_row in
+        select * from jsonb_to_recordset(p_data) as x(
+            -- field_activities base
+            province                        text,
+            municity                        text,
+            barangay                        text,
+            mfid                            text,
+            first_name                      text,
+            last_name                       text,
+            collected_by                    jsonb,
+            collected_at                    text,
+
+            -- farmer extra (optional)
+            gender                          text,
+            date_of_birth                   text,
+            cellphone_no                    text,
+
+            -- crop_establishments specific
+            ecosystem                       text,
+            monitoring_field_area_sqm       double precision,
+            actual_crop_establishment_date  text,
+            actual_crop_establishment_method text,
+            sowing_date                     text,
+            seedling_age_at_transplanting   int,
+            distance_between_plant_row_1    double precision,
+            distance_between_plant_row_2    double precision,
+            distance_between_plant_row_3    double precision,
+            distance_within_plant_row_1     double precision,
+            distance_within_plant_row_2     double precision,
+            distance_within_plant_row_3     double precision,
+            seeding_rate_kg_ha              double precision,
+            direct_seeding_method           text,
+            num_plants_1                     int,
+            num_plants_2                     int,
+            num_plants_3                     int,
+            rice_variety                     text,
+            rice_variety_no                  text,
+            rice_variety_maturity_duration   int,
+            seed_class                       text,
+            location                         spatial.geometry
+        )
+    loop
+        begin
+            -- parse dates & timestamptz
+            v_actual_date := public.parse_date(v_row.actual_crop_establishment_date);
+            v_sowing_date := public.parse_date(v_row.sowing_date);
+            v_collected_at := public.parse_timestamptz(v_row.collected_at);
+
+            -- resolve collector id
+            v_collector_id := public.find_or_create_collector_id(v_row.collected_by);
+
+            -- farmer
+            v_farmer_id := public.find_or_create_farmer(
+                v_row.first_name,
+                v_row.last_name,
+                v_row.gender,
+                v_row.date_of_birth,
+                v_row.cellphone_no
+            );
+
+            -- barangay
+            v_barangay_id := public.find_barangay_id(v_row.province, v_row.municity, v_row.barangay);
+
+            -- field
+            v_field_id := public.handle_mfid(
+                v_row.mfid,
+                v_farmer_id,
+                v_barangay_id,
+                v_row.location,
+                p_auto_create_mfid
+            );
+
+            -- season derived from collected_at
+            v_season_id := public.find_season_id_by_date(v_row.collected_at);
+
+            -- field_activities
+            insert into public.field_activities (
+                field_id,
+                season_id,
+                activity_type,
+                collected_by,
+                collected_at,
+                image_urls,
+                verification_status
+            ) values (
+                v_field_id,
+                v_season_id,
+                'cultural-management',
+                v_collector_id,
+                v_collected_at,
+                '[]'::jsonb,
+                'unknown'
+            ) returning id into v_activity_id;
+
+            -- crop_establishments (actual_land_preparation_method removed)
+            insert into public.crop_establishments (
+                id,
+                ecosystem,
+                monitoring_field_area_sqm,
+                actual_crop_establishment_date,
+                actual_crop_establishment_method,
+                sowing_date,
+                seedling_age_at_transplanting,
+                distance_between_plant_row_1,
+                distance_between_plant_row_2,
+                distance_between_plant_row_3,
+                distance_within_plant_row_1,
+                distance_within_plant_row_2,
+                distance_within_plant_row_3,
+                seeding_rate_kg_ha,
+                direct_seeding_method,
+                num_plants_1,
+                num_plants_2,
+                num_plants_3,
+                rice_variety,
+                rice_variety_no,
+                rice_variety_maturity_duration,
+                seed_class
+            ) values (
+                v_activity_id,
+                v_row.ecosystem,
+                v_row.monitoring_field_area_sqm,
+                v_actual_date,
+                v_row.actual_crop_establishment_method,
+                v_sowing_date,
+                v_row.seedling_age_at_transplanting,
+                v_row.distance_between_plant_row_1,
+                v_row.distance_between_plant_row_2,
+                v_row.distance_between_plant_row_3,
+                v_row.distance_within_plant_row_1,
+                v_row.distance_within_plant_row_2,
+                v_row.distance_within_plant_row_3,
+                v_row.seeding_rate_kg_ha,
+                v_row.direct_seeding_method,
+                v_row.num_plants_1,
+                v_row.num_plants_2,
+                v_row.num_plants_3,
+                v_row.rice_variety,
+                v_row.rice_variety_no,
+                v_row.rice_variety_maturity_duration,
+                v_row.seed_class
+            );
+
+            v_imported := v_imported + 1;
+
+        exception when others then
+            v_errors := array_append(v_errors, format('Row with MFID %s: %s', v_row.mfid, SQLERRM));
+        end;
+    end loop;
+
+    return jsonb_build_object('imported_count', v_imported, 'errors', v_errors);
+end;
+$$;
 
 create or replace function import_harvest_records(
     p_data jsonb,
@@ -260,7 +438,8 @@ begin
         when 'harvest_records' then
             return public.import_harvest_records(p_data, p_auto_create_mfid);
 
-
+        when 'crop_establishments' then
+            return public.import_crop_establishments(p_data, p_auto_create_mfid);
         else
           raise exception 'Unsupported dataset type: %', p_dataset_type;
     end case;

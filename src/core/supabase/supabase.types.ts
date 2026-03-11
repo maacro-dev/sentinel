@@ -15,16 +15,54 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      crop_establishment_method_summary: {
+        Args: { p_season_id?: number }
+        Returns: Json
+      }
       dashboard_barangay_yield_rankings: {
         Args: { p_season_id?: number }
         Returns: Json
       }
       dashboard_summary: { Args: { p_season_id?: number }; Returns: Json }
       province_yields: { Args: { p_season_id?: number }; Returns: Json }
+      rice_variety_summary: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_progress: { Args: { p_season_id?: number }; Returns: Json }
       trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
       trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
+      yield_by_location: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      yield_by_method: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      yield_by_variety: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
@@ -111,7 +149,6 @@ export type Database = {
         Row: {
           actual_crop_establishment_date: string
           actual_crop_establishment_method: string
-          actual_land_preparation_method: string
           direct_seeding_method: string | null
           distance_between_plant_row_1: number | null
           distance_between_plant_row_2: number | null
@@ -136,7 +173,6 @@ export type Database = {
         Insert: {
           actual_crop_establishment_date: string
           actual_crop_establishment_method: string
-          actual_land_preparation_method: string
           direct_seeding_method?: string | null
           distance_between_plant_row_1?: number | null
           distance_between_plant_row_2?: number | null
@@ -161,7 +197,6 @@ export type Database = {
         Update: {
           actual_crop_establishment_date?: string
           actual_crop_establishment_method?: string
-          actual_land_preparation_method?: string
           direct_seeding_method?: string | null
           distance_between_plant_row_1?: number | null
           distance_between_plant_row_2?: number | null
@@ -1004,6 +1039,10 @@ export type Database = {
           p_mfid: string
         }
         Returns: number
+      }
+      import_crop_establishments: {
+        Args: { p_auto_create_mfid?: boolean; p_data: Json }
+        Returns: Json
       }
       import_data_transaction: {
         Args: {

@@ -25,7 +25,7 @@ export const SeasonSelector = memo(() => {
         onValueChange={handleSeasonChange}
         disabled={isLoading}
       >
-        <SelectTrigger className="hadow-none min-w-[140px] rounded-sm lt:h-8! dt:h-9! text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90">
+        <SelectTrigger className="hadow-none min-w-35 rounded-sm lt:h-8! dt:h-9! text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90">
           <Calendar className="size-3" />
           <SelectValue placeholder="Select season" />
         </SelectTrigger>

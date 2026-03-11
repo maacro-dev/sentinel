@@ -34,7 +34,7 @@ export const ChangeBadge = memo(
         className={cn(baseClasses, hasChange ? getColor(percent) : undefined)}
       >
         {!hasChange ? (
-          "Unavailable"
+          "---"
         ) : percent === 0 ? (
           "No change"
         ) : (

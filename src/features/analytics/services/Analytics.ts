@@ -7,6 +7,10 @@ import { parseOverallYieldTrend } from "../schemas/trends/overallYield";
 import { parseProvinceYields } from "../schemas/yieldByProvince";
 import { parseFormCountSummary } from "../schemas/summary/formCount";
 import { parseCropMethodSummary } from "../schemas/summary/method";
+import { parseRiceVarietySummary } from "../schemas/summary/variety";
+import { parseYieldByLocationData, YieldByLocationData } from "../schemas/comparative/yield-location";
+import { parseYieldByMethodData, YieldByMethodData } from "../schemas/comparative/yield-method";
+import { parseYieldVarietyData, YieldVarietyData } from "../schemas/comparative/yield-variety";
 
 export class Analytics {
   public static async getDashboardData(seasonId?: number): Promise<DashboardData> {
@@ -86,16 +90,98 @@ export class Analytics {
       .schema('analytics')
       .rpc('crop_establishment_method_summary', { p_season_id: seasonId });
 
-    if (provinceYieldsError || methodSummaryError) {
+    const { data: riceVarietyRaw, error: riceVarietyError } = await client
+      .schema('analytics')
+      .rpc('rice_variety_summary', { p_season_id: seasonId });
+
+    if (provinceYieldsError || methodSummaryError || riceVarietyError) {
       throw new Error("Error fetching descriptive analytics data.");
     }
 
     return {
       provinceYields: parseProvinceYields(provinceYieldsRaw),
-      cropMethodSummary: parseCropMethodSummary(methodSummaryRaw)
-    }
+      cropMethodSummary: parseCropMethodSummary(methodSummaryRaw),
+      riceVarietySummary: parseRiceVarietySummary(riceVarietyRaw),
+    };
   }
 
+
+  public static async getYieldByMethod(
+    filters: {
+      seasonId?: number;
+      province?: string;
+      municipality?: string;
+      barangay?: string;
+      method?: string;
+      variety?: string;
+    }
+  ): Promise<YieldByMethodData> {
+    const client = await this._client;
+    const { data, error } = await client
+      .schema('analytics')
+      .rpc('yield_by_method', {
+        p_season_id: filters.seasonId,
+        p_province: filters.province,
+        p_municipality: filters.municipality,
+        p_barangay: filters.barangay,
+        p_method: filters.method,
+        p_variety: filters.variety,
+      });
+    if (error) throw new Error(`Failed to fetch yield by method: ${error.message}`);
+    return parseYieldByMethodData(data);
+  }
+
+  public static async getYieldByLocation(
+    filters: {
+      seasonId?: number;
+      province?: string;
+      municipality?: string;
+      barangay?: string;
+      method?: string;
+      variety?: string;
+    }
+  ): Promise<YieldByLocationData> {
+    const client = await this._client;
+
+    const { data, error } = await client
+      .schema('analytics')
+      .rpc('yield_by_location', {
+        p_season_id: filters.seasonId,
+        p_province: filters.province,
+        p_municipality: filters.municipality,
+        p_barangay: filters.barangay,
+        p_method: filters.method,
+        p_variety: filters.variety,
+      });
+
+    if (error) throw new Error(`Failed to fetch yield analytics: ${error.message}`);
+    return parseYieldByLocationData(data);
+  }
+
+  public static async getYieldByVariety(
+    filters: {
+      seasonId?: number;
+      province?: string;
+      municipality?: string;
+      barangay?: string;
+      method?: string;
+      variety?: string;
+    }
+  ): Promise<YieldVarietyData> {
+    const client = await this._client;
+    const { data, error } = await client
+      .schema('analytics')
+      .rpc('yield_by_variety', {
+        p_season_id: filters.seasonId,
+        p_province: filters.province,
+        p_municipality: filters.municipality,
+        p_barangay: filters.barangay,
+        p_method: filters.method,
+        p_variety: filters.variety,
+      });
+    if (error) throw new Error(`Failed to fetch yield by variety: ${error.message}`);
+    return parseYieldVarietyData(data);
+  }
 
   private static get _client() {
     return getSupabase();

@@ -13,9 +13,10 @@ export const BarChartDefaults = {
     content: <ChartTooltipContent indicator="line" color="var(--color-humay)" />
   },
   bar: {
-    radius: 8,
+    radius: [8, 8, 4, 4],
   },
   barChart: {
-    barCategoryGap: "24%"
+    barCategoryGap: "32%",
+    animationDuration: 800
   }
 }

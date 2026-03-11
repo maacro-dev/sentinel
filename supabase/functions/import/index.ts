@@ -12,19 +12,24 @@ Deno.serve(async (req) => {
 
     const { form, data, fileName } = await req.json();
 
+    console.log('RPC got this data: formType =', form, "fileName =", fileName, "data =", data);
+
     if (!user || userError) {
       return response({ success: false, message: `error = ${userError}` }, 500);
     }
 
-    if (form === 'field_plannings' || form === 'harvest_records') {
+    if (form === 'field_plannings' || form === 'harvest_records' || form === 'crop_establishments') {
       const { data: result, error } = await supabase.rpc('import_data_transaction', {
         p_dataset_type: form,
         p_data: data,
       });
 
-      if (error || data.errors) {
-        console.log(error)
-        return response({ success: false, message: `Error importing ${form} - ${error.message}` }, 400);
+      console.log('RPC result:', JSON.stringify(result));
+      console.log('RPC error:', error);
+
+      if (error || (data.errors && data.errors.length > 0)) {
+        console.log('RPC error or data errors:', error, data.errors);
+        return response({ success: false, message: `Error importing ${form}` }, 400);
       }
 
       console.log(result)

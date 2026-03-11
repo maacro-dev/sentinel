@@ -1,5 +1,14 @@
 
 
+
+add lowest yield and yield gap on [yield by location]
+
+
+
+
+
+
+
 ## todo
 
 - import

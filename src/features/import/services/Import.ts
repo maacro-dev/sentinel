@@ -1,6 +1,6 @@
 import { getSupabase } from '@/core/supabase';
 import { Form } from '@/features/forms/schemas/forms';
-import { ImportRow } from '../hooks/useImport';
+import { ImportRow } from '../types';
 
 export class Import {
 

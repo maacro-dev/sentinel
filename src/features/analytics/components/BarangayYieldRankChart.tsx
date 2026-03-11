@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/cor
 import { cn } from "@/core/utils/style";
 import { memo } from "react";
 import { BarangayYield } from "@/features/analytics/schemas/barangayYield";
+import { Global } from "@/core/config";
 
 interface BarangayYieldRankChartProps {
   ranking: "top" | "bottom";
@@ -19,13 +20,13 @@ export const BarangayYieldRankChart = memo(({
   return (
     <Card className="flex-1 shadow-none">
       <CardHeader>
-        <CardTitle className="text-xl font-medium flex flex-row items-center gap-2">{title}</CardTitle>
-        <CardDescription className="text-sm">{description}</CardDescription>
+        <CardTitle className="font-medium">{title}</CardTitle>
+        <CardDescription className="text-muted-foreground/75">{description}</CardDescription>
       </CardHeader>
       <CardContent className="min-h-40 flex flex-col gap-4">
         {data.length === 0 ? (
           <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-            No data available for this period
+            {Global.NO_DATA_MESSAGE}
           </div>
         ) :
           data.map((barangay, index) => (

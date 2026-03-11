@@ -27,7 +27,7 @@ export const formDataEntryResponseSchema = z.object({
   barangay: z.string(),
   municipality: z.string(),
   province: z.string(),
-  remarks: z.string().nullable(),
+  remarks: z.string().optional().nullable(),
   form_data: z.record(z.string(), z.any()),
 });
 

@@ -172,5 +172,7 @@ export function validateRow(
     season_id: seasonId,
   };
 
+  console.log(`Row ${rowIndex}: date='${dateForSeason}' → seasonId=${seasonId}`);
+
   return { parsed: parsedRow, issues };
 }

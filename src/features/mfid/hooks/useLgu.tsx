@@ -2,10 +2,92 @@ import { useQuery } from "@tanstack/react-query";
 import { provincesQueryOptions, provinceQueryOptions, municitiesByProvinceQueryOptions, municityQueryOptions, barangaysByMunicityQueryOptions, barangayQueryOptions } from "../queries/options";
 import { Province, CityMunicipality, Barangay, Location } from "../schemas/lgu.schema";
 import { UseFormReturn } from "react-hook-form";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { MfidFormInput } from "../schemas/mfid-create.schema";
 import { Lgu } from "../services/Lgu";
 import leven from "leven";
+
+export function useLocationHierarchy() {
+  const [location, setLocation] = useState({ province: '', municipality: '', barangay: '', });
+
+  const { data: provinces = [], isLoading: loadingProvinces } = useProvinces();
+
+  const selectedProvince = useMemo(
+    () => provinces.find(p => p.name === location.province),
+    [provinces, location.province]
+  );
+  const provinceId = selectedProvince?.id;
+
+  const { data: municipalities = [], isLoading: loadingMunicipalities } = useMunicityByProvince({
+    provinceId,
+    enabled: !!provinceId,
+  });
+
+  const selectedMunicipality = useMemo(
+    () => municipalities.find(m => m.name === location.municipality),
+    [municipalities, location.municipality]
+  );
+  const municipalityId = selectedMunicipality?.id;
+
+  const { data: barangays = [], isLoading: loadingBarangays } = useBarangaysByMunicity({
+    cityId: municipalityId,
+    enabled: !!municipalityId,
+  });
+
+  const setProvince = (province: string) => {
+    setLocation({
+      province,
+      municipality: '',
+      barangay: '',
+    });
+  };
+
+  const setMunicipality = (municipality: string) => {
+    setLocation(prev => ({
+      ...prev,
+      municipality,
+      barangay: '',
+    }));
+  };
+
+  const setBarangay = (barangay: string) => {
+    setLocation(prev => ({ ...prev, barangay }));
+  };
+
+  const resetLocation = () => {
+    setLocation({ province: '', municipality: '', barangay: '' });
+  };
+
+  const provinceOptions = provinces.map(p => ({ value: p.name, label: p.name }));
+  const municipalityOptions = municipalities.map(m => ({ value: m.name, label: m.name }));
+  const barangayOptions = barangays.map(b => ({ value: b.name, label: b.name }));
+
+  return {
+    location,
+
+    setProvince,
+    setMunicipality,
+    setBarangay,
+    resetLocation,
+
+    provinces,
+    municipalities,
+    barangays,
+
+    loadingProvinces,
+    loadingMunicipalities,
+    loadingBarangays,
+
+    provinceOptions,
+    municipalityOptions,
+    barangayOptions,
+
+    selectedProvince,
+    selectedMunicipality,
+    provinceId,
+    municipalityId,
+  };
+}
 
 export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
 
@@ -26,10 +108,10 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
     enabled: Boolean(provinceId),
   });
 
-  const selectedMunicity = useMemo(
-    () => cities.find((c: CityMunicipality) => c.name === selectedMunicityName),
-    [cities, selectedMunicityName]
-  );
+  // const selectedMunicity = useMemo(
+  //   () => cities.find((c: CityMunicipality) => c.name === selectedMunicityName),
+  //   [cities, selectedMunicityName]
+  // );
 
   const prevProvinceRef = useRef(selectedProvinceName);
   const prevMunicityRef = useRef(selectedMunicityName);
@@ -99,13 +181,7 @@ export const useMunicity = ({ id }: { id: number }) => {
   return { data: data as CityMunicipality | undefined, isLoading };
 };
 
-export const useBarangaysByMunicity = ({
-  cityId,
-  enabled
-}: {
-  cityId: number | undefined,
-  enabled: boolean
-}) => {
+export const useBarangaysByMunicity = ({ cityId, enabled }: { cityId: number | undefined, enabled: boolean }) => {
   const { data, isLoading } = useQuery({
     ...barangaysByMunicityQueryOptions(cityId ?? 0),
     enabled: enabled && cityId != null,

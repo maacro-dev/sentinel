@@ -5,6 +5,8 @@ import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { useDescriptiveAnalytics } from "@/features/analytics/hooks/useDescriptiveAnalytics";
 import { ProvinceYieldsBarChart } from "@/features/analytics/components/ProvinceYieldsBarChart";
 import { Spinner } from "@/core/components/ui/spinner";
+import { MethodRadialChart } from "@/features/analytics/components/MethodRadialChart";
+import { VarietyRadialChart } from "@/features/analytics/components/VarietyRadialChart";
 
 export const Route = createFileRoute("/_manager/_analytics/descriptive")({
   component: RouteComponent,
@@ -19,10 +21,10 @@ export const Route = createFileRoute("/_manager/_analytics/descriptive")({
 function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
-  const { provinceYields, methodSummary, isLoading } = useDescriptiveAnalytics(seasonId)
+  const { provinceYields, methodSummary, riceVarietySummary, isLoading } = useDescriptiveAnalytics(seasonId);
 
-  if (isLoading || !provinceYields || !methodSummary) {
-    return <PendingComponent />
+  if (isLoading || !provinceYields || !methodSummary || !riceVarietySummary) {
+    return <PendingComponent />;
   }
 
   return (
@@ -31,8 +33,8 @@ function RouteComponent() {
       <div className="flex h-full gap-4 ">
         <div className="flex-5 bg-muted/50 rounded-xl debug" />
         <div className="flex-2 flex flex-col gap-4">
-          <div className="flex-1 bg-muted/50 rounded-xl debug" />
-          <div className="flex-1 bg-muted/50 rounded-xl debug" />
+          <MethodRadialChart summary={methodSummary}/>
+          <VarietyRadialChart summary={riceVarietySummary}/>
         </div>
       </div>
     </PageContainer>

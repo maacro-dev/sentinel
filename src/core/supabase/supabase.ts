@@ -5,6 +5,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 let supabaseClient: SupabaseClient<Database> | null = null;
 
 export async function getSupabase(): Promise<SupabaseClient<Database>> {
+
   if (supabaseClient) {
     return supabaseClient;
   }

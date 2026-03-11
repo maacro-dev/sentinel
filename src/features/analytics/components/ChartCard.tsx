@@ -21,7 +21,7 @@ export const ChartCard = memo(({
   ...rest
 }: ChartCardProps) => {
   return (
-    <Card className={`${className} flex-1`} {...rest}>
+    <Card className={`${className} flex-1 relative`} {...rest}>
       <CardHeader className={options ? "flex items-center justify-between" : ""}>
         <div className={options ? "" : "content"}>
           {header.title && (

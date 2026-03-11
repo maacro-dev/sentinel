@@ -20,6 +20,9 @@ const config = {
   },
   Guimaras: {
     label: "Guimaras"
+  },
+  avg_yield_t_per_ha: {
+    label: "Yield (t/ha)"
   }
 } satisfies ChartConfig;
 
@@ -34,7 +37,18 @@ interface ProvinceYieldsBarChartProps {
 
 export const ProvinceYieldsBarChart = memo(({ data }: ProvinceYieldsBarChartProps) => {
   const isEmpty = data.length === 0 || data.every(item => item.avg_yield_t_per_ha === 0);
-  console.log(data)
+
+  let domain: [number, number] | undefined;
+  const yields = data.map(d => d.avg_yield_t_per_ha).filter(y => y > 0);
+
+  if (yields.length > 0) {
+    const minVal = Math.min(...yields);
+    const maxVal = Math.max(...yields);
+    const padding = (maxVal - minVal) * 0.1;
+    domain = [Math.max(0, minVal - padding), maxVal + padding];
+  }
+
+
   return (
     <BarChart
       config={config}
@@ -47,10 +61,12 @@ export const ProvinceYieldsBarChart = memo(({ data }: ProvinceYieldsBarChartProp
           interval: 0,
           tick: ({ x, y, payload }: TickProps) => <DefaultTicks x={x} y={y} payload={payload} />,
         },
-        Y: { tickFormatter: (value: number) => `${value} t/ha`, },
+        Y: {
+          tickFormatter: (value: number) => `${value} t/ha`,
+          domain,
+        },
       }}
-      cardClass="min-h-94 max-h-[25rem]"
+      cardClass="min-h-100"
     />
   );
 });
-
