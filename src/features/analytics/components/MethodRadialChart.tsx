@@ -1,8 +1,9 @@
 import { CropMethodSummary } from '../schemas/summary/method';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/core/components/ui/chart';
-import { RadialBarChart, PolarRadiusAxis, RadialBar, Label } from 'recharts';
-import { ChartCard } from './ChartCard';
+import { ChartConfig } from '@/core/components/ui/chart';
+import { RadialBar } from 'recharts';
 import { Lightbulb } from 'lucide-react';
+import { RadialChart } from './RadialChart/RadialChart';
+import { RadialChartDefaults } from './RadialChart/Defaults';
 
 interface MethodRadialChartProps {
   summary: CropMethodSummary;
@@ -15,19 +16,12 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
   const chartData = [{ method: 'methods', direct: direct_seeded_count, transplant: transplanted_count }];
 
   const chartConfig = {
-    direct: {
-      label: 'Direct‑seeded',
-      color: 'var(--chart-1)',
-    },
-    transplant: {
-      label: 'Transplanted',
-      color: 'var(--chart-2)',
-    },
+    direct: { label: 'Direct‑seeded', color: 'var(--chart-1)' },
+    transplant: { label: 'Transplanted', color: 'var(--chart-2)' },
   } satisfies ChartConfig;
 
   const dominant = direct_seeded_count > transplanted_count ? 'Direct‑seeded' : transplanted_count > direct_seeded_count ? 'Transplanted' : 'Equal';
   const dominantCount = dominant === 'Direct‑seeded' ? direct_seeded_count : dominant === 'Transplanted' ? transplanted_count : 0;
-
   const dominantPercent = total > 0 ? ((dominantCount / total) * 100).toFixed(1) : '0';
 
   const percentText =
@@ -35,57 +29,43 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
       ? 'Both methods are equally used.'
       : `${Math.abs(percent_difference).toFixed(1)}% more than the other.`;
 
+  const centerLabel = ({ viewBox }: any) => {
+    if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+      return (
+        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
+          <tspan
+            x={viewBox.cx}
+            y={(viewBox.cy || 0) - 16}
+            className="fill-foreground text-xl font-semibold"
+          >
+            {dominantPercent}%
+          </tspan>
+          <tspan
+            x={viewBox.cx}
+            y={(viewBox.cy || 0) + 4}
+            className="fill-muted-foreground text-xs"
+          >
+            of fields
+          </tspan>
+        </text>
+      );
+    }
+    return null;
+  };
+
   return (
-    <ChartCard header={{ title: 'Establishment Method', description: 'Most used method this season' }}>
-      <ChartContainer config={chartConfig} className="mx-auto h-fit w-full max-w-55">
-        <RadialBarChart data={chartData} endAngle={180} innerRadius={60} outerRadius={100} cy="80%">
-          <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-          <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-            <Label
-              content={({ viewBox }) => {
-                if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
-                  return (
-                    <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
-                      <tspan
-                        x={viewBox.cx}
-                        y={(viewBox.cy || 0) - 16}
-                        className="fill-foreground text-xl font-semi"
-                      >
-                        {dominantPercent}%
-                      </tspan>
-                      <tspan
-                        x={viewBox.cx}
-                        y={(viewBox.cy || 0) + 4}
-                        className="fill-muted-foreground text-xs"
-                      >
-                        of fields
-                      </tspan>
-                    </text>
-                  );
-                }
-              }}
-            />
-          </PolarRadiusAxis>
-          <RadialBar
-            barSize={16}
-            dataKey="direct"
-            stackId="a"
-            cornerRadius={5}
-            fill="var(--color-humay)"
-            className="stroke-transparent stroke-2"
-            animationDuration={600}
-          />
-          <RadialBar
-            barSize={16}
-            dataKey="transplant"
-            stackId="a"
-            cornerRadius={5}
-            fill="var(--color-humay-light)"
-            className="stroke-transparent stroke-2"
-            animationDuration={600}
-          />
-        </RadialBarChart>
-      </ChartContainer>
+    <div className="flex flex-col">
+      <RadialChart
+        data={chartData}
+        header={{ title: 'Establishment Method', description: 'Most used method this season' }}
+        config={chartConfig}
+        isEmpty={total === 0}
+        containerClass="mx-auto h-fit w-full max-w-55"
+        chartProps={{ centerLabel, ...RadialChartDefaults.chart }}
+      >
+        <RadialBar dataKey="direct" fill="var(--color-humay)" {...RadialChartDefaults.bar} />
+        <RadialBar dataKey="transplant" fill="var(--color-humay-light)" {...RadialChartDefaults.bar} />
+      </RadialChart>
 
       <div className="flex items-start gap-2 text-sm text-muted-foreground/75 pt-1.5">
         <Lightbulb className="size-4 mt-0.5 shrink-0" />
@@ -94,13 +74,13 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
             <>Both methods are equally used, each on {direct_seeded_count} fields.</>
           ) : (
             <>
-              <span className="font-meduum text-foreground">{dominant}</span> is the most used method (
+              <span className="font-medium text-foreground">{dominant}</span> is the most used method (
               <span className="font-medium text-foreground">{dominantCount}</span> fields),{' '}
               <span className="font-medium text-foreground">{percentText}</span>
             </>
           )}
         </p>
       </div>
-    </ChartCard>
+    </div>
   );
 }

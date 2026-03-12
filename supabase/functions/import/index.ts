@@ -18,14 +18,13 @@ Deno.serve(async (req) => {
       return response({ success: false, message: `error = ${userError}` }, 500);
     }
 
-    if (form === 'field_plannings' || form === 'harvest_records' || form === 'crop_establishments') {
+    if (form === 'field_plannings' || form === 'harvest_records' || form === 'crop_establishments' || form === 'damage_assessments' ) {
       const { data: result, error } = await supabase.rpc('import_data_transaction', {
         p_dataset_type: form,
         p_data: data,
       });
 
       console.log('RPC result:', JSON.stringify(result));
-      console.log('RPC error:', error);
 
       if (error || (data.errors && data.errors.length > 0)) {
         console.log('RPC error or data errors:', error, data.errors);

@@ -22,9 +22,9 @@ export const baseFields = z.object({
 
   mfid: z.string().regex(/^60(04|06|19|30|45|79)\d{2}\d{3}$/, 'Not a valid Monitoring Field ID'),
 
-  first_name: z.string().regex(/^[A-Za-z\s\-,.]+$/, 'Only letters, spaces, hyphens, commas, periods allowed'),
+  first_name: z.string().regex(/^[A-Za-zÑñ\s\-,.]+$/, 'Only letters, spaces, hyphens, commas, periods allowed'),
 
-  last_name: z.string().regex(/^[A-Za-z\s\-,.]+$/, 'Only letters, spaces, hyphens, commas, periods allowed'),
+  last_name: z.string().regex(/^[A-Za-zÑñ\s\-,.]+$/, 'Only letters, spaces, hyphens, commas, periods allowed'),
 
   collected_by: z.string().transform(strclean),
 

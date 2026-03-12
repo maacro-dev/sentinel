@@ -1,14 +1,5 @@
 
 
-
-add lowest yield and yield gap on [yield by location]
-
-
-
-
-
-
-
 ## todo
 
 - import
@@ -21,22 +12,16 @@ add lowest yield and yield gap on [yield by location]
 
 - user management flow (create, update)
 
-## todo(ui)
-
-- handle trend charts on blank slate (no date)
-
 ## fix
 
 - barangay trend chart minimum height + no data ui
-
-- data collection trend y-axix
-  - make values a non-decimal
-  - add space on the left in case of three digit values
 
 - user management column filters on role and last sign in
 
 
 ## considerations
+
+- import logging?
 
 - use batches/disabling on imports
     - each form has a `batch_id` which is null by default

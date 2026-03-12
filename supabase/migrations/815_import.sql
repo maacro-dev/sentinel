@@ -419,6 +419,138 @@ begin
 end;
 $$;
 
+create or replace function public.import_damage_assessments(
+    p_data jsonb,
+    p_auto_create_mfid boolean default true
+)
+    returns jsonb
+    language plpgsql
+as $$
+declare
+    v_imported int := 0;
+    v_errors text[] := '{}';
+
+    v_row record;
+
+    v_farmer_id int;
+    v_barangay_id int;
+    v_field_id int;
+    v_season_id int;
+    v_activity_id int;
+    v_collector_id uuid;
+    v_collected_at timestamptz;
+
+    -- damage assessment specific fields
+    v_affected_area_ha double precision;
+begin
+    for v_row in
+        select * from jsonb_to_recordset(p_data) as x(
+            -- field_activities base
+            province                        text,
+            municity                        text,
+            barangay                        text,
+            mfid                            text,
+            first_name                      text,
+            last_name                       text,
+            collected_by                    jsonb,
+            collected_at                    text,
+
+            -- farmer extra (optional)
+            gender                          text,
+            date_of_birth                   text,
+            cellphone_no                    text,
+
+            -- damage_assessments specific
+            cause                           text,
+            crop_stage                      text,
+            soil_type                        text,
+            severity                         text,
+            affected_area_ha                 double precision,
+            observed_pest                    text,
+            location                         spatial.geometry  -- optional
+        )
+    loop
+        begin
+            -- parse timestamptz
+            v_collected_at := public.parse_timestamptz(v_row.collected_at);
+            v_affected_area_ha := v_row.affected_area_ha;
+
+            -- resolve collector id
+            v_collector_id := public.find_or_create_collector_id(v_row.collected_by);
+
+            -- farmer
+            v_farmer_id := public.find_or_create_farmer(
+                v_row.first_name,
+                v_row.last_name,
+                v_row.gender,
+                v_row.date_of_birth,
+                v_row.cellphone_no
+            );
+
+            -- barangay
+            v_barangay_id := public.find_barangay_id(v_row.province, v_row.municity, v_row.barangay);
+
+            -- field (with optional location)
+            v_field_id := public.handle_mfid(
+                v_row.mfid,
+                v_farmer_id,
+                v_barangay_id,
+                v_row.location,
+                p_auto_create_mfid
+            );
+
+            -- season derived from collected_at
+            v_season_id := public.find_season_id_by_date(v_row.collected_at);
+
+            -- field_activities
+            insert into public.field_activities (
+                field_id,
+                season_id,
+                activity_type,
+                collected_by,
+                collected_at,
+                image_urls,
+                verification_status
+            ) values (
+                v_field_id,
+                v_season_id,
+                'damage-assessment',
+                v_collector_id,
+                v_collected_at,
+                '[]'::jsonb,
+                'unknown'
+            ) returning id into v_activity_id;
+
+            -- damage_assessments
+            insert into public.damage_assessments (
+                id,
+                cause,
+                crop_stage,
+                soil_type,
+                severity,
+                affected_area_ha,
+                observed_pest
+            ) values (
+                v_activity_id,
+                v_row.cause,
+                v_row.crop_stage,
+                v_row.soil_type,
+                v_row.severity,
+                v_affected_area_ha,
+                nullif(v_row.observed_pest, '')  -- treat empty string as null
+            );
+
+            v_imported := v_imported + 1;
+
+        exception when others then
+            v_errors := array_append(v_errors, format('Row with MFID %s: %s', v_row.mfid, SQLERRM));
+        end;
+    end loop;
+
+    return jsonb_build_object('imported_count', v_imported, 'errors', v_errors);
+end;
+$$;
+
 
 create or replace function import_data_transaction(
     p_dataset_type text,
@@ -440,6 +572,10 @@ begin
 
         when 'crop_establishments' then
             return public.import_crop_establishments(p_data, p_auto_create_mfid);
+
+        when 'damage_assessments' then
+            return public.import_damage_assessments(p_data, p_auto_create_mfid);
+
         else
           raise exception 'Unsupported dataset type: %', p_dataset_type;
     end case;

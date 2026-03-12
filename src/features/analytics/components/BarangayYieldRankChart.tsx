@@ -20,8 +20,10 @@ export const BarangayYieldRankChart = memo(({
   return (
     <Card className="flex-1 shadow-none">
       <CardHeader>
-        <CardTitle className="font-medium">{title}</CardTitle>
-        <CardDescription className="text-muted-foreground/75">{description}</CardDescription>
+        <div>
+          <CardTitle className="font-medium">{title}</CardTitle>
+          <CardDescription className="text-muted-foreground/75">{description}</CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="min-h-40 flex flex-col gap-4">
         {data.length === 0 ? (
