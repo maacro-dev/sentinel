@@ -1,9 +1,9 @@
 import { YieldByLocationView } from '@/features/analytics/views/YieldByLocationView';
 import { YieldByMethodView } from '@/features/analytics/views/YieldByMethodView';
 import { YieldByVarietyView } from '@/features/analytics/views/YieldByVarietyView';
-import { DamageByLocationView } from '@/features/analytics/views/DamageByLocationView';
 import { DamageByCauseView } from '@/features/analytics/views/DamageByCauseView';
 import { ComparativeView, ComparativeViewComponent } from '@/features/analytics/types';
+import { DamageByLocationView } from './views/DamageByLocationView';
 
 export type MoreFilters = { variety: string[], method: string[] }
 

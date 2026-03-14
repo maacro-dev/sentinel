@@ -41,5 +41,4 @@ export const field_plannings_schema = baseFields.extend({
       input: data.est_crop_establishment_date,
     });
   }
-
 });

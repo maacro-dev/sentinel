@@ -1,17 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { yieldByLocationOptions, yieldByMethodOptions, yieldByVarietyOptions } from '../queries/options';
+import { ComparativeDataParams } from '../types';
 
 
-interface YieldComparativeDataParams {
-    seasonId: number | undefined,
-    province: string | undefined,
-    municipality: string | undefined,
-    barangay: string | undefined,
-    method: string | undefined,
-    variety: string | undefined,
-}
-
-export function useYieldComparativeData(filters: YieldComparativeDataParams) {
+export function useYieldComparativeData(filters: ComparativeDataParams) {
   const yieldLocation = useYieldByLocation(filters);
   const yieldMethod = useYieldByMethod(filters);
   const yieldVariety = useYieldByVariety(filters);
@@ -23,17 +15,17 @@ export function useYieldComparativeData(filters: YieldComparativeDataParams) {
   };
 }
 
-export const useYieldByLocation = (filters: Parameters<typeof yieldByLocationOptions>[0]) => {
+export const useYieldByLocation = (filters: ComparativeDataParams) => {
   const { data, isLoading, error } = useQuery(yieldByLocationOptions(filters));
   return { data, isLoading, error, };
 };
 
-export const useYieldByMethod = (filters: Parameters<typeof yieldByMethodOptions>[0]) => {
+export const useYieldByMethod = (filters: ComparativeDataParams) => {
   const { data, isLoading, error } = useQuery(yieldByMethodOptions(filters));
   return { data, isLoading, error };
 };
 
-export const useYieldByVariety = (filters: Parameters<typeof yieldByVarietyOptions>[0]) => {
+export const useYieldByVariety = (filters: ComparativeDataParams) => {
   const { data, isLoading, error } = useQuery(yieldByVarietyOptions(filters));
   return { data, isLoading, error };
 };

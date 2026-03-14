@@ -3,7 +3,6 @@ import { ChartConfig, ChartContainer } from "@/core/components/ui/chart";
 import { chartContainerDefaults } from "../../config";
 import { ChartHeader, AxisKeys, AxisOptions } from "../../types";
 import { ChartCard } from "../ChartCard";
-import { BarChartDefaults } from "./Defaults";
 import { InternalBarChart } from "./InternalBarChart";
 import { cn } from "@/core/utils/style";
 import { Global } from "@/core/config";
@@ -19,6 +18,7 @@ interface BarChartProps<T> {
   cardClass?: string;
   onBarClick?: (item: T) => void;
   activeBar?: any;
+  layout?: "vertical" | "horizontal";
 }
 
 export const BarChart = memo(<T extends object>({
@@ -32,6 +32,7 @@ export const BarChart = memo(<T extends object>({
   cardClass,
   onBarClick,
   activeBar,
+  layout = "horizontal",
 }: BarChartProps<T>) => {
 
   return (
@@ -47,12 +48,12 @@ export const BarChart = memo(<T extends object>({
         >
           <InternalBarChart
             data={data}
-            margin={BarChartDefaults.margins}
             axisKeys={axisKeys}
             axisOptions={axisOptions}
             config={config}
             onBarClick={onBarClick}
             activeBar={activeBar}
+            layout={layout}
           />
         </ChartContainer>
       )}

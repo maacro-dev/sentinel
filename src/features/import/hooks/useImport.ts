@@ -14,23 +14,18 @@ import { useCheckDuplicates } from "@/features/mfid/hooks/useCheckDuplicates";
 import { ImportRow, ImportIssue, FileError, ValidationContext } from "../types";
 import { validateFileCompatibility, validateRow } from "../util/validate";
 
-
 export function useImport(initialDataset?: Form) {
   const { notifyLoading, notifySuccess, notifyError } = useToast();
 
   const [datasetType, setDatasetType] = useState<Form | null>(initialDataset || null);
   const [rawData, setRawData] = useState<ImportRow[]>([]);
   const [parsedData, setParsedData] = useState<ImportRow[]>([]);
-
   const [issues, setIssues] = useState<ImportIssue[]>([]);
-
   const [fileError, setFileError] = useState<FileError>(null);
   const [fileName, setFileName] = useState<string>("");
-
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { data: locations = [], isLoading: locationsLoading } = useAllBarangaysWithLocation();
-
   const { data: seasons = [], isLoading: seasonsLoading } = useSeasons();
 
   const rowsForDuplicateCheck = useMemo(() => {
@@ -77,8 +72,7 @@ export function useImport(initialDataset?: Form) {
 
   const importMutation = useMutation({
     mutationKey: ["import", datasetType] as const,
-    mutationFn: ({ datasetType, data, fileName }: { datasetType: Form; data: ImportRow[]; fileName: string }) =>
-      Import.create(datasetType, data, fileName),
+    mutationFn: ({ datasetType, data, fileName }: { datasetType: Form; data: ImportRow[]; fileName: string }) => Import.create(datasetType, data, fileName),
     onMutate: () => notifyLoading(ImportToasts.creating),
     onSuccess: (response, _variables, toastId) =>
       notifySuccess({
@@ -90,11 +84,79 @@ export function useImport(initialDataset?: Form) {
       notifyError({ id: toastId, ...ImportToasts.createFailed }),
   });
 
+  const transformFertilizationRecords = (rows: ImportRow[]): ImportRow[] => {
+    return rows.map((row, idx) => {
+      const fertilizer_applications = [];
+      let i = 1;
+      while (row[`brand_${i}`] !== undefined) {
+        const app = {
+          fertilizer_type: row[`fertilizer_type_${i}`],
+          brand: row[`brand_${i}`],
+          nitrogen_content_pct: row[`nitrogen_content_pct_${i}`],
+          phosphorus_content_pct: row[`phosphorus_content_pct_${i}`],
+          potassium_content_pct: row[`potassium_content_pct_${i}`],
+          amount_applied: row[`amount_applied_${i}`],
+          amount_unit: row[`amount_unit_${i}`],
+          crop_stage_on_application: row[`crop_stage_on_application_${i}`],
+        };
+        // only push if at least one field has a non‑empty value
+        // since we validated initially if a field in fertilizer_applications has a non-empty value
+        const hasData = Object.values(app).some(v => v != null && v !== '');
+        if (hasData) {
+          fertilizer_applications.push(app);
+        }
+        i++;
+      }
+
+      if (fertilizer_applications.length === 0) {
+        console.warn(`Row ${idx} has no fertilizer applications. Row data:`, row);
+      }
+
+      const {
+        province,
+        municity,
+        barangay,
+        mfid,
+        first_name,
+        last_name,
+        applied_area_sqm,
+        collected_at,
+        collected_by,
+      } = row;
+
+      const transformed = {
+        province,
+        municity,
+        barangay,
+        mfid,
+        first_name,
+        last_name,
+        applied_area_sqm,
+        collected_at,
+        collected_by,
+        fertilizer_applications,
+      };
+
+      if (!('fertilizer_applications' in transformed)) {
+        console.error('fertilizer_applications missing in transformed row', transformed);
+      }
+
+      return transformed;
+    });
+  };
+
   const importFn = (data: ImportRow[], fileName: string) => {
     if (!datasetType) return Promise.reject("No dataset selected");
-    console.log('Sending to server:', parsedData);
-    return importMutation.mutateAsync({ datasetType, data, fileName });
+
+    let dataToSend = data;
+    if (datasetType === 'fertilization_records') {
+      dataToSend = transformFertilizationRecords(data);
+      console.log('Single row to send example', JSON.stringify(dataToSend[0], null, 2));
+    }
+
+    return importMutation.mutateAsync({ datasetType, data: dataToSend, fileName });
   };
+
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -104,6 +166,8 @@ export function useImport(initialDataset?: Form) {
       header: true,
       complete: (result) => {
         const data = result.data as ImportRow[];
+        console.log("raw data =", data);
+
         const compatibilityError = validateFileCompatibility(data, datasetType);
         if (compatibilityError) {
           setFileError(compatibilityError);
@@ -111,7 +175,6 @@ export function useImport(initialDataset?: Form) {
           return;
         }
 
-        console.log("raw data =", data);
 
         setFileError(null);
         setFileName(file.name);
@@ -159,21 +222,25 @@ function parseAllRows(
   rows: ImportRow[],
   context: ValidationContext
 ): { parsed: ImportRow[]; issues: ImportIssue[] } {
+
+  console.log("Trying to parse rows =", rows)
+
   const issues: ImportIssue[] = [];
   const parsed: ImportRow[] = [];
   const seenKeys = new Set<string>();
   const seasonSet = new Set<number>();
-  // Store per-season row details for debugging
+
   const seasonDetails: Map<number, Array<{ index: number; mfid: string; collected_at: string; seasonId: number }>> = new Map();
 
   rows.forEach((row, index) => {
+
     const result = validateRow(row, index, context);
 
-    // Collect season ID if row has parsed data
     if (result.parsed) {
       const seasonId = result.parsed.season_id;
       const mfid = result.parsed.mfid as string;
       const collected_at = result.parsed.collected_at as string;
+
       if (typeof seasonId === "number") {
         seasonSet.add(seasonId);
         // Store details for logging
@@ -197,7 +264,7 @@ function parseAllRows(
           level: "error",
           value: `${mfid} in season ${seasonId}`,
         });
-        // Skip this row – do not add to parsed
+
         return;
       }
       seenKeys.add(key);
@@ -205,7 +272,7 @@ function parseAllRows(
 
     if (result.issues.length > 0) {
       issues.push(...result.issues);
-      // If there's an error, skip adding to parsed
+
       if (result.issues.some((i) => i.level === "error")) {
         return;
       }
@@ -235,3 +302,7 @@ function parseAllRows(
 
   return { parsed, issues };
 }
+
+
+
+

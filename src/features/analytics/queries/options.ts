@@ -40,6 +40,7 @@ export const descriptiveAnalyticsDataOptions = (seasonId?: number) => ({
   refetchOnWindowFocus: true,
 });
 
+
 // should combine three below to a single (comparative data options)
 
 export const yieldByLocationOptions = (filters: Parameters<typeof Analytics.getYieldByLocation>[0]) =>
@@ -60,5 +61,19 @@ export const yieldByVarietyOptions = (filters: Parameters<typeof Analytics.getYi
   queryOptions({
     queryKey: ['yield-by-variety', filters] as const,
     queryFn: () => Analytics.getYieldByVariety(filters),
+    staleTime: 1000 * 60 * 5,
+  });
+
+export const damageByLocationOptions = (filters: Parameters<typeof Analytics.getDamageByLocation>[0]) =>
+  queryOptions({
+    queryKey: ['damage-by-location', filters] as const,
+    queryFn: () => Analytics.getDamageByLocation(filters),
+    staleTime: 1000 * 60 * 5,
+  });
+
+export const damageByCauseOptions = (filters: Parameters<typeof Analytics.getDamageByCause>[0]) =>
+  queryOptions({
+    queryKey: ['damage-by-cause', filters] as const,
+    queryFn: () => Analytics.getDamageByCause(filters),
     staleTime: 1000 * 60 * 5,
   });

@@ -17,7 +17,7 @@ export const InternalRadialChart = ({
   ...props
 }: InternalRadialChartProps) => {
   return (
-    <RadialBarChart {...RadialChartDefaults.chart} {...props}>
+    <RadialBarChart {...RadialChartDefaults.chart} {...props} >
       {showTooltip && (
         <ChartTooltip {...RadialChartDefaults.tooltip} />
       )}

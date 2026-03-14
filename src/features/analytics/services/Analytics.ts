@@ -11,6 +11,9 @@ import { parseRiceVarietySummary } from "../schemas/summary/variety";
 import { parseYieldByLocationData, YieldByLocationData } from "../schemas/comparative/yield-location";
 import { parseYieldByMethodData, YieldByMethodData } from "../schemas/comparative/yield-method";
 import { parseYieldVarietyData, YieldVarietyData } from "../schemas/comparative/yield-variety";
+import { DamageByLocationData, parseDamageByLocationData } from "../schemas/comparative/damage-location";
+import { DamageByCauseData, parseDamageByCauseData } from "../schemas/comparative/damage-cause";
+import { parseFertilizerTypeSummary } from "../schemas/summary/fertilizer-type";
 
 export class Analytics {
   public static async getDashboardData(seasonId?: number): Promise<DashboardData> {
@@ -94,7 +97,11 @@ export class Analytics {
       .schema('analytics')
       .rpc('rice_variety_summary', { p_season_id: seasonId });
 
-    if (provinceYieldsError || methodSummaryError || riceVarietyError) {
+    const { data: fertilizerTypeRaw, error: fertilizerTypeError } = await client
+      .schema('analytics')
+      .rpc('fertilizer_type_summary', { p_season_id: seasonId });
+
+    if (provinceYieldsError || methodSummaryError || riceVarietyError || fertilizerTypeError) {
       throw new Error("Error fetching descriptive analytics data.");
     }
 
@@ -102,6 +109,7 @@ export class Analytics {
       provinceYields: parseProvinceYields(provinceYieldsRaw),
       cropMethodSummary: parseCropMethodSummary(methodSummaryRaw),
       riceVarietySummary: parseRiceVarietySummary(riceVarietyRaw),
+      fertilizerTypeSummary: parseFertilizerTypeSummary(fertilizerTypeRaw),
     };
   }
 
@@ -181,6 +189,54 @@ export class Analytics {
       });
     if (error) throw new Error(`Failed to fetch yield by variety: ${error.message}`);
     return parseYieldVarietyData(data);
+  }
+
+  public static async getDamageByLocation(
+    filters: {
+      seasonId?: number;
+      province?: string;
+      municipality?: string;
+      barangay?: string;
+      cause?: string;
+    }
+  ): Promise<DamageByLocationData> {
+    const client = await this._client;
+    const { data, error } = await client
+      .schema('analytics')
+      .rpc('damage_by_location', {
+        p_season_id: filters.seasonId,
+        p_province: filters.province,
+        p_municipality: filters.municipality,
+        p_barangay: filters.barangay,
+        p_cause: filters.cause,
+      });
+    if (error) throw new Error(`Failed to fetch damage by location: ${error.message}`);
+    return parseDamageByLocationData(data);
+  }
+
+  public static async getDamageByCause(
+    filters: {
+      seasonId?: number;
+      province?: string;
+      municipality?: string;
+      barangay?: string;
+      method?: string;
+      variety?: string;
+    }
+  ): Promise<DamageByCauseData> {
+    const client = await this._client;
+    const { data, error } = await client
+      .schema('analytics')
+      .rpc('damage_by_cause', {
+        p_season_id: filters.seasonId,
+        p_province: filters.province,
+        p_municipality: filters.municipality,
+        p_barangay: filters.barangay,
+        p_method: filters.method,
+        p_variety: filters.variety,
+      });
+    if (error) throw new Error(`Failed to fetch damage by cause: ${error.message}`);
+    return parseDamageByCauseData(data);
   }
 
   private static get _client() {

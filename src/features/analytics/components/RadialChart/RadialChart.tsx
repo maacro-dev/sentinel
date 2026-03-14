@@ -1,4 +1,4 @@
-import { memo, JSX } from "react";
+import { memo, JSX, ReactNode } from "react";
 import { ChartConfig, ChartContainer } from "@/core/components/ui/chart";
 import { chartContainerDefaults } from "../../config";
 import { ChartHeader } from "../../types";
@@ -14,8 +14,9 @@ interface RadialChartProps {
   isEmpty: boolean;
   containerClass?: string;
   cardClass?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
   chartProps?: Omit<React.ComponentProps<typeof InternalRadialChart>, 'data'>;
+  insight?: ReactNode;  // new prop
 }
 
 export const RadialChart = memo(({
@@ -27,6 +28,7 @@ export const RadialChart = memo(({
   cardClass,
   children,
   chartProps,
+  insight,
 }: RadialChartProps) => {
   return (
     <ChartCard header={header} className={cardClass}>
@@ -35,14 +37,18 @@ export const RadialChart = memo(({
           {Global.NO_DATA_MESSAGE}
         </div>
       ) : (
-        <ChartContainer
-          config={config}
-          className={cn(chartContainerDefaults.className, containerClass)}
-        >
-          <InternalRadialChart data={data} {...chartProps}>
-            {children}
-          </InternalRadialChart>
-        </ChartContainer>
+        <div className="flex flex-col h-full">
+          <ChartContainer config={config} className={cn(chartContainerDefaults.className, containerClass)} >
+            <InternalRadialChart data={data} {...chartProps}>
+              {children}
+            </InternalRadialChart>
+          </ChartContainer>
+          {insight && (
+            <div className="px-2 text-sm text-muted-foreground/75">
+              {insight}
+            </div>
+          )}
+        </div>
       )}
     </ChartCard>
   );

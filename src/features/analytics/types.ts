@@ -8,6 +8,7 @@ import { ProvinceYield } from "./schemas/yieldByProvince";
 import { CropMethodSummary } from "./schemas/summary/method";
 import { RiceVarietySummary } from "./schemas/summary/variety";
 import React from "react";
+import { FertilizerTypeSummary } from "./schemas/summary/fertilizer-type";
 
 export type TickProps = {
   x: number | string;
@@ -47,6 +48,7 @@ export interface DescriptiveAnalyticsData {
   provinceYields: Array<ProvinceYield>;
   cropMethodSummary: CropMethodSummary;
   riceVarietySummary: RiceVarietySummary;
+  fertilizerTypeSummary: FertilizerTypeSummary
 }
 
 export type SummaryConfig = Record<string, StatMetadata>;
@@ -59,9 +61,16 @@ export interface StatMetadata {
   unit: string;
 }
 
-
-
-
 export type ComparativeView = "yield-location" | "yield-method" | "yield-variety" | "damage-location" | "damage-cause"
 export type ComparativeViewProps = { data?: any; isLoading: boolean }
 export type ComparativeViewComponent = React.ComponentType<ComparativeViewProps>
+
+
+export interface ComparativeDataParams {
+    seasonId: number | undefined,
+    province: string | undefined,
+    municipality: string | undefined,
+    barangay: string | undefined,
+    method: string | undefined,
+    variety: string | undefined,
+}

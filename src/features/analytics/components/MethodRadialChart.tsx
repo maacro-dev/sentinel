@@ -53,34 +53,35 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
     return null;
   };
 
-  return (
-    <div className="flex flex-col">
-      <RadialChart
-        data={chartData}
-        header={{ title: 'Establishment Method', description: 'Most used method this season' }}
-        config={chartConfig}
-        isEmpty={total === 0}
-        containerClass="mx-auto h-fit w-full max-w-55"
-        chartProps={{ centerLabel, ...RadialChartDefaults.chart }}
-      >
-        <RadialBar dataKey="direct" fill="var(--color-humay)" {...RadialChartDefaults.bar} />
-        <RadialBar dataKey="transplant" fill="var(--color-humay-light)" {...RadialChartDefaults.bar} />
-      </RadialChart>
-
-      <div className="flex items-start gap-2 text-sm text-muted-foreground/75 pt-1.5">
-        <Lightbulb className="size-4 mt-0.5 shrink-0" />
-        <p>
-          {dominant === 'Equal' ? (
-            <>Both methods are equally used, each on {direct_seeded_count} fields.</>
-          ) : (
-            <>
-              <span className="font-medium text-foreground">{dominant}</span> is the most used method (
-              <span className="font-medium text-foreground">{dominantCount}</span> fields),{' '}
-              <span className="font-medium text-foreground">{percentText}</span>
-            </>
-          )}
-        </p>
-      </div>
+  const insightContent = (
+    <div className="flex items-start gap-2">
+      <Lightbulb className="size-4 mt-0.5 shrink-0" />
+      <p>
+        {dominant === 'Equal' ? (
+          <>Both methods are equally used, each on {direct_seeded_count} fields.</>
+        ) : (
+          <>
+            <span className="font-medium text-foreground">{dominant}</span> is the most used method (
+            <span className="font-medium text-foreground">{dominantCount}</span> fields),{' '}
+            <span className="font-medium text-foreground">{percentText}</span>
+          </>
+        )}
+      </p>
     </div>
+  );
+
+  return (
+    <RadialChart
+      data={chartData}
+      header={{ title: 'Establishment Method', description: 'Most used method this season' }}
+      config={chartConfig}
+      isEmpty={total === 0}
+      containerClass="mx-auto h-fit w-full max-w-55"
+      chartProps={{ centerLabel, ...RadialChartDefaults.chart }}
+      insight={insightContent}
+    >
+      <RadialBar dataKey="direct" fill="var(--color-humay)" {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="transplant" fill="var(--color-humay-light)" {...RadialChartDefaults.bar} />
+    </RadialChart>
   );
 }

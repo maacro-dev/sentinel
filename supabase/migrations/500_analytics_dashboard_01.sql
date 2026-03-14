@@ -54,6 +54,7 @@ begin
 
     has_previous := prev is not null;
 
+    -- Field counts and form submissions
     if has_previous then
         select coalesce(count(distinct field_id) filter (where season_id = curr.id), 0),
                coalesce(count(distinct field_id) filter (where season_id = prev.id), 0),
@@ -71,12 +72,12 @@ begin
         where season_id = curr.id;
     end if;
 
-    -- Damage and pest reports
+    -- Damage and pest reports (pest only when observed_pest is not null and not 'N/A' and not empty)
     if has_previous then
         select coalesce(count(*) filter (where fa.season_id = curr.id), 0),
                coalesce(count(*) filter (where fa.season_id = prev.id), 0),
-               coalesce(count(*) filter (where da.observed_pest is not null and fa.season_id = curr.id), 0),
-               coalesce(count(*) filter (where da.observed_pest is not null and fa.season_id = prev.id), 0)
+               coalesce(count(*) filter (where da.observed_pest is not null and da.observed_pest != '' and da.observed_pest != 'N/A' and fa.season_id = curr.id), 0),
+               coalesce(count(*) filter (where da.observed_pest is not null and da.observed_pest != '' and da.observed_pest != 'N/A' and fa.season_id = prev.id), 0)
         into current_damage_reports, previous_damage_reports,
              current_pest_reports, previous_pest_reports
         from public.field_activities fa
@@ -84,14 +85,14 @@ begin
         where fa.season_id in (curr.id, prev.id);
     else
         select coalesce(count(*), 0),
-               coalesce(count(*) filter (where da.observed_pest is not null), 0)
+               coalesce(count(*) filter (where da.observed_pest is not null and da.observed_pest != '' and da.observed_pest != 'N/A'), 0)
         into current_damage_reports, current_pest_reports
         from public.field_activities fa
         join public.damage_assessments da on da.id = fa.id
         where fa.season_id = curr.id;
     end if;
 
-    -- Harvest area, yield, irrigation issues
+    -- Harvest area, yield, irrigation issues (unchanged)
     if has_previous then
         select coalesce(sum(hr.area_harvested_ha) filter (where fa.season_id = curr.id), 0),
                coalesce(sum(hr.area_harvested_ha) filter (where fa.season_id = prev.id), 0),
@@ -125,6 +126,7 @@ begin
         round((previous_total_yield / previous_total_area) / 1000, 2)
     else 0 end;
 
+    -- Data completeness (unchanged)
     if has_previous then
         select coalesce(round((sum(
             case when fa.season_id = curr.id
@@ -166,7 +168,7 @@ begin
         where fa.season_id = curr.id;
     end if;
 
-    -- Build JSON result
+    -- Build JSON result (unchanged)
     result := jsonb_build_object(
         'seasons', jsonb_build_object(
             'current', jsonb_build_object(

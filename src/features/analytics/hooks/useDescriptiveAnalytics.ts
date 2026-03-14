@@ -9,6 +9,7 @@ export function useDescriptiveAnalytics(seasonId?: number) {
     provinceYields: data?.provinceYields,
     methodSummary: data?.cropMethodSummary,
     riceVarietySummary: data?.riceVarietySummary,
+    fertilizerTypeSummary: data?.fertilizerTypeSummary,
     isLoading,
   };
 }

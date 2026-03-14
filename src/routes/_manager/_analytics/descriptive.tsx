@@ -7,6 +7,7 @@ import { ProvinceYieldsBarChart } from "@/features/analytics/components/Province
 import { Spinner } from "@/core/components/ui/spinner";
 import { MethodRadialChart } from "@/features/analytics/components/MethodRadialChart";
 import { VarietyRadialChart } from "@/features/analytics/components/VarietyRadialChart";
+import { FertilizerTypeBarChart } from "@/features/analytics/components/FertilizerTypeBarChart";
 
 export const Route = createFileRoute("/_manager/_analytics/descriptive")({
   component: RouteComponent,
@@ -21,9 +22,9 @@ export const Route = createFileRoute("/_manager/_analytics/descriptive")({
 function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
-  const { provinceYields, methodSummary, riceVarietySummary, isLoading } = useDescriptiveAnalytics(seasonId);
+  const { provinceYields, methodSummary, riceVarietySummary, fertilizerTypeSummary, isLoading } = useDescriptiveAnalytics(seasonId);
 
-  if (isLoading || !provinceYields || !methodSummary || !riceVarietySummary) {
+  if (isLoading || !provinceYields || !methodSummary || !riceVarietySummary || !fertilizerTypeSummary) {
     return <PendingComponent />;
   }
 
@@ -31,10 +32,14 @@ function RouteComponent() {
     <PageContainer>
       <ProvinceYieldsBarChart data={provinceYields} />
       <div className="flex h-full gap-4 ">
-        <div className="flex-5 bg-muted/50 rounded-xl debug" />
+
+        <div className="h-full flex-5">
+          <FertilizerTypeBarChart data={fertilizerTypeSummary} />
+        </div>
+
         <div className="flex-2 flex flex-col gap-4">
-          <MethodRadialChart summary={methodSummary}/>
-          <VarietyRadialChart summary={riceVarietySummary}/>
+          <MethodRadialChart summary={methodSummary} />
+          <VarietyRadialChart summary={riceVarietySummary} />
         </div>
       </div>
     </PageContainer>

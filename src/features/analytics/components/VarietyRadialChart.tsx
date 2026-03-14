@@ -72,41 +72,42 @@ export function VarietyRadialChart({ summary }: VarietyRadialChartProps) {
     return null;
   };
 
-  return (
-    <div className="flex flex-col">
-      <RadialChart
-        data={chartData}
-        header={{ title: 'Rice Variety', description: 'Most used variety this season' }}
-        config={chartConfig}
-        isEmpty={total === 0}
-        containerClass="mx-auto h-fit w-full max-w-55"
-        chartProps={{
-          centerLabel,
-          ...RadialChartDefaults.chart,
-          barGap: 30, // custom prop from original
-        }}
-      >
-        <RadialBar dataKey="psb" fill="var(--color-psb)" {...RadialChartDefaults.bar} />
-        <RadialBar dataKey="other" fill="var(--color-other)" {...RadialChartDefaults.bar} />
-        <RadialBar dataKey="nsic" fill="var(--color-nsic)" {...RadialChartDefaults.bar} />
-      </RadialChart>
-
-      <div className="flex items-start gap-2 text-sm text-muted-foreground/75 pt-1.5">
-        <Lightbulb className="size-4 mt-0.5 shrink-0" />
-        <p>
-          {dominantLabel === 'None' ? (
-            <>No clear dominant variety.</>
-          ) : percent_difference > 0 ? (
-            <>
-              <span className="font-medium text-foreground">{dominantLabel}</span> is the most used variety (
-              <span className="font-medium text-foreground">{dominantCount}</span> fields),{' '}
-              <span className="font-medium text-foreground">{percentText}</span>
-            </>
-          ) : (
-            <>Only <span className="font-medium text-foreground">{dominantLabel}</span> used.</>
-          )}
-        </p>
-      </div>
+  const insightContent = (
+    <div className="flex items-start gap-2">
+      <Lightbulb className="size-4 mt-0.5 shrink-0" />
+      <p>
+        {dominantLabel === 'None' ? (
+          <>No clear dominant variety.</>
+        ) : percent_difference > 0 ? (
+          <>
+            <span className="font-medium text-foreground">{dominantLabel}</span> is the most used variety (
+            <span className="font-medium text-foreground">{dominantCount}</span> fields),{' '}
+            <span className="font-medium text-foreground">{percentText}</span>
+          </>
+        ) : (
+          <>Only <span className="font-medium text-foreground">{dominantLabel}</span> used.</>
+        )}
+      </p>
     </div>
+  );
+
+  return (
+    <RadialChart
+      data={chartData}
+      header={{ title: 'Rice Variety', description: 'Most used variety this season' }}
+      config={chartConfig}
+      isEmpty={total === 0}
+      containerClass="mx-auto h-fit w-full max-w-55"
+      chartProps={{
+        centerLabel,
+        ...RadialChartDefaults.chart,
+        barGap: 30,
+      }}
+      insight={insightContent}
+    >
+      <RadialBar dataKey="psb" fill="var(--color-psb)" {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="other" fill="var(--color-other)" {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="nsic" fill="var(--color-nsic)" {...RadialChartDefaults.bar} />
+    </RadialChart>
   );
 }

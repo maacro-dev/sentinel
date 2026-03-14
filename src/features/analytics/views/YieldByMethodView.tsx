@@ -19,17 +19,7 @@ const header = {
   description: 'Comparison of crop establishment methods',
 };
 
-export function YieldByMethodView({ data }: { data?: YieldByMethodData }) {
-  if (!data || data.ranking.length === 0) {
-    return (
-      <Card>
-        <CardHeader><CardTitle>Yield by Method</CardTitle></CardHeader>
-        <CardContent className="h-64 flex items-center justify-center text-muted-foreground">
-          {Global.NO_DATA_MESSAGE}
-        </CardContent>
-      </Card>
-    );
-  }
+export function YieldByMethodView({ data }: { data: YieldByMethodData }) {
 
   const chartData = data.ranking.map(item => ({
     method: item.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted',

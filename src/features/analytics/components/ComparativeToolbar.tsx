@@ -54,6 +54,7 @@ interface ComparativeToolbarProps {
   isLoadingBarangays?: boolean;
 
   prefetchLocationData: (province?: string, municipality?: string, barangay?: string) => void;
+  prefetchMoreFilterData?: (method?: string, variety?: string) => void;
 }
 
 export function ComparativeToolbar({
@@ -71,7 +72,8 @@ export function ComparativeToolbar({
   isLoadingProvinces = false,
   isLoadingMunicipalities = false,
   isLoadingBarangays = false,
-  prefetchLocationData
+  prefetchLocationData,
+  prefetchMoreFilterData
 }: ComparativeToolbarProps) {
 
 
@@ -101,7 +103,7 @@ export function ComparativeToolbar({
     moreFilters.variety.length > 0 || moreFilters.method.length > 0;
 
   return (
-    <div className={cn('w-full flex gap-6 p-4 items-center', className)}>
+    <div className={cn('w-full flex gap-6 py-4 items-center', className)}>
       <div className='flex gap-4'>
         <div className="flex gap-2 flex-col min-w-50">
           <Label className="text-xs font-medium text-muted-foreground">Yield</Label>
@@ -228,20 +230,19 @@ export function ComparativeToolbar({
                     key={v}
                     checked={moreFilters.variety.includes(v)}
                     onCheckedChange={() => handleVarietyToggle(v)}
+                    onMouseEnter={() => prefetchMoreFilterData?.(undefined, v)}
                   >
                     {v}
                   </DropdownMenuCheckboxItem>
                 ))}
 
-
-                <DropdownMenuLabel>Establishment Method</DropdownMenuLabel>
-                {/* Guess its fine since there are only two */}
                 {['direct-seeded', 'transplanted'].map(m => (
                   <DropdownMenuCheckboxItem
                     key={m}
                     checked={moreFilters.method.includes(m)}
                     onCheckedChange={() => handleMethodToggle(m)}
                     className="capitalize"
+                    onMouseEnter={() => prefetchMoreFilterData?.(m, undefined)}
                   >
                     {m.replace('-', ' ')}
                   </DropdownMenuCheckboxItem>

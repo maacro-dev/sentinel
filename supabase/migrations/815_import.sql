@@ -551,6 +551,131 @@ begin
 end;
 $$;
 
+create or replace function public.import_fertilization_records(
+    p_data jsonb,
+    p_auto_create_mfid boolean default true
+)
+    returns jsonb
+    language plpgsql
+as $$
+declare
+    v_imported int := 0;
+    v_errors text[] := '{}';
+
+    v_row jsonb;
+    v_app jsonb;
+
+    v_farmer_id int;
+    v_barangay_id int;
+    v_field_id int;
+    v_season_id int;
+    v_activity_id int;
+    v_collector_id uuid;
+    v_collected_at timestamptz;
+
+    v_applied_area_sqm double precision;
+begin
+    for v_row in select jsonb_array_elements(p_data) loop
+        begin
+            -- extract base fields
+            v_collected_at := public.parse_timestamptz(v_row->>'collected_at');
+            v_applied_area_sqm := (v_row->>'applied_area_sqm')::double precision;
+
+            -- collector
+            v_collector_id := public.find_or_create_collector_id(v_row->'collected_by');
+
+            -- farmer
+            v_farmer_id := public.find_or_create_farmer(
+                v_row->>'first_name',
+                v_row->>'last_name',
+                v_row->>'gender',      -- may be null
+                v_row->>'date_of_birth',
+                v_row->>'cellphone_no'
+            );
+
+            -- barangay
+            v_barangay_id := public.find_barangay_id(
+                v_row->>'province',
+                v_row->>'municity',
+                v_row->>'barangay'
+            );
+
+            -- field
+            v_field_id := public.handle_mfid(
+                v_row->>'mfid',
+                v_farmer_id,
+                v_barangay_id,
+                null,  -- location not used here
+                p_auto_create_mfid
+            );
+
+            -- season
+            v_season_id := public.find_season_id_by_date(v_row->>'collected_at');
+
+            -- field_activities
+            insert into public.field_activities (
+                field_id,
+                season_id,
+                activity_type,
+                collected_by,
+                collected_at,
+                image_urls,
+                verification_status
+            ) values (
+                v_field_id,
+                v_season_id,
+                'nutrient-management',
+                v_collector_id,
+                v_collected_at,
+                '[]'::jsonb,
+                'unknown'
+            ) returning id into v_activity_id;
+
+            -- fertilization_records
+            insert into public.fertilization_records (
+                id,
+                applied_area_sqm
+            ) values (
+                v_activity_id,
+                v_applied_area_sqm
+            );
+
+            -- loop through applications
+            for v_app in select jsonb_array_elements(v_row->'fertilizer_applications') loop
+                insert into public.fertilizer_applications (
+                    fertilization_record_id,
+                    fertilizer_type,
+                    brand,
+                    nitrogen_content_pct,
+                    phosphorus_content_pct,
+                    potassium_content_pct,
+                    amount_applied,
+                    amount_unit,
+                    crop_stage_on_application
+                ) values (
+                    v_activity_id,
+                    v_app->>'fertilizer_type',
+                    v_app->>'brand',
+                    (v_app->>'nitrogen_content_pct')::double precision,
+                    (v_app->>'phosphorus_content_pct')::double precision,
+                    (v_app->>'potassium_content_pct')::double precision,
+                    (v_app->>'amount_applied')::double precision,
+                    v_app->>'amount_unit',
+                    v_app->>'crop_stage_on_application'
+                );
+            end loop;
+
+            v_imported := v_imported + 1;
+
+        exception when others then
+            v_errors := array_append(v_errors, format('Row with MFID %s: %s', v_row->>'mfid', SQLERRM));
+        end;
+    end loop;
+
+    return jsonb_build_object('imported_count', v_imported, 'errors', v_errors);
+end;
+$$;
+
 
 create or replace function import_data_transaction(
     p_dataset_type text,
@@ -575,6 +700,9 @@ begin
 
         when 'damage_assessments' then
             return public.import_damage_assessments(p_data, p_auto_create_mfid);
+
+        when 'fertilization_records' then
+            return public.import_fertilization_records(p_data, p_auto_create_mfid);
 
         else
           raise exception 'Unsupported dataset type: %', p_dataset_type;

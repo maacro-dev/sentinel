@@ -13,7 +13,33 @@ export function validateFileCompatibility(data: ImportRow[], datasetType: Form):
   const headers = data.length > 0 ? Object.keys(data[0]) : [];
   if (headers.length === 0) return { message: "The CSV file appears to be empty or has no headers." };
 
-  const requiredFields = Object.keys(schema.shape);
+  let requiredFields: string[];
+  if (datasetType === 'fertilization_records') {
+    // think about excess fields in the future...
+
+    requiredFields = [
+      'province',
+      'municity',
+      'barangay',
+      'mfid',
+      'first_name',
+      'last_name',
+      'applied_area_sqm',
+      'collected_at',
+      'collected_by',
+      'fertilizer_type_1',
+      'brand_1',
+      'nitrogen_content_pct_1',
+      'phosphorus_content_pct_1',
+      'potassium_content_pct_1',
+      'amount_applied_1',
+      'amount_unit_1',
+      'crop_stage_on_application_1'
+    ];
+  } else {
+    requiredFields = Object.keys(schema.shape);
+  }
+
   const missingFields = requiredFields.filter((field) => !headers.includes(field));
   if (missingFields.length > 0) {
     return {

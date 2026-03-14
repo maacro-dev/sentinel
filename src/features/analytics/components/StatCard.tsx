@@ -49,7 +49,7 @@ export const StatCardMinimal = memo(({ title, subtitle, current_value, unit }: S
   return (
     <Card
       role="stat-card-simple"
-      className="flex-1 h-full flex flex-col gap-2.5 justify-between hover:cursor-pointer rounded-container hover:shadow-sm transition-all"
+      className="flex-1 h-full min-h-36 flex flex-col gap-2.5 justify-between hover:cursor-pointer rounded-container hover:shadow-sm transition-all"
     >
       <CardHeader className="flex flex-col gap-0.5 lt:gap-1 dt:gap-1.5">
         <CardTitle className="leading-none font-medium text-primary">

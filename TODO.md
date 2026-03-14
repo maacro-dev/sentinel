@@ -6,11 +6,9 @@
     - kung mag add sa mobile app sang farmer kag field to an imported data, it must be updated
     - check if row (form type, mfid, season) is already present, ignore make a warning
 
-- drill down on stat cards
-
-- import
-
 - user management flow (create, update)
+
+- nutrient management table detail no fertilizer applications
 
 ## fix
 
@@ -33,3 +31,4 @@
 
 - create notification based on all the toasts that are shown
 
+- drill down on stat cards

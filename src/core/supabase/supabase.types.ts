@@ -19,11 +19,43 @@ export type Database = {
         Args: { p_season_id?: number }
         Returns: Json
       }
+      damage_by_cause: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      damage_by_location: {
+        Args: {
+          p_barangay?: string
+          p_cause?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+        }
+        Returns: Json
+      }
       dashboard_barangay_yield_rankings: {
         Args: { p_season_id?: number }
         Returns: Json
       }
       dashboard_summary: { Args: { p_season_id?: number }; Returns: Json }
+      fertilizer_type_summary: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
       province_yields: { Args: { p_season_id?: number }; Returns: Json }
       rice_variety_summary: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
@@ -1044,12 +1076,20 @@ export type Database = {
         Args: { p_auto_create_mfid?: boolean; p_data: Json }
         Returns: Json
       }
+      import_damage_assessments: {
+        Args: { p_auto_create_mfid?: boolean; p_data: Json }
+        Returns: Json
+      }
       import_data_transaction: {
         Args: {
           p_auto_create_mfid?: boolean
           p_data: Json
           p_dataset_type: string
         }
+        Returns: Json
+      }
+      import_fertilization_records: {
+        Args: { p_auto_create_mfid?: boolean; p_data: Json }
         Returns: Json
       }
       import_field_plannings: {

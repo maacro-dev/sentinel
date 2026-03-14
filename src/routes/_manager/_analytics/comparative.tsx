@@ -3,8 +3,9 @@ import { Spinner } from '@/core/components/ui/spinner';
 import { createCrumbLoader } from '@/core/utils/breadcrumb';
 import { comparativeViewMap, MoreFilters } from '@/features/analytics/comparative';
 import { ComparativeToolbar } from '@/features/analytics/components/ComparativeToolbar';
+import { useDamageAnalytics } from '@/features/analytics/hooks/useDamageAnalytics';
 import { useYieldComparativeData } from '@/features/analytics/hooks/useYieldAnalytics';
-import { yieldByLocationOptions, yieldByMethodOptions, yieldByVarietyOptions } from '@/features/analytics/queries/options';
+import { damageByCauseOptions, damageByLocationOptions, yieldByLocationOptions, yieldByMethodOptions, yieldByVarietyOptions } from '@/features/analytics/queries/options';
 import { ComparativeView } from '@/features/analytics/types';
 import { useLocationHierarchy } from '@/features/mfid/hooks/useLgu';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,10 +17,13 @@ export const Route = createFileRoute("/_manager/_analytics/comparative")({
   component: RouteComponent,
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
-    queryClient.ensureQueryData(yieldByLocationOptions({ seasonId, province: undefined, municipality: undefined, barangay: undefined, method: undefined, variety: undefined }))
-    queryClient.ensureQueryData(yieldByMethodOptions({ seasonId, province: undefined, municipality: undefined, barangay: undefined, method: undefined, variety: undefined }))
-    queryClient.ensureQueryData(yieldByVarietyOptions({ seasonId, province: undefined, municipality: undefined, barangay: undefined, method: undefined, variety: undefined }))
+    const defaultParam = { seasonId: seasonId, province: undefined, municipality: undefined, barangay: undefined, method: undefined, variety: undefined }
 
+    queryClient.ensureQueryData(yieldByLocationOptions(defaultParam))
+    queryClient.ensureQueryData(yieldByMethodOptions(defaultParam))
+    queryClient.ensureQueryData(yieldByVarietyOptions(defaultParam))
+    queryClient.ensureQueryData(damageByLocationOptions(defaultParam));
+    queryClient.ensureQueryData(damageByCauseOptions(defaultParam));
     return { breadcrumb: createCrumbLoader({ label: "Comparative Analytics" }) }
   },
   head: () => ({ meta: [{ title: "Comparative Analytics | Humay" }] }),
@@ -57,7 +61,7 @@ function RouteComponent() {
     setMoreFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const { byLocation, byMethod, byVariety } = useYieldComparativeData({
+  const { byLocation: yieldByLocation, byMethod, byVariety } = useYieldComparativeData({
     seasonId: seasonId,
     province: location.province || undefined,
     municipality: location.municipality || undefined,
@@ -65,6 +69,15 @@ function RouteComponent() {
     method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
     variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
   });
+
+  const { byLocation: damageByLocation, byCause: damageByCause } = useDamageAnalytics({
+    seasonId: seasonId,
+    province: location.province || undefined,
+    municipality: location.municipality || undefined,
+    barangay: location.barangay || undefined,
+    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
+    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+  })
 
   const queryClient = useQueryClient();
 
@@ -87,7 +100,29 @@ function RouteComponent() {
     queryClient.prefetchQuery(yieldByLocationOptions(baseParams));
     queryClient.prefetchQuery(yieldByMethodOptions(baseParams));
     queryClient.prefetchQuery(yieldByVarietyOptions(baseParams));
+    queryClient.prefetchQuery(damageByLocationOptions(baseParams));
+    queryClient.prefetchQuery(damageByCauseOptions(baseParams));
   }, [seasonId, moreFilters, queryClient]);
+
+  const prefetchWithFilters = useCallback((
+    method?: string,
+    variety?: string
+  ) => {
+    const params = {
+      seasonId,
+      province: location.province || undefined,
+      municipality: location.municipality || undefined,
+      barangay: location.barangay || undefined,
+      method: method || (moreFilters.method.length === 1 ? moreFilters.method[0] : undefined),
+      variety: variety || (moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined),
+    };
+
+    queryClient.prefetchQuery(yieldByLocationOptions(params));
+    queryClient.prefetchQuery(yieldByMethodOptions(params));
+    queryClient.prefetchQuery(yieldByVarietyOptions(params));
+    queryClient.prefetchQuery(damageByLocationOptions(params));
+    queryClient.prefetchQuery(damageByCauseOptions(params));
+  }, [seasonId, location, moreFilters, queryClient]);
 
 
   const resetAll = () => {
@@ -97,19 +132,19 @@ function RouteComponent() {
   };
 
   const viewData = {
-    'yield-location': byLocation.data,
+    'yield-location': yieldByLocation.data,
     'yield-method': byMethod.data,
     'yield-variety': byVariety.data,
-    'damage-location': undefined,
-    'damage-cause': undefined
+    'damage-location': damageByLocation.data,
+    'damage-cause': damageByCause.data
   };
 
   const viewLoading = {
-    'yield-location': byLocation.isLoading,
+    'yield-location': yieldByLocation.isLoading,
     'yield-method': byMethod.isLoading,
     'yield-variety': byVariety.isLoading,
-    'damage-location': false,
-    'damage-cause': false
+    'damage-location': damageByLocation.isLoading,
+    'damage-cause': damageByCause.isLoading
   };
 
   const activeData = viewData[view];
@@ -143,6 +178,7 @@ function RouteComponent() {
         isLoadingMunicipalities={loadingMunicipalities}
         isLoadingBarangays={loadingBarangays}
         prefetchLocationData={prefetchLocationData}
+        prefetchMoreFilterData={prefetchWithFilters}
       />
 
       <ViewComponent

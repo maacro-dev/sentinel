@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       return response({ success: false, message: `error = ${userError}` }, 500);
     }
 
-    if (form === 'field_plannings' || form === 'harvest_records' || form === 'crop_establishments' || form === 'damage_assessments' ) {
+    if (form === 'field_plannings' || form === 'harvest_records' || form === 'crop_establishments' || form === 'damage_assessments' || form == 'fertilization_records') {
       const { data: result, error } = await supabase.rpc('import_data_transaction', {
         p_dataset_type: form,
         p_data: data,

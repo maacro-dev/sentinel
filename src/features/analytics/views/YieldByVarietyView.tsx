@@ -1,4 +1,3 @@
-import { Spinner } from '@/core/components/ui/spinner';
 import { Lightbulb } from 'lucide-react';
 import { YieldVarietyData } from '@/features/analytics/schemas/comparative/yield-variety';
 import { useState, useMemo, useCallback } from 'react';
@@ -18,7 +17,7 @@ interface GroupedDataItem {
   varieties: YieldVarietyData['ranking'];
 }
 
-export function YieldByVarietyView({ data, isLoading }: { data?: YieldVarietyData; isLoading: boolean }) {
+export function YieldByVarietyView({ data }: { data: YieldVarietyData; }) {
   const [selectedGroup, setSelectedGroup] = useState<GroupKey | null>(null);
 
   const groupedData = useMemo((): GroupedDataItem[] => {
@@ -127,14 +126,6 @@ export function YieldByVarietyView({ data, isLoading }: { data?: YieldVarietyDat
       </>
     );
   }, [groupedData, data]);
-
-  if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <Spinner className="size-10" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-4 relative">

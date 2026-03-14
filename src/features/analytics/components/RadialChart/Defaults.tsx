@@ -5,8 +5,8 @@ export const RadialChartDefaults = {
     endAngle: 180,
     innerRadius: 60,
     outerRadius: 100,
-    cy: "80%",
-    barSize: 16,
+    cy: "75%",
+    barSize: 14,
   },
   tooltip: {
     cursor: false,

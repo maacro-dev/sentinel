@@ -1,5 +1,6 @@
 import { crop_establishments_schema } from "../validation/crop-establishments";
 import { damage_assessments_schema } from "../validation/damage-assessments";
+import { fertilization_records_schema } from "../validation/fertilization-records";
 import { field_plannings_schema } from "../validation/field-plannings";
 import { harvest_records_schema } from "../validation/harvest-records";
 import { Form } from "./forms";
@@ -14,7 +15,7 @@ export interface FieldSchema {
 export const formSchemas: Record<Form, z.ZodObject<any> | null> = {
   field_plannings: field_plannings_schema,
   crop_establishments: crop_establishments_schema,
-  fertilization_records: null,
+  fertilization_records: fertilization_records_schema,
   harvest_records: harvest_records_schema,
   monitoring_visits: null,
   damage_assessments: damage_assessments_schema,

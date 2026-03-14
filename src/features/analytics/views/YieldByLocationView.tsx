@@ -1,6 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { ChartConfig } from '@/core/components/ui/chart';
-import { Global } from '@/core/config';
 import { YieldByLocationData } from '@/features/analytics/schemas/comparative/yield-location';
 import { DefaultTicks } from '../components/DefaultTicks';
 import { StatCardMinimal } from '../components/StatCard';
@@ -34,17 +32,7 @@ const header = {
   description: "Comparison across provinces, municipalities, and barangays",
 };
 
-export function YieldByLocationView({ data, level }: { data?: YieldByLocationData; level?: 'province' | 'municipality' | 'barangay' }) {
-  if (!data || data.ranking.length === 0) {
-    return (
-      <Card>
-        <CardHeader><CardTitle>Yield by Location</CardTitle></CardHeader>
-        <CardContent className="h-64 flex items-center justify-center text-muted-foreground">
-          {Global.NO_DATA_MESSAGE}
-        </CardContent>
-      </Card>
-    );
-  }
+export function YieldByLocationView({ data, level }: { data: YieldByLocationData; level?: 'province' | 'municipality' | 'barangay' }) {
 
   const roundedRanking = data.ranking.map(item => ({
     ...item,
