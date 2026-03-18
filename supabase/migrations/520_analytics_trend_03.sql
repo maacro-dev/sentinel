@@ -1,4 +1,4 @@
-create or replace function analytics.trend_overall_yield(p_season_id int default null)
+create or replace function public.trend_overall_yield(p_season_id int default null)
     returns jsonb
     language plpgsql
     security definer

@@ -1,4 +1,4 @@
-create or replace function analytics.trend_data_collection(p_season_id int default null)
+create or replace function public.trend_data_collection(p_season_id int default null)
     returns jsonb
     language plpgsql
     security definer

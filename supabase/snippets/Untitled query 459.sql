@@ -1,4 +1,4 @@
-create or replace function analytics.yield_by_location(
+create or replace function public.yield_by_location(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,

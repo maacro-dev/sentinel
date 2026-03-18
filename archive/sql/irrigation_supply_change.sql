@@ -1,5 +1,5 @@
 
-CREATE OR REPLACE VIEW analytics.seasonal_irrigation_supply_change AS
+CREATE OR REPLACE VIEW public.seasonal_irrigation_supply_change AS
 WITH irrigation_counts AS (
     SELECT
         s.start_date                                           AS start_date,

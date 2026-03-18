@@ -1,4 +1,4 @@
-create or replace function analytics.crop_establishment_method_summary(p_season_id int default null)
+create or replace function public.crop_establishment_method_summary(p_season_id int default null)
     returns jsonb
     language plpgsql
     security definer
@@ -60,7 +60,7 @@ begin
 end;
 $$;
 
-create or replace function analytics.rice_variety_summary(p_season_id int default null)
+create or replace function public.rice_variety_summary(p_season_id int default null)
     returns jsonb
     language plpgsql
     security definer
@@ -156,7 +156,7 @@ begin
 end;
 $$;
 
-create or replace function analytics.fertilizer_type_summary(
+create or replace function public.fertilizer_type_summary(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,
@@ -252,7 +252,7 @@ $$;
 
 
 
-create or replace function analytics.yield_by_location(
+create or replace function public.yield_by_location(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,
@@ -377,7 +377,7 @@ $$;
 
 
 
-create or replace function analytics.yield_by_method(
+create or replace function public.yield_by_method(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,
@@ -489,7 +489,7 @@ end;
 $$;
 
 
-create or replace function analytics.yield_by_variety(
+create or replace function public.yield_by_variety(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,
@@ -582,7 +582,7 @@ begin
 end;
 $$;
 
-create or replace function analytics.damage_by_location(
+create or replace function public.damage_by_location(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,
@@ -689,7 +689,7 @@ begin
 end;
 $$;
 
-create or replace function analytics.damage_by_cause(
+create or replace function public.damage_by_cause(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,

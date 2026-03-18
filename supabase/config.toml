@@ -3,7 +3,7 @@ project_id = "sentinel"
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "graphql_public", "analytics"]
+schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 5000
 

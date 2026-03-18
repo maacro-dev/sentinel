@@ -1,9 +1,9 @@
 
 db:
-	@supabase db reset && supabase gen types typescript --local --schema public,analytics > ./src/core/supabase/supabase.types.ts
+	@supabase db reset && supabase gen types typescript --local --schema public > ./src/core/supabase/supabase.types.ts
 
 db-types:
-	@supabase gen types typescript --local --schema public,analytics > ./src/core/supabase/supabase.types.ts
+	@supabase gen types typescript --local --schema public > ./src/core/supabase/supabase.types.ts
 
 restart:
 	@supabase stop && supabase start && supabase functions serve

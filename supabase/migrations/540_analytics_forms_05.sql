@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION analytics.summary_form_progress(p_season_id int DEFAULT NULL)
+CREATE OR REPLACE FUNCTION public.summary_form_progress(p_season_id int DEFAULT NULL)
     RETURNS jsonb
     LANGUAGE plpgsql
     SECURITY DEFINER

@@ -1,4 +1,4 @@
-create or replace function analytics.crop_establishment_method_summary(p_season_id int default null)
+create or replace function public.crop_establishment_method_summary(p_season_id int default null)
     returns jsonb
     language plpgsql
     security definer

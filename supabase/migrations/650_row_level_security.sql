@@ -246,19 +246,19 @@ ALTER DEFAULT privileges IN SCHEMA public GRANT ALL ON tables TO service_role;
 
 GRANT usage ON SCHEMA spatial TO anon, authenticated, service_role;
 
-GRANT usage ON SCHEMA analytics TO anon, authenticated, service_role;
+-- GRANT usage ON SCHEMA analytics TO anon, authenticated, service_role;
 
-GRANT ALL ON ALL tables IN SCHEMA analytics TO anon, authenticated, service_role;
+-- GRANT ALL ON ALL tables IN SCHEMA analytics TO anon, authenticated, service_role;
 
-GRANT ALL ON ALL ROUTINES IN SCHEMA analytics TO anon, authenticated, service_role;
+-- GRANT ALL ON ALL ROUTINES IN SCHEMA analytics TO anon, authenticated, service_role;
 
-GRANT ALL ON ALL sequences IN SCHEMA analytics TO anon, authenticated, service_role;
+-- GRANT ALL ON ALL sequences IN SCHEMA analytics TO anon, authenticated, service_role;
 
-ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON tables TO anon, authenticated, service_role;
+-- ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON tables TO anon, authenticated, service_role;
 
-ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+-- ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
 
-ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON sequences TO anon, authenticated, service_role;
+-- ALTER DEFAULT privileges FOR ROLE postgres IN SCHEMA analytics GRANT ALL ON sequences TO anon, authenticated, service_role;
 
 GRANT SELECT, INSERT, UPDATE ON ALL tables IN SCHEMA public TO authenticated;
 

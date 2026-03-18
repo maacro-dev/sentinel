@@ -1,6 +1,6 @@
 create schema if not exists spatial;
 
-create schema if not exists analytics;
+-- create schema if not exists analytics;
 
 create extension if not exists pgcrypto;
 

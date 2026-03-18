@@ -15,7 +15,6 @@ import { DamageByLocationData, parseDamageByLocationData } from "../schemas/comp
 import { DamageByCauseData, parseDamageByCauseData } from "../schemas/comparative/damage-cause";
 import { parseFertilizerTypeSummary } from "../schemas/summary/fertilizer-type";
 import { Seasons } from "@/features/fields/services/Seasons";
-import { filter } from "motion/react-m";
 
 export class Analytics {
   public static async getDashboardData(seasonId?: number): Promise<DashboardData> {
@@ -23,17 +22,11 @@ export class Analytics {
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data: stats, error: seasonalError } = await client
-      .schema('analytics')
-      .rpc('dashboard_summary', { p_season_id: sid });
+    const { data: stats, error: seasonalError } = await client.rpc('dashboard_summary', { p_season_id: sid });
 
-    const { data: overallYield, error: yieldError } = await client
-      .schema('analytics')
-      .rpc('trend_overall_yield', { p_season_id: sid });
+    const { data: overallYield, error: yieldError } = await client.rpc('trend_overall_yield', { p_season_id: sid });
 
-    const { data: barangayYield, error: barangayError } = await client
-      .schema('analytics')
-      .rpc('dashboard_barangay_yield_rankings', { p_season_id: sid });
+    const { data: barangayYield, error: barangayError } = await client.rpc('dashboard_barangay_yield_rankings', { p_season_id: sid });
 
     if (seasonalError || yieldError || barangayError) {
       throw new Error("Error fetching dashboard data");
@@ -51,9 +44,7 @@ export class Analytics {
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('summary_form_progress', { p_season_id: sid });
+    const { data, error } = await client.rpc('summary_form_progress', { p_season_id: sid });
 
     if (error) throw error;
     return parseSeasonSummary(data);
@@ -64,9 +55,7 @@ export class Analytics {
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('summary_form_count', { p_season_id: sid });
+    const { data, error } = await client.rpc('summary_form_count', { p_season_id: sid });
 
     if (error) {
       throw error;
@@ -81,9 +70,7 @@ export class Analytics {
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('trend_data_collection', { p_season_id: sid });
+    const { data, error } = await client.rpc('trend_data_collection', { p_season_id: sid });
 
     if (error) {
       throw error
@@ -98,21 +85,13 @@ export class Analytics {
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data: provinceYieldsRaw, error: provinceYieldsError } = await client
-      .schema('analytics')
-      .rpc('province_yields', { p_season_id: sid });
+    const { data: provinceYieldsRaw, error: provinceYieldsError } = await client.rpc('province_yields', { p_season_id: sid });
 
-    const { data: methodSummaryRaw, error: methodSummaryError } = await client
-      .schema('analytics')
-      .rpc('crop_establishment_method_summary', { p_season_id: sid });
+    const { data: methodSummaryRaw, error: methodSummaryError } = await client.rpc('crop_establishment_method_summary', { p_season_id: sid });
 
-    const { data: riceVarietyRaw, error: riceVarietyError } = await client
-      .schema('analytics')
-      .rpc('rice_variety_summary', { p_season_id: sid });
+    const { data: riceVarietyRaw, error: riceVarietyError } = await client.rpc('rice_variety_summary', { p_season_id: sid });
 
-    const { data: fertilizerTypeRaw, error: fertilizerTypeError } = await client
-      .schema('analytics')
-      .rpc('fertilizer_type_summary', { p_season_id: sid });
+    const { data: fertilizerTypeRaw, error: fertilizerTypeError } = await client.rpc('fertilizer_type_summary', { p_season_id: sid });
 
     if (provinceYieldsError || methodSummaryError || riceVarietyError || fertilizerTypeError) {
       throw new Error("Error fetching descriptive analytics data.");
@@ -141,16 +120,14 @@ export class Analytics {
 
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('yield_by_method', {
-        p_season_id: sid,
-        p_province: filters.province,
-        p_municipality: filters.municipality,
-        p_barangay: filters.barangay,
-        p_method: filters.method,
-        p_variety: filters.variety,
-      });
+    const { data, error } = await client.rpc('yield_by_method', {
+      p_season_id: sid,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_method: filters.method,
+      p_variety: filters.variety,
+    });
     if (error) throw new Error(`Failed to fetch yield by method: ${error.message}`);
     return parseYieldByMethodData(data);
   }
@@ -169,16 +146,14 @@ export class Analytics {
 
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('yield_by_location', {
-        p_season_id: sid,
-        p_province: filters.province,
-        p_municipality: filters.municipality,
-        p_barangay: filters.barangay,
-        p_method: filters.method,
-        p_variety: filters.variety,
-      });
+    const { data, error } = await client.rpc('yield_by_location', {
+      p_season_id: sid,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_method: filters.method,
+      p_variety: filters.variety,
+    });
 
     if (error) throw new Error(`Failed to fetch yield analytics: ${error.message}`);
     return parseYieldByLocationData(data);
@@ -198,16 +173,14 @@ export class Analytics {
 
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('yield_by_variety', {
-        p_season_id: sid,
-        p_province: filters.province,
-        p_municipality: filters.municipality,
-        p_barangay: filters.barangay,
-        p_method: filters.method,
-        p_variety: filters.variety,
-      });
+    const { data, error } = await client.rpc('yield_by_variety', {
+      p_season_id: sid,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_method: filters.method,
+      p_variety: filters.variety,
+    });
     if (error) throw new Error(`Failed to fetch yield by variety: ${error.message}`);
     return parseYieldVarietyData(data);
   }
@@ -225,15 +198,13 @@ export class Analytics {
 
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('damage_by_location', {
-        p_season_id: sid,
-        p_province: filters.province,
-        p_municipality: filters.municipality,
-        p_barangay: filters.barangay,
-        p_cause: filters.cause,
-      });
+    const { data, error } = await client.rpc('damage_by_location', {
+      p_season_id: sid,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_cause: filters.cause,
+    });
     if (error) throw new Error(`Failed to fetch damage by location: ${error.message}`);
     return parseDamageByLocationData(data);
   }
@@ -252,16 +223,14 @@ export class Analytics {
 
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
 
-    const { data, error } = await client
-      .schema('analytics')
-      .rpc('damage_by_cause', {
-        p_season_id: sid,
-        p_province: filters.province,
-        p_municipality: filters.municipality,
-        p_barangay: filters.barangay,
-        p_method: filters.method,
-        p_variety: filters.variety,
-      });
+    const { data, error } = await client.rpc('damage_by_cause', {
+      p_season_id: sid,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_method: filters.method,
+      p_variety: filters.variety,
+    });
     if (error) throw new Error(`Failed to fetch damage by cause: ${error.message}`);
     return parseDamageByCauseData(data);
   }

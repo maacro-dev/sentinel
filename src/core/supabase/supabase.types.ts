@@ -7,102 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  analytics: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      crop_establishment_method_summary: {
-        Args: { p_season_id?: number }
-        Returns: Json
-      }
-      damage_by_cause: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
-      damage_by_location: {
-        Args: {
-          p_barangay?: string
-          p_cause?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-        }
-        Returns: Json
-      }
-      dashboard_barangay_yield_rankings: {
-        Args: { p_season_id?: number }
-        Returns: Json
-      }
-      dashboard_summary: { Args: { p_season_id?: number }; Returns: Json }
-      fertilizer_type_summary: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
-      province_yields: { Args: { p_season_id?: number }; Returns: Json }
-      rice_variety_summary: { Args: { p_season_id?: number }; Returns: Json }
-      summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
-      summary_form_progress: { Args: { p_season_id?: number }; Returns: Json }
-      trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
-      trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
-      yield_by_location: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
-      yield_by_method: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
-      yield_by_variety: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       activity_logs: {
@@ -995,7 +899,7 @@ export type Database = {
           activity_type: Database["public"]["Enums"]["activity_type"] | null
           barangay: string | null
           collected_at: string | null
-          collected_by: string | null
+          collected_by: Json | null
           farmer_name: string | null
           field_id: number | null
           form_data: Json | null
@@ -1013,23 +917,9 @@ export type Database = {
             | Database["public"]["Enums"]["verification_status"]
             | null
           verified_at: string | null
-          verified_by: string | null
+          verified_by: Json | null
         }
         Relationships: [
-          {
-            foreignKeyName: "field_activities_collected_by_fkey"
-            columns: ["collected_by"]
-            isOneToOne: false
-            referencedRelation: "user_details"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "field_activities_collected_by_fkey"
-            columns: ["collected_by"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "field_activities_field_id_fkey"
             columns: ["field_id"]
@@ -1056,20 +946,6 @@ export type Database = {
             columns: ["season_id"]
             isOneToOne: false
             referencedRelation: "seasons"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "field_activities_verified_by_fkey"
-            columns: ["verified_by"]
-            isOneToOne: false
-            referencedRelation: "user_details"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "field_activities_verified_by_fkey"
-            columns: ["verified_by"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -1162,6 +1038,47 @@ export type Database = {
         }
         Returns: undefined
       }
+      crop_establishment_method_summary: {
+        Args: { p_season_id?: number }
+        Returns: Json
+      }
+      damage_by_cause: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      damage_by_location: {
+        Args: {
+          p_barangay?: string
+          p_cause?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+        }
+        Returns: Json
+      }
+      dashboard_barangay_yield_rankings: {
+        Args: { p_season_id?: number }
+        Returns: Json
+      }
+      dashboard_summary: { Args: { p_season_id?: number }; Returns: Json }
+      fertilizer_type_summary: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
       find_barangay_id: {
         Args: { p_barangay: string; p_municity: string; p_province: string }
         Returns: number
@@ -1237,7 +1154,46 @@ export type Database = {
       }
       parse_date: { Args: { date_str: string }; Returns: string }
       parse_timestamptz: { Args: { timestamptz_str: string }; Returns: string }
+      province_yields: { Args: { p_season_id?: number }; Returns: Json }
+      rice_variety_summary: { Args: { p_season_id?: number }; Returns: Json }
+      summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
+      summary_form_progress: { Args: { p_season_id?: number }; Returns: Json }
       sync_auth_audit_entries: { Args: never; Returns: number }
+      trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
+      trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
+      yield_by_location: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      yield_by_method: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      yield_by_variety: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       activity_type:
@@ -1389,9 +1345,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  analytics: {
-    Enums: {},
-  },
   public: {
     Enums: {
       activity_type: [

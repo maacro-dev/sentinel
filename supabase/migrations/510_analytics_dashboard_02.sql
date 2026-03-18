@@ -2,7 +2,7 @@
 -- todo to clean
 
 
-create or replace function analytics.dashboard_barangay_yield_rankings(p_season_id int default null)
+create or replace function public.dashboard_barangay_yield_rankings(p_season_id int default null)
     returns jsonb
     language plpgsql
     security definer

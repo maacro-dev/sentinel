@@ -1,4 +1,4 @@
-create or replace function analytics.summary_form_count(p_season_id int default null)
+create or replace function public.summary_form_count(p_season_id int default null)
     returns jsonb
     language plpgsql
     security definer
