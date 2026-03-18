@@ -186,17 +186,40 @@ CREATE POLICY "Allow authenticated to update damage_assessments" ON damage_asses
         USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read monitoring visits" ON monitoring_visits AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert monitoring visits" ON monitoring_visits AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update monitoring visits" ON monitoring_visits AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
+
+CREATE POLICY "Allow authenticated to read system audit logs" ON system_audit_logs AS permissive
+    FOR SELECT TO authenticated USING (TRUE);
+
+CREATE POLICY "Allow authenticated to insert system audit logs" ON system_audit_logs AS permissive
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
+
+CREATE POLICY "Allow authenticated to update system audit logs" ON system_audit_logs AS permissive
+    FOR UPDATE TO authenticated USING (TRUE);
+
+CREATE POLICY "Allow authenticated to read activity logs" ON activity_logs AS permissive
+    FOR SELECT TO authenticated USING (TRUE);
+
+CREATE POLICY "Allow authenticated to insert activity logs" ON activity_logs AS permissive
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
+
+CREATE POLICY "Allow authenticated to update activity logs" ON activity_logs AS permissive
+    FOR UPDATE TO authenticated USING (TRUE);
+
+CREATE POLICY "Allow authenticated to read audit errors" ON audit_errors AS permissive
+    FOR SELECT TO authenticated USING (TRUE);
+
+CREATE POLICY "Allow authenticated to insert audit errors" ON audit_errors AS permissive
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
+
+CREATE POLICY "Allow authenticated to update audit errors" ON audit_errors AS permissive
+    FOR UPDATE TO authenticated USING (TRUE);
 
 GRANT SELECT ON field_details TO authenticated;
 
@@ -237,6 +260,10 @@ GRANT SELECT ON harvest_records TO authenticated;
 GRANT SELECT ON damage_assessments TO authenticated;
 
 GRANT SELECT ON monitoring_visits TO authenticated;
+
+GRANT SELECT ON activity_logs_view TO authenticated;
+
+GRANT SELECT ON system_audit_logs_view TO authenticated;
 
 GRANT ALL privileges ON users TO service_role;
 
