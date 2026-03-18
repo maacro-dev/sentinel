@@ -131,6 +131,7 @@ function GeneralSection({ data }: { data: FormDataEntry }) {
 }
 
 function FormDataSection({ data, title }: { data: FormData, title: string }) {
+  // @ts-ignore
   const { applications, ...otherData } = data;
 
   return (

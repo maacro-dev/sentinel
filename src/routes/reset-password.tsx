@@ -18,11 +18,11 @@ export const Route = createFileRoute('/reset-password')({
     const refreshToken = params.get('refresh_token') ?? ""
 
     if (error != undefined) {
-        throw redirect({ to: "/unauthorized" });
+      throw redirect({ to: "/unauthorized" });
     }
 
     const supabase = await getSupabase()
-    const { data: { user, session }  } = await supabase.auth.setSession({access_token: accessToken, refresh_token: refreshToken})
+    const { data: { user, session } } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
 
     return { user: user, session: session }
   },
@@ -31,7 +31,7 @@ export const Route = createFileRoute('/reset-password')({
 
 function RouteComponent() {
 
-  const { user, session } = Route.useLoaderData();
+  const { user } = Route.useLoaderData();
 
   return (
     <CenteredLayout>

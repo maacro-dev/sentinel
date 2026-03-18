@@ -1,6 +1,5 @@
 import { createRouteConfig } from "@/core/tanstack/router/utils";
-import { fieldTableColumns } from "@/features/fields/components/FieldsTable/fieldTableColumns";
-import { FormInput, Grid2X2, LayoutDashboard } from "lucide-react";
+import { FormInput, LayoutDashboard } from "lucide-react";
 
 export const overviewGroupConfig = createRouteConfig("overview", {
   role: "data_manager",

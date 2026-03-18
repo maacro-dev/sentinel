@@ -56,7 +56,7 @@ export const Breadcrumbs = memo(({ data }: { data: Array<CrumbDef> }) => {
 });
 
 export const Crumb = memo(({ crumb, isLast }: { crumb: CrumbDef, isLast: boolean }) => {
-  const { label, isDynamic, navigatable } = crumb;
+  const { label, navigatable } = crumb;
   // const params = isDynamic ? crumb.params : undefined;
   const url = crumb.url;
   const enabled = !isLast && (navigatable !== false);

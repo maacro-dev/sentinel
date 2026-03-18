@@ -7,7 +7,7 @@ import {
   flexRender,
   ColumnDef,
 } from '@tanstack/react-table';
-import { ImportRow, ImportIssue } from '../hooks/useImport';
+import { ImportRow, ImportIssue } from '../types';
 
 interface DataGuidedFixProps {
   data: ImportRow[];
@@ -122,7 +122,7 @@ export function DataGuidedFix({ data, issues, onApplyFix, onSkip }: DataGuidedFi
                   <div className="space-y-1 pl-2">
                     {messages.slice(0, 2).map(({ msg, cnt }) => (
                       <div key={msg} className="flex justify-between text-xs text-muted-foreground">
-                        <span className="truncate max-w-[180px]" title={msg}>
+                        <span className="truncate max-w-45" title={msg}>
                           {msg.length > 30 ? msg.slice(0, 30) + '…' : msg}
                         </span>
                         <span>{cnt}</span>

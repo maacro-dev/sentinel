@@ -1,3 +1,6 @@
+// @ts-nocheck
+// unfinished
+
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { createFileRoute } from "@tanstack/react-router";

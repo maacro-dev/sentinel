@@ -11,7 +11,7 @@ import { useAllBarangaysWithLocation } from "@/features/mfid/hooks/useLgu";
 import { useSeasons } from "@/features/fields/hooks/useSeasons";
 import { findSeasonId } from "@/features/fields/util";
 import { useCheckDuplicates } from "@/features/mfid/hooks/useCheckDuplicates";
-import { ImportRow, ImportIssue, FileError, ValidationContext } from "../types";
+import { ImportRow, ImportIssue, ValidationContext, FileError } from "../types";
 import { validateFileCompatibility, validateRow } from "../util/validate";
 
 export function useImport(initialDataset?: Form) {

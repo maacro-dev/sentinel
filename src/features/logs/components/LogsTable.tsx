@@ -22,7 +22,6 @@ export function LogsTable<T>({
   page,
   pageSize,
   onPageChange,
-  onSortingChange,
   sorting,
 }: LogsTableProps<T>) {
   const table = useReactTable({
@@ -33,7 +32,6 @@ export function LogsTable<T>({
     manualPagination: true,
     pageCount: Math.ceil(totalCount / pageSize),
     state: { pagination: { pageIndex: page, pageSize }, sorting },
-    onSortingChange,
     manualSorting: true,
     getSortedRowModel: getSortedRowModel(),
   });

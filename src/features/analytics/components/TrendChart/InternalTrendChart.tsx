@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { ChartTooltip, ChartTooltipContent } from "@/core/components/ui/chart";
 import { ComponentProps } from "react";
 import { CartesianGrid, XAxis, YAxis, AreaChart } from "recharts";

@@ -11,19 +11,16 @@ const getColor = (v: number) => {
 }
 
 interface ChangeBadgeProps {
-  currentValue: number;
-  previousValue?: number; // could be no data on previous season
+  currentValue: string | number;
+  previousValue?: number;
 }
 
 export const ChangeBadge = memo(
   ({ currentValue, previousValue }: ChangeBadgeProps) => {
-    const baseClasses =
-      "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
+    const baseClasses = "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
 
-    const percent =
-      previousValue && previousValue !== 0
-        ? ((currentValue - previousValue) / previousValue) * 100
-        : undefined;
+    // @ts-ignore
+    const percent = previousValue && previousValue !== 0 ? ((currentValue - previousValue) / previousValue) * 100 : undefined;
 
     const hasChange = typeof percent === "number" && isFinite(percent);
     const showTooltip = previousValue == null;

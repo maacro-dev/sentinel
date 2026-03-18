@@ -27,7 +27,7 @@ export class Forms {
       const promises = data.image_urls.map(async (path) => {
         const { data: urlData, error } = await client.storage
           .from("form-images")
-          .createSignedUrl(path, 3600);
+          .createSignedUrl(path as string, 3600);
 
         if (error) throw error;
 

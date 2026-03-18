@@ -6,7 +6,6 @@ import "@/styles/global.css";
 import { StrictMode } from "react";
 import { LazyMotion } from "motion/react";
 import { router } from "./core/tanstack/router";
-import { RealtimeListener } from "./core/supabase/realtime";
 
 // if (import.meta.env.DEV) {
 //   const script = document.createElement("script");

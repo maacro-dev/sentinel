@@ -1,7 +1,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@/core/components/ui/toggle-group';
 import { Label } from '@/core/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/core/components/ui/select';
-import { ChevronDownIcon, X } from 'lucide-react';
+import { ChevronDownIcon } from 'lucide-react';
 import { cn } from '@/core/utils/style';
 import {
   DropdownMenu,

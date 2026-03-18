@@ -33,7 +33,7 @@ function RouteComponent() {
   const [step, setStep] = useState<ImportStep>('upload')
   const queryClient = useQueryClient()
 
-  const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn, datasetSeasonId } = useImport();
+  const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn } = useImport();
 
   const confirmCancel = () => {
     setCancelOpen(false)

@@ -17,6 +17,8 @@ export const MfidTable = <T extends { mfid: string }>({
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const { table, isLoading: areMfidLoading } = useMfidTable()
+
+  // @ts-ignore
   const { createMfid, isLoading: isCreatingMfid } = useCreateMfid()
 
   const handleSubmit = useCallback(

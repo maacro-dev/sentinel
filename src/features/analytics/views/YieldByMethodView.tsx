@@ -1,12 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { ChartConfig } from '@/core/components/ui/chart';
-import { Global } from '@/core/config';
-import { YieldByMethodData } from '@/features/analytics/schemas/comparative/yield-method';
 import { DefaultTicks } from '../components/DefaultTicks';
 import { StatCardMinimal } from '../components/StatCard';
 import { TickProps } from '../types';
 import { BarChart } from '../components/BarChart';
 import { Lightbulb } from 'lucide-react';
+import { YieldByMethodData } from '../schemas/comparative/yield-method';
 
 export const yieldByMethodChartConfig = {
   'direct-seeded': { label: 'Direct Seeded' },

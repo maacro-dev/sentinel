@@ -124,7 +124,7 @@ interface DataQualityWidgetProps {
 
 function DataQualityWidget({
   issues,
-  totalRows,
+  // totalRows,
   filterColumn,
   filterLevel,
   onFilterChange,
@@ -145,8 +145,8 @@ function DataQualityWidget({
   const hasErrors = errorRowsCount > 0;
   const hasWarnings = warningRowsCount > 0;
 
-  const cleanRowsCount = totalRows - errorRowsCount; // rows without errors (may still have warnings)
-  const cleanPercentage = totalRows > 0 ? Math.round((cleanRowsCount / totalRows) * 100) : 100;
+  // const cleanRowsCount = totalRows - errorRowsCount; // rows without errors (may still have warnings)
+  // const cleanPercentage = totalRows > 0 ? Math.round((cleanRowsCount / totalRows) * 100) : 100;
 
   const issuesByColumn = useMemo(() => {
     const errorMap = new Map<string, { col: string; messages: Map<string, number> }>();
@@ -295,7 +295,7 @@ function DataQualityWidget({
                 <span className="text-muted-foreground">{total}</span>
               </div>
               <div className="space-y-1 pl-1.5">
-                {messages.slice(0, 2).map(({ msg, cnt }) => (
+                {messages.slice(0, 2).map(({ msg }) => (
                   <div key={msg} className="flex items-center justify-between text-2xs text-muted-foreground">
                     <span className="" title={msg}>
                       {msg}
@@ -338,7 +338,7 @@ function DataQualityWidget({
                 <span className="text-muted-foreground">{total}</span>
               </div>
               <div className="space-y-1 pl-1.5">
-                {messages.slice(0, 2).map(({ msg, cnt }) => (
+                {messages.slice(0, 2).map(({ msg }) => (
                   <div key={msg} className="flex items-center justify-between text-2xs text-muted-foreground">
                     <span className="" title={msg}>
                       {msg}

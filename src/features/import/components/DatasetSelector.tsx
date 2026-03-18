@@ -11,7 +11,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/core/components/ui/dialog"
-import { FileError } from "../hooks/useImport";
+import { FileError } from "../types";
 
 interface DatasetSelectorProps {
   onSelect: (type: Form) => void;

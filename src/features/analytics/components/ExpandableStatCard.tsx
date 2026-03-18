@@ -1,5 +1,3 @@
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/core/components/ui/dialog"
-import { Skeleton } from "@/core/components/ui/skeleton"
 import React from "react"
 
 

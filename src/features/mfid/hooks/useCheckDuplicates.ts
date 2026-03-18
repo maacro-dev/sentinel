@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSupabase } from "@/core/supabase";
 
-type DuplicateCheckResponse = Record<string, boolean>;
+// type DuplicateCheckResponse = Record<string, boolean>;
 
 export const useCheckDuplicates = (
   activityType: string,
