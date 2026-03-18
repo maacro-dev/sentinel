@@ -4,6 +4,20 @@ import { parseSeasonRow, parseSeasonsTable, SeasonRow } from "../schemas/seasons
 
 export class Seasons {
 
+  public static async getCurrent(): Promise<number> {
+    const client = await this._client
+    const { data, error } = await client
+      .from("latest_season")
+      .select("id")
+      .single()
+
+    if (error) {
+      throw error;
+    }
+
+    return data.id || -1
+  }
+
   public static async getAll(): Promise<SeasonRow[]> {
     const client = await this._client
     const today = new Date().toISOString().split("T")[0];

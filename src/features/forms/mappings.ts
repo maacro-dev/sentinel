@@ -5,7 +5,12 @@ export const formKeyMappings: Record<string, string> = {
   'MFID': 'Monitoring Field ID',
   "est": "Estimated",
   "id": "ID",
-  "ha": "(ha)"
+  "ha": "(ha)",
+  "pct": "(%)",
+  "verified at": "Verification Date",
+  "synced at": "Uploaded Date",
+  "collected at": "Collection Date",
+  "collected by": "Data Collector",
 }
 
 export const ACTIVITY_TYPE: Record<Form, string> = {

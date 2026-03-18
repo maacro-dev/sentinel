@@ -18,6 +18,7 @@ export interface DataTableProps<T> extends DataTableEvents<T> {
   secondaryToolbar?: React.ReactNode
   isLoading?: boolean
   pagination?: React.ReactNode
+  getRowHeight?: (row: T) => number | string
 }
 
 export const DataTable = <T,>({
@@ -27,7 +28,8 @@ export const DataTable = <T,>({
   secondaryToolbar,
   pagination,
   onRowClick,
-  onRowIntent
+  onRowIntent,
+  getRowHeight
 }: DataTableProps<T>) => {
 
   const rows = table.getRowModel().rows
@@ -48,23 +50,21 @@ export const DataTable = <T,>({
         )}
         <ScrollArea className="h-full flex-1 min-h-0 whitespace-nowrap">
           <div className="absolute inset-0">
-            <Table className={`min-w-full table-fixed ${rows.length == 0 ? 'h-full min-h-0 flex-1' : ''} `} >
+            <Table className={`min-w-full table-fixed ${rows.length == 0 ? 'h-full min-h-0 flex-1' : ''}`}>
               <TableHeader>
                 {table.getHeaderGroups().map(headerGroup => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header, _index) => (
+                    {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className={`min-w-0 relative whitespace-normal text-3xs font-normal pl-6 pr-0`}
+                        className="min-w-0 relative whitespace-normal text-3xs font-normal pl-6 pr-0"
                         style={{
                           textAlign: header.column.columnDef.meta?.textAlign || 'left',
                           width: getSizeClass(header.column.columnDef.meta?.size)
                         }}
                       >
                         <div className="truncate">
-                          {header.isPlaceholder ? null :
-                            flexRender(header.column.columnDef.header, header.getContext())
-                          }
+                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                         </div>
                       </TableHead>
                     ))}
@@ -73,47 +73,44 @@ export const DataTable = <T,>({
               </TableHeader>
               <TableBody>
                 {rows.length === 0 ? <EmptyTableRow colSpan={table.getHeaderGroups()[0].headers.length} /> :
-                  rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      selected={row.getIsSelected()}
-                      className={cn(
-                        `[&:last-child_td]:border-b z-10`,
-                        onRowClick && "cursor-pointer"
-                      )}
-                      onMouseEnter={() => {
-                        if (onRowIntent) { onRowIntent(row.original); }
-                      }}
-                      onClick={(e) => {
-                        if (onRowClick) { onRowClick(row.original); }
-                        const handler = row.getToggleSelectedHandler();
-                        handler(e)
-                      }}
-                    >
-                      {row.getVisibleCells().map(cell => {
-                        const cellWidth = getSizeClass(cell.column.columnDef.meta?.size)
+                  rows.map((row) => {
+                    const rowHeight = getRowHeight ? getRowHeight(row.original) : '5rem'; // default h-20
 
-                        return <TableCell
-                          key={cell.id}
-                          className={`pl-6 pr-0 text-muted-foreground text-3xs h-[82px]`}
-                          align={cell.column.columnDef.meta?.textAlign || 'left'}
-                          style={{ width: cellWidth, minWidth: cellWidth }}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      })}
-                    </TableRow>
-                  )
-                  )}
+                    return (
+                      <TableRow
+                        key={row.id}
+                        selected={row.getIsSelected()}
+                        className={cn(`[&:last-child_td]:border-b z-10`, onRowClick && "cursor-pointer")}
+                        style={{ height: rowHeight }}
+                        onMouseEnter={() => onRowIntent?.(row.original)}
+                        onClick={(e) => {
+                          onRowClick?.(row.original);
+                          row.getToggleSelectedHandler()(e)
+                        }}
+                      >
+                        {row.getVisibleCells().map(cell => {
+                          const cellWidth = getSizeClass(cell.column.columnDef.meta?.size)
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              className="pl-6 pr-0 text-muted-foreground text-3xs"
+                              align={cell.column.columnDef.meta?.textAlign || 'left'}
+                              style={{ width: cellWidth, minWidth: cellWidth, height: rowHeight }}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          )
+                        })}
+                      </TableRow>
+                    )
+                  })
+                }
               </TableBody>
             </Table>
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-        {pagination && pagination}
+        {pagination}
       </div>
     </ScrollAreaProvider>
   )

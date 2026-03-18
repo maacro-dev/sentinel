@@ -9,11 +9,14 @@ import { formDataByMfidOptions } from '@/features/forms/queries/options'
 import { useFormEntry } from '@/features/forms/hooks/useFormData'
 import { NavBackButton, NavNextButton, NavPreviousButton } from '@/core/components/NavigationButton'
 import { FormDataEntry, FormDataGroup } from '@/features/forms/schemas/formData'
-import { Skeleton } from '@/core/components/ui/skeleton'
 import { Button } from '@/core/components/ui/button'
 import { Textarea } from '@/core/components/ui/textarea'
 import { Camera, Combine, Grid2x2, SquareCheckBig, User } from 'lucide-react'
 import { useFormDetailNavigator } from '@/features/forms/hooks/useEntryNavigator'
+import { Label } from '@/core/components/ui/label'
+import { useState } from 'react'
+import { useVerification } from '@/features/forms/hooks/useVerification'
+import { FertilizerApplicationsList } from '@/features/forms/components/FertilizerApplicationList'
 
 export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
   component: RouteComponent,
@@ -37,7 +40,18 @@ function RouteComponent() {
 
   const { data, isLoading } = useFormEntry({ formType: formType as FormType, mfid, seasonId: seasonId })
 
-  const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, mfid);
+  const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, mfid, seasonId);
+
+
+  const verifyMutation = useVerification(formType, mfid, seasonId);
+
+  const handleVerify = (params: { status: 'approved' | 'rejected'; remarks?: string }) => {
+    verifyMutation.mutate({
+      id: data.activity.id,
+      status: params.status,
+      remarks: params.remarks,
+    });
+  };
 
   if (isLoading || navLoading) {
     return <PageContainer>Loading...</PageContainer>
@@ -52,13 +66,27 @@ function RouteComponent() {
           <NavNextButton label='Next' onClick={goNext} disabled={!hasNext} />
         </div>
       </div>
+      <div
+        className={`w-full py-2 rounded-container px-3 border text-xs font-medium
+          ${data.activity.verificationStatus === "approved" ? "bg-green-100 border-green-600 text-green-600" : ""}
+          ${data.activity.verificationStatus === "rejected" ? "bg-red-100 border-red-600 text-red-600" : ""}
+          ${data.activity.verificationStatus === "pending" ? "bg-amber-100 border-amber-600 text-amber-600" : ""}
+          `
+        }
+      >
+        This entry is {data.activity.verificationStatus}.
+      </div>
       <div className='flex flex-col gap-4'>
         <GeneralSection data={data} />
-        <FormDataSection data={data.activity.formData} title={'Activity Data'} />
+        <FormDataSection data={data.activity.formData} title={'Form Data'} />
         {data.activity.verificationStatus !== "unknown" && (
           <>
-            <ImagesSection />
-            <VerificationSection />
+            <ImagesSection images={data.activity.imageUrls} />
+            <VerificationSection
+              data={data}
+              onVerify={handleVerify}
+              isVerifying={verifyMutation.isPending}
+            />
           </>
         )}
       </div>
@@ -103,63 +131,144 @@ function GeneralSection({ data }: { data: FormDataEntry }) {
 }
 
 function FormDataSection({ data, title }: { data: FormData, title: string }) {
+  const { applications, ...otherData } = data;
+
   return (
-    <section className='p-6 flex flex-col gap-4 border rounded-container '>
+    <section className='p-6 flex flex-col gap-4 border rounded-container'>
       <div className="flex gap-2.5 items-center">
         <Combine className="size-4" />
         <h1 className="text-base">{title}</h1>
       </div>
-      <KVList className='gap-2.5' itemsPerColumn={5} containerClassName='gap-8'>
-        {Object.entries(data).map(([key, value]) => (
-          <KVItem
-            variant='side'
-            key={key}
-            pair={{
-              key: Sanitizer.key(key, formKeyMappings),
-              value: Sanitizer.value(value)
-            }}
-          />
-        ))}
-      </KVList>
+      <div>
+        <KVList className='gap-2.5' itemsPerColumn={5} containerClassName='gap-8'>
+          {Object.entries(otherData).map(([key, value]) => (
+            <KVItem
+              variant='side'
+              key={key}
+              pair={{
+                key: Sanitizer.key(key, formKeyMappings),
+                value: Sanitizer.value(value)
+              }}
+            />
+          ))}
+        </KVList>
+        {applications && <FertilizerApplicationsList applications={applications} />}
+      </div>
     </section>
-  )
+  );
 }
+
 
 function ImagesSection({ images }: { images?: string[] | null }) {
+  if (!images || images.length === 0) {
+    return (
+      <section className='p-4 flex flex-col gap-2 border rounded-container'>
+        <div className="flex gap-2 items-center">
+          <Camera className="size-4" />
+          <h1 className="text-sm font-medium">Field Images</h1>
+        </div>
+        <p className="text-xs text-muted-foreground">No images available</p>
+      </section>
+    );
+  }
 
-  // should say unavailable if no images found
+  const labels = ["Front View", "Right View", "Left View", "Back View", "Close up",];
+
+  const slots = Array.from({ length: 5 }, (_, index) => ({
+    url: index < images.length ? images[index] : null,
+    label: labels[index],
+  }));
 
   return (
-    <section className='p-6 flex flex-col gap-4 border rounded-container '>
-      <div className="flex gap-2.5 items-center">
+    <section className='p-4 flex flex-col gap-4 border rounded-container'>
+      <div className="flex gap-2 items-center">
         <Camera className="size-4" />
-        <h1 className="text-base">Field Images</h1>
+        <h1 className="text-sm font-medium">Field Images</h1>
       </div>
-      <div className='flex flex-row gap-4'>
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className='flex-1 aspect-square' />
+
+      <div className='grid grid-cols-5 gap-4'>
+        {slots.map(({ url, label }, index) => (
+          <div key={index} className='flex flex-col gap-4 items-center'>
+            {url ? (
+              <img
+                src={url}
+                alt={label}
+                className="w-full aspect-square object-cover rounded-sm"
+                crossOrigin="anonymous"
+              />
+            ) : (
+              <div className="w-full aspect-square rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">
+                No image
+              </div>
+            )}
+            <Label className='text-muted-foreground text-xs'>{label}</Label>
+          </div>
         ))}
       </div>
     </section>
-  )
+  );
 }
 
 
-function VerificationSection() {
+interface VerificationSectionProps {
+  data: FormDataEntry;
+  onVerify: (params: { status: 'approved' | 'rejected'; remarks?: string }) => void;
+  isVerifying: boolean;
+}
+
+function VerificationSection({ data, onVerify, isVerifying }: VerificationSectionProps) {
+  const [remarks, setRemarks] = useState(data.activity.remarks || '');
+  const isPending = data.activity.verificationStatus === 'pending';
+
+  const handleVerify = (status: 'approved' | 'rejected') => {
+    onVerify({ status, remarks: remarks.trim() || undefined });
+  };
+
   return (
-    <section className='p-6 flex flex-col gap-6 border rounded-container '>
-      <div className="flex gap-2.5 items-center">
-        <SquareCheckBig className="size-4" />
-        <h1 className="text-base">Verification</h1>
+    <section className='p-6 flex flex-col gap-6 border rounded-container'>
+      <div className="flex gap-2.5 items-center justify-between">
+        <div className="flex gap-2.5 items-center">
+          <SquareCheckBig className="size-4" />
+          <h1 className="text-base">Verification</h1>
+        </div>
       </div>
+
       <div className="space-y-2">
-        <p className='text-sm text-muted-foreground'>Remarks (Optional)</p>
-        <Textarea className='resize-none min-h-40' placeholder='Add any comments or observations...' />
+        <p className='text-sm text-muted-foreground'>Remarks</p>
+        {isPending ? (
+          <Textarea
+            className='resize-none min-h-40'
+            placeholder='Add any comments or observations...'
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            disabled={isVerifying}
+          />
+        ) : (
+          <div className="p-4 bg-muted/10 rounded-md text-sm text-foreground whitespace-pre-wrap">
+            {data.activity.remarks || <span className="text-muted-foreground italic">No remarks provided</span>}
+          </div>
+        )}
       </div>
-      <div className='flex gap-8'>
-        <Button className='flex-1'>Approve</Button>
-        <Button variant="outline" className='flex-1'>Reject</Button>
-      </div>
+
+      {isPending && (
+        <div className='flex gap-8'>
+          <Button
+            className='flex-1'
+            onClick={() => handleVerify('approved')}
+            disabled={isVerifying}
+          >
+            {isVerifying ? 'Approving...' : 'Approve'}
+          </Button>
+          <Button
+            variant="outline"
+            className='flex-1'
+            onClick={() => handleVerify('rejected')}
+            disabled={isVerifying}
+          >
+            {isVerifying ? 'Rejecting...' : 'Reject'}
+          </Button>
+        </div>
+      )}
     </section>
-  )
+  );
 }

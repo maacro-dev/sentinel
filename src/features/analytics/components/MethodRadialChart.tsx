@@ -80,8 +80,8 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
       chartProps={{ centerLabel, ...RadialChartDefaults.chart }}
       insight={insightContent}
     >
-      <RadialBar dataKey="direct" fill="var(--color-humay)" {...RadialChartDefaults.bar} />
-      <RadialBar dataKey="transplant" fill="var(--color-humay-light)" {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="direct" fill="var(--color-humay)" isAnimationActive={true} {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="transplant" fill="var(--color-humay-light)" isAnimationActive={true} {...RadialChartDefaults.bar} />
     </RadialChart>
   );
 }

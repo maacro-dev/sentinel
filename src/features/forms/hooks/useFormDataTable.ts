@@ -12,5 +12,7 @@ export const useFormEntriesTable = (formType: FormType, seasonId?: number) => {
     columns: columns,
     getRowId: (row) => row.field.mfid,
   });
+
+  console.log(formData)
   return { table, isLoading, formType };
 };

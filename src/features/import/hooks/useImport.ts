@@ -154,6 +154,8 @@ export function useImport(initialDataset?: Form) {
       console.log('Single row to send example', JSON.stringify(dataToSend[0], null, 2));
     }
 
+    console.log(dataToSend)
+
     return importMutation.mutateAsync({ datasetType, data: dataToSend, fileName });
   };
 

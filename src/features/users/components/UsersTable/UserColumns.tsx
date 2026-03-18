@@ -2,16 +2,20 @@ import { ColumnDef } from "@tanstack/react-table";
 import { User } from "../../schemas";
 import { LastActiveCell } from "./cells/LastActive";
 import { RoleCell } from "./cells/Role";
-import { ViewActionCell } from "@/core/components/cells/ViewActionCell";
+import { UserViewActionCell } from "./UserViewActionCell";
 
 export const userTableColumns: ColumnDef<User, any>[] = [
   {
-    id: 'name',
-    accessorFn: (row) => row.first_name + ' ' + row.last_name,
-    header: "Name",
-    meta: { size: 'sm' }
+    accessorKey: 'first_name',
+    header: "First Name",
+    meta: { size: '3xs' }
   },
-  { accessorKey: 'email', header: 'Email', meta: { size: 'xs' } },
+  {
+    accessorKey: 'last_name',
+    header: "Last Name",
+    meta: { size: '3xs' }
+  },
+  { accessorKey: 'email', header: 'Email', meta: { size: 'sm' } },
   {
     accessorKey: 'role',
     header: 'Role',
@@ -27,7 +31,7 @@ export const userTableColumns: ColumnDef<User, any>[] = [
   {
     id: "actions",
     header: 'Actions',
-    cell: () => <ViewActionCell />,
+    cell: ({ row }) => <UserViewActionCell user={row.original} />,
     meta: { size: '2xs', textAlign: "center" }
   },
 ]

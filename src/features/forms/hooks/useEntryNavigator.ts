@@ -7,10 +7,10 @@ import { useShallow } from "zustand/react/shallow";
 
 // TODO: refactor this. sakit sa mata
 
-export function useFormDetailNavigator(formType?: FormType, mfid?: string) {
+export function useFormDetailNavigator(formType?: FormType, mfid?: string, seasonId?: number) {
   const navigate = useNavigate();
 
-  const { table: entriesTable, isLoading: isLoadingEntries } = useFormEntriesTable(formType as FormType);
+  const { table: entriesTable, isLoading: isLoadingEntries } = useFormEntriesTable(formType as FormType, seasonId);
   const { ids, currentIndex, formType: storedFormType, setIds, setCurrentIndex } = useTableStore(
     useShallow((s) => ({
       ids: s.ids,

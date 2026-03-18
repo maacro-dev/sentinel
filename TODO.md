@@ -2,6 +2,11 @@
 
 ## todo
 
+- approve / reject forms
+
+- images from storage
+
+
 - import
     - kung mag add sa mobile app sang farmer kag field to an imported data, it must be updated
     - check if row (form type, mfid, season) is already present, ignore make a warning

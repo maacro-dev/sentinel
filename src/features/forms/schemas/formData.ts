@@ -1,6 +1,11 @@
 import { Validator } from "@/core/utils/validator";
 import * as z from "zod/v4";
 
+const userInfoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.email(),
+});
 
 export const formDataEntryResponseSchema = z.object({
   mfid: z.string(),
@@ -18,8 +23,8 @@ export const formDataEntryResponseSchema = z.object({
     "monitoring-visit",
   ]),
   verification_status: z.enum(['pending', 'approved', 'rejected', 'unknown']),
-  collected_by: z.nullable(z.string()),
-  verified_by: z.nullable(z.string()),
+  collected_by: userInfoSchema.nullable(),
+  verified_by: userInfoSchema.nullable(),
   collected_at: z.iso.datetime({ offset: true }),
   verified_at: z.nullable(z.iso.datetime({ offset: true })),
   synced_at: z.nullable(z.iso.datetime({ offset: true })),
@@ -28,14 +33,16 @@ export const formDataEntryResponseSchema = z.object({
   municipality: z.string(),
   province: z.string(),
   remarks: z.string().optional().nullable(),
+  image_urls: z.array(z.string()).nullable(),
   form_data: z.record(z.string(), z.any()),
 });
 
+
 const collectionSchema = z.object({
   farmer: z.string(),
-  collectedBy: z.string(),
+  collectedBy: userInfoSchema,
   collectedAt: z.string(),
-  verifiedBy: z.string().nullable()
+  verifiedBy: userInfoSchema.nullable()
 });
 
 const fieldSchema = z.object({
@@ -53,10 +60,12 @@ const seasonSchema = z.object({
 });
 
 const activitySchema = z.object({
+  id: z.number(),
   type: z.string(),
   verificationStatus: z.string(),
   remarks: z.string(),
-  formData: z.any()
+  imageUrls: z.array(z.string()).nullable(),
+  formData: z.any(),
 });
 
 export const formDataEntrySchema = formDataEntryResponseSchema.transform((data) => ({
@@ -79,9 +88,11 @@ export const formDataEntrySchema = formDataEntryResponseSchema.transform((data) 
     syncedAt: data.synced_at
   } as Season,
   activity: {
+    id: data.id,
     type: data.activity_type,
     verificationStatus: data.verification_status,
     formData: data.form_data,
+    imageUrls: data.image_urls,
     remarks: data.remarks,
   } as Activity
 }));

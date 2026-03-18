@@ -14,6 +14,7 @@ export const Area = memo(({ axisKey }: { axisKey: string }) => {
       <PrimitiveArea
         {...TrendChartDefaults.area}
         dataKey={axisKey}
+        isAnimationActive={true}
       />
     </>
   )

@@ -24,13 +24,40 @@ export class Sanitizer {
       return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
     });
 
-    return titleCased.join(' ');
+    let result = titleCased.join(' ');
+    for (const [raw, val] of Object.entries(mappings)) {
+      if (!raw.includes(' ')) continue;
+      const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escaped}\\b`, 'gi');
+      result = result.replace(regex, val);
+    }
+
+    console.log(`Sanitizing ${key} to ${result}`)
+    return result;
   }
 
   public static value(value: any): string {
     if (value === null || value === undefined) {
       return 'N/A';
     }
+
+    if (typeof value === 'object') {
+      if (value.name && value.email) {
+        return `${value.name}`;
+      }
+      if (value.name) {
+        return value.name;
+      }
+      if (value.label || value.title) {
+        return value.label || value.title;
+      }
+      if (value.id && value.code) {
+        return `${value.code} (${value.id})`;
+      }
+      const str = JSON.stringify(value);
+      return str.length > 50 ? str.slice(0, 47) + '...' : str;
+    }
+
     if (typeof value === 'string') {
       const date = Date.parse(value);
       if (!isNaN(date)) {
@@ -42,7 +69,7 @@ export class Sanitizer {
       return Sanitizer.date(value);
     }
     if (Array.isArray(value)) {
-      return value.join(', ');
+      return value.map(v => Sanitizer.value(v)).join(', ');
     }
     return String(value);
   }
@@ -56,5 +83,5 @@ export class Sanitizer {
     }).format(dateObj);
   }
 
-  private constructor() {}
+  private constructor() { }
 }

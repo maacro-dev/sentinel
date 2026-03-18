@@ -32,6 +32,7 @@ export const Bar = memo(
         cursor={onClick ? "pointer" : "default"}
         activeBar={resolvedActiveBar}
         radius={radius}
+        isAnimationActive={true}
       >
         {defineBarColors(dataLength!, layout)}
         {renderBarCells(dataLength!)}

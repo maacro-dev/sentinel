@@ -105,6 +105,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string | null
+          details: Json | null
+          event_type: string
+          id: number
+          new_data: Json | null
+          occurred_at: string
+          old_data: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          details?: Json | null
+          event_type: string
+          id?: number
+          new_data?: Json | null
+          occurred_at?: string
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: number
+          new_data?: Json | null
+          occurred_at?: string
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      audit_errors: {
+        Row: {
+          error_text: string | null
+          function_name: string | null
+          id: number
+          occurred_at: string
+          payload: Json | null
+        }
+        Insert: {
+          error_text?: string | null
+          function_name?: string | null
+          id?: number
+          occurred_at?: string
+          payload?: Json | null
+        }
+        Update: {
+          error_text?: string | null
+          function_name?: string | null
+          id?: number
+          occurred_at?: string
+          payload?: Json | null
+        }
+        Relationships: []
+      }
       barangays: {
         Row: {
           city_municipality_id: number
@@ -831,6 +894,42 @@ export type Database = {
         }
         Relationships: []
       }
+      system_audit_logs: {
+        Row: {
+          action: string | null
+          details: Json | null
+          event_type: string
+          id: number
+          occurred_at: string
+          record_id: string | null
+          table_name: string | null
+          target_user_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          details?: Json | null
+          event_type: string
+          id?: number
+          occurred_at?: string
+          record_id?: string | null
+          table_name?: string | null
+          target_user_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: number
+          occurred_at?: string
+          record_id?: string | null
+          table_name?: string | null
+          target_user_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string
@@ -863,6 +962,23 @@ export type Database = {
       }
     }
     Views: {
+      activity_logs_view: {
+        Row: {
+          action: string | null
+          details: Json | null
+          event_type: string | null
+          id: number | null
+          new_data: Json | null
+          occurred_at: string | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Relationships: []
+      }
       addresses: {
         Row: {
           barangay: string | null
@@ -884,6 +1000,7 @@ export type Database = {
           field_id: number | null
           form_data: Json | null
           id: number | null
+          image_urls: Json | null
           mfid: string | null
           municipality: string | null
           province: string | null
@@ -991,6 +1108,24 @@ export type Database = {
           province: string | null
           status: string | null
           used_at: string | null
+        }
+        Relationships: []
+      }
+      system_audit_logs_view: {
+        Row: {
+          action: string | null
+          details: Json | null
+          event_type: string | null
+          id: number | null
+          occurred_at: string | null
+          record_id: string | null
+          table_name: string | null
+          target_user_email: string | null
+          target_user_id: string | null
+          target_user_name: string | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
         }
         Relationships: []
       }
@@ -1102,6 +1237,7 @@ export type Database = {
       }
       parse_date: { Args: { date_str: string }; Returns: string }
       parse_timestamptz: { Args: { timestamptz_str: string }; Returns: string }
+      sync_auth_audit_entries: { Args: never; Returns: number }
     }
     Enums: {
       activity_type:

@@ -269,3 +269,4 @@ GRANT ALL privileges ON ALL tables IN SCHEMA public TO service_role;
 ALTER DEFAULT privileges IN SCHEMA public GRANT ALL ON tables TO service_role;
 
 GRANT EXECUTE ON ALL functions IN SCHEMA realtime TO service_role;
+

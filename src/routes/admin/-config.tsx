@@ -9,7 +9,7 @@ export const adminGroupConfig = createRouteConfig("admin", {
   role: "admin",
   label: "Admin",
   children: [
-    adminOverviewGroupConfig,
+    // adminOverviewGroupConfig,
     adminAccessControlGroupConfig,
     adminOperationsGroupConfig,
     adminConfigrationGroupConfig,

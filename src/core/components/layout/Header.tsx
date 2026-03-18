@@ -6,14 +6,18 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { SidebarTrigger } from "../ui/sidebar";
 import { CrumbDef } from "@/core/utils/breadcrumb";
 import { SeasonSelector } from "@/features/analytics/components/SeasonSelector";
+import { Role } from "@/features/users";
 
 interface LayoutHeaderProps extends ComponentProps<"header"> {
   breadcrumbs: Array<CrumbDef>;
+  role: Role;
 }
 
-export const LayoutHeader = memo(({ breadcrumbs, className, ...props }: LayoutHeaderProps) => {
+export const LayoutHeader = memo(({ breadcrumbs, className, role, ...props }: LayoutHeaderProps) => {
+
 
   const headerClasses = cn("h-16 sticky top-0 z-20 flex w-full shrink-0 items-center justify-between gap-2 px-4 py-4", "border-b border-border bg-white", className)
+
 
   return (
     <header className={headerClasses} {...props} >
@@ -23,7 +27,9 @@ export const LayoutHeader = memo(({ breadcrumbs, className, ...props }: LayoutHe
         <Breadcrumbs data={breadcrumbs} />
       </div>
       <div className="flex gap-4">
-        <SeasonSelector />
+        {role === 'data_manager' && (
+          <SeasonSelector />
+        )}
         <UserMenu />
       </div>
     </header>
@@ -33,6 +39,7 @@ export const LayoutHeader = memo(({ breadcrumbs, className, ...props }: LayoutHe
 
 export const Breadcrumbs = memo(({ data }: { data: Array<CrumbDef> }) => {
   const isLast = (index: number, length: number) => index === length - 1;
+
 
   return (
     <Breadcrumb>
@@ -50,7 +57,7 @@ export const Breadcrumbs = memo(({ data }: { data: Array<CrumbDef> }) => {
 
 export const Crumb = memo(({ crumb, isLast }: { crumb: CrumbDef, isLast: boolean }) => {
   const { label, isDynamic, navigatable } = crumb;
-  const params = isDynamic ? crumb.params : undefined;
+  // const params = isDynamic ? crumb.params : undefined;
   const url = crumb.url;
   const enabled = !isLast && (navigatable !== false);
 
@@ -58,7 +65,7 @@ export const Crumb = memo(({ crumb, isLast }: { crumb: CrumbDef, isLast: boolean
     <BreadcrumbItem>
       <BreadcrumbLink
         className={isLast ? "font-medium text-foreground" : "text-muted-foreground"}
-        to={url} params={params} enabled={enabled}
+        to={url} enabled={enabled}
       >
         {label}
       </BreadcrumbLink>

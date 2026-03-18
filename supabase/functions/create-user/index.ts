@@ -1,25 +1,7 @@
 import { getAdminAuthClient } from "@clients"
 import { preflight, response } from "@http"
 
-const EMAIL_API_URL = "https://api.resend.com/emails";
-const EMAIL_FROM = "sentinel@humayapp.com";
-const EMAIL_HEADERS = {
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
-};
 
-type PendingUser = {
-  role: string;
-  email: string;
-  password: string;
-  email_confirm: boolean;
-  user_metadata: {
-    first_name: string;
-    last_name: string;
-    role: string;
-    date_of_birth: string;
-  };
-};
 
 function generateTempPassword(length: number = 12): string {
   const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$&*_";
@@ -68,7 +50,7 @@ Deno.serve(async (req: Request) => {
       return response({ error: error?.message }, error?.status);
     }
 
-    const { resetData, resetError } = await supabase.auth.resetPasswordForEmail(email)
+    // const { resetData, resetError } = await supabase.auth.resetPasswordForEmail(email)
 
     return response({ success: true, message: "User created successfully. Email sent." }, 200);
 

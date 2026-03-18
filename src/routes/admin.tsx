@@ -3,7 +3,7 @@ import { Session } from "@/features/authentication";
 import { Layout } from "@/core/components/layout";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: async () => await Session.ensure({ role: "admin"}),
+  beforeLoad: async () => await Session.ensure({ role: "admin" }),
   component: RouteComponent,
 });
 

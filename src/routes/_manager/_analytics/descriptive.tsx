@@ -28,6 +28,8 @@ function RouteComponent() {
     return <PendingComponent />;
   }
 
+  console.log("fertilizerTypeSummary =", fertilizerTypeSummary)
+
   return (
     <PageContainer>
       <ProvinceYieldsBarChart data={provinceYields} />

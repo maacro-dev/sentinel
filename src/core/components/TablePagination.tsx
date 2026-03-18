@@ -40,3 +40,48 @@ export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps
     </Pagination>
   )
 }
+
+
+interface ManualPaginationProps {
+  page: number;
+  pageSize: number;
+  totalRows: number;
+  onPageChange: (newPage: number) => void;
+  onPageSizeChange?: (newSize: number) => void;
+  showSizeSelector?: boolean;
+}
+
+export function ManualPagination({
+  page,
+  pageSize,
+  totalRows,
+  onPageChange,
+  onPageSizeChange,
+  showSizeSelector = true,
+}: ManualPaginationProps) {
+  const totalPages = Math.ceil(totalRows / pageSize);
+
+  return (
+    <Pagination className="gap-2.5">
+      <div className="space-x-1.5">
+        <Pagination.Previous
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 0}
+        />
+        <Pagination.Next
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= totalPages - 1}
+        />
+      </div>
+      <Pagination.Input
+        current={page + 1}
+        total={totalPages}
+        navigateFn={(newPage) => onPageChange(newPage - 1)}
+      />
+      {showSizeSelector && onPageSizeChange && (
+        <Pagination.SizeSelector value={pageSize} onValueChange={onPageSizeChange} />
+      )}
+      <Pagination.TotalRows totalRows={totalRows} />
+    </Pagination>
+  );
+}

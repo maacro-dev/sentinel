@@ -43,3 +43,6 @@ CALL create_future_seasons();
 SELECT cron.schedule('create_future_seasons_daily', '0 0 * * *', $$ CALL create_future_seasons();
 
 $$);
+
+
+

@@ -63,7 +63,8 @@ export function UserFormDialog({
           <Plus /> Add New User
         </Button>
       </DialogTrigger>
-      <DialogContent className="font-jetbrains-mono">
+      {/* <DialogContent className="font-jetbrains-mono"> */}
+      <DialogContent>
         <Form form={form} onSubmit={submit}>
           <DialogHeader>
             <DialogTitle className="text-2xl">Add User</DialogTitle>

@@ -63,7 +63,7 @@ export const FORM_PROGRESS_CONFIG: SummaryConfig = {
     unit: "forms"
   },
   "completed_forms": {
-    title: "Completed Forms",
+    title: "Verified Forms",
     subtitle: "Total number of forms completed this season",
     unit: "forms"
   },

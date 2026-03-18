@@ -97,7 +97,6 @@ function MfidAddress({ data }: Pick<MfidCardProps, "data">) {
 function MfidTimestamp({ data }: Pick<MfidCardProps, "data">) {
   return (
     <div className='flex gap-8'>
-      {/* Note: Use a dedicated date formatting utility instead of Sanitizer.value */}
       <KVItem pair={{ key: "Created At", value: Sanitizer.value(data.created_at) }} />
       <KVItem pair={{ key: "Assigned At", value: Sanitizer.value(data.used_at) }} />
     </div>

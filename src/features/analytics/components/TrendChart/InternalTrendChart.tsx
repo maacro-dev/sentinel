@@ -45,7 +45,7 @@ export const InternalTrendChart = <T,>({
           color="var(--color-humay)"
         />
       }/>
-      <Area axisKey={axisKeys.Y}/>
+      <Area axisKey={axisKeys.Y} />
     </AreaChart>
   )
 }

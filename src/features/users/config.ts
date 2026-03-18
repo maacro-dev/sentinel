@@ -4,7 +4,7 @@ export const INCLUDE_ADMIN = false
 export const ROLE_METADATA: Record<string, {label: string, redirect: Path}> = {
   admin: {
     label: "Admin",
-    redirect: "/admin/dashboard",
+    redirect: "/admin/user-management",
   },
   data_manager: {
     label: "Data Manager",

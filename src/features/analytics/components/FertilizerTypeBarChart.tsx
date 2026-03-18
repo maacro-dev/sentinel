@@ -10,6 +10,7 @@ interface FertilizerTypeBarChartProps {
 }
 
 export const FertilizerTypeBarChart = memo(({ data }: FertilizerTypeBarChartProps) => {
+
   const chartData = data.ranking.map(item => ({
     type: item.type,
     count: item.count,
@@ -24,14 +25,6 @@ export const FertilizerTypeBarChart = memo(({ data }: FertilizerTypeBarChartProp
   }, {} as ChartConfig);
   chartConfig.count = { label: 'Applications' };
 
-  let domain: [number, number] | undefined;
-  const counts = chartData.map(d => d.count).filter(c => c > 0);
-  if (counts.length > 0) {
-    const minVal = Math.min(...counts);
-    const maxVal = Math.max(...counts);
-    const padding = (maxVal - minVal) * 0.1;
-    domain = [Math.max(0, minVal - padding), maxVal + padding];
-  }
 
   return (
     <BarChart
@@ -47,10 +40,6 @@ export const FertilizerTypeBarChart = memo(({ data }: FertilizerTypeBarChartProp
         X: {
           interval: 0,
           tick: ({ x, y, payload }: TickProps) => <DefaultTicks x={x} y={y} payload={payload} />,
-        },
-        Y: {
-          tickFormatter: (value: number) => value.toString(),
-          domain,
         },
       }}
       cardClass="h-full min-h-120"

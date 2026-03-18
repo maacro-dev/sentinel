@@ -21,7 +21,6 @@ const features = () => import("motion/react").then(m => m.domAnimation);
 function InnerApp() {
   return (
     <>
-      <RealtimeListener />
       <LazyMotion features={features} strict>
         <RouterProvider router={router} />
       </LazyMotion>

@@ -1,4 +1,5 @@
 import { Layout } from "@/core/components/layout";
+import { ManagerRealtimeListener } from "@/core/supabase/realtime";
 import { analyticsSeasonSearchSchema } from "@/features/analytics/schemas/search.schema";
 import { Session } from "@/features/authentication";
 import { Outlet, createFileRoute, retainSearchParams } from "@tanstack/react-router";
@@ -14,8 +15,12 @@ export const Route = createFileRoute("/_manager")({
 });
 
 function RouteComponent() {
+
+  const { seasonId } = Route.useSearch()
+
   return (
     <Layout role="data_manager">
+      <ManagerRealtimeListener seasonId={seasonId ?? 0}/>
       <Outlet />
     </Layout>
   );

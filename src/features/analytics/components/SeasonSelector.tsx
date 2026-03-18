@@ -14,7 +14,6 @@ export const SeasonSelector = memo(() => {
     navigate({ to: ".", search: () => ({ seasonId: Number(value) }) });
   };
 
-
   return (
     <div className="flex items-center gap-4">
       <span className="flex items-center text-xs lt:text-3xs dt:text-2xs hd:text-xs text-primary font-medium">

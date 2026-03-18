@@ -18,12 +18,11 @@ export const Layout = ({ role, children, ...props }: LayoutProps) => {
   const sidebarData = useSidebarData({ role });
 
   return (
-    <Motion motion={ DEFAULT_FADE_UP }>
+    <Motion motion={DEFAULT_FADE_UP}>
       <SidebarProvider {...props}>
-        <LayoutSidebar data={sidebarData}/>
+        <LayoutSidebar data={sidebarData} />
         <SidebarInset className="size-full h-screen min-w-0 flex flex-col md:pl-0 shadow-none!">
-
-          <LayoutHeader breadcrumbs={breadcrumbs} />
+          <LayoutHeader breadcrumbs={breadcrumbs} role={role} />
           <div id="layout-parent" className="size-full min-h-0 min-w-0 flex-1 flex gap-4">
             {children}
           </div>

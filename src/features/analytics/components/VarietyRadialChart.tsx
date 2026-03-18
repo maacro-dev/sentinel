@@ -105,9 +105,9 @@ export function VarietyRadialChart({ summary }: VarietyRadialChartProps) {
       }}
       insight={insightContent}
     >
-      <RadialBar dataKey="psb" fill="var(--color-psb)" {...RadialChartDefaults.bar} />
-      <RadialBar dataKey="other" fill="var(--color-other)" {...RadialChartDefaults.bar} />
-      <RadialBar dataKey="nsic" fill="var(--color-nsic)" {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="psb" fill="var(--color-psb)" isAnimationActive={true} {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="other" fill="var(--color-other)" isAnimationActive={true} {...RadialChartDefaults.bar} />
+      <RadialBar dataKey="nsic" fill="var(--color-nsic)" isAnimationActive={true} {...RadialChartDefaults.bar} />
     </RadialChart>
   );
 }
