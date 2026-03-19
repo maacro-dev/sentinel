@@ -180,6 +180,16 @@ CREATE POLICY "Allow authenticated to insert audit errors" ON audit_errors AS pe
 CREATE POLICY "Allow authenticated to update audit errors" ON audit_errors AS permissive
     FOR UPDATE TO authenticated USING (TRUE);
 
+-- storage start --
+
+CREATE POLICY "allow authenticated uploads" ON storage.objects
+    FOR INSERT TO authenticated WITH CHECK (bucket_id = 'form-images');
+
+CREATE POLICY "allow authenticated reads" ON storage.objects
+    FOR SELECT TO authenticated USING (bucket_id = 'form-images');
+
+-- storage end --
+
 GRANT SELECT ON field_details TO authenticated;
 
 GRANT SELECT ON user_details TO authenticated;
