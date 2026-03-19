@@ -118,15 +118,11 @@ begin
         where fa.season_id = curr.id;
     end if;
 
-    -- Yield per hectare (tons/ha)
-    current_yield := case when current_total_area > 0 then
-        round((current_total_yield / current_total_area) / 1000, 2)
-    else 0 end;
-    previous_yield := case when previous_total_area > 0 then
-        round((previous_total_yield / previous_total_area) / 1000, 2)
-    else 0 end;
+    -- yield per hectare (tons/ha)
+    current_yield := case when current_total_area > 0 then round((current_total_yield / current_total_area) / 1000, 2) else 0 end;
+    previous_yield := case when previous_total_area > 0 then round((previous_total_yield / previous_total_area) / 1000, 2) else 0 end;
 
-    -- Data completeness (unchanged)
+    -- data completeness (unchanged)
     if has_previous then
         select coalesce(round((sum(
             case when fa.season_id = curr.id

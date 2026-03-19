@@ -2,7 +2,7 @@ import { memo, JSX } from "react";
 import { ChartConfig, ChartContainer } from "@/core/components/ui/chart";
 import { chartContainerDefaults } from "../../config";
 import { ChartHeader, AxisKeys, AxisOptions } from "../../types";
-import { ChartCard } from "../ChartCard";
+import { ChartCard, ChartCardProps } from "../ChartCard";
 import { InternalBarChart } from "./InternalBarChart";
 import { cn } from "@/core/utils/style";
 import { Global } from "@/core/config";
@@ -19,6 +19,7 @@ interface BarChartProps<T> {
   onBarClick?: (item: T) => void;
   activeBar?: any;
   layout?: "vertical" | "horizontal";
+  options?: ChartCardProps['options'];
 }
 
 export const BarChart = memo(<T extends object>({
@@ -33,10 +34,11 @@ export const BarChart = memo(<T extends object>({
   onBarClick,
   activeBar,
   layout = "horizontal",
+  options,
 }: BarChartProps<T>) => {
 
   return (
-    <ChartCard header={header} className={cardClass}>
+    <ChartCard header={header} className={cardClass} options={options}>
       {isEmpty ? (
         <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
           {Global.NO_DATA_MESSAGE}

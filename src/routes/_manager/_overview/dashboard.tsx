@@ -4,11 +4,10 @@ import { dashboardDataOptions } from "@/features/analytics/queries/options";
 import { StatCard } from "@/features/analytics/components/StatCard";
 import { Stat } from "@/features/analytics/types";
 import { DashboardSkeleton } from "@/features/dashboard/components/DashboardSkeleton";
-import { BarangayYieldRankChart } from "@/features/analytics/components/BarangayYieldRankChart";
-import { OverallYieldTrendChart } from "@/features/analytics/components/OverallYieldTrendChart";
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { ExpandableStatCard } from "@/features/analytics/components/ExpandableStatCard";
+import { BarangayYieldBarChart } from "@/features/analytics/components/BarangayYieldRankChart";
 
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
@@ -41,19 +40,12 @@ function RouteComponent() {
           />
         ))}
       </div>
-      <OverallYieldTrendChart data={trends} />
+      {/* <OverallYieldTrendChart data={trends} /> */}
       <div className="flex gap-4">
-        <BarangayYieldRankChart
-          ranking="top"
-          data={ranks.top}
-          title="Top 3 Barangays by Yield"
-          description="Barangays with the highest yield this season"
-        />
-        <BarangayYieldRankChart
-          ranking="bottom"
-          data={ranks.bottom}
-          title="Bottom 3 Barangays by Yield"
-          description="Barangays with the lowest yield this season"
+        <BarangayYieldBarChart
+          data={ranks}
+          title="Barangay Yield Summary"
+          description="Average yield per barangay"
         />
       </div>
     </PageContainer>

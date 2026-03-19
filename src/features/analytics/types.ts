@@ -1,6 +1,5 @@
 import type { Flatten, KeyPath } from "@/core/lib/types";
 import type { SeasonSummary } from "./schemas/seasonSummary";
-import type { BarangayYieldRanking } from "./schemas/barangayYield";
 import type { OverallYieldTrend } from "./schemas/trends/overallYield";
 import type { XAxisProps, YAxisProps } from "recharts";
 import type { TickItem } from "recharts/types/util/types";
@@ -9,6 +8,7 @@ import { CropMethodSummary } from "./schemas/summary/method";
 import { RiceVarietySummary } from "./schemas/summary/variety";
 import React from "react";
 import { FertilizerTypeSummary } from "./schemas/summary/fertilizer-type";
+import { BarangayYieldRanking } from "./schemas/barangayYield";
 
 export type TickProps = {
   x: number | string;

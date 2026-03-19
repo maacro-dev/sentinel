@@ -28,7 +28,7 @@ export const InternalBarChart = ({
 
   const baseMargins = BarChartDefaults.margins;
   const margins = isVertical
-    ? { ...baseMargins, left: 20, right: 80 }
+    ? { ...baseMargins, left: 60, right: 20 }
     : { ...baseMargins, bottom: 60, left: 40 };
 
   return (

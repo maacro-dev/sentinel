@@ -1,6 +1,4 @@
 
--- todo to clean
-
 
 create or replace function public.dashboard_barangay_yield_rankings(p_season_id int default null)
     returns jsonb
@@ -10,8 +8,8 @@ create or replace function public.dashboard_barangay_yield_rankings(p_season_id 
 as $$
 declare
     target_season_id int;
-    top_json jsonb;
-    bottom_json jsonb;
+    result jsonb;
+    overall_avg numeric;
 begin
     if p_season_id is null then
         select id into target_season_id
@@ -23,7 +21,7 @@ begin
     end if;
 
     if target_season_id is null then
-        return jsonb_build_object('top', '[]'::jsonb, 'bottom', '[]'::jsonb);
+        return jsonb_build_object('ranking', '[]'::jsonb, 'overallAverage', 0);
     end if;
 
     with harvest_agg as (
@@ -37,47 +35,35 @@ begin
         group by f.barangay_id
         having sum(hr.area_harvested_ha) > 0
     ),
-    barangay_ranking as (
-        select b.name as barangay,
-               cm.name as municipality,
-               p.name as province,
-               (ha.total_kg / ha.total_area / 1000)::numeric(10,2) as avg_yield_t_per_ha,
-               rank() over (order by (ha.total_kg / ha.total_area) desc) as yield_rank
+    ranking as (
+        select
+            b.name as barangay,
+            cm.name as municipality,
+            p.name as province,
+            (ha.total_kg / ha.total_area / 1000)::numeric(10,2) as avg_yield_t_per_ha
         from harvest_agg ha
         join public.barangays b on b.id = ha.barangay_id
         join public.cities_municipalities cm on cm.id = b.city_municipality_id
         join public.provinces p on p.id = cm.province_id
     )
-    select into top_json, bottom_json
+    select
         coalesce(
             (select jsonb_agg(
                 jsonb_build_object(
                     'barangay', barangay,
-                    'province', province,
                     'municipality', municipality,
-                    'avg_yield_t_per_ha', avg_yield_t_per_ha,
-                    'rank', yield_rank
-                )
-             ) from barangay_ranking where yield_rank <= 3),
+                    'province', province,
+                    'avg_yield_t_per_ha', avg_yield_t_per_ha
+                ) order by avg_yield_t_per_ha desc
+            ) from ranking),
             '[]'::jsonb
         ),
         coalesce(
-            (select jsonb_agg(
-                jsonb_build_object(
-                    'barangay', barangay,
-                    'province', province,
-                    'municipality', municipality,
-                    'avg_yield_t_per_ha', avg_yield_t_per_ha,
-                    'rank', yield_rank
-                )
-             ) from (
-                 select *,
-                        rank() over (order by avg_yield_t_per_ha asc) as reverse_rank
-                 from barangay_ranking
-             ) r where reverse_rank <= 3),
-            '[]'::jsonb
-        );
+            (select sum(total_kg) / sum(total_area) / 1000 from harvest_agg),
+            0
+        )
+    into result, overall_avg;
 
-    return jsonb_build_object('top', top_json, 'bottom', bottom_json);
+    return jsonb_build_object('ranking', result, 'overallAverage', overall_avg);
 end;
 $$;

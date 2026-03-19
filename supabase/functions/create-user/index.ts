@@ -53,6 +53,7 @@ export function preflight() {
 Deno.serve(async (req: Request) => {
   try {
 
+
     if (req.method === "OPTIONS") {
       return preflight();
     }

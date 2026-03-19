@@ -85,6 +85,7 @@ export function UsersTable({ includeAdmin }: { includeAdmin: boolean }) {
         user={selectedUser}
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
+        onUserUpdated={(updatedUser) => setSelectedUser(updatedUser)}
       />
     </UserDetailsContext.Provider>
   )

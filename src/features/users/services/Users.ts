@@ -3,7 +3,7 @@ import { UserFormInput } from "../schemas";
 import { parseUserArray } from "../schemas/user";
 
 export class Users {
-  private constructor() {}
+  private constructor() { }
 
   static async getAll({ includeAdmin }: { includeAdmin: boolean }) {
     const supabase = await getSupabase();
@@ -36,4 +36,21 @@ export class Users {
 
     return data;
   }
+
+  public static async update(userId: string, updates: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    role?: string;
+    password?: string;
+  }) {
+    const supabase = await getSupabase();
+    const { data, error } = await supabase.functions.invoke("update-user", {
+      body: { user_id: userId, ...updates },
+    });
+    if (error) throw error;
+    return data;
+  }
 }
+
+

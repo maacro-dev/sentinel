@@ -54,8 +54,8 @@ export function YieldByLocationView({ data, level }: { data: YieldByLocationData
     <div className='flex flex-col gap-4'>
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
         <StatCardMinimal
-          title='Average Yield'
-          subtitle='TBD'
+          title='Average  Yield (Provincial Mean)'
+          subtitle='Computed from province-level averages'
           current_value={Number(avg.toFixed(2))}
           unit='t/ha'
         />

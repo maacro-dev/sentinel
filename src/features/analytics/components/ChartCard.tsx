@@ -3,7 +3,7 @@ import { ChartConfig } from "@/core/components/ui/chart";
 import { memo, ReactNode } from "react";
 import { ChartHeader } from "../types";
 
-interface ChartCardProps extends React.ComponentProps<typeof Card> {
+export interface ChartCardProps extends React.ComponentProps<typeof Card> {
   header: ChartHeader;
   options?: {
     enabled: boolean;
