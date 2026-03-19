@@ -41,11 +41,11 @@ create type activity_type as enum(
     'field-data',
     'cultural-management',
     'nutrient-management',
-    'crop_cut',
+    -- 'crop_cut',
+    -- 'rice-non-rice',
     'production',
     'monitoring-visit',
-    'damage-assessment',
-    'rice-non-rice'
+    'damage-assessment'
 );
 
 create type harvesting_method as enum(

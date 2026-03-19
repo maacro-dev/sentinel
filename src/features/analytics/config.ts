@@ -40,7 +40,7 @@ export const DASHBOARD_SUMMARY_CONFIG: SummaryConfig = {
     unit: "fields",
   },
   data_completeness: {
-    title: "Data Completeness",
+    title: "Approved Forms",
     subtitle: "Percentage of fields with data",
     unit: "%",
   },
@@ -76,5 +76,10 @@ export const FORM_PROGRESS_CONFIG: SummaryConfig = {
     title: "Rejected Forms",
     subtitle: "Total number of forms rejected this season",
     unit: "forms"
-  }
-}
+  },
+  unknown_forms: {
+    title: 'Imported',
+    subtitle: "Total number of forms imported this season",
+    unit: "forms"
+  },
+} as const

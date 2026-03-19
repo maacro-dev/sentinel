@@ -52,17 +52,15 @@ export class Analytics {
 
   public static async getFormCountSummary(seasonId?: number) {
     const client = await this._client;
-
-    const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
+    const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId;
 
     const { data, error } = await client.rpc('summary_form_count', { p_season_id: sid });
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
-    const formCountSummary = parseFormCountSummary(data);
-    return formCountSummary;
+    console.log(data)
+
+    return parseFormCountSummary(data);
   }
 
   public static async getDataCollectionTrend(seasonId?: number) {

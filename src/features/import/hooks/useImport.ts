@@ -17,6 +17,7 @@ import { validateFileCompatibility, validateRow } from "../util/validate";
 export function useImport(initialDataset?: Form) {
   const { notifyLoading, notifySuccess, notifyError } = useToast();
 
+
   const [datasetType, setDatasetType] = useState<Form | null>(initialDataset || null);
   const [rawData, setRawData] = useState<ImportRow[]>([]);
   const [parsedData, setParsedData] = useState<ImportRow[]>([]);

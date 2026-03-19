@@ -7,7 +7,9 @@ as $$
 declare
     target_season_id int;
     season_info jsonb;
-    counts_record record;
+    result jsonb;
+    form_types text[];
+    statuses text[];
 begin
     -- Determine target season
     if p_season_id is null then
@@ -20,9 +22,25 @@ begin
     end if;
 
     if target_season_id is null then
-        return jsonb_build_object('season', null, 'data', '[]'::jsonb);
+        return jsonb_build_object('season', null, 'data', '{}'::jsonb);
     end if;
 
+    -- Get all activity_type enum values (exact labels)
+    select array_agg(enumlabel order by enumlabel)
+    into form_types
+    from pg_enum
+    where enumtypid = 'public.activity_type'::regtype;
+
+    -- Get all verification_status enum values
+    select array_agg(enumlabel order by enumlabel)
+    into statuses
+    from pg_enum
+    where enumtypid = 'public.verification_status'::regtype;
+
+    -- Add 'unknown' for NULL statuses
+    statuses := statuses || ARRAY['unknown'];
+
+    -- Fetch season metadata
     select jsonb_build_object(
         'start_date', s.start_date,
         'end_date', s.end_date,
@@ -32,27 +50,43 @@ begin
     from public.seasons s
     where s.id = target_season_id;
 
-    select
-        coalesce(count(*) filter (where activity_type = 'field-data'), 0) as field_plannings_count,
-        coalesce(count(*) filter (where activity_type = 'cultural-management'), 0) as crop_establishments_count,
-        coalesce(count(*) filter (where activity_type = 'nutrient-management'), 0) as fertilization_records_count,
-        coalesce(count(*) filter (where activity_type = 'production'), 0) as harvest_records_count,
-        coalesce(count(*) filter (where activity_type = 'damage-assessment'), 0) as damage_assessments_count,
-        coalesce(count(*) filter (where activity_type = 'monitoring-visit'), 0) as monitoring_visits_count
-    into counts_record
-    from public.field_activity_details  -- assuming this view/table has a season_id column
-    where season_id = target_season_id;
-
-    return jsonb_build_object(
+    -- Generate all combinations and aggregate counts
+    with combinations as (
+        select
+            f as form,
+            s as status
+        from unnest(form_types) f(form)
+        cross join unnest(statuses) s(status)
+    ),
+    actual_counts as (
+        select
+            activity_type::text as form,
+            coalesce(verification_status::text, 'unknown') as status,
+            count(*) as count
+        from public.field_activity_details
+        where season_id = target_season_id
+        group by activity_type, verification_status
+    ),
+    full_data as (
+        select
+            c.form,
+            c.status,
+            coalesce(ac.count, 0) as count
+        from combinations c
+        left join actual_counts ac on c.form = ac.form and c.status = ac.status
+    ),
+    per_form as (
+        select
+            form,
+            jsonb_object_agg(status, count) as status_counts
+        from full_data
+        group by form
+    )
+    select jsonb_build_object(
         'season', season_info,
-        'data', jsonb_build_array(
-            jsonb_build_object('form', 'field_plannings', 'count', counts_record.field_plannings_count),
-            jsonb_build_object('form', 'crop_establishments', 'count', counts_record.crop_establishments_count),
-            jsonb_build_object('form', 'fertilization_records', 'count', counts_record.fertilization_records_count),
-            jsonb_build_object('form', 'harvest_records', 'count', counts_record.harvest_records_count),
-            jsonb_build_object('form', 'damage_assessments', 'count', counts_record.damage_assessments_count),
-            jsonb_build_object('form', 'monitoring_visits', 'count', counts_record.monitoring_visits_count)
-        )
-    );
+        'data', (select jsonb_object_agg(form, status_counts) from per_form)
+    ) into result;
+
+    return result;
 end;
 $$;

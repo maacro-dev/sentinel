@@ -32,23 +32,18 @@ interface ComparativeToolbarProps {
   view: ComparativeView;
   onViewChange: (view: ComparativeView) => void;
 
-  // Location filters
   location: LocationFilters;
   onLocationChange: (key: keyof LocationFilters, value: string) => void;
 
-  // Available location options (from hooks)
   provinces: Array<{ value: string; label: string }>;
   municipalities: Array<{ value: string; label: string }>;
   barangays: Array<{ value: string; label: string }>;
 
-  // More filters
   moreFilters: MoreFilters;
   onMoreFiltersChange: (key: keyof MoreFilters, value: string[]) => void;
 
-  // Reset
   onResetAll: () => void;
 
-  // Loading states for location dropdowns
   isLoadingProvinces?: boolean;
   isLoadingMunicipalities?: boolean;
   isLoadingBarangays?: boolean;

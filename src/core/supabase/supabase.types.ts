@@ -1114,6 +1114,7 @@ export type Database = {
         Args: { p_municity: string; p_province: string }
         Returns: string
       }
+      get_available_locations: { Args: { p_season_id?: number }; Returns: Json }
       handle_mfid: {
         Args: {
           p_auto_create_mfid?: boolean
@@ -1200,11 +1201,9 @@ export type Database = {
         | "field-data"
         | "cultural-management"
         | "nutrient-management"
-        | "crop_cut"
         | "production"
         | "monitoring-visit"
         | "damage-assessment"
-        | "rice-non-rice"
       gender: "male" | "female" | "other"
       harvesting_method: "Manual" | "Mechanical" | "Other"
       irrigation_supply:
@@ -1351,11 +1350,9 @@ export const Constants = {
         "field-data",
         "cultural-management",
         "nutrient-management",
-        "crop_cut",
         "production",
         "monitoring-visit",
         "damage-assessment",
-        "rice-non-rice",
       ],
       gender: ["male", "female", "other"],
       harvesting_method: ["Manual", "Mechanical", "Other"],

@@ -52,12 +52,19 @@ function RouteComponent() {
       await importFn(parsedData, fileName);
       setStep('success');
 
-      queryClient.invalidateQueries({ queryKey: ['form-data'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
-      queryClient.invalidateQueries({ queryKey: ['form-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['data-collection-trend'] });
-      queryClient.invalidateQueries({ queryKey: ['form-count-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['descriptive-analytics-data'] });
+
+      queryClient.invalidateQueries({ queryKey: ['form-data'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-data'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['form-summary'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['data-collection-trend'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['form-count-summary'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['descriptive-analytics-data'], refetchType: "all" });
+
+      queryClient.invalidateQueries({ queryKey: ['yield-analytics'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['yield-by-method'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['yield-by-variety'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['damage-by-location'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['damage-by-cause'], refetchType: "all" });
     } catch (err) {
       console.error("error importing", fileName, "-", err)
     }

@@ -7,15 +7,11 @@ import { Outlet, createFileRoute, redirect, retainSearchParams } from "@tanstack
 import { zodValidator } from "@tanstack/zod-adapter"
 
 export const Route = createFileRoute("/_manager")({
-  beforeLoad: async () => await Session.ensure({ role: "data_manager" }),
-  validateSearch: zodValidator(analyticsSeasonSearchSchema),
-  search: {
-    middlewares: [retainSearchParams(['seasonId'])]
-  },
-  loader: async ({ location }) => {
+  beforeLoad: async ({ location }) => {
+    await Session.ensure({ role: "data_manager" })
+
     const search = location.search as Record<string, unknown>;
     if (search.seasonId !== undefined) return;
-
     const latest = await Seasons.getCurrent();
     if (latest) {
       const newSearch = { ...search, seasonId: latest };
@@ -25,6 +21,10 @@ export const Route = createFileRoute("/_manager")({
         replace: true,
       });
     }
+  },
+  validateSearch: zodValidator(analyticsSeasonSearchSchema),
+  search: {
+    middlewares: [retainSearchParams(['seasonId'])]
   },
   component: RouteComponent,
 });

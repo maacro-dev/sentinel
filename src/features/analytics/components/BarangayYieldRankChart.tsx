@@ -11,7 +11,7 @@ interface BarangayYieldBarChartProps {
   description: string;
 }
 
-export const BarangayYieldBarChart = memo(({ data, title, description }: BarangayYieldBarChartProps) => {
+export const BarangayYieldBarChart = memo<BarangayYieldBarChartProps>(({ data, title, description }) => {
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
   const { ranking, overallAverage } = data;
@@ -25,7 +25,7 @@ export const BarangayYieldBarChart = memo(({ data, title, description }: Baranga
       }
     });
     return sorted.slice(0, 5).map(item => ({
-      location: `${item.barangay}, ${item.municipality}`,
+      location: `${item.barangay}, ${item.municipality} ${item.province}`,
       yield: item.avg_yield_t_per_ha,
     }));
   }, [ranking, sortOrder]);
@@ -87,11 +87,11 @@ export const BarangayYieldBarChart = memo(({ data, title, description }: Baranga
           },
           Y: {
             tickFormatter: (value: string) => {
-              return value.length > 30 ? value.slice(0, 18) + '…' : value;
+              return value.length > 50 ? value.slice(0, 18) + '…' : value;
             },
           },
         }}
-        cardClass="min-h-110"
+        cardClass="min-h-120"
       />
 
       {insights && (

@@ -1,4 +1,4 @@
-import { ComponentProps, Fragment, memo } from "react";
+import { ComponentProps, Fragment, memo, useState } from "react";
 import { Separator } from "@/core/components/ui/separator";
 import { cn } from "@/core/utils/style";
 import { UserMenu } from "../UserMenu";
@@ -7,6 +7,13 @@ import { SidebarTrigger } from "../ui/sidebar";
 import { CrumbDef } from "@/core/utils/breadcrumb";
 import { SeasonSelector } from "@/features/analytics/components/SeasonSelector";
 import { Role } from "@/features/users";
+import { Button } from "../ui/button";
+import { Download } from "lucide-react";
+import { useSearch } from "@tanstack/react-router";
+import { useSessionStore } from "@/features/authentication/store";
+import { generateFullReport } from "@/features/reports/report";
+import { Spinner } from "../ui/spinner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface LayoutHeaderProps extends ComponentProps<"header"> {
   breadcrumbs: Array<CrumbDef>;
@@ -15,9 +22,27 @@ interface LayoutHeaderProps extends ComponentProps<"header"> {
 
 export const LayoutHeader = memo(({ breadcrumbs, className, role, ...props }: LayoutHeaderProps) => {
 
+  const { seasonId } = useSearch({ strict: false }) as { seasonId?: number };
+  const user = useSessionStore((state) => state.user);
+  const [exporting, setExporting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleExport = async () => {
+    if (!seasonId) {
+      alert('No season selected');
+      return;
+    }
+    setExporting(true);
+    try {
+      await generateFullReport(seasonId, queryClient, user?.email || 'Unknown');
+    } catch (err) {
+      console.error('Export failed', err);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const headerClasses = cn("h-16 sticky top-0 z-20 flex w-full shrink-0 items-center justify-between gap-2 px-4 py-4", "border-b border-border bg-white", className)
-
 
   return (
     <header className={headerClasses} {...props} >
@@ -28,7 +53,12 @@ export const LayoutHeader = memo(({ breadcrumbs, className, role, ...props }: La
       </div>
       <div className="flex gap-4">
         {role === 'data_manager' && (
-          <SeasonSelector />
+          <>
+            <SeasonSelector />
+            <Button variant="ghost" className="shadow-xs" onClick={handleExport} disabled={exporting}>
+              {exporting ? <Spinner className="size-4" /> : <Download className="size-4" />}
+            </Button>
+          </>
         )}
         <UserMenu />
       </div>

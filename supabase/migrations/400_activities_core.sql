@@ -28,7 +28,7 @@ create index idx_fa_cultural_management_id on field_activities(id) where activit
 
 create index idx_fa_nutrient_management_id on field_activities(id) where activity_type = 'nutrient-management';
 
-create index idx_fa_crop_cut_id on field_activities(id) where activity_type = 'crop_cut';
+-- create index idx_fa_crop_cut_id on field_activities(id) where activity_type = 'crop_cut';
 
 create index idx_fa_production_id on field_activities(id) where activity_type = 'production';
 

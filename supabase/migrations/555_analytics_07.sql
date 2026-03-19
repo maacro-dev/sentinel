@@ -283,13 +283,13 @@ begin
             cm.name as municipality_name,
             b.id as barangay_id,
             b.name as barangay_name
-        from public.provinces p
-        left join public.addresses a on a.province_id = p.id
-        left join public.cities_municipalities cm on cm.id = a.city_municipality_id
-        left join public.barangays b on b.id = a.barangay_id
-        left join public.fields f on f.barangay_id = b.id
-        left join public.field_activities fa on fa.field_id = f.id
-        left join public.harvest_records hr on hr.id = fa.id
+        from public.field_activities fa
+        join public.harvest_records hr on hr.id = fa.id
+        join public.fields f on fa.field_id = f.id
+        join public.addresses a on f.barangay_id = a.barangay_id
+        join public.provinces p on a.province_id = p.id
+        join public.cities_municipalities cm on a.city_municipality_id = cm.id
+        join public.barangays b on a.barangay_id = b.id
         left join public.crop_establishments ce on ce.id = (
             select id from public.field_activities
             where field_id = fa.field_id
@@ -298,9 +298,6 @@ begin
             limit 1
         )
         where (p_season_id is null or fa.season_id = p_season_id)
-          and (p_province is null or p.name = p_province)
-          and (p_municipality is null or cm.name = p_municipality)
-          and (p_barangay is null or b.name = p_barangay)
           and (p_method is null or ce.actual_crop_establishment_method ilike '%' || p_method || '%')
           and (p_variety is null or
                case p_variety
@@ -310,12 +307,7 @@ begin
                    else true
                end)
     ),
-    overall as (
-        select coalesce(avg(yield_t / nullif(area_harvested_ha, 0)), 0) as overall_avg
-        from base
-        where area_harvested_ha > 0
-    ),
-    ranked as (
+    aggregated as (
         select
             case
                 when p_barangay is not null then barangay_name
@@ -327,31 +319,49 @@ begin
         from base
         where area_harvested_ha > 0
         group by location
+    ),
+    all_locations as (
+        select distinct
+            case
+                when p_barangay is not null then b.name
+                when p_municipality is not null then b.name
+                when p_province is not null then cm.name
+                else p.name
+            end as location
+        from public.provinces p
+        left join public.cities_municipalities cm on
+            (p_province is not null and cm.province_id = p.id) or
+            (p_province is null)  -- include all municipalities when no province filter
+        left join public.barangays b on
+            (p_municipality is not null and b.city_municipality_id = cm.id) or
+            (p_municipality is null)
+        where (p_province is null or p.name = p_province)
+          and (p_municipality is null or cm.name = p_municipality)
+          and (p_barangay is null or b.name = p_barangay)
+    ),
+    overall as (
+        select coalesce(avg(yield_t / nullif(area_harvested_ha, 0)), 0) as overall_avg
+        from base
+        where area_harvested_ha > 0
+    ),
+    final_ranking as (
+        select
+            al.location,
+            coalesce(ag.avg_yield_t_ha, 0) as avg_yield_t_ha
+        from all_locations al
+        left join aggregated ag on al.location = ag.location
     )
     select
         (select overall_avg from overall),
         (select jsonb_build_object('value', avg_yield_t_ha, 'location', location)
-         from ranked order by avg_yield_t_ha desc limit 1),
+         from final_ranking order by avg_yield_t_ha desc limit 1),
         (select jsonb_build_object('value', avg_yield_t_ha, 'location', location)
-         from ranked order by avg_yield_t_ha asc limit 1),
+         from final_ranking order by avg_yield_t_ha asc limit 1),
         (select jsonb_agg(
             jsonb_build_object('location', location, 'yield', avg_yield_t_ha)
-            order by
-                case
-                    when p_province is null and p_municipality is null and p_barangay is null then
-                        case location
-                            when 'Aklan' then 1
-                            when 'Antique' then 2
-                            when 'Capiz' then 3
-                            when 'Iloilo' then 4
-                            when 'Guimaras' then 5
-                            else 6
-                        end
-                    else 0  -- all locations get same priority, then sort by yield desc
-                end,
-                avg_yield_t_ha desc
+            order by avg_yield_t_ha desc
          )
-         from ranked)
+         from final_ranking)
     into avg_yield, highest, lowest, ranking;
 
     gap_percentage := case
@@ -787,6 +797,116 @@ begin
         'highest_affected_area', coalesce(v_highest_area, 'null'::jsonb),
         'ranking', coalesce(v_ranking, '[]'::jsonb)
     );
+
+    return result;
+end;
+$$;
+
+
+create or replace function public.get_available_locations(p_season_id int default null)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    target_season_id int;
+    result jsonb;
+begin
+    if p_season_id is null then
+        select id into target_season_id
+        from public.seasons
+        order by start_date desc
+        limit 1;
+    else
+        target_season_id := p_season_id;
+    end if;
+
+    with province_list as (
+        select distinct p.name
+        from public.field_activities fa
+        join public.fields f on fa.field_id = f.id
+        join public.addresses a on f.barangay_id = a.barangay_id
+        join public.provinces p on a.province_id = p.id
+        where fa.season_id = target_season_id
+    ),
+    municipality_list as (
+        select distinct cm.name, p.name as province_name
+        from public.field_activities fa
+        join public.fields f on fa.field_id = f.id
+        join public.addresses a on f.barangay_id = a.barangay_id
+        join public.cities_municipalities cm on a.city_municipality_id = cm.id
+        join public.provinces p on a.province_id = p.id
+        where fa.season_id = target_season_id
+    ),
+    barangay_list as (
+        select distinct b.name, cm.name as municipality_name
+        from public.field_activities fa
+        join public.fields f on fa.field_id = f.id
+        join public.addresses a on f.barangay_id = a.barangay_id
+        join public.barangays b on a.barangay_id = b.id
+        join public.cities_municipalities cm on a.city_municipality_id = cm.id
+        where fa.season_id = target_season_id
+    )
+    select jsonb_build_object(
+        'provinces', coalesce((select jsonb_agg(name order by name) from province_list), '[]'::jsonb),
+        'municipalities', coalesce((select jsonb_agg(jsonb_build_object('name', name, 'province', province_name) order by province_name, name) from municipality_list), '[]'::jsonb),
+        'barangays', coalesce((select jsonb_agg(jsonb_build_object('name', name, 'municipality', municipality_name) order by municipality_name, name) from barangay_list), '[]'::jsonb)
+    ) into result;
+
+    return result;
+end;
+$$;
+create or replace function public.get_available_locations(p_season_id int default null)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    target_season_id int;
+    result jsonb;
+begin
+    if p_season_id is null then
+        select id into target_season_id
+        from public.seasons
+        order by start_date desc
+        limit 1;
+    else
+        target_season_id := p_season_id;
+    end if;
+
+    with province_list as (
+        select distinct p.name
+        from public.field_activities fa
+        join public.fields f on fa.field_id = f.id
+        join public.addresses a on f.barangay_id = a.barangay_id
+        join public.provinces p on a.province_id = p.id
+        where fa.season_id = target_season_id
+    ),
+    municipality_list as (
+        select distinct cm.name, p.name as province_name
+        from public.field_activities fa
+        join public.fields f on fa.field_id = f.id
+        join public.addresses a on f.barangay_id = a.barangay_id
+        join public.cities_municipalities cm on a.city_municipality_id = cm.id
+        join public.provinces p on a.province_id = p.id
+        where fa.season_id = target_season_id
+    ),
+    barangay_list as (
+        select distinct b.name, cm.name as municipality_name
+        from public.field_activities fa
+        join public.fields f on fa.field_id = f.id
+        join public.addresses a on f.barangay_id = a.barangay_id
+        join public.barangays b on a.barangay_id = b.id
+        join public.cities_municipalities cm on a.city_municipality_id = cm.id
+        where fa.season_id = target_season_id
+    )
+    select jsonb_build_object(
+        'provinces', coalesce((select jsonb_agg(name order by name) from province_list), '[]'::jsonb),
+        'municipalities', coalesce((select jsonb_agg(jsonb_build_object('name', name, 'province', province_name) order by province_name, name) from municipality_list), '[]'::jsonb),
+        'barangays', coalesce((select jsonb_agg(jsonb_build_object('name', name, 'municipality', municipality_name) order by municipality_name, name) from barangay_list), '[]'::jsonb)
+    ) into result;
 
     return result;
 end;

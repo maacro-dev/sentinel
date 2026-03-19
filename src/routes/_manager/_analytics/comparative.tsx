@@ -7,11 +7,11 @@ import { useDamageAnalytics } from '@/features/analytics/hooks/useDamageAnalytic
 import { useYieldComparativeData } from '@/features/analytics/hooks/useYieldAnalytics';
 import { damageByCauseOptions, damageByLocationOptions, yieldByLocationOptions, yieldByMethodOptions, yieldByVarietyOptions } from '@/features/analytics/queries/options';
 import { ComparativeView } from '@/features/analytics/types';
+import { useAvailableLocations } from '@/features/mfid/hooks/useAvailableLocations';
 import { useLocationHierarchy } from '@/features/mfid/hooks/useLgu';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useMemo, useState } from 'react';
-
 
 export const Route = createFileRoute("/_manager/_analytics/comparative")({
   component: RouteComponent,
@@ -29,7 +29,6 @@ export const Route = createFileRoute("/_manager/_analytics/comparative")({
   head: () => ({ meta: [{ title: "Comparative Analytics | Humay" }] }),
 });
 
-
 function RouteComponent() {
   const { seasonId } = Route.useSearch()
 
@@ -43,13 +42,32 @@ function RouteComponent() {
     setMunicipality,
     setBarangay,
     resetLocation,
-    provinceOptions,
-    municipalityOptions,
-    barangayOptions,
-    loadingProvinces,
-    loadingMunicipalities,
-    loadingBarangays,
   } = useLocationHierarchy();
+
+  const { data: availableLocations, isLoading: locationsLoading } = useAvailableLocations(seasonId);
+
+  const provinceOptions = useMemo(() =>
+    availableLocations?.provinces.map(name => ({ value: name, label: name })) ?? [],
+    [availableLocations]
+  );
+
+  const municipalityOptions = useMemo(() => {
+    if (!availableLocations) return [];
+    let filtered = availableLocations.municipalities;
+    if (location.province) {
+      filtered = filtered.filter(m => m.province === location.province);
+    }
+    return filtered.map(m => ({ value: m.name, label: m.name }));
+  }, [availableLocations, location.province]);
+
+  const barangayOptions = useMemo(() => {
+    if (!availableLocations) return [];
+    let filtered = availableLocations.barangays;
+    if (location.municipality) {
+      filtered = filtered.filter(b => b.municipality === location.municipality);
+    }
+    return filtered.map(b => ({ value: b.name, label: b.name }));
+  }, [availableLocations, location.municipality]);
 
   const handleLocationChange = (key: keyof typeof location, value: string) => {
     if (key === 'province') setProvince(value);
@@ -117,13 +135,14 @@ function RouteComponent() {
       variety: variety || (moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined),
     };
 
+    console.log('Query key:', yieldByLocationOptions(params).queryKey);
+
     queryClient.prefetchQuery(yieldByLocationOptions(params));
     queryClient.prefetchQuery(yieldByMethodOptions(params));
     queryClient.prefetchQuery(yieldByVarietyOptions(params));
     queryClient.prefetchQuery(damageByLocationOptions(params));
     queryClient.prefetchQuery(damageByCauseOptions(params));
   }, [seasonId, location, moreFilters, queryClient]);
-
 
   const resetAll = () => {
     setView('yield-location');
@@ -174,9 +193,9 @@ function RouteComponent() {
         moreFilters={moreFilters}
         onMoreFiltersChange={handleMoreFiltersChange}
         onResetAll={resetAll}
-        isLoadingProvinces={loadingProvinces}
-        isLoadingMunicipalities={loadingMunicipalities}
-        isLoadingBarangays={loadingBarangays}
+        isLoadingProvinces={locationsLoading}
+        isLoadingMunicipalities={locationsLoading}
+        isLoadingBarangays={locationsLoading}
         prefetchLocationData={prefetchLocationData}
         prefetchMoreFilterData={prefetchWithFilters}
       />
@@ -189,7 +208,6 @@ function RouteComponent() {
     </PageContainer>
   );
 }
-
 
 function PendingComponent() {
   return (

@@ -70,7 +70,6 @@ export function YieldByVarietyView({ data }: { data: YieldVarietyData; }) {
     }));
   }, [groupedData, selectedGroupData]);
 
-  // Chart config
   const baseChartConfig: ChartConfig = {
     NSIC: { label: 'NSIC' },
     PSB: { label: 'PSB' },
