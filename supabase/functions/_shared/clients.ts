@@ -30,8 +30,6 @@ export function getClient() {
 
 
 export function getClientWithAuthorization(request) {
-
-
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY") ?? "",

@@ -1,6 +1,45 @@
+import { createClient } from "jsr:@supabase/supabase-js";
 
-import { getClient } from "@clients"
-import { preflight, response } from "@http"
+
+export function getClient() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SECRET_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    {
+      auth: {
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        persistSession: false
+      },
+    }
+  );
+}
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  "Access-Control-Max-Age": "86400",
+}
+
+const responseHeaders = {
+  "Content-Type": "application/json",
+}
+
+export function response(
+  body: object,
+  status = 200,
+) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, ...responseHeaders },
+  });
+}
+
+export function preflight() {
+  return new Response("ok", { headers: corsHeaders })
+}
+
 
 // - get the the initial 6 digits code from the `cities_municipalities` table in the `code` field
 // - the last 3 digits are just a counter (000..001..002)

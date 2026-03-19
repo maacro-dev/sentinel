@@ -34,36 +34,6 @@ begin
         coalesce((new.raw_user_meta_data ->> 'date_of_birth')::date, current_date))
     on conflict (id) do nothing;
 
-    -- begin
-    --     insert into public.system_audit_logs(
-    --         occurred_at,
-    --         user_id,
-    --         target_user_id,
-    --         event_type,
-    --         table_name,
-    --         record_id,
-    --         action,
-    --         details
-    --     )
-    --     values(
-    --         now(),
-    --         new.id,
-    --         new.id,
-    --         'user_created',
-    --         'users',
-    --         new.id::text,
-    --         'insert',
-    --         jsonb_build_object(
-    --             'source','auth.users',
-    --             'trigger','handle_new_user'
-    --         )
-    --     );
-    -- exception
-    --     when others then
-    --         -- logging must never break signup
-    --         null;
-    -- end;
-
     return new;
 end;
 $$;

@@ -1,16 +1,53 @@
-import { getAdminAuthClient } from "@clients"
-import { preflight, response } from "@http"
+import { createClient } from "jsr:@supabase/supabase-js";
 
+// function generateTempPassword(length: number = 12): string {
+//   const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$&*_";
+//   const array = new Uint8Array(length);
+//   crypto.getRandomValues(array);
+//   return Array.from(array)
+//     .map(byte => charset[byte % charset.length])
+//     .join('');
+// }
 
-
-function generateTempPassword(length: number = 12): string {
-  const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$&*_";
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  return Array.from(array)
-    .map(byte => charset[byte % charset.length])
-    .join('');
+export function getAdminAuthClient() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SECRET_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    {
+      auth: {
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: false
+      },
+    }
+  );
 }
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  "Access-Control-Max-Age": "86400",
+}
+
+const responseHeaders = {
+  "Content-Type": "application/json",
+}
+
+export function response(
+  body: object,
+  status = 200,
+) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, ...responseHeaders },
+  });
+}
+
+export function preflight() {
+  return new Response("ok", { headers: corsHeaders })
+}
+
 
 
 Deno.serve(async (req: Request) => {
@@ -25,10 +62,11 @@ Deno.serve(async (req: Request) => {
     const { first_name, last_name, email, role, date_of_birth } = body;
 
     const supabase = getAdminAuthClient();
-    const password = generateTempPassword();
+    // const password = generateTempPassword();
+    const password = "temporary";
 
     const pendingUser = {
-      role: role,
+      role: "authenticated",
       email: email,
       password: password,
       email_confirm: true,

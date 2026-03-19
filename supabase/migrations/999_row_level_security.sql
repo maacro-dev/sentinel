@@ -49,141 +49,100 @@ ALTER TABLE damage_assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE monitoring_visits ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow authenticated to read users" ON users AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read barangays" ON barangays AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read cities_municipalities" ON cities_municipalities AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read provinces" ON provinces AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read farmers" ON farmers AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert farmers" ON farmers AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update farmers" ON farmers AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read fields" ON fields AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert fields" ON fields AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update fields" ON fields AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read seasons" ON seasons AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read field_activities" ON field_activities AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert field_activities" ON field_activities AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update field_activities" ON field_activities AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read field_plannings" ON field_plannings AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert field_plannings" ON field_plannings AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update field_plannings" ON field_plannings AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read crop_establishments" ON crop_establishments AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert crop_establishments" ON crop_establishments AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update crop_establishments" ON crop_establishments AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read fertilization_records" ON fertilization_records AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert fertilization_records" ON fertilization_records AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update fertilization_records" ON fertilization_records AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read fertilizer_applications" ON fertilizer_applications AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert fertilizer_applications" ON fertilizer_applications AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update fertilizer_applications" ON fertilizer_applications AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read harvest_records" ON harvest_records AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert harvest_records" ON harvest_records AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update harvest_records" ON harvest_records AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read damage_assessments" ON damage_assessments AS permissive
-    FOR SELECT TO authenticated
-        USING (TRUE);
+    FOR SELECT TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to insert damage_assessments" ON damage_assessments AS permissive
-    FOR INSERT
-        TO authenticated
-        WITH CHECK (TRUE);
+    FOR INSERT TO authenticated WITH CHECK (TRUE);
 
 CREATE POLICY "Allow authenticated to update damage_assessments" ON damage_assessments AS permissive
-    FOR UPDATE TO authenticated
-        USING (TRUE);
+    FOR UPDATE TO authenticated USING (TRUE);
 
 CREATE POLICY "Allow authenticated to read monitoring visits" ON monitoring_visits AS permissive
     FOR SELECT TO authenticated USING (TRUE);
