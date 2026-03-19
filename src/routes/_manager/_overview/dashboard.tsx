@@ -13,7 +13,6 @@ import { ExpandableStatCard } from "@/features/analytics/components/ExpandableSt
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
-
     queryClient.ensureQueryData(dashboardDataOptions(seasonId));
     return { breadcrumb: createCrumbLoader({ label: "Dashboard" }) }
   },
