@@ -73,6 +73,16 @@ export class Seasons {
     return data
   }
 
+  public static async getSeasonsWithData(): Promise<SeasonRow[]> {
+    const client = await this._client;
+    const { data, error } = await client
+      .from('seasons_with_data')
+      .select('*')
+      .order('start_date', { ascending: false });
+    if (error) throw error;
+    return parseSeasonsTable(data);
+  }
+
 
   private static get _client() {
     return getSupabase();

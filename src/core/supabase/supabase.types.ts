@@ -479,6 +479,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "field_activities_verified_by_fkey"
             columns: ["verified_by"]
             isOneToOne: false
@@ -754,6 +761,13 @@ export type Database = {
             referencedRelation: "seasons"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "predicted_yields_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
         ]
       }
       provinces: {
@@ -948,6 +962,13 @@ export type Database = {
             referencedRelation: "seasons"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
         ]
       }
       field_details: {
@@ -984,6 +1005,16 @@ export type Database = {
           province: string | null
           status: string | null
           used_at: string | null
+        }
+        Relationships: []
+      }
+      seasons_with_data: {
+        Row: {
+          end_date: string | null
+          id: number | null
+          season_year: string | null
+          semester: Database["public"]["Enums"]["semester"] | null
+          start_date: string | null
         }
         Relationships: []
       }

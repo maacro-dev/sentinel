@@ -17,7 +17,6 @@ import { validateFileCompatibility, validateRow } from "../util/validate";
 export function useImport(initialDataset?: Form) {
   const { notifyLoading, notifySuccess, notifyError } = useToast();
 
-
   const [datasetType, setDatasetType] = useState<Form | null>(initialDataset || null);
   const [rawData, setRawData] = useState<ImportRow[]>([]);
   const [parsedData, setParsedData] = useState<ImportRow[]>([]);
@@ -60,6 +59,7 @@ export function useImport(initialDataset?: Form) {
         const context: ValidationContext = { locations, seasons, duplicateMap, schema };
         const { parsed, issues: newIssues } = parseAllRows(rawData, context);
         setParsedData(parsed);
+        console.log("parsed =", parsed)
         setIssues(newIssues);
       }
       setIsProcessing(false);
@@ -68,7 +68,7 @@ export function useImport(initialDataset?: Form) {
 
   const datasetSeasonId = useMemo(() => {
     if (!parsedData.length) return null;
-    return parsedData[0].season_id ?? null;
+    return (parsedData[0].season_id as number) ?? null;
   }, [parsedData]);
 
   const importMutation = useMutation({

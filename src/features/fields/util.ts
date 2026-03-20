@@ -37,7 +37,7 @@ export const getSeasonDisplayLabel = (
   season: SeasonRow,
   allSeasons: SeasonRow[]
 ): string => {
-  const baseLabel = `${capitalizeFirst(season.semester)} Season`;
+  const baseLabel = `${capitalizeFirst(season.semester)} Semester`;
 
   if (isCurrentSeason(season)) {
     return `${baseLabel} (Current)`;

@@ -19,6 +19,7 @@ import {
 import { Button } from "@/core/components/ui/button"
 import { Spinner } from '@/core/components/ui/spinner'
 import { useQueryClient } from '@tanstack/react-query'
+import { useImportNotificationStore } from '@/features/import/store/useImportNotificationStore'
 
 export const Route = createFileRoute('/_manager/_data/import')({
   loader: () => ({ breadcrumb: createCrumbLoader({ label: "Import" }) }),
@@ -33,7 +34,7 @@ function RouteComponent() {
   const [step, setStep] = useState<ImportStep>('upload')
   const queryClient = useQueryClient()
 
-  const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn } = useImport();
+  const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn, datasetSeasonId } = useImport();
 
   const confirmCancel = () => {
     setCancelOpen(false)
@@ -52,6 +53,9 @@ function RouteComponent() {
       await importFn(parsedData, fileName);
       setStep('success');
 
+      if (datasetSeasonId) {
+        useImportNotificationStore.getState().setNewlyImportedSeasonId(datasetSeasonId);
+      }
 
       queryClient.invalidateQueries({ queryKey: ['form-data'], refetchType: "all" });
       queryClient.invalidateQueries({ queryKey: ['dashboard-data'], refetchType: "all" });

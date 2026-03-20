@@ -6,6 +6,11 @@ create or replace view latest_season as
     order by s.start_date desc
     limit 1;
 
+create or replace view seasons_with_data as
+    select distinct s.*
+    from seasons s
+    join field_activities fa on fa.season_id = s.id;
+
 create or replace view public.mfid_details as
 select
     case
