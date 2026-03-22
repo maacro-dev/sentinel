@@ -1,61 +1,21 @@
-create or replace function public.crop_establishment_method_summary(p_season_id int default null)
-    returns jsonb
-    language plpgsql
-    security definer
-    set search_path = ''
+create or replace function public.get_planting_season_for_harvest(p_field_id int, p_harvest_date date)
+returns int
+language plpgsql
+security definer
+set search_path = ''
 as $$
 declare
-    target_season_id int;
-    direct_count int := 0;
-    transplant_count int := 0;
-    total int := 0;
-    percent_diff numeric;
-    result jsonb;
+    v_season_id int;
 begin
-
-    if p_season_id is null then
-        select id into target_season_id
-        from public.seasons
-        order by start_date desc
-        limit 1;
-    else
-        target_season_id := p_season_id;
-    end if;
-
-    if target_season_id is null then
-        return jsonb_build_object(
-            'direct_seeded_count', 0,
-            'transplanted_count', 0,
-            'total', 0,
-            'percent_difference', 0
-        );
-    end if;
-
-    select
-        count(*) filter (where ce.actual_crop_establishment_method ilike '%direct%seeded%') as direct,
-        count(*) filter (where ce.actual_crop_establishment_method ilike '%transplant%') as transplant
-    into direct_count, transplant_count
+    select fa.season_id into v_season_id
     from public.field_activities fa
     join public.crop_establishments ce on fa.id = ce.id
-    where fa.season_id = target_season_id;
+    where fa.field_id = p_field_id
+      and fa.activity_type = 'cultural-management'
+      and ce.actual_crop_establishment_date <= p_harvest_date
+    order by ce.actual_crop_establishment_date desc
+    limit 1;
 
-    total := direct_count + transplant_count;
-
-    if transplant_count > 0 then
-        percent_diff := round(((direct_count - transplant_count)::numeric / transplant_count) * 100, 2);
-    elsif direct_count > 0 then
-        percent_diff := 100;
-    else
-        percent_diff := 0;
-    end if;
-
-    result := jsonb_build_object(
-        'direct_seeded_count', direct_count,
-        'transplanted_count', transplant_count,
-        'total', total,
-        'percent_difference', percent_diff
-    );
-
-    return result;
+    return v_season_id;
 end;
 $$;

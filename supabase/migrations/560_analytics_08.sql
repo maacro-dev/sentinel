@@ -1,5 +1,5 @@
 
-create or replace function analytics.predicted_yield_forecast(
+create or replace function predicted_yield_forecast(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,

@@ -1410,6 +1410,17 @@ export type Database = {
         }
         Returns: Json
       }
+      predicted_yield_forecast: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
       predicted_yield_per_year: { Args: never; Returns: Json }
       province_yields: { Args: { p_season_id?: number }; Returns: Json }
       reset_sequence: { Args: { table_name: string }; Returns: undefined }
