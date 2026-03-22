@@ -15,6 +15,8 @@ import { DamageByLocationData, parseDamageByLocationData } from "../schemas/comp
 import { DamageByCauseData, parseDamageByCauseData } from "../schemas/comparative/damage-cause";
 import { parseFertilizerTypeSummary } from "../schemas/summary/fertilizer-type";
 import { Seasons } from "@/features/fields/services/Seasons";
+import { parsePredictedYieldLocationData, PredictedYieldLocationData } from "../schemas/predictive/yield-location";
+import { parseYieldForecastData, YieldForecastData } from "../schemas/predictive/forecast";
 
 export class Analytics {
   public static async getDashboardData(seasonId?: number): Promise<DashboardData> {
@@ -102,6 +104,7 @@ export class Analytics {
       fertilizerTypeSummary: parseFertilizerTypeSummary(fertilizerTypeRaw),
     };
   }
+
 
 
   public static async getYieldByMethod(
@@ -232,6 +235,50 @@ export class Analytics {
     if (error) throw new Error(`Failed to fetch damage by cause: ${error.message}`);
     return parseDamageByCauseData(data);
   }
+
+
+  public static async getPredictedYieldByLocation(
+    filters: { seasonId?: number; province?: string; municipality?: string; barangay?: string; method?: string; variety?: string }
+  ): Promise<PredictedYieldLocationData> {
+    const client = await this._client;
+    const { data, error } = await client.rpc('predicted_yield_by_location', {
+      p_season_id: filters.seasonId,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_method: filters.method,
+      p_variety: filters.variety,
+    });
+    if (error) throw error;
+    return parsePredictedYieldLocationData(data);
+
+  }
+
+  public static async getYieldForecast(
+    filters: {
+      seasonId?: number;
+      province?: string;
+      municipality?: string;
+      barangay?: string;
+      method?: string;
+      variety?: string;
+    }
+  ): Promise<YieldForecastData> {
+    const client = await this._client;
+
+    // @ts-ignore
+    const { data, error } = await client.rpc('predicted_yield_forecast', {
+      p_season_id: filters.seasonId,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_method: filters.method,
+      p_variety: filters.variety,
+    });
+    if (error) throw new Error(`Failed to fetch yield forecast: ${error.message}`);
+    return parseYieldForecastData(data);
+  }
+
 
   private static get _client() {
     return getSupabase();

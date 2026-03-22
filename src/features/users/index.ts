@@ -8,8 +8,8 @@ export type {
 export {
 
   userMappedSchema,
-  userSchema,
   userArraySchema,
+  userSchema,
 
   userDbSchema,
   userDbArraySchema,

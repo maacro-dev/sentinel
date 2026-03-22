@@ -7,7 +7,7 @@ import { User, UserFormInput } from "../../schemas"
 import { UserFormDialog } from "../UserFormDialog"
 import { DefaultTablePagination } from "@/core/components/TablePagination"
 import { DefaultTableToolbar } from "@/core/components/TableToolbar"
-import { UserDetailsDialog } from "../UserDetailsDialog"
+import { UserDetailsDialog } from "../UserDetails/UserDetailsDialog"
 
 interface UsersToolbarProps {
   onSearchChange: React.ChangeEventHandler<HTMLInputElement>
@@ -57,7 +57,6 @@ export function UsersTable({ includeAdmin }: { includeAdmin: boolean }) {
     }, [createUser])
 
   const openDetails = useCallback((user: User) => {
-    console.log("Opening details.")
     setSelectedUser(user)
     setDetailsDialogOpen(true)
   }, [])

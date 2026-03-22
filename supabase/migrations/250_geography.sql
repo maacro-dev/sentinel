@@ -4236,3 +4236,4 @@ insert into barangays(city_municipality_id, code, name)
         ('133', '607905012', 'San Isidro'),
         ('133', '607905013', 'Sebaste'),
         ('133', '607905014', 'Tanglad');
+

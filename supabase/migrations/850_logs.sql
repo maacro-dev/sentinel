@@ -56,8 +56,14 @@ select
   concat(u.first_name, ' ', u.last_name) as user_name,
   l.event_type,
   l.target_user_id,
-  tu.email as target_user_email,
-  concat(tu.first_name, ' ', tu.last_name) as target_user_name,
+  case
+    when tu.email is not null then tu.email
+    else (l.details::jsonb #>> '{old_data,email}')
+  end as target_user_email,
+  case
+    when tu.first_name is not null then concat(tu.first_name, ' ', tu.last_name)
+    else (l.details::jsonb #>> '{old_data,first_name}') || ' ' || (l.details::jsonb #>> '{old_data,last_name}')
+  end as target_user_name,
   l.table_name,
   l.record_id,
   l.action,

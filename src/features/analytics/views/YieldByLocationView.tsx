@@ -1,27 +1,10 @@
 import { ChartConfig } from '@/core/components/ui/chart';
 import { YieldByLocationData } from '@/features/analytics/schemas/comparative/yield-location';
-import { DefaultTicks } from '../components/DefaultTicks';
 import { StatCardMinimal } from '../components/StatCard';
-import { TickProps } from '../types';
 import { BarChart } from '../components/BarChart';
 import { Lightbulb } from 'lucide-react';
 
 export const yieldByLocationChartConfig = {
-  Aklan: {
-    label: "Aklan"
-  },
-  Antique: {
-    label: "Antique"
-  },
-  Capiz: {
-    label: "Capiz"
-  },
-  Iloilo: {
-    label: "Iloilo"
-  },
-  Guimaras: {
-    label: "Guimaras"
-  },
   yield: {
     label: "Yield (t/ha)"
   }
@@ -54,7 +37,7 @@ export function YieldByLocationView({ data, level }: { data: YieldByLocationData
     <div className='flex flex-col gap-4'>
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
         <StatCardMinimal
-          title='Average  Yield (Provincial Mean)'
+          title='Average Yield (Provincial Mean)'
           subtitle='Computed from province-level averages'
           current_value={Number(avg.toFixed(2))}
           unit='t/ha'
@@ -83,17 +66,21 @@ export function YieldByLocationView({ data, level }: { data: YieldByLocationData
         config={yieldByLocationChartConfig}
         data={chartData}
         header={header}
-        axisKeys={{ X: "location", Y: "yield" }}
+        axisKeys={{ X: "yield", Y: "location" }}
+        layout="vertical"
         isEmpty={chartData.length === 0}
         activeBar={{}}
         axisOptions={{
           X: {
             interval: 0,
-            tick: ({ x, y, payload }: TickProps) => <DefaultTicks x={x} y={y} payload={payload} />,
-          },
-          Y: {
             tickFormatter: (value: number) => `${value} t/ha`,
           },
+          Y: {
+            tickFormatter: (value: string) => {
+              const maxLen = 25;
+              return value.length > maxLen ? value.slice(0, maxLen - 1) + '…' : value;
+            },
+          }
         }}
         cardClass="min-h-120"
       />

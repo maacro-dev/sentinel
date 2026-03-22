@@ -15,8 +15,8 @@ import { Spinner } from "@/core/components/ui/spinner";
 
 const resetPasswordSchema = z
   .object({
-    newPassword: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().min(6, "Please confirm your password"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(8, "Please confirm your password"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",

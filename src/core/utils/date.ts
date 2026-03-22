@@ -23,7 +23,12 @@ export function formatDateShort(date: string | Date) {
   }).format(dateObj);
 }
 
-
+export function getDateString(date: Date | string | undefined): string {
+  if (!date) return '';
+  if (date instanceof Date) return date.toISOString().split('T')[0];
+  if (typeof date === 'string') return date;
+  return '';
+}
 
 
 function normalizeMonth(input: string, maxDist = 2): string {

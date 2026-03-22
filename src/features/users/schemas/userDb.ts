@@ -20,6 +20,7 @@ export const userDbSchema = z.object({
     role: roleSchema,
     first_name: z.string(),
     last_name: z.string(),
+    is_active: z.boolean(),
     date_of_birth: z.iso.date()
   }),
   identities: z.array(z.object({

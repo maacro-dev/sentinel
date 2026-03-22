@@ -66,7 +66,7 @@ export const ProvinceYieldsBarChart = memo(({ data }: ProvinceYieldsBarChartProp
           domain,
         },
       }}
-      cardClass="min-h-104"
+      cardClass="min-h-96 "
     />
   );
 });

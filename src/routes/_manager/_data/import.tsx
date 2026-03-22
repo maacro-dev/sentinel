@@ -7,7 +7,7 @@ import { DatasetSelector } from '@/features/import/components/DatasetSelector'
 import { DataSuccess } from '@/features/import/components/DataSuccess'
 import { useImport } from '@/features/import/hooks/useImport'
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,7 @@ type ImportStep = 'upload' | 'preview' | 'confirm' | 'success'
 function RouteComponent() {
   const [cancelOpen, setCancelOpen] = useState(false)
   const [step, setStep] = useState<ImportStep>('upload')
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false)
   const queryClient = useQueryClient()
 
   const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn, datasetSeasonId } = useImport();
@@ -42,11 +43,25 @@ function RouteComponent() {
     setDatasetType(null)
   }
 
+  const allRowsAreDuplicates = useMemo(() => {
+    return parsedData.length === 0;
+  }, [parsedData]);
+
   useEffect(() => {
     if (rawData.length && !isProcessing) {
-      setStep('preview');
+      if (allRowsAreDuplicates) {
+        setDuplicateDialogOpen(true);
+      } else {
+        setStep('preview');
+      }
     }
-  }, [rawData, isProcessing]);
+  }, [rawData, isProcessing, allRowsAreDuplicates]);
+
+  const handleDuplicateDialogClose = () => {
+    setDuplicateDialogOpen(false)
+    reset()
+    setStep('upload')
+  }
 
   const doImport = async () => {
     try {
@@ -69,6 +84,9 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: ['yield-by-variety'], refetchType: "all" });
       queryClient.invalidateQueries({ queryKey: ['damage-by-location'], refetchType: "all" });
       queryClient.invalidateQueries({ queryKey: ['damage-by-cause'], refetchType: "all" });
+
+      queryClient.invalidateQueries({ queryKey: ['seasons-with-data'], refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: ['current-season'], refetchType: "all" });
     } catch (err) {
       console.error("error importing", fileName, "-", err)
     }
@@ -133,10 +151,10 @@ function RouteComponent() {
       )}
 
       <ImportCancelDialog cancelOpen={cancelOpen} setCancelOpen={setCancelOpen} confirmCancel={confirmCancel} />
+      <DuplicateDialog open={duplicateDialogOpen} onClose={handleDuplicateDialogClose} />
     </PageContainer>
   )
 }
-
 
 interface ImportCancelDialogProps {
   cancelOpen: boolean,
@@ -146,7 +164,6 @@ interface ImportCancelDialogProps {
 
 function ImportCancelDialog({ cancelOpen, setCancelOpen, confirmCancel }: ImportCancelDialogProps) {
   return (
-
     <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
       <DialogContent>
         <DialogHeader>
@@ -155,20 +172,33 @@ function ImportCancelDialog({ cancelOpen, setCancelOpen, confirmCancel }: Import
             Your uploaded data and progress will be lost. This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
-
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setCancelOpen(false)}
-          >
-            Keep Importing
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={confirmCancel}
-          >
-            Yes, Cancel
-          </Button>
+          <Button variant="outline" onClick={() => setCancelOpen(false)}>Keep Importing</Button>
+          <Button variant="destructive" onClick={confirmCancel}>Yes, Cancel</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+interface DuplicateDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+function DuplicateDialog({ open, onClose }: DuplicateDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>All Rows Are Duplicates</DialogTitle>
+          <DialogDescription>
+            The file you uploaded contains only duplicate records. No new data can be imported.
+            Please check the file and try again.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button onClick={onClose}>OK</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

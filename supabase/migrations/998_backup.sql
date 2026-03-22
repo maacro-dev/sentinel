@@ -1,0 +1,69 @@
+
+create or replace function public.restore_backup(p_backup jsonb)
+    returns jsonb
+    language plpgsql
+    security definer
+    set search_path = ''
+as $$
+declare
+    table_name text;
+    table_order text[] := array[
+        'mfids',
+        'farmers',
+        'fields',
+        'seasons',
+        'field_activities',
+        'field_plannings',
+        'crop_establishments',
+        'fertilization_records',
+        'fertilizer_applications',
+        'harvest_records',
+        'damage_assessments',
+        'monitoring_visits',
+        'system_audit_logs',
+        'activity_logs',
+        'audit_errors',
+        'predicted_yields'
+    ];
+
+
+begin
+    for table_name in select unnest(table_order) loop
+        if p_backup ? table_name then
+            execute format('delete from public.%I', table_name);
+            execute format('
+                insert into public.%I
+                select *
+                from jsonb_to_recordset($1->%L)
+                as %I(%s)
+            ', table_name, table_name, table_name, (
+                select string_agg(column_name || ' ' || data_type, ', ')
+                from information_schema.columns
+                where table_schema = 'public'
+                  and table_name = table_name
+                order by ordinal_position
+            ))
+            using p_backup;
+        end if;
+    end loop;
+
+    return jsonb_build_object('success', true);
+exception when others then
+    return jsonb_build_object('success', false, 'error', sqlerrm);
+end;
+$$;
+
+
+create or replace function public.reset_sequence(table_name text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  seq_name text;
+begin
+  seq_name := table_name || '_id_seq';
+  execute format('select setval(%L, coalesce((select max(id) from public.%I), 0), true)', seq_name, table_name);
+end;
+$$;

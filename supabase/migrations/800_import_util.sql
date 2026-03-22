@@ -110,7 +110,6 @@ declare
     v_field_id int;
     v_mfid_id int;
 begin
-    -- 1. Get or create the MFID record
     select id into v_mfid_id
     from public.mfids
     where mfid = p_mfid;
@@ -124,23 +123,20 @@ begin
             raise exception 'MFID % not found in mfids table and auto‑create is disabled', p_mfid;
         end if;
     else
-        -- 2. Check if a field already uses this MFID
+
         select id into v_field_id
         from public.fields
         where mfid_id = v_mfid_id;
 
         if v_field_id is not null then
-            -- Field already exists – return it
             return v_field_id;
         end if;
     end if;
 
-    -- 3. No existing field – create one
     insert into public.fields (farmer_id, barangay_id, mfid_id, location)
     values (p_farmer_id, p_barangay_id, v_mfid_id, p_location)
     returning id into v_field_id;
 
-    -- 4. Mark the MFID as used (only if it was unused)
     update public.mfids
     set used_at = now()
     where id = v_mfid_id and used_at is null;
@@ -235,9 +231,10 @@ begin
         p_password     => v_password,
         p_first_name   => v_first_name,
         p_last_name    => v_last_name,
-        p_date_of_birth => '1900-01-01'::date,  -- placeholder, can be adjusted
-        p_role         => 'data_collector',     -- 👈 was 'inactive' – fixed!
-        p_created_at   => now()
+        p_date_of_birth => '1900-01-01'::date,
+        p_role         => 'data_collector',
+        p_created_at   => now(),
+        p_is_active    => false
       );
     end if;
 

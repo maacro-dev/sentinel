@@ -12,6 +12,7 @@ export const userMappedSchema = z.pipe(userDbSchema, z.transform((user) => ({
   date_of_birth: new Date(user.user_metadata.date_of_birth),
   role: user.user_metadata.role,
   email: user.email,
+  is_active: user.user_metadata.is_active,
   last_sign_in_at: new Date(user.last_sign_in_at),
   created_at: new Date(user.created_at),
   updated_at: new Date(user.updated_at),
@@ -24,6 +25,7 @@ export const userSchema = z.object({
   date_of_birth: z.coerce.date(),
   role: roleSchema,
   email: z.email(),
+  is_active: z.boolean().default(true),
   last_sign_in_at: z.nullable(z.coerce.date()),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date()

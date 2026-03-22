@@ -27,6 +27,7 @@ export class Logs {
 
     const { data, error, count } = await query;
     if (error) throw error;
+
     return { data: data as SystemAuditLog[], count: count ?? 0 };
   }
 

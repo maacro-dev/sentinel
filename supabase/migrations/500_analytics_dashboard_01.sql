@@ -92,7 +92,6 @@ begin
         where fa.season_id = curr.id;
     end if;
 
-    -- Harvest area, yield, irrigation issues (unchanged)
     if has_previous then
         select coalesce(sum(hr.area_harvested_ha) filter (where fa.season_id = curr.id), 0),
                coalesce(sum(hr.area_harvested_ha) filter (where fa.season_id = prev.id), 0),

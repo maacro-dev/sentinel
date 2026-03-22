@@ -9,8 +9,6 @@ export class Auth {
   private constructor() { }
 
   public static async signIn(credentials: Credentials): Promise<User> {
-    console.log("Auth.signIn —  starting sign in process...");
-    const startTime = Date.now();
     const supabase = await getSupabase();
     const { data, error } = await supabase.auth.signInWithPassword(credentials);
 
@@ -19,14 +17,17 @@ export class Auth {
       throw error
     };
 
-    console.log("User signed in in", Date.now() - startTime, "ms");
+    const user = parseUser(data.user);
 
-    return parseUser(data.user);
+    if (!user.is_active) {
+      throw new Error("Account is deactivated.")
+    }
+
+    return user;
   }
 
   public static async signOut(): Promise<void> {
     const startTime = Date.now();
-    console.log("Auth.signOut — starting sign out process...");
 
     const supabase = await getSupabase();
     const { error } = await supabase.auth.signOut();

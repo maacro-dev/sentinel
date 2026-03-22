@@ -27,7 +27,7 @@ export const FormRoleToggle = memo(<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={"group flex flex-col gap-2 flex-1"}>
+        <FormItem className={"group flex flex-col flex-1"}>
           <FormLabel name={name} label={label}  />
           <FormControl>
             <RoleToggleGroup options={options} {...field} />

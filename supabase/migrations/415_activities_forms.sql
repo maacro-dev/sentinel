@@ -39,7 +39,6 @@ create table crop_establishments(
     num_plants_2                        smallint null,
     num_plants_3                        smallint null,
 
-
     -- more fields
     rice_variety                        text not null,
     rice_variety_no                     text null,

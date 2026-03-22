@@ -15,6 +15,7 @@ export async function getSupabase(): Promise<SupabaseClient<Database>> {
 
   const devUrl = import.meta.env.VITE_SUPABASE_DEV_URL;
   const devKey = import.meta.env.VITE_SUPABASE_DEV_ANON_OR_PUBLISHABLE_KEY;
+
   const prodUrl = import.meta.env.VITE_SUPABASE_URL;
   const prodKey = import.meta.env.VITE_SUPABASE_ANON_OR_PUBLISHABLE_KEY;
 

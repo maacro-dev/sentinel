@@ -74,7 +74,14 @@ export class Session {
       return null;
     }
 
-    return parseUser(data.session.user);
+    const user = parseUser(data.session.user);
+
+    if (!user.is_active) {
+      ErrorHandler.deactivatedAccount();
+      return null
+    }
+
+    return user
   }
 
   static _forceClearStorage() {

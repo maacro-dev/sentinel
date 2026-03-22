@@ -26,7 +26,14 @@ export const useSignIn = ({ onSignIn }: SignInOptions) => {
       await router.preloadRoute({ to: getRoleRedirect(user.role) })
       await onSignIn(user)
     },
-    onError: () => notifyError(AuthToasts.signInFailed)
+    onError: ({ message }) => {
+      // if more errors come, consider creating a better system to handle these.
+      if (message === 'Account is deactivated.') {
+        return notifyError({ message: "Sign-in failed", description: "We couldn’t sign you in. Your account is deactivated." })
+      }
+
+      return notifyError(AuthToasts.signInFailed)
+    }
   })
   return { signIn, isLoading };
 };

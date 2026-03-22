@@ -13,6 +13,7 @@ import {
 import { useCurrentSeason, useCurrentSeasonId, useSeasonsForSelector } from "@/features/fields/hooks/useSeasons";
 import { formatSeasonLabel } from "@/features/fields/util";
 import { useImportNotificationStore } from "@/features/import/store/useImportNotificationStore";
+import { cn } from "@/core/utils/style";
 
 export const SeasonSelector = memo(() => {
   const navigate = useNavigate();
@@ -24,11 +25,11 @@ export const SeasonSelector = memo(() => {
 
   const handleSeasonChange = (value: string) => {
     setNewlyImportedSeasonId(null);
-
-    navigate({ to: ".", search: () => ({ seasonId: Number(value) }) });
+    navigate({ to: "/dashboard", search: () => ({ seasonId: Number(value) }) });
     setOpen(false);
   };
 
+  const isSelected = (value: string) => selectedSeason?.id === Number(value);
 
   return (
     <div className="flex items-center gap-4">
@@ -53,24 +54,35 @@ export const SeasonSelector = memo(() => {
         )}
       </Button>
 
-      <CommandDialog open={open} onOpenChange={setOpen} className="w-[24rem]">
+      <CommandDialog
+        open={open}
+        onOpenChange={setOpen}
+        className="w-[32rem] max-w-full"
+      >
         <CommandInput placeholder="Search seasons..." />
         <CommandList>
           <CommandEmpty>No season found.</CommandEmpty>
           <CommandGroup>
-            <div className="grid grid-cols-1 gap-2">
+            <div className={cn(`grid gap-2`, seasonOptions.length > 4 ? "grid-cols-2" : "grid-cols-1")
+            }>
               {seasonOptions.map((option) => {
                 const isCurrent = currentSeasonId === Number(option.value);
                 const isNew = newlyImportedSeasonId === Number(option.value);
+                const selected = isSelected(option.value);
                 return (
                   <CommandItem
                     key={option.value}
                     value={option.value}
                     onSelect={(currentValue) => handleSeasonChange(currentValue)}
-                    className="flex items-center justify-between cursor-pointer rounded-sm text-2xs data-[selected=true]:bg-accent"
+                    className="flex items-center justify-between cursor-pointer rounded-sm text-2xs"
                   >
-                    <span>{option.label}</span>
-                    <div className="flex gap-2">
+                    <span className="truncate">{option.label}</span>
+                    <div className="flex gap-2 shrink-0">
+                      {selected && (
+                        <span className="text-xs text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded">
+                          Selected
+                        </span>
+                      )}
                       {isNew && (
                         <span className="text-xs text-green-600 bg-green-100 px-1.5 py-0.5 rounded">
                           New

@@ -12,5 +12,9 @@ export class ErrorHandler {
     console.warn("Session is missing, redirecting to login");
   }
 
+  public static deactivatedAccount() {{
+    console.warn("Account is deactivated, redirecting to login");
+  }}
+
   private constructor() {}
 }

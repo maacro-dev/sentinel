@@ -32,7 +32,7 @@ export const DASHBOARD_SUMMARY_CONFIG: SummaryConfig = {
   yield: {
     title: "Average Yield",
     subtitle: "Yield per hectare",
-    unit: "kg/ha",
+    unit: "t/ha",
   },
   irrigation: {
     title: "Irrigation Issues",

@@ -440,6 +440,13 @@ export type Database = {
             foreignKeyName: "field_activities_collected_by_fkey"
             columns: ["collected_by"]
             isOneToOne: false
+            referencedRelation: "user_backup_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_collected_by_fkey"
+            columns: ["collected_by"]
+            isOneToOne: false
             referencedRelation: "user_details"
             referencedColumns: ["id"]
           },
@@ -483,6 +490,13 @@ export type Database = {
             columns: ["season_id"]
             isOneToOne: false
             referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_backup_view"
             referencedColumns: ["id"]
           },
           {
@@ -600,6 +614,13 @@ export type Database = {
             foreignKeyName: "fields_mfid_id_fkey"
             columns: ["mfid_id"]
             isOneToOne: true
+            referencedRelation: "flattened_field_data"
+            referencedColumns: ["mfid_id"]
+          },
+          {
+            foreignKeyName: "fields_mfid_id_fkey"
+            columns: ["mfid_id"]
+            isOneToOne: true
             referencedRelation: "mfids"
             referencedColumns: ["id"]
           },
@@ -712,39 +733,39 @@ export type Database = {
       }
       predicted_yields: {
         Row: {
-          field_id: number
           generated_at: string
           id: number
+          mfid_id: number
           predicted_yield_t_ha: number
           season_id: number
         }
         Insert: {
-          field_id: number
           generated_at?: string
           id?: number
+          mfid_id: number
           predicted_yield_t_ha: number
           season_id: number
         }
         Update: {
-          field_id?: number
           generated_at?: string
           id?: number
+          mfid_id?: number
           predicted_yield_t_ha?: number
           season_id?: number
         }
         Relationships: [
           {
-            foreignKeyName: "predicted_yields_field_id_fkey"
-            columns: ["field_id"]
+            foreignKeyName: "predicted_yields_mfid_id_fkey"
+            columns: ["mfid_id"]
             isOneToOne: false
-            referencedRelation: "field_details"
-            referencedColumns: ["field_id"]
+            referencedRelation: "flattened_field_data"
+            referencedColumns: ["mfid_id"]
           },
           {
-            foreignKeyName: "predicted_yields_field_id_fkey"
-            columns: ["field_id"]
+            foreignKeyName: "predicted_yields_mfid_id_fkey"
+            columns: ["mfid_id"]
             isOneToOne: false
-            referencedRelation: "fields"
+            referencedRelation: "mfids"
             referencedColumns: ["id"]
           },
           {
@@ -854,6 +875,7 @@ export type Database = {
           date_of_birth: string
           first_name: string
           id: string
+          is_active: boolean
           last_name: string
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
@@ -863,6 +885,7 @@ export type Database = {
           date_of_birth: string
           first_name: string
           id: string
+          is_active?: boolean
           last_name: string
           role: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -872,6 +895,7 @@ export type Database = {
           date_of_birth?: string
           first_name?: string
           id?: string
+          is_active?: boolean
           last_name?: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -985,6 +1009,131 @@ export type Database = {
         }
         Relationships: []
       }
+      flattened_field_data: {
+        Row: {
+          actual_crop_establishment_date: string | null
+          actual_crop_establishment_method: string | null
+          affected_area_ha: number | null
+          amount_applied_1: number | null
+          amount_applied_2: number | null
+          amount_applied_3: number | null
+          amount_unit_1: string | null
+          amount_unit_2: string | null
+          amount_unit_3: string | null
+          applied_area_sqm: number | null
+          area_harvested_ha: number | null
+          average_number_of_plants: number | null
+          avg_bag_weight_kg: number | null
+          bags_harvested: number | null
+          barangay: string | null
+          brand_1: string | null
+          brand_2: string | null
+          brand_3: string | null
+          cause: string | null
+          cellphone_no: string | null
+          crop_planted: string | null
+          crop_stage: string | null
+          crop_stage_on_application_1: string | null
+          crop_stage_on_application_2: string | null
+          crop_stage_on_application_3: string | null
+          crop_status: string | null
+          current_field_condition: string | null
+          date_of_birth: string | null
+          direct_seeding_method: string | null
+          distance_between_plant_row_1: number | null
+          distance_between_plant_row_2: number | null
+          distance_between_plant_row_3: number | null
+          distance_within_plant_row_1: number | null
+          distance_within_plant_row_2: number | null
+          distance_within_plant_row_3: number | null
+          ecosystem: string | null
+          est_crop_establishment_date: string | null
+          est_crop_establishment_method: string | null
+          fertilizer_type_1: string | null
+          fertilizer_type_2: string | null
+          fertilizer_type_3: string | null
+          first_name: string | null
+          gender: Database["public"]["Enums"]["gender"] | null
+          gps_latitude: number | null
+          gps_longitude: number | null
+          harvest_date: string | null
+          harvesting_method:
+            | Database["public"]["Enums"]["harvesting_method"]
+            | null
+          irrigation_supply:
+            | Database["public"]["Enums"]["irrigation_supply"]
+            | null
+          land_preparation_start_date: string | null
+          last_name: string | null
+          m1_collected_at: string | null
+          m1_collected_by: string | null
+          m2_collected_at: string | null
+          m2_collected_by: string | null
+          m3_collected_at: string | null
+          m3_collected_by: string | null
+          m4_collected_at: string | null
+          m4_collected_by: string | null
+          m6_collected_at: string | null
+          m6_collected_by: string | null
+          m6_soil_type: string | null
+          mfid: string | null
+          mfid_id: number | null
+          monitoring_field_area_sqm: number | null
+          municity: string | null
+          nitrogen_content_pct_1: number | null
+          nitrogen_content_pct_2: number | null
+          nitrogen_content_pct_3: number | null
+          num_plants_1: number | null
+          num_plants_2: number | null
+          num_plants_3: number | null
+          observed_pest: string | null
+          phosphorus_content_pct_1: number | null
+          phosphorus_content_pct_2: number | null
+          phosphorus_content_pct_3: number | null
+          potassium_content_pct_1: number | null
+          potassium_content_pct_2: number | null
+          potassium_content_pct_3: number | null
+          province: string | null
+          rice_variety: string | null
+          rice_variety_maturity_duration: number | null
+          rice_variety_no: string | null
+          season_id: number | null
+          seed_class: string | null
+          seeding_rate_kg_ha: number | null
+          seedling_age_at_transplanting: number | null
+          severity: string | null
+          soil_problem: string | null
+          soil_type: string | null
+          source_of_good_seeds: string | null
+          source_of_irrigation: string | null
+          sowing_date: string | null
+          total_field_area_ha: number | null
+          type_of_irrigation: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "latest_season"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       latest_season: {
         Row: {
           end_date: string | null
@@ -1036,6 +1185,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_backup_view: {
+        Row: {
+          auth_created_at: string | null
+          auth_updated_at: string | null
+          date_of_birth: string | null
+          email: string | null
+          encrypted_password: string | null
+          first_name: string | null
+          id: string | null
+          is_active: boolean | null
+          last_name: string | null
+          last_sign_in_at: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          user_created_at: string | null
+          user_updated_at: string | null
+        }
+        Relationships: []
+      }
       user_details: {
         Row: {
           created_at: string | null
@@ -1043,6 +1210,7 @@ export type Database = {
           email: string | null
           first_name: string | null
           id: string | null
+          is_active: boolean | null
           last_name: string | null
           last_sign_in_at: string | null
           role: Database["public"]["Enums"]["user_role"] | null
@@ -1063,6 +1231,7 @@ export type Database = {
           p_email: string
           p_first_name: string
           p_id: string
+          p_is_active?: boolean
           p_last_name: string
           p_password: string
           p_role: Database["public"]["Enums"]["user_role"]
@@ -1146,6 +1315,13 @@ export type Database = {
         Returns: string
       }
       get_available_locations: { Args: { p_season_id?: number }; Returns: Json }
+      get_mfid_location: {
+        Args: { p_mfid: string }
+        Returns: {
+          municipality: string
+          province: string
+        }[]
+      }
       handle_mfid: {
         Args: {
           p_auto_create_mfid?: boolean
@@ -1186,7 +1362,58 @@ export type Database = {
       }
       parse_date: { Args: { date_str: string }; Returns: string }
       parse_timestamptz: { Args: { timestamptz_str: string }; Returns: string }
+      predicted_harvest_distribution_by_month: {
+        Args: { p_season_id?: number }
+        Returns: Json
+      }
+      predicted_yield_by_location: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      predicted_yield_by_soil_type: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      predicted_yield_by_soil_variety: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      predicted_yield_by_variety: {
+        Args: {
+          p_barangay?: string
+          p_method?: string
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+          p_variety?: string
+        }
+        Returns: Json
+      }
+      predicted_yield_per_year: { Args: never; Returns: Json }
       province_yields: { Args: { p_season_id?: number }; Returns: Json }
+      reset_sequence: { Args: { table_name: string }; Returns: undefined }
+      restore_backup: { Args: { p_backup: Json }; Returns: Json }
       rice_variety_summary: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_progress: { Args: { p_season_id?: number }; Returns: Json }

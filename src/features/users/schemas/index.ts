@@ -2,8 +2,8 @@
 export {
   type User,
 
-  userMappedSchema,
   userSchema,
+  userMappedSchema,
   userArraySchema
 } from "./user";
 

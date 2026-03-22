@@ -23,7 +23,7 @@ export function RoleToggleGroup({
       type="single"
       value={value}
       onValueChange={(v: Role) => v && onChange(v)}
-      className="gap-2 flex-1 w-full"
+      className="flex-1 w-full"
     >
       <RoleToggle
         role="data_collector"

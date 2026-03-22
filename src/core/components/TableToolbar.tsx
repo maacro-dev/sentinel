@@ -14,14 +14,18 @@ export const DefaultTableToolbar = memo(({
   actions
 }: DefaultTableToolbarProps) => {
   return (
-    <div className="w-full flex justify-between">
+    <div className="flex justify-between w-full">
       <SearchBar
         containerClassName="w-64"
         className="text-xs"
         placeholder={ defaultSearchPlaceholder }
         onChange={onSearchChange}
       />
-      {actions && actions}
+      {actions && (
+        <div className="ml-auto">
+          {actions}
+        </div>
+      )}
     </div>
   )
 })

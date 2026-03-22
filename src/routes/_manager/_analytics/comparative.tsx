@@ -1,7 +1,7 @@
 import { PageContainer } from '@/core/components/layout';
 import { Spinner } from '@/core/components/ui/spinner';
 import { createCrumbLoader } from '@/core/utils/breadcrumb';
-import { comparativeViewMap, MoreFilters } from '@/features/analytics/comparative';
+import { comparativeViewMap, MoreFilters } from '@/features/analytics/comparative-map';
 import { ComparativeToolbar } from '@/features/analytics/components/ComparativeToolbar';
 import { useDamageAnalytics } from '@/features/analytics/hooks/useDamageAnalytics';
 import { useYieldComparativeData } from '@/features/analytics/hooks/useYieldAnalytics';

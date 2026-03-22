@@ -16,8 +16,11 @@ import { SystemAuditLog, ActivityLog } from "@/features/logs/types";
 import { getActivityDescription, getEventTypeLabel, getSystemAuditDescription } from "@/features/logs/utils";
 import { DefaultTableToolbar } from "@/core/components/TableToolbar";
 import { useDataTable } from "@/core/hooks";
+import { handleBackup } from "@/features/backup/backup";
+import { Button } from "@/core/components/ui/button"
+import { BackupTab } from "@/features/backup/BackupTab";
 
-export const Route = createFileRoute("/admin/_accessControl/security")({
+export const Route = createFileRoute("/admin/_operations/logs")({
   component: RouteComponent,
   loader: () => {
     return { breadcrumb: createCrumbLoader({ label: "System Security" }) }
@@ -27,11 +30,14 @@ export const Route = createFileRoute("/admin/_accessControl/security")({
   }),
 });
 
+// refactor to its own tablew soon.
+
 function RouteComponent() {
+
   const [tab, setTab] = useState<'audit' | 'activity'>('audit');
   const [auditPage, setAuditPage] = useState(0);
   const [activityPage, setActivityPage] = useState(0);
-  const pageSize = 20; // fixed, but could be state if you want to allow change
+  const pageSize = 20;
   const [auditSorting, setAuditSorting] = useState<SortingState>([{ id: 'occurred_at', desc: true }]);
   const [activitySorting, setActivitySorting] = useState<SortingState>([{ id: 'occurred_at', desc: true }]);
 
@@ -88,30 +94,26 @@ function RouteComponent() {
     {
       accessorKey: 'occurred_at',
       header: 'Time',
-      cell: ({ row }) => format(new Date(row.original.occurred_at), 'yyyy-MM-dd HH:mm:ss'),
-    },
-    {
-      accessorKey: 'user_name',
-      header: 'User',
-      cell: ({ row }) => row.original.user_name || row.original.user_email || '-',
+      cell: ({ row }) => format(new Date(row.original.occurred_at), 'MMMM d, yyyy h:mm a'),
+      meta: { size: "2xs" }
     },
     {
       accessorKey: 'event_type',
       header: 'Event',
+      cell: ({ row }) => getEventTypeLabel(row.original.event_type),
+      meta: { size: "3xs" }
     },
     {
-      accessorKey: 'table_name',
-      header: 'Table',
-    },
-    {
-      accessorKey: 'record_id',
-      header: 'Record ID',
-      cell: ({ row }) => row.original.record_id ? row.original.record_id.slice(0, 8) + '…' : '-',
+      accessorKey: 'user_name',
+      header: 'Actor',
+      cell: ({ row }) => row.original.user_id === null ? "System" : row.original.user_name || row.original.user_email || '-',
+      meta: { size: "2xs" }
     },
     {
       id: 'description',
       header: 'Description',
       cell: ({ row }) => getActivityDescription(row.original),
+      meta: { size: "xl" }
     },
   ], []);
 
@@ -127,12 +129,6 @@ function RouteComponent() {
 
   return (
     <PageContainer className="gap-4">
-      <div className="h-62 grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-      </div>
-
       <Tabs value={tab} onValueChange={(v) => setTab(v as 'audit' | 'activity')} className="">
         <TabsList variant="line">
           <TabsTrigger value="audit">System Audit Logs</TabsTrigger>
@@ -170,6 +166,7 @@ function RouteComponent() {
         ) : (
           <DataTable
             table={activityTable}
+            getRowHeight={() => 'h-28'}
             pagination={
               <ManualPagination
                 page={activityPage}
@@ -178,9 +175,15 @@ function RouteComponent() {
                 onPageChange={setActivityPage}
               />
             }
+            toolbar={
+              <DefaultTableToolbar
+                onSearchChange={e => activityTable.setGlobalFilter(e.target.value)}
+              />
+            }
           />
         )
       )}
+
     </PageContainer>
   );
 }
