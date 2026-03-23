@@ -20,6 +20,7 @@ import { Route as AdminOverviewRouteImport } from './../../../routes/admin/_over
 import { Route as AdminOperationsRouteImport } from './../../../routes/admin/_operations'
 import { Route as AdminConfigurationRouteImport } from './../../../routes/admin/_configuration'
 import { Route as AdminAccessControlRouteImport } from './../../../routes/admin/_accessControl'
+import { Route as ManagerSandboxRouteImport } from './../../../routes/_manager/sandbox'
 import { Route as ManagerFormsRouteImport } from './../../../routes/_manager/forms'
 import { Route as ManagerOverviewRouteImport } from './../../../routes/_manager/_overview'
 import { Route as ManagerDataRouteImport } from './../../../routes/_manager/_data'
@@ -92,6 +93,11 @@ const AdminConfigurationRoute = AdminConfigurationRouteImport.update({
 const AdminAccessControlRoute = AdminAccessControlRouteImport.update({
   id: '/_accessControl',
   getParentRoute: () => AdminRoute,
+} as any)
+const ManagerSandboxRoute = ManagerSandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
+  getParentRoute: () => ManagerRoute,
 } as any)
 const ManagerFormsRoute = ManagerFormsRouteImport.update({
   id: '/forms',
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/forms': typeof ManagerFormsRouteWithChildren
+  '/sandbox': typeof ManagerSandboxRoute
   '/comparative': typeof ManagerAnalyticsComparativeRoute
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/forms': typeof ManagerFormsRouteWithChildren
+  '/sandbox': typeof ManagerSandboxRoute
   '/comparative': typeof ManagerAnalyticsComparativeRoute
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
@@ -276,6 +284,7 @@ export interface FileRoutesById {
   '/_manager/_data': typeof ManagerDataRouteWithChildren
   '/_manager/_overview': typeof ManagerOverviewRouteWithChildren
   '/_manager/forms': typeof ManagerFormsRouteWithChildren
+  '/_manager/sandbox': typeof ManagerSandboxRoute
   '/admin/_accessControl': typeof AdminAccessControlRouteWithChildren
   '/admin/_configuration': typeof AdminConfigurationRouteWithChildren
   '/admin/_operations': typeof AdminOperationsRouteWithChildren
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/unauthorized'
     | '/forms'
+    | '/sandbox'
     | '/comparative'
     | '/descriptive'
     | '/predictive'
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/unauthorized'
     | '/forms'
+    | '/sandbox'
     | '/comparative'
     | '/descriptive'
     | '/predictive'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/_manager/_data'
     | '/_manager/_overview'
     | '/_manager/forms'
+    | '/_manager/sandbox'
     | '/admin/_accessControl'
     | '/admin/_configuration'
     | '/admin/_operations'
@@ -477,6 +489,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AdminAccessControlRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/_manager/sandbox': {
+      id: '/_manager/sandbox'
+      path: '/sandbox'
+      fullPath: '/sandbox'
+      preLoaderRoute: typeof ManagerSandboxRouteImport
+      parentRoute: typeof ManagerRoute
     }
     '/_manager/forms': {
       id: '/_manager/forms'
@@ -724,6 +743,7 @@ interface ManagerRouteChildren {
   ManagerDataRoute: typeof ManagerDataRouteWithChildren
   ManagerOverviewRoute: typeof ManagerOverviewRouteWithChildren
   ManagerFormsRoute: typeof ManagerFormsRouteWithChildren
+  ManagerSandboxRoute: typeof ManagerSandboxRoute
 }
 
 const ManagerRouteChildren: ManagerRouteChildren = {
@@ -731,6 +751,7 @@ const ManagerRouteChildren: ManagerRouteChildren = {
   ManagerDataRoute: ManagerDataRouteWithChildren,
   ManagerOverviewRoute: ManagerOverviewRouteWithChildren,
   ManagerFormsRoute: ManagerFormsRouteWithChildren,
+  ManagerSandboxRoute: ManagerSandboxRoute,
 }
 
 const ManagerRouteWithChildren =

@@ -9,12 +9,12 @@ export function MfidQR({ mfid, fgColor = "#0a0a0a" }: MfidQRProps) {
   return (
     <QRCodeSVG
       value={mfid}
-      level='M'
+      level='H'
       fgColor={fgColor}
       imageSettings={{
         src: "/qrlogo.svg",
-        height: 40,
-        width: 40,
+        height: 28,
+        width: 28,
         excavate: true
       }}
     />
