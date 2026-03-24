@@ -22,7 +22,6 @@ export const analyticsGroupConfig = createRouteConfig("analytics", {
       label: "Predictive",
       path: "/predictive",
       icon: TrendingUpDown,
-      disabled: true
     }),
   ]
 });

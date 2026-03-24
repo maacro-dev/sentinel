@@ -59,9 +59,16 @@ export class Sanitizer {
     }
 
     if (typeof value === 'string') {
-      const date = Date.parse(value);
-      if (!isNaN(date)) {
-        return Sanitizer.date(value);
+      const isLikelyDate =
+        /^\d{4}-\d{2}-\d{2}/.test(value) ||
+        /^\d{4}\/\d{2}\/\d{2}/.test(value) ||
+        /^\d{4}-\d{2}-\d{2}T/.test(value);
+
+      if (isLikelyDate) {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          return Sanitizer.date(date);
+        }
       }
       return value;
     }

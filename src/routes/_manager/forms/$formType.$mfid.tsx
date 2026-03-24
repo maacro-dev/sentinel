@@ -40,6 +40,8 @@ function RouteComponent() {
 
   const { data, isLoading } = useFormEntry({ formType: formType as FormType, mfid, seasonId: seasonId })
 
+  console.log(data)
+
   const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, mfid, seasonId);
 
 

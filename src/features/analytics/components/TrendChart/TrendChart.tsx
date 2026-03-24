@@ -1,10 +1,8 @@
 import { memo, JSX } from "react";
 import { ChartConfig, ChartContainer } from "@/core/components/ui/chart";
 import { chartContainerDefaults } from "../../config";
-import { useTimeFilter } from "../../hooks/useTimeFilter";
 import { ChartHeader, AxisKeys, AxisOptions } from "../../types";
 import { ChartCard } from "../ChartCard";
-import { TimeRangeSelector } from "../TimeRangeSelector";
 import { InternalTrendChart } from "./InternalTrendChart";
 import { TrendChartDefaults } from "./Defaults";
 import { cn } from "@/core/utils/style";
@@ -33,21 +31,11 @@ export const TrendChart = memo(<T extends object>({
   cardClass,
   containerClass
 }: TrendChartProps<T>) => {
-  const { filteredData, timeRange, setTimeRange } = useTimeFilter({
-    data: data,
-    dateKey: axisKeys.X,
-    enabled: enableTimeRange,
-  });
-
   return (
     <ChartCard
       className={cardClass}
       header={header}
       config={config}
-      options={{
-        enabled: enableTimeRange,
-        component: <TimeRangeSelector timeRange={timeRange} setTimeRange={setTimeRange} />
-      }}
     >
       {isEmpty ? (
         <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
@@ -56,12 +44,11 @@ export const TrendChart = memo(<T extends object>({
       ) : (
         <ChartContainer config={config} className={cn(chartContainerDefaults.className, containerClass)}>
           <InternalTrendChart
-            data={filteredData}
+            data={data}
             margin={TrendChartDefaults.margins}
             axisKeys={axisKeys}
             enableTimeRange={enableTimeRange}
             axisOptions={axisOptions}
-            timeRange={timeRange}
           />
         </ChartContainer>
       )}

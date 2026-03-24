@@ -13,8 +13,8 @@ export function MfidQR({ mfid, fgColor = "#0a0a0a" }: MfidQRProps) {
       fgColor={fgColor}
       imageSettings={{
         src: "/qrlogo.svg",
-        height: 28,
-        width: 28,
+        height: 25,
+        width: 25,
         excavate: true
       }}
     />

@@ -21,8 +21,6 @@ function preflight() {
 }
 
 
-const DOMAIN = "sentinel-9cf.pages.dev"
-
 Deno.serve(async (req) => {
   try {
     if (req.method === "OPTIONS") return preflight();
@@ -41,8 +39,7 @@ Deno.serve(async (req) => {
 
     const redirectTo = redirect_to || `${Deno.env.get("SITE_URL")}/reset-password`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      // redirectTo,
-      redirectTo: `${DOMAIN}/reset-password`
+      redirectTo,
     });
 
     if (error) {

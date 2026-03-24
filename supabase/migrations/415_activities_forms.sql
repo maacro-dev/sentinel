@@ -100,7 +100,6 @@ create table damage_assessments(
     affected_area_ha    double precision not null,
     observed_pest       text null);
 
-
 -- optional
 create table monitoring_visits(
     id                      int primary key references field_activities(id) unique,
@@ -108,3 +107,6 @@ create table monitoring_visits(
     crop_stage              text not null,
     soil_moisture_status    text not null,
     avg_plant_height        double precision null);
+
+
+

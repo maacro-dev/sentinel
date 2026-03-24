@@ -101,8 +101,6 @@ Deno.serve(async (req) => {
     for (let i = tableOrder.length - 1; i >= 0; i--) {
       const table = tableOrder[i];
       if (table === "users") continue;
-      const rows = backupData[table];
-      if (!rows || rows.length === 0) continue;
 
       console.log(`Deleting from ${table}`);
       const { error: deleteError } = await supabase
@@ -120,13 +118,13 @@ Deno.serve(async (req) => {
         throw new Error(`Error checking count for ${table}: ${countError.message}`);
       }
       if (count > 0) {
-        console.warn(`WARNING: Table ${table} still has ${count} rows after deletion. Proceeding with upsert.`);
+        console.warn(`WARNING: Table ${table} still has ${count} rows after deletion.`);
       }
     }
 
     for (const table of tableOrder) {
       if (table === "users") continue;
-      let rows = backupData[table];
+      const rows = backupData[table];
       if (!rows || rows.length === 0) continue;
 
       const uniqueMap = new Map();
@@ -135,12 +133,12 @@ Deno.serve(async (req) => {
           uniqueMap.set(row.id, row);
         }
       }
-      rows = Array.from(uniqueMap.values());
+      const uniqueRows = Array.from(uniqueMap.values());
 
-      console.log(`Inserting into ${table}: ${rows.length} rows`);
+      console.log(`Inserting into ${table}: ${uniqueRows.length} rows`);
       const batchSize = 500;
-      for (let i = 0; i < rows.length; i += batchSize) {
-        const batch = rows.slice(i, i + batchSize);
+      for (let i = 0; i < uniqueRows.length; i += batchSize) {
+        const batch = uniqueRows.slice(i, i + batchSize);
         const { error: upsertError } = await supabase
           .from(table)
           .upsert(batch, { onConflict: 'id' });

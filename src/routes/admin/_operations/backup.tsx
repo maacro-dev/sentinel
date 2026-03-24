@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/core/components/ui/dialog";
+import { useQueryClient } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/admin/_operations/backup')({
   component: RouteComponent,
@@ -36,6 +37,7 @@ function RouteComponent() {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient()
 
   const onBackup = async () => {
     setBackupStatus("loading");
@@ -84,6 +86,9 @@ function RouteComponent() {
 
       setRestoreStatus("success");
       setRestoreMessage("Restore completed successfully.");
+
+      // invalidate all to reset data including from manager
+      queryClient.invalidateQueries()
     } catch (err: any) {
       setRestoreStatus("error");
       setRestoreMessage(err.message || "Restore failed");

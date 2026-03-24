@@ -1,6 +1,6 @@
 
 export const TrendChartDefaults = {
-  margins: { top: 64, right: 64, left: 16, bottom: 32 },
+  margins: { top: 64, right: 64, left: 40, bottom: 32 },
   axis: {
     tickLine: false,
     axisLine: false,

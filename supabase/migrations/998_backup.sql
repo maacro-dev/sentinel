@@ -61,9 +61,17 @@ security definer
 set search_path = ''
 as $$
 declare
-  seq_name text;
+  seq text;
 begin
-  seq_name := table_name || '_id_seq';
-  execute format('select setval(%L, coalesce((select max(id) from public.%I), 0), true)', seq_name, table_name);
+  select pg_get_serial_sequence('public.' || table_name, 'id')
+  into seq;
+
+  if seq is not null then
+    execute format(
+      'select setval(%L, coalesce((select max(id) from public.%I), 0) + 1, false)',
+      seq,
+      table_name
+    );
+  end if;
 end;
 $$;

@@ -17,7 +17,8 @@ declare
     total_predicted numeric;
     max_yield numeric;
     min_yield numeric;
-    avg_yield numeric;
+    avg_monthly_yield numeric;
+    overall_avg_yield numeric;
     result jsonb;
 begin
     with base as (
@@ -62,7 +63,9 @@ begin
     monthly as (
         select
             harvest_month,
-            sum(predicted_yield_t_ha) as total_yield
+            count(*) as field_count,
+            sum(predicted_yield_t_ha) as total_yield,
+            avg(predicted_yield_t_ha) as avg_yield_per_field
         from base
         group by harvest_month
         order by harvest_month
@@ -70,7 +73,12 @@ begin
     select
         coalesce(
             (select jsonb_agg(
-                jsonb_build_object('month', to_char(harvest_month, 'Mon YYYY'), 'yield', total_yield)
+                jsonb_build_object(
+                    'month', to_char(harvest_month, 'Mon YYYY'),
+                    'total_yield', total_yield,
+                    'field_count', field_count,
+                    'avg_yield_per_field', avg_yield_per_field
+                )
                 order by harvest_month)
              from monthly),
             '[]'::jsonb
@@ -78,15 +86,17 @@ begin
         coalesce((select sum(total_yield) from monthly), 0),
         coalesce((select max(total_yield) from monthly), 0),
         coalesce((select min(total_yield) from monthly), 0),
-        coalesce((select avg(total_yield) from monthly), 0)
-    into forecast, total_predicted, max_yield, min_yield, avg_yield;
+        coalesce((select avg(total_yield) from monthly), 0),
+        coalesce((select avg(predicted_yield_t_ha) from base), 0)
+    into forecast, total_predicted, max_yield, min_yield, avg_monthly_yield, overall_avg_yield;
 
     result := jsonb_build_object(
         'forecast', forecast,
         'total_predicted', total_predicted,
         'max_monthly', max_yield,
         'min_monthly', min_yield,
-        'avg_monthly', avg_yield
+        'avg_monthly', avg_monthly_yield,
+        'overall_avg_yield_per_field', overall_avg_yield
     );
 
     return result;

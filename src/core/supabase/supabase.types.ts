@@ -1322,6 +1322,10 @@ export type Database = {
           province: string
         }[]
       }
+      get_planting_season_for_harvest: {
+        Args: { p_field_id: number; p_harvest_date: string }
+        Returns: number
+      }
       handle_mfid: {
         Args: {
           p_auto_create_mfid?: boolean

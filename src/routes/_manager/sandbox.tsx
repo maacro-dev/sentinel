@@ -1,5 +1,6 @@
 import { PageContainer } from '@/core/components/layout'
 import { createCrumbLoader } from '@/core/utils/breadcrumb'
+import { MfidQR } from '@/features/mfid/components/QRCode'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_manager/sandbox')({
@@ -15,6 +16,7 @@ function RouteComponent() {
     <PageContainer className='flex flex-col justify-center items-center'>
       <h1 className='text-muted-foreground'>UI Testing for <span className='tracking-wide font-semibold text-primary'>Sentinel</span></h1>
       <div className=''>
+        <MfidQR mfid='631000001'/>
       </div>
     </PageContainer>
   )

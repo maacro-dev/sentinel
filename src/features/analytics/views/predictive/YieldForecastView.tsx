@@ -10,24 +10,39 @@ export function YieldForecastView({ data }: { data: YieldForecastData }) {
   const chartData = useMemo(() => {
     return data.forecast.map(item => ({
       month: item.month,
-      yield: Number(item.yield.toFixed(2)),
+      total_yield: Number(item.total_yield.toFixed(2)),
+      avg_yield_per_field: Number(item.avg_yield_per_field.toFixed(2)),
     }));
   }, [data]);
 
-  const header = {
-    title: 'Yield Forecast',
-    description: 'Predicted total yield by month',
+  const yDomain = useMemo(() => {
+    if (chartData.length === 0) return [0, 5];
+    const yields = chartData.map(d => d.avg_yield_per_field);
+    const min = Math.min(...yields);
+    const max = Math.max(...yields);
+    const padding = 0.2;
+    return [Math.max(0, min - padding), max + padding];
+  }, [chartData]);
+
+  const avgYields = chartData.map(d => d.avg_yield_per_field);
+  const peakAvgYield = Math.max(...avgYields);
+  const peakAvgMonth = chartData.find(d => d.avg_yield_per_field === peakAvgYield)?.month;
+  const minAvgYield = Math.min(...avgYields);
+  const avgChange = peakAvgYield > 0 ? ((peakAvgYield - minAvgYield) / peakAvgYield) * 100 : 0;
+  const riskLevel = avgChange > 30 ? 'High' : avgChange > 15 ? 'Medium' : 'Low';
+
+  const config = {
+    avg_yield_per_field: { label: 'Avg Yield per Field (t/ha)' },
   };
 
-  // Compute expected change % between the highest and lowest month
-  const highest = data.max_monthly;
-  const lowest = data.min_monthly;
-  const expectedChange = highest > 0 ? ((highest - lowest) / highest) * 100 : 0;
-  const riskLevel = expectedChange > 30 ? 'High' : expectedChange > 15 ? 'Medium' : 'Low';
+  const header = {
+    title: 'Yield Forecast',
+    description: 'Average yield per field by month',
+  };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+      <div className="grid auto-rows-min gap-4 md:grid-cols-4">
         <StatCardMinimal
           title="Total Predicted Yield"
           subtitle="Season total"
@@ -35,9 +50,15 @@ export function YieldForecastView({ data }: { data: YieldForecastData }) {
           unit="t/ha"
         />
         <StatCardMinimal
+          title="Average Yield per Field"
+          subtitle="Season average"
+          current_value={Number(data.overall_avg_yield_per_field.toFixed(2))}
+          unit="t/ha"
+        />
+        <StatCardMinimal
           title="Expected Change"
           subtitle="Peak vs trough"
-          current_value={Number(expectedChange.toFixed(1))}
+          current_value={Number(avgChange.toFixed(1))}
           unit="%"
         />
         <StatCardMinimal
@@ -51,15 +72,14 @@ export function YieldForecastView({ data }: { data: YieldForecastData }) {
       <TrendChart
         data={chartData}
         header={header}
-        axisKeys={{ X: 'month', Y: 'yield' }}
+        axisKeys={{ X: 'month', Y: 'avg_yield_per_field' }}
         isEmpty={chartData.length === 0}
-        config={{ yield: { label: 'Predicted Yield (t/ha)' } }}
+        config={config}
         axisOptions={{
-          X: {
-            interval: 0,
-          },
+          X: { interval: 0 },
           Y: {
-            tickFormatter: (value: number) => `${value} t/ha`,
+            tickFormatter: (value: number) => `${value.toFixed(2)} t/ha`,
+            domain: yDomain,
           },
         }}
         cardClass="min-h-120"
@@ -70,8 +90,9 @@ export function YieldForecastView({ data }: { data: YieldForecastData }) {
         <p>
           {data.forecast.length > 0 ? (
             <>
-              The forecast shows a peak of <span className="font-medium">{highest.toFixed(2)} t/ha</span> in {data.forecast.reduce((max, item) => item.yield > max.yield ? item : max, data.forecast[0]).month},{' '}
-              with a variation of <span className="font-medium">{expectedChange.toFixed(1)}%</span> across the season.
+              The average yield per field peaks at <span className="font-medium">{peakAvgYield.toFixed(2)} t/ha</span> in {peakAvgMonth},{' '}
+              with a variation of <span className="font-medium">{avgChange.toFixed(1)}%</span> across the season.
+              The overall season average is <span className="font-medium">{data.overall_avg_yield_per_field.toFixed(2)} t/ha</span>.
               The risk level is <span className="font-medium">{riskLevel}</span>.
             </>
           ) : (

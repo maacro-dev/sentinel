@@ -17,8 +17,11 @@ import { parseFertilizerTypeSummary } from "../schemas/summary/fertilizer-type";
 import { Seasons } from "@/features/fields/services/Seasons";
 import { parsePredictedYieldLocationData, PredictedYieldLocationData } from "../schemas/predictive/yield-location";
 import { parseYieldForecastData, YieldForecastData } from "../schemas/predictive/forecast";
+import { PredictionResponse } from "../schemas/predictive/prediction";
 
 export class Analytics {
+
+
   public static async getDashboardData(seasonId?: number): Promise<DashboardData> {
     const client = await this._client;
 
@@ -104,8 +107,6 @@ export class Analytics {
       fertilizerTypeSummary: parseFertilizerTypeSummary(fertilizerTypeRaw),
     };
   }
-
-
 
   public static async getYieldByMethod(
     filters: {
@@ -236,7 +237,6 @@ export class Analytics {
     return parseDamageByCauseData(data);
   }
 
-
   public static async getPredictedYieldByLocation(
     filters: { seasonId?: number; province?: string; municipality?: string; barangay?: string; method?: string; variety?: string }
   ): Promise<PredictedYieldLocationData> {
@@ -279,6 +279,14 @@ export class Analytics {
     return parseYieldForecastData(data);
   }
 
+  public static async predictAvailableForms(seasonId?: number): Promise<PredictionResponse> {
+    const supabase = await getSupabase();
+    const { data, error } = await supabase.functions.invoke("predict-forms", {
+      body: { seasonId: seasonId ?? 0 },
+    });
+    if (error) throw error;
+    return data as PredictionResponse;
+  }
 
   private static get _client() {
     return getSupabase();
