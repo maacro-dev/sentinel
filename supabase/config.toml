@@ -75,7 +75,7 @@ file_size_limit = "150MiB"
 [auth]
 enabled = true
 site_url = "http://127.0.0.1:3000/reset-password"
-additional_redirect_urls = ["https://127.0.0.1:3000/reset-password"]
+additional_redirect_urls = ["https://127.0.0.1:3000/reset-password", "sentinel-9cf.pages.dev"]
 jwt_expiry = 3600
 # signing_keys_path = "./signing_key.json"
 enable_refresh_token_rotation = true

@@ -10,11 +10,6 @@ create index idx_py_mfid_id on predicted_yields(mfid_id);
 
 create index idx_py_season_id on predicted_yields(season_id);
 
--- create table if not exists prediction_metadata (
---     id integer primary key,
---     last_predicted_at timestamptz default now()
--- );
-
 
 create or replace view public.flattened_field_data as
 with

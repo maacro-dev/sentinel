@@ -66,6 +66,7 @@ Deno.serve(async (req: Request) => {
         last_name: last_name,
         role: role,
         date_of_birth: date_of_birth,
+        is_active: true
       },
     }
 

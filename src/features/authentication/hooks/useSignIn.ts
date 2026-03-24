@@ -13,6 +13,7 @@ interface SignInOptions {
 }
 
 export const useSignIn = ({ onSignIn }: SignInOptions) => {
+
   const router = useRouter();
   const { notifySuccess, notifyError } = useToast()
   const { updateSession } = useSession();
@@ -27,6 +28,7 @@ export const useSignIn = ({ onSignIn }: SignInOptions) => {
       await onSignIn(user)
     },
     onError: ({ message }) => {
+
       // if more errors come, consider creating a better system to handle these.
       if (message === 'Account is deactivated.') {
         return notifyError({ message: "Sign-in failed", description: "We couldn’t sign you in. Your account is deactivated." })

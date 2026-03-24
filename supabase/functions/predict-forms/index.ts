@@ -21,7 +21,8 @@ function preflight() {
   return new Response("ok", { headers: corsHeaders });
 }
 
-const ORACLE_URL = Deno.env.get("ORACLE_URL") ?? "http://172.30.190.98:8000/predict";
+const base = Deno.env.get("ORACLE_URL") ?? "http://172.30.190.98:8000";
+const ORACLE_URL = `${base}/predict`;
 
 Deno.serve(async (req: Request) => {
   try {
