@@ -76,7 +76,14 @@ function RouteComponent() {
       const formData = new FormData();
       formData.append("backup", pendingFile);
 
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_DEV_URL}/functions/v1/backup-restore`, {
+      const url =
+        import.meta.env.DEV
+          ? import.meta.env.VITE_SUPABASE_DEV_URL
+          : import.meta.env.VITE_SUPABASE_URL;
+
+      if (!url) throw new Error("Missing Supabase URL");
+
+      const response = await fetch(`${url}/functions/v1/backup-restore`, {
         method: "POST",
         body: formData,
       });
@@ -87,7 +94,6 @@ function RouteComponent() {
       setRestoreStatus("success");
       setRestoreMessage("Restore completed successfully.");
 
-      // invalidate all to reset data including from manager
       queryClient.invalidateQueries()
     } catch (err: any) {
       setRestoreStatus("error");
