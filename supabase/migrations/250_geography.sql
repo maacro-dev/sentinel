@@ -143,6 +143,7 @@ insert into cities_municipalities(id, province_id, code, name)
         ('94', '4', '603045', 'Tigbauan'),
         ('95', '4', '603046', 'Tubungan'),
         ('96', '4', '603047', 'Zarraga'),
+
             -- ('97', '5', '630200', 'Bacolod City'),
             -- ('98', '5', '604502', 'Bago City'),
             -- ('99', '5', '604503', 'Binalbagan'),

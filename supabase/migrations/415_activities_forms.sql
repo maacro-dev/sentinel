@@ -1,3 +1,4 @@
+
 -- metadata 1 (field data)
 create table field_plannings(
     id                              int primary key references field_activities(id) unique,

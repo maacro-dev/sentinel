@@ -14,18 +14,8 @@ import {
   DropdownMenuItem,
 } from '@/core/components/ui/dropdown-menu';
 import { Separator } from '@/core/components/ui/separator';
-import { ComparativeView } from '../types';
+import { ComparativeView, LocationFilters, MoreFilters } from '../types';
 
-interface LocationFilters {
-  province: string;
-  municipality: string;
-  barangay: string;
-}
-
-interface MoreFilters {
-  variety: string[];   // 'NSIC', 'PSB', 'Others'
-  method: string[];    // 'direct-seeded', 'transplanted'
-}
 
 interface ComparativeToolbarProps {
   className?: string;

@@ -1315,6 +1315,10 @@ export type Database = {
         Returns: string
       }
       get_available_locations: { Args: { p_season_id?: number }; Returns: Json }
+      get_available_locations_for_predictions: {
+        Args: { p_season_id?: number }
+        Returns: Json
+      }
       get_mfid_location: {
         Args: { p_mfid: string }
         Returns: {

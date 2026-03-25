@@ -62,9 +62,22 @@ export interface StatMetadata {
 }
 
 export type ComparativeView = "yield-location" | "yield-method" | "yield-variety" | "damage-location" | "damage-cause"
+
+export type PredictiveView = "forecast" | "general"
+
 export type ComparativeViewProps = { data?: any; isLoading: boolean }
+
 export type ComparativeViewComponent = React.ComponentType<ComparativeViewProps>
 
+
+export interface PredictiveDataParams {
+    seasonId: number | undefined,
+    province: string | undefined,
+    municipality: string | undefined,
+    barangay: string | undefined,
+    method: string | undefined,
+    variety: string | undefined,
+}
 
 export interface ComparativeDataParams {
     seasonId: number | undefined,
@@ -73,4 +86,16 @@ export interface ComparativeDataParams {
     barangay: string | undefined,
     method: string | undefined,
     variety: string | undefined,
+}
+
+
+export interface LocationFilters {
+  province: string;
+  municipality: string;
+  barangay: string;
+}
+
+export interface MoreFilters {
+  variety: string[];   // 'NSIC', 'PSB', 'Others'
+  method: string[];    // 'direct-seeded', 'transplanted'
 }

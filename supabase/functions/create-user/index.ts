@@ -40,8 +40,6 @@ export function preflight() {
 }
 
 
-const DOMAIN = "sentinel-9cf.pages.dev"
-
 Deno.serve(async (req: Request) => {
   try {
 

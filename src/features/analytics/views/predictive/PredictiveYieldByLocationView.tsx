@@ -15,7 +15,7 @@ export function PredictedYieldByLocationView({ data }: { data: PredictedYieldLoc
   }));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex-1 flex flex-col gap-4">
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
         <StatCardMinimal
           title="Avg Predicted Yield"
@@ -76,5 +76,6 @@ export function PredictedYieldByLocationView({ data }: { data: PredictedYieldLoc
         </p>
       </div>
     </div>
+
   );
 }

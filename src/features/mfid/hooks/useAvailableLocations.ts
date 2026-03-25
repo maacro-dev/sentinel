@@ -41,3 +41,19 @@ export const useAvailableLocations = (seasonId?: number) => {
     staleTime: 1000 * 60 * 10,
   });
 };
+
+
+export const useAvailableLocationsForPredictions = (seasonId?: number) => {
+  return useQuery({
+    queryKey: ['available-locations-for-predictions', seasonId],
+    queryFn: async () => {
+      const supabase = await getSupabase();
+      const { data, error } = await supabase.rpc('get_available_locations_for_predictions', {
+        p_season_id: seasonId,
+      });
+      if (error) throw error;
+      return parseAvailableLocations(data);
+    },
+    staleTime: 1000 * 60 * 10,
+  });
+};
