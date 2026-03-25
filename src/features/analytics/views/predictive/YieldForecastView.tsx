@@ -114,21 +114,6 @@ export function YieldForecastView({
         </Button>
       </div>
       <div className="flex-1 flex flex-col gap-4">
-        <div className="flex items-start gap-2 text-sm text-muted-foreground min-h-12">
-          <Lightbulb className="size-4 mt-0.5 shrink-0" />
-          <p>
-            {data.forecast.length > 0 ? (
-              <>
-                The average yield per field peaks at <span className="font-medium">{peakAvgYield.toFixed(2)} t/ha</span> in {peakAvgMonth},{' '}
-                with a variation of <span className="font-medium">{avgChange.toFixed(1)}%</span> across the season.
-                The overall season average is <span className="font-medium">{data.overall_avg_yield_per_field.toFixed(2)} t/ha</span>.
-                The risk level is <span className="font-medium">{riskLevel}</span>.
-              </>
-            ) : (
-              'No forecast data available.'
-            )}
-          </p>
-        </div>
         <div className="grid auto-rows-min gap-4 md:grid-cols-4">
           <StatCardMinimal
             title="Total Predicted Yield"
@@ -171,6 +156,22 @@ export function YieldForecastView({
           }}
           cardClass="min-h-120"
         />
+
+        <div className="flex items-start gap-2 text-sm text-muted-foreground min-h-12">
+          <Lightbulb className="size-4 mt-0.5 shrink-0" />
+          <p>
+            {data.forecast.length > 0 ? (
+              <>
+                The average yield per field peaks at <span className="font-medium">{peakAvgYield.toFixed(2)} t/ha</span> in {peakAvgMonth},{' '}
+                with a variation of <span className="font-medium">{avgChange.toFixed(1)}%</span> across the season.
+                The overall season average is <span className="font-medium">{data.overall_avg_yield_per_field.toFixed(2)} t/ha</span>.
+                The risk level is <span className="font-medium">{riskLevel}</span>.
+              </>
+            ) : (
+              'No forecast data available.'
+            )}
+          </p>
+        </div>
       </div>
     </div >
   );
