@@ -1,7 +1,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@/core/components/ui/toggle-group';
 import { Label } from '@/core/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/core/components/ui/select';
-import { ChevronDownIcon } from 'lucide-react';
+import { ChevronDownIcon, Info } from 'lucide-react';
 import { cn } from '@/core/utils/style';
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import {
 } from '@/core/components/ui/dropdown-menu';
 import { Separator } from '@/core/components/ui/separator';
 import { ComparativeView, LocationFilters, MoreFilters } from '../types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
 
 
 interface ComparativeToolbarProps {
@@ -109,7 +110,19 @@ export function ComparativeToolbar({
 
       <Separator orientation='vertical' />
 
-      <div className="flex flex-wrap items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2 ">
+        <div className="flex items-center mb-2 mr-1.5 ">
+          <TooltipProvider>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger asChild>
+              <Info className="size-4 text-muted-foreground/75 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Locations with no data are not included in the options.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">Province</Label>
           <Select

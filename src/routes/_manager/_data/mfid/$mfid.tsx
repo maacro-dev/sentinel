@@ -9,6 +9,8 @@ import { useMfid } from '@/features/mfid/hooks/useMfids'
 import { MfidDetail, MfidStatus } from '@/features/mfid/schemas/mfid-table.schema'
 import { createFileRoute } from '@tanstack/react-router'
 import { Download } from 'lucide-react'
+import { useRef, useState } from 'react'
+import html2canvas from "html2canvas-pro"
 
 export const Route = createFileRoute('/_manager/_data/mfid/$mfid')({
   loader: ({ params }) => {
@@ -45,16 +47,54 @@ interface MfidCardProps {
 }
 
 function MfidCard({ data, status, mfid }: MfidCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!cardRef.current) return
+
+    setIsDownloading(true)
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 1,
+        useCORS: true,
+      })
+
+      const link = document.createElement('a')
+      link.download = `mfid-${mfid}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+
+    } catch (error) {
+      console.error('Error generating image:', error)
+      alert('Failed to download the card.')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
   return (
-    <div className="flex flex-col gap-6 rounded-container border p-6 max-h-80 w-[55%]">
-      <MfidCardHeader status={status} mfid={mfid} />
+    <div
+      ref={cardRef}
+      className="flex flex-col gap-6 max-h-80 w-full max-w-140 shadow-sm border border-input p-6 rounded-container"
+    >
+      <MfidCardHeader
+        status={status}
+        mfid={mfid}
+        onDownload={handleDownload}
+        isDownloading={isDownloading}
+      />
       <div className='flex'>
-        <div className='flex-3 flex flex-col gap-6 size-full'>
-          <KVItem pair={{ key: "Farmer", value: data.farmer_name ?? "N/A" }} />
+        <div className='flex-1 flex flex-col gap-6 size-full max-w-90 '>
           <MfidAddress data={data} />
+          <div className='flex gap-8 w-full'>
+            <KVItem className="flex-1" pair={{ key: "Farmer", value: data.farmer_name ?? "N/A" }} />
+            <KVItem className="flex-1 " pair={{ key: "Coordinates", value: data.coordinates ?? "N/A" }} />
+          </div>
           <MfidTimestamp data={data} />
         </div>
-        <div className='flex-2 flex justify-center items-center'>
+        <div className='flex-1 flex justify-center items-center'>
           <MfidQR mfid={mfid} />
         </div>
       </div>
@@ -62,15 +102,28 @@ function MfidCard({ data, status, mfid }: MfidCardProps) {
   )
 }
 
-function MfidCardHeader({ status, mfid }: Omit<MfidCardProps, "data">) {
+function MfidCardHeader({
+  status,
+  mfid,
+  onDownload,
+  isDownloading,
+}: Omit<MfidCardProps, "data"> & {
+  onDownload: () => void;
+  isDownloading: boolean;
+}) {
   return (
     <div className='w-full flex justify-between'>
       <div className="flex items-start gap-4">
         <span className="text-4xl font-semibold">{mfid}</span>
         <MfidStatusBadge status={status} />
       </div>
-      <Button variant="outline">
-        <Download />
+      <Button
+        variant="outline"
+        onClick={onDownload}
+        disabled={isDownloading}
+      >
+        <Download className={isDownloading ? "animate-pulse" : ""} />
+        {isDownloading && <span className="ml-2 text-xs">...</span>}
       </Button>
     </div>
   )
@@ -86,19 +139,20 @@ function MfidStatusBadge({ status }: { status: MfidStatus }) {
 
 function MfidAddress({ data }: Pick<MfidCardProps, "data">) {
   return (
-    <div className='flex gap-8'>
-      <KVItem pair={{ key: "Barangay", value: data.barangay ?? "N/A" }} />
-      <KVItem pair={{ key: "City / Municipality", value: data.city_municipality ?? "N/A" }} />
-      <KVItem pair={{ key: "Province", value: data.province ?? "N/A" }} />
+    <div className='flex gap-8 w-full'>
+      <KVItem className="" pair={{ key: "Barangay", value: data.barangay ?? "N/A" }} />
+      <KVItem className="flex-1" pair={{ key: "City / Municipality", value: data.city_municipality ?? "N/A" }} />
+      <KVItem className="" pair={{ key: "Province", value: data.province ?? "N/A" }} />
     </div>
   );
 }
 
 function MfidTimestamp({ data }: Pick<MfidCardProps, "data">) {
   return (
-    <div className='flex gap-8'>
-      <KVItem pair={{ key: "Created At", value: Sanitizer.value(data.created_at) }} />
-      <KVItem pair={{ key: "Assigned At", value: Sanitizer.value(data.used_at) }} />
+    <div className='flex gap-8 w-full'>
+      <KVItem className="flex-1 " pair={{ key: "Created At", value: Sanitizer.value(data.created_at) }} />
+      <KVItem className="flex-1" pair={{ key: "Assigned At", value: Sanitizer.value(data.used_at) }} />
     </div>
   );
 }
+

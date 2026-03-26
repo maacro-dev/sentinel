@@ -175,6 +175,12 @@ function RouteComponent() {
             />
             <FieldDescription>Select a file to use as backup.</FieldDescription>
           </Field>
+          {restoreStatus === "loading" && (
+            <div className="flex items-center gap-2 mt-4">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm text-muted-foreground">Restoring database... Please wait.</span>
+            </div>
+          )}
 
           {restoreStatus === "success" && (
             <Alert variant="default" className="mt-8">

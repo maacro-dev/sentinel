@@ -21,13 +21,14 @@ export const SeasonSelector = memo(() => {
   const { selected: selectedSeason, label: displayLabel, isLoading: loadingCurrent } = useCurrentSeason();
   const { options: seasonOptions, isLoading: loadingOptions } = useSeasonsForSelector();
   const { data: currentSeasonId } = useCurrentSeasonId();
-  const { newlyImportedSeasonId, setNewlyImportedSeasonId } = useImportNotificationStore();
+  const { clearSeasonDot, showSeasonDot, importedSeasonId } = useImportNotificationStore();
 
   const handleSeasonChange = (value: string) => {
-    setNewlyImportedSeasonId(null);
+    clearSeasonDot();
     navigate({ to: "/dashboard", search: () => ({ seasonId: Number(value) }) });
     setOpen(false);
   };
+
 
   const isSelected = (value: string) => selectedSeason?.id === Number(value);
 
@@ -46,7 +47,7 @@ export const SeasonSelector = memo(() => {
         <span className="truncate">
           {selectedSeason ? formatSeasonLabel(selectedSeason) : "Select season"}
         </span>
-        {newlyImportedSeasonId && (
+        {showSeasonDot && importedSeasonId !== currentSeasonId && (
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
@@ -57,7 +58,7 @@ export const SeasonSelector = memo(() => {
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
-        className="w-[32rem] max-w-full"
+        className="w-lg max-w-full"
       >
         <CommandInput placeholder="Search seasons..." />
         <CommandList>
@@ -67,7 +68,7 @@ export const SeasonSelector = memo(() => {
             }>
               {seasonOptions.map((option) => {
                 const isCurrent = currentSeasonId === Number(option.value);
-                const isNew = newlyImportedSeasonId === Number(option.value);
+                const isNew = importedSeasonId === Number(option.value);
                 const selected = isSelected(option.value);
                 return (
                   <CommandItem

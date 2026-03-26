@@ -1,11 +1,24 @@
 import { create } from 'zustand';
 
 interface ImportNotificationState {
-  newlyImportedSeasonId: number | null;
-  setNewlyImportedSeasonId: (id: number | null) => void;
+  importedSeasonId: number | null;
+  importedFormType: string | null;
+  showSeasonDot: boolean;
+  setImported: (seasonId: number | null, formType: string | null) => void;
+  clearFormType: () => void;
+  clearSeasonDot: () => void;
 }
 
 export const useImportNotificationStore = create<ImportNotificationState>((set) => ({
-  newlyImportedSeasonId: null,
-  setNewlyImportedSeasonId: (id) => set({ newlyImportedSeasonId: id }),
+  importedSeasonId: null,
+  importedFormType: null,
+  showSeasonDot: false,
+  setImported: (seasonId, formType) =>
+    set({
+      importedSeasonId: seasonId,
+      importedFormType: formType,
+      showSeasonDot: true,
+    }),
+  clearFormType: () => set({ importedFormType: null }),
+  clearSeasonDot: () => set({ showSeasonDot: false }),
 }));

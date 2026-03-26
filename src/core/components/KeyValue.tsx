@@ -60,9 +60,9 @@ export const KVItem = ({
       >
         <div className="flex items-center gap-3 min-w-0">
           {icon && <span className={cn("text-muted-foreground shrink-0", iconClassName)}>{icon}</span>}
-          <dt className="text-xs text-muted-foreground font-medium truncate">{key}</dt>
+          <dt className="text-xs text-muted-foreground font-medium ">{key}</dt>
         </div>
-        <dd className="text-sm font-medium truncate max-w-[45%] text-right">{value}</dd>
+        <dd className="text-sm font-medium  max-w-[45%] text-right">{value}</dd>
       </div>
     );
   }
@@ -72,8 +72,8 @@ export const KVItem = ({
     <div className={cn("flex items-start gap-3 py-0.5", className)} {...props}>
       {icon && <span className={cn("text-muted-foreground shrink-0", iconClassName)}>{icon}</span>}
       <div className="flex flex-col gap-0.5 min-w-0">
-        <dt className="text-3xs text-muted-foreground font-medium truncate">{key}</dt>
-        <dd className="text-sm font-medium truncate">{value}</dd>
+        <dt className="text-3xs text-muted-foreground font-medium ">{key}</dt>
+        <dd className="text-sm font-medium ">{value}</dd>
       </div>
     </div>
   );

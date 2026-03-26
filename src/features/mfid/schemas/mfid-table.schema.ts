@@ -10,6 +10,7 @@ export const mfidRowSchema = z.object({
   farmer_name: z.string().nullable(),
   barangay: z.string().nullable(),
   city_municipality: z.string().nullable(),
+  coordinates: z.string().nullable(),
   province: z.string().nullable(),
 })
 

@@ -20,6 +20,7 @@ import { Button } from "@/core/components/ui/button"
 import { Spinner } from '@/core/components/ui/spinner'
 import { useQueryClient } from '@tanstack/react-query'
 import { useImportNotificationStore } from '@/features/import/store/useImportNotificationStore'
+import { getFormTypeFromForm } from '@/features/forms/schemas/forms'
 
 export const Route = createFileRoute('/_manager/_data/import')({
   loader: () => ({ breadcrumb: createCrumbLoader({ label: "Import" }) }),
@@ -41,6 +42,7 @@ function RouteComponent() {
     setCancelOpen(false)
     setStep('upload')
     setDatasetType(null)
+    reset();
   }
 
   const allRowsAreDuplicates = useMemo(() => {
@@ -69,7 +71,8 @@ function RouteComponent() {
       setStep('success');
 
       if (datasetSeasonId) {
-        useImportNotificationStore.getState().setNewlyImportedSeasonId(datasetSeasonId);
+        const formType = getFormTypeFromForm(datasetType);
+        useImportNotificationStore.getState().setImported(datasetSeasonId, formType);
       }
 
       queryClient.invalidateQueries({ queryKey: ['form-data'], refetchType: "all" });
