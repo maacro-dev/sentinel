@@ -1148,6 +1148,7 @@ export type Database = {
         Row: {
           barangay: string | null
           city_municipality: string | null
+          coordinates: unknown
           created_at: string | null
           farmer_name: string | null
           mfid: string | null

@@ -35,7 +35,7 @@ select
     a.barangay,
     loc.municipality as city_municipality,
     loc.province,
-    f.location as coordinates,
+    ST_X(f.location) || ',' || ST_Y(f.location) as coordinates,
     m.created_at,
     m.used_at
 from public.mfids m

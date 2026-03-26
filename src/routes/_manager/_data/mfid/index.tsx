@@ -1,5 +1,6 @@
 import { PageContainer } from '@/core/components/layout'
 import { defaultPaginationSearchSchema } from '@/core/components/TablePagination'
+
 import { MfidTable } from '@/features/mfid/components/MfidTable/MfidTable'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback } from 'react'
