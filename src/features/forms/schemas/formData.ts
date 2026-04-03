@@ -1,6 +1,7 @@
 import { Validator } from "@/core/utils/validator";
 import * as z from "zod/v4";
 
+
 const userInfoSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -14,6 +15,8 @@ export const formDataEntryResponseSchema = z.object({
   id: z.number(),
   field_id: z.number(),
   season_id: z.number(),
+
+  // just retain it to the original
   activity_type: z.enum([
     "field-data",
     "cultural-management",
@@ -35,6 +38,8 @@ export const formDataEntryResponseSchema = z.object({
   remarks: z.string().optional().nullable(),
   image_urls: z.array(z.string()).nullable(),
   form_data: z.record(z.string(), z.any()),
+  is_retake: z.boolean().optional(),
+  original_activity_id: z.number().nullable().optional(),
 });
 
 
@@ -64,6 +69,8 @@ const activitySchema = z.object({
   type: z.string(),
   verificationStatus: z.string(),
   remarks: z.string(),
+  is_retake: z.boolean().optional(),
+  original_activity_id: z.number().nullable().optional(),
   imageUrls: z.array(z.string()).nullable(),
   formData: z.any(),
 });
@@ -92,6 +99,8 @@ export const formDataEntrySchema = formDataEntryResponseSchema.transform((data) 
     type: data.activity_type,
     verificationStatus: data.verification_status,
     formData: data.form_data,
+    is_retake: data.is_retake,
+    original_activity_id: data.original_activity_id,
     imageUrls: data.image_urls,
     remarks: data.remarks,
   } as Activity

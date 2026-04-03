@@ -5,7 +5,7 @@ import { Sanitizer } from '@/core/utils/sanitizer'
 import { formKeyMappings } from '@/features/forms/mappings'
 import { createFileRoute } from '@tanstack/react-router'
 import { FormType } from './-config'
-import { formDataByMfidOptions } from '@/features/forms/queries/options'
+import { formDataByIdOptions } from '@/features/forms/queries/options'
 import { useFormEntry } from '@/features/forms/hooks/useFormData'
 import { NavBackButton, NavNextButton, NavPreviousButton } from '@/core/components/NavigationButton'
 import { FormDataEntry, FormDataGroup } from '@/features/forms/schemas/formData'
@@ -18,34 +18,32 @@ import { useState } from 'react'
 import { useVerification } from '@/features/forms/hooks/useVerification'
 import { FertilizerApplicationsList } from '@/features/forms/components/FertilizerApplicationList'
 
-export const Route = createFileRoute('/_manager/forms/$formType/$mfid')({
+export const Route = createFileRoute('/_manager/forms/$formType/$id')({
   component: RouteComponent,
+  params: { parse: (params) => ({ id: Number(params.id) }) },
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: ({ params, context: { queryClient }, deps: { seasonId } }) => {
     queryClient.ensureQueryData(
-      formDataByMfidOptions({
+      formDataByIdOptions({
         formType: params.formType as FormType,
-        mfid: params.mfid,
+        id: params.id,
         seasonId: seasonId
       })
     )
-    return { breadcrumb: createCrumbLoader({ label: params.mfid }) }
+    return { breadcrumb: createCrumbLoader({ label: String(params.id) }) }
   }
 })
 
 
 function RouteComponent() {
-  const { formType, mfid } = Route.useParams()
+  const { formType, id } = Route.useParams()
   const { seasonId } = Route.useSearch()
 
-  const { data, isLoading } = useFormEntry({ formType: formType as FormType, mfid, seasonId: seasonId })
+  const { data, isLoading } = useFormEntry({ formType: formType as FormType, id, seasonId: seasonId })
 
-  console.log(data)
+  const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, String(id), seasonId);
 
-  const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, mfid, seasonId);
-
-
-  const verifyMutation = useVerification(formType, mfid, seasonId);
+  const verifyMutation = useVerification(formType, id, seasonId);
 
   const handleVerify = (params: { status: 'approved' | 'rejected'; remarks?: string }) => {
     verifyMutation.mutate({
@@ -97,7 +95,6 @@ function RouteComponent() {
 }
 
 
-
 function DataGroup({ data, title, icon }: { data: FormDataGroup, title: string, icon: React.ReactNode }) {
   return (
     <div className='flex-1 flex flex-col gap-4 border rounded-container p-6'>
@@ -133,8 +130,9 @@ function GeneralSection({ data }: { data: FormDataEntry }) {
 }
 
 function FormDataSection({ data, title }: { data: FormData, title: string }) {
+
   // @ts-ignore
-  const { applications, ...otherData } = data;
+  const { applications, monitoring_visit, ...otherData } = data;
 
   return (
     <section className='p-6 flex flex-col gap-4 border rounded-container'>
@@ -145,16 +143,22 @@ function FormDataSection({ data, title }: { data: FormData, title: string }) {
       <div>
         <KVList className='gap-2.5' itemsPerColumn={5} containerClassName='gap-8'>
           {Object.entries(otherData).map(([key, value]) => (
-            <KVItem
-              variant='side'
-              key={key}
-              pair={{
-                key: Sanitizer.key(key, formKeyMappings),
-                value: Sanitizer.value(value)
-              }}
-            />
+            <KVItem key={key} pair={{ key: Sanitizer.key(key, formKeyMappings), value: Sanitizer.value(value) }} />
           ))}
         </KVList>
+        {monitoring_visit && (
+          <div className="mt-4 pt-4 border-t">
+            <div className="flex gap-2.5 mb-4 items-center">
+              <Combine className="size-4" />
+              <h1 className="text-base">Monitoring Visit</h1>
+            </div>
+            <KVList className='gap-2.5'>
+              {Object.entries(monitoring_visit).map(([key, value]) => (
+                <KVItem key={key} pair={{ key: Sanitizer.key(key, formKeyMappings), value: Sanitizer.value(value) }} />
+              ))}
+            </KVList>
+          </div>
+        )}
         {applications && <FertilizerApplicationsList applications={applications} />}
       </div>
     </section>

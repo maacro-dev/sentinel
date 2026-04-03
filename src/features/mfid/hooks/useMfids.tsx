@@ -3,8 +3,8 @@ import { mfidQueryOptions, mfidsQueryOptions } from "../queries/options"
 
 
 export const useMfids = () => {
-  const { data, isLoading } = useQuery(mfidsQueryOptions())
-  return { data: data ?? [], isLoading }
+  const { data, isLoading, error } = useQuery(mfidsQueryOptions())
+  return { data: data ?? [], isLoading, error }
 }
 
 export interface UseMfidsProps { mfid: string }

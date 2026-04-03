@@ -3,10 +3,9 @@ import { createRouteConfig } from "@/core/tanstack/router/utils";
 import { culturalManagementColumns } from "@/features/forms/columns/culturalManagementColumns";
 import { damageAssessmentColumns } from "@/features/forms/columns/damageAssessmentColumns";
 import { fieldDataColumns } from "@/features/forms/columns/fieldDataColumns";
-import { monitoringVisitColumns } from "@/features/forms/columns/monitoringVisitColumns";
 import { nutrientManagementColumns } from "@/features/forms/columns/nutrientManagementColumns";
 import { productionColumns } from "@/features/forms/columns/productionColumns";
-import { Activity, Cuboid, Folder, Grid2X2, PackagePlus, ShieldHalf } from "lucide-react";
+import { Cuboid, Folder, Grid2X2, PackagePlus, ShieldHalf } from "lucide-react";
 
 export type FormType = RouteConfigIds<typeof formGroupConfig>
 export const formGroupConfig = createRouteConfig({
@@ -53,16 +52,16 @@ export const formGroupConfig = createRouteConfig({
         tableColumns: productionColumns,
       },
     }),
-    createRouteConfig("monitoring-visit", {
-      role: "data_manager",
-      label: "Monitoring Visit",
-      path: "/forms/$formType",
-      params: { formType: "monitoring-visit" },
-      icon: Activity,
-      meta: {
-        tableColumns: monitoringVisitColumns,
-      }
-    }),
+    // createRouteConfig("monitoring-visit", {
+    //   role: "data_manager",
+    //   label: "Monitoring Visit",
+    //   path: "/forms/$formType",
+    //   params: { formType: "monitoring-visit" },
+    //   icon: Activity,
+    //   meta: {
+    //     tableColumns: monitoringVisitColumns,
+    //   }
+    // }),
     createRouteConfig("damage-assessment", {
       role: "data_manager",
       label: "Damage Assessment",

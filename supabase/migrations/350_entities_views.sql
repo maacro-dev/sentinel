@@ -7,7 +7,6 @@ create or replace view latest_season as
     limit 1;
 
 
-
 create or replace view public.field_details as
 select
     fd.id as field_id,
@@ -35,7 +34,7 @@ select
     a.barangay,
     loc.municipality as city_municipality,
     loc.province,
-    spatial.ST_X(f.location) || ',' || spatial.ST_Y(f.location) as coordinates,
+    spatial.ST_Y(f.location) || ',' || spatial.ST_X(f.location) as coordinates,
     m.created_at,
     m.used_at
 from public.mfids m

@@ -180,6 +180,9 @@ CREATE POLICY "Allow authenticated to insert audit errors" ON audit_errors AS pe
 CREATE POLICY "Allow authenticated to update audit errors" ON audit_errors AS permissive
     FOR UPDATE TO authenticated USING (TRUE);
 
+create policy "collector can see own tasks" on collection_tasks as permissive
+    FOR SELECT TO authenticated USING (TRUE);
+
 -- storage start --
 
 CREATE POLICY "allow authenticated uploads" ON storage.objects

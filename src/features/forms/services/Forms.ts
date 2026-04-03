@@ -4,13 +4,49 @@ import { FormDataEntry, parseFormData, parseFormDataEntry } from "../schemas/for
 
 
 export class Forms {
-  public static async getFormDataByMfid(formType: FormType, mfid: string, seasonId?: number): Promise<FormDataEntry> {
 
+  public static async getFormDataByMfid(formType: FormType, mfid: string, seasonId?: number): Promise<FormDataEntry> {
     const client = await this._client;
     let query = client
       .from("field_activity_details")
       .select("*")
       .eq("mfid", mfid)
+      .eq("activity_type", formType)
+
+    if (seasonId) {
+      query = query.eq("season_id", seasonId);
+    }
+
+    const { data, error } = await query.single();
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.image_urls && Array.isArray(data.image_urls)) {
+      const promises = data.image_urls.map(async (path) => {
+        const { data: urlData, error } = await client.storage
+          .from("form-images")
+          .createSignedUrl(path as string, 3600);
+
+        if (error) throw error;
+
+        return urlData.signedUrl;
+      });
+
+      data.image_urls = await Promise.all(promises);
+    }
+
+
+    return parseFormDataEntry(data);
+  }
+
+  public static async getFormDataById(formType: FormType, id: number, seasonId?: number): Promise<FormDataEntry> {
+    const client = await this._client;
+    let query = client
+      .from("field_activity_details")
+      .select("*")
+      .eq("id", id)
       .eq("activity_type", formType)
 
     if (seasonId) {
@@ -69,16 +105,20 @@ export class Forms {
     verifiedBy?: string
   ): Promise<void> {
     const client = await this._client;
+
     const updates: any = {
       verification_status: verificationStatus,
       verified_at: new Date().toISOString(),
     };
+
     if (verifiedBy) {
       updates.verified_by = verifiedBy;
     }
+
     if (remarks !== undefined) {
       updates.remarks = remarks;
     }
+
     const { error } = await client
       .from('field_activities')
       .update(updates)

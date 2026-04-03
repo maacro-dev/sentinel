@@ -24,6 +24,21 @@ export class Users {
     return parseUserArray(users)
   }
 
+  static async getAllAvailableCollectors() {
+    const supabase = await getSupabase()
+    const { data: users, error } = await supabase
+      .from("user_details")
+      .select("*")
+      .eq("role", "data_collector")
+      .eq("is_active", true)
+
+    if (error) {
+      throw error
+    }
+
+    return parseUserArray(users)
+  }
+
   static async create(form: UserFormInput) {
     const supabase = await getSupabase();
     const { data, error } = await supabase.functions.invoke("create-user", {

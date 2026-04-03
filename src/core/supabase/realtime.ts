@@ -19,6 +19,8 @@ function getInvalidateKeys(seasonId: number) {
     ['yield-by-variety'],
     ['damage-by-location'],
     ['damage-by-cause'],
+
+    ['collection-tasks']
   ]
 }
 

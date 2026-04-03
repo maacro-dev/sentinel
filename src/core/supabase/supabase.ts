@@ -5,7 +5,6 @@ import { SupabaseClient } from "@supabase/supabase-js";
 let supabaseClient: SupabaseClient<Database> | null = null;
 
 export async function getSupabase(): Promise<SupabaseClient<Database>> {
-
   if (supabaseClient) {
     return supabaseClient;
   }
@@ -29,12 +28,20 @@ export async function getSupabase(): Promise<SupabaseClient<Database>> {
     },
   };
 
-  const client = import.meta.env.DEV
+  const isDev = import.meta.env.DEV;
+
+  console.log(
+    `[Supabase] environment: ${isDev ? "DEV" : "PROD"}`,
+    isDev ? devUrl : prodUrl
+  );
+
+  const client = isDev
     ? createClient<Database>(devUrl, devKey, options)
     : createClient<Database>(prodUrl, prodKey, options);
 
   supabaseClient = client;
 
-  console.log("Supabase initialized in", Date.now() - startTime, "ms");
+  console.log("[Supabase] initialized in", Date.now() - startTime, "ms");
+
   return client;
 }

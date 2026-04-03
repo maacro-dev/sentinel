@@ -1,4 +1,4 @@
-import { FORM_LABELS } from "./config";
+import { ACTIVITY_TYPE_LABELS, FORM_LABELS } from "./config";
 import { ACTIVITY_TYPE } from "./mappings";
 import { Form } from "./schemas/forms";
 import { FieldSchema } from "./schemas/import-schema";
@@ -10,6 +10,10 @@ export function getActivityType(form: Form): string {
 
 export function getFormLabel(value: string): string {
   return FORM_LABELS[value as keyof typeof FORM_LABELS] || value;
+}
+
+export function getActivityTypeLabel(value: string): string {
+  return ACTIVITY_TYPE_LABELS[value as keyof typeof ACTIVITY_TYPE_LABELS] || value;
 }
 
 export function field(schema: Omit<FieldSchema, 'required'> & { required?: boolean }): FieldSchema {

@@ -44,3 +44,28 @@ export function formDataByMfidOptions({
     ...overrides
   })
 }
+
+export interface FormDataByIdOptions {
+  formType: FormType | (string & {});
+  id: number;
+  enabled?: boolean;
+  seasonId?: number;
+  queryOptions?: Partial<UseQueryOptions<any>>
+}
+
+export function formDataByIdOptions({
+  formType,
+  id,
+  enabled = true,
+  seasonId,
+  queryOptions: overrides = {}
+}: FormDataByIdOptions) {
+  return queryOptions({
+    queryKey: ["form-data-entry", formType, id, seasonId] as const,
+    queryFn: () => Forms.getFormDataById(formType as FormType, id, seasonId),
+    enabled: Boolean(id) && enabled,
+    staleTime: Infinity,
+    // placeholderData: (prev) => prev,
+    ...overrides
+  })
+}

@@ -77,7 +77,7 @@ export function SidebarItem({ node }: { node: SidebarNode }) {
           className={cn(
             "relative flex items-center gap-2.5 text-primary/70 transition-all overflow-visible"
           )}
-          activeProps={{ className: "text-primary/100 font-medium bg-accent" }}
+          activeProps={{ className: "text-primary/100 font-medium bg-neutral-200" }}
           onClick={handleClick}
         >
           <node.icon className="size-4" />

@@ -1,4 +1,5 @@
 import { createRouteConfig } from "@/core/tanstack/router/utils";
+import { collectionTableColumns } from "@/features/collection/components/CollectionTable/CollectionTableColumns";
 import { FormInput, LayoutDashboard } from "lucide-react";
 
 export const overviewGroupConfig = createRouteConfig("overview", {
@@ -14,8 +15,11 @@ export const overviewGroupConfig = createRouteConfig("overview", {
     createRouteConfig({
       role: "data_manager",
       label: "Data Collection",
-      path: "/forms-overview",
+      path: "/collection",
       icon: FormInput,
+      meta: {
+        tableColumns: collectionTableColumns,
+      },
     }),
     // createRouteConfig({
     //   role: "data_manager",

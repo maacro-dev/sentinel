@@ -16,9 +16,9 @@ export const MfidTable = <T extends { mfid: string }>({
 }: MfidTableProps<T>) => {
   "use no memo";
 
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'used'>('all');
   const { table, isLoading } = useMfidTable(statusFilter);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { createMfid, isLoading: isCreatingMfid } = useCreateMfid();
 
   const handleSubmit = useCallback(async (user: MfidFormInput) => {
@@ -74,7 +74,7 @@ const MfidTableToolbar = memo(({
       <div className="flex gap-4">
         <DefaultTableToolbar
           onSearchChange={onSearchChange}
-          actions={null} // we'll handle actions separately
+          actions={null}
         />
       </div>
       <div className="flex gap-2">

@@ -7,13 +7,12 @@ import { useFormOverview } from "@/features/analytics/hooks/useFormOverview";
 import { FormCountBarChart } from "@/features/analytics/components/FormCountBarChart";
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
-import { FormInput } from "lucide-react";
 import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { useSeason } from "@/features/fields/hooks/useSeasons";
 
-export const Route = createFileRoute("/_manager/_overview/forms-overview")({
+export const Route = createFileRoute('/_manager/_analytics/forms')({
   component: RouteComponent,
-  head: () => ({ meta: [{ title: "Data Collection | Humay" }] }),
+  head: () => ({ meta: [{ title: "Forms | Humay" }] }),
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: ({ context: { queryClient }, deps: { seasonId } }) => {
 
@@ -21,17 +20,9 @@ export const Route = createFileRoute("/_manager/_overview/forms-overview")({
     queryClient.ensureQueryData(formCountSummaryOptions(seasonId))
     queryClient.ensureQueryData(formProgressSummaryOptions(seasonId))
 
-    return { breadcrumb: createCrumbLoader({ label: "Data Collection" }) }
+    return { breadcrumb: createCrumbLoader({ label: "Forms" }) }
   },
-  staticData: {
-    role: "data_manager",
-    label: "Data Collection",
-    sidebar: {
-      order: 0,
-      icon: FormInput,
-    },
-  }
-});
+})
 
 function RouteComponent() {
 

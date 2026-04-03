@@ -1,20 +1,22 @@
-import { memo } from "react"
+import React, { memo } from "react"
 import { SearchBar } from "./SearchBar"
+import { cn } from "../utils/style"
 
-interface DefaultTableToolbarProps {
+interface DefaultTableToolbarProps extends React.ComponentProps<"div"> {
   onSearchChange: React.ChangeEventHandler<HTMLInputElement>,
   defaultSearchPlaceholder?: string,
-  actions?: React.ReactNode
+  actions?: React.ReactNode,
 }
 
 // currently consists of a search bar
 export const DefaultTableToolbar = memo(({
   onSearchChange,
   defaultSearchPlaceholder = "Search something...",
-  actions
+  actions,
+  className
 }: DefaultTableToolbarProps) => {
   return (
-    <div className="flex justify-between w-full">
+    <div className={cn("flex", className)}>
       <SearchBar
         containerClassName="w-64"
         className="text-xs"

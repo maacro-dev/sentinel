@@ -10,24 +10,34 @@ create or replace function public.dashboard_summary(p_season_id int default null
 declare
     curr record;
     prev record;
+
     current_field_count numeric := 0;
     previous_field_count numeric := 0;
+
     current_forms_submitted numeric := 0;
     previous_forms_submitted numeric := 0;
+
     current_total_area numeric := 0;
     previous_total_area numeric := 0;
+
     current_total_yield numeric := 0;
     previous_total_yield numeric := 0;
+
     current_yield numeric := 0;
     previous_yield numeric := 0;
+
     current_not_sufficient numeric := 0;
     previous_not_sufficient numeric := 0;
+
     current_data_completeness numeric := 0;
     previous_data_completeness numeric := 0;
+
     current_damage_reports numeric := 0;
     previous_damage_reports numeric := 0;
+
     current_pest_reports numeric := 0;
     previous_pest_reports numeric := 0;
+
     has_previous boolean := FALSE;
     result jsonb;
 begin
@@ -54,7 +64,6 @@ begin
 
     has_previous := prev is not null;
 
-    -- Field counts and form submissions
     if has_previous then
         select coalesce(count(distinct field_id) filter (where season_id = curr.id), 0),
                coalesce(count(distinct field_id) filter (where season_id = prev.id), 0),
@@ -72,7 +81,6 @@ begin
         where season_id = curr.id;
     end if;
 
-    -- Damage and pest reports (pest only when observed_pest is not null and not 'N/A' and not empty)
     if has_previous then
         select coalesce(count(*) filter (where fa.season_id = curr.id), 0),
                coalesce(count(*) filter (where fa.season_id = prev.id), 0),
@@ -117,11 +125,9 @@ begin
         where fa.season_id = curr.id;
     end if;
 
-    -- yield per hectare (tons/ha)
     current_yield := case when current_total_area > 0 then round((current_total_yield / current_total_area) / 1000, 2) else 0 end;
     previous_yield := case when previous_total_area > 0 then round((previous_total_yield / previous_total_area) / 1000, 2) else 0 end;
 
-    -- data completeness (unchanged)
     if has_previous then
         select coalesce(round((sum(
             case when fa.season_id = curr.id
@@ -163,7 +169,6 @@ begin
         where fa.season_id = curr.id;
     end if;
 
-    -- Build JSON result (unchanged)
     result := jsonb_build_object(
         'seasons', jsonb_build_object(
             'current', jsonb_build_object(

@@ -4,13 +4,13 @@ import { cva, VariantProps } from "class-variance-authority";
 
 
 const statusVariants = cva(
-  "rounded-sm text-[0.7rem] font-medium px-2 py-1",
+  "rounded-sm text-[0.7rem] font-medium px-2 py-1 w-16 text-center",
   {
     variants: {
       variant: {
-        approved: "bg-green-100 text-green-800",
-        pending: "bg-yellow-100 text-yellow-800",
-        rejected: "bg-red-100 text-red-800",
+        approved: "bg-green-200 text-green-800",
+        pending: "bg-yellow-200 text-yellow-800",
+        rejected: "bg-red-200 text-red-800",
         unknown: "bg-neutral-300"
       },
     },

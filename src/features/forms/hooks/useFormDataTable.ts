@@ -4,15 +4,13 @@ import { getTableColumns } from "@/core/tanstack/table/utils"
 import { formGroupConfig, FormType } from "@/routes/_manager/forms/-config"
 import { useFormEntries } from "./useFormData"
 
-export const useFormEntriesTable = (formType: FormType, seasonId?: number) => {
-  const { data: formData, isLoading } = useFormEntries({ formType, seasonId });
+export const useFormEntriesTable = (formType: FormType, seasonId?: number, hideRejected?: boolean) => {
+  const { data: formData, isLoading } = useFormEntries({ formType, seasonId, hideRejected });
   const columns = useMemo(() => getTableColumns({ formType, config: formGroupConfig }), [formType]);
   const table = useDataTable({
     data: formData,
     columns: columns,
-    getRowId: (row) => row.field.mfid,
+    getRowId: (row) => String(row.activity.id),
   });
-
-  console.log(formData)
   return { table, isLoading, formType };
 };

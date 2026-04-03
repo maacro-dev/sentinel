@@ -102,12 +102,9 @@ create table damage_assessments(
     observed_pest       text null);
 
 -- optional
-create table monitoring_visits(
-    id                      int primary key references field_activities(id) unique,
-    date_monitored          date not null,
-    crop_stage              text not null,
-    soil_moisture_status    text not null,
-    avg_plant_height        double precision null);
+
+
+
 
 
 

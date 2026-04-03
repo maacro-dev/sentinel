@@ -19,19 +19,20 @@ function RouteComponent() {
   const { seasonId } = Route.useSearch()
   const { navigate, preloadRoute } = useRouter()
 
-  const handleOnRowClick = useCallback((row: { field: { mfid: string } }) => {
+  const handleOnRowClick = useCallback((row: { activity: { id: number } }) => {
+    console.log("row clicked =", row.activity.id);
     navigate({
-      to: "/forms/$formType/$mfid",
-      params: { formType: formType, mfid: row.field.mfid }
-    })
-  }, [navigate, formType])
+      to: "/forms/$formType/$id",
+      params: { formType: formType as string, id: row.activity.id },
+    });
+  }, [navigate, formType]);
 
-  const handleOnRowIntent = useCallback((row: { field: { mfid: string } }) => {
+  const handleOnRowIntent = useCallback((row: { activity: { id: number } }) => {
     preloadRoute({
-      to: "/forms/$formType/$mfid",
-      params: { formType: formType, mfid: row.field.mfid }
-    })
-  }, [preloadRoute, formType])
+      to: "/forms/$formType/$id",
+      params: { formType: formType as string, id: row.activity.id },
+    });
+  }, [preloadRoute, formType]);
 
   return (
     <PageContainer>

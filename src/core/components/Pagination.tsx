@@ -91,14 +91,14 @@ const PaginationSizeSelector = memo(({
     <Select value={String(value)} defaultValue={String(value)} onValueChange={(val) => onValueChange(Number(val))}>
       <SelectTrigger
         className={cn(
-          "focus-visible:ring-transparent focus-visible:border-border !h-[32px] rounded-sm px-2 py-0 text-3xs text-muted-foreground shadow-none",
+          "focus-visible:ring-transparent focus-visible:border-border h-8! rounded-sm px-2 py-0 text-3xs text-muted-foreground shadow-none",
           className
         )}
         size="sm" {...props}
       >
         <SelectValue placeholder="Items per page" />
       </SelectTrigger>
-      <SelectContent className="shadow-none">
+      <SelectContent position="popper" className="shadow-none">
         <SelectGroup className="text-muted-foreground/75">
           <SelectItem className="text-3xs" value="10">10 per page</SelectItem>
           <SelectItem className="text-3xs" value="25">25 per page</SelectItem>

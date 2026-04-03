@@ -1,17 +1,24 @@
-create or replace view public.mfid_details as
-select
-    case when m.used_at is null then 'available' else 'used' end as status,
-    case when fa.id is not null then concat_ws(' ', fa.first_name, fa.last_name) else null end as farmer_name,
-    m.mfid,
-    a.barangay,
-    loc.municipality as city_municipality,
-    loc.province,
-    spatial.ST_X(f.location) || ',' || spatial.ST_Y(f.location) as coordinates,
-    m.created_at,
-    m.used_at
-from public.mfids m
-left join public.fields f on f.mfid_id = m.id
-left join public.addresses a on f.barangay_id = a.barangay_id
-left join public.farmers fa on f.farmer_id = fa.id
-left join lateral get_mfid_location(m.mfid) loc on true
-order by m.mfid;
+
+DO $$
+DECLARE
+    visit_id INT;
+    planning_id INT;
+BEGIN
+    -- Monitoring visit
+    INSERT INTO field_activities (field_id, season_id, activity_type, collected_by)
+    VALUES (6, 1, 'monitoring-visit', 'c6079662-4714-4b49-b36e-34a052f06b1b')
+    RETURNING id INTO visit_id;
+
+    INSERT INTO monitoring_visits (id, date_monitored, crop_stage, soil_moisture_status, avg_plant_height)
+    VALUES (visit_id, '2025-05-15', 'tillering', 'moist', 45.5);
+
+    INSERT INTO field_activities (field_id, season_id, activity_type, collected_by, monitoring_visit_id)
+    VALUES (6, 1, 'field-data', 'c6079662-4714-4b49-b36e-34a052f06b1b', visit_id)
+    RETURNING id INTO planning_id;
+
+    INSERT INTO field_plannings (id, land_preparation_start_date, est_crop_establishment_date,
+                                 est_crop_establishment_method, total_field_area_ha, current_field_condition)
+    VALUES (planning_id, '2025-05-01', '2025-06-01', 'direct seeding', 2.5, 'good');
+
+    RAISE NOTICE 'Success: visit_id=%, planning_id=%', visit_id, planning_id;
+END $$;

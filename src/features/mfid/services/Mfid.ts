@@ -11,7 +11,7 @@ export class Mfid {
     const { data, error } = await client
       .from("mfid_details")
       .select("*")
-      ;
+
     if (error) {
       throw error;
     }

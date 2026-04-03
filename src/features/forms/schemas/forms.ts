@@ -11,7 +11,18 @@ export const formsSchema = z.enum([
 
 export type Form = z.infer<typeof formsSchema>;
 
-export const getFormTypeFromForm = (form: Form | null | undefined): string | null => {
+export const activityTypeSchema = z.enum([
+  "field-data",
+  "cultural-management",
+  "nutrient-management",
+  "production",
+  "damage-assessment",
+  "monitoring-visit",
+]  as const)
+
+export type ActivityType = z.infer<typeof activityTypeSchema>;
+
+export const getActivityTypeFromForm = (form: Form | null | undefined): string | null => {
   if (!form) return null;
   const mapping: Record<Form, string> = {
     field_plannings: 'field-data',
@@ -23,3 +34,13 @@ export const getFormTypeFromForm = (form: Form | null | undefined): string | nul
   };
   return mapping[form];
 };
+
+export const CORE_METADATA_TYPES = [
+  "field-data",
+  "cultural-management",
+  "nutrient-management",
+  "production",
+  "damage-assessment",
+] as const;
+
+export type CoreMetadataType = typeof CORE_METADATA_TYPES[number];

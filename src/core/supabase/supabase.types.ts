@@ -144,6 +144,125 @@ export type Database = {
           },
         ]
       }
+      collection_tasks: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          assigned_at: string | null
+          can_retake: boolean | null
+          collector_id: string
+          created_at: string
+          end_date: string
+          id: string
+          mfid_id: number
+          retake_of: string | null
+          season_id: number
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          assigned_at?: string | null
+          can_retake?: boolean | null
+          collector_id: string
+          created_at?: string
+          end_date: string
+          id?: string
+          mfid_id: number
+          retake_of?: string | null
+          season_id: number
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          activity_type?: Database["public"]["Enums"]["activity_type"]
+          assigned_at?: string | null
+          can_retake?: boolean | null
+          collector_id?: string
+          created_at?: string
+          end_date?: string
+          id?: string
+          mfid_id?: number
+          retake_of?: string | null
+          season_id?: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_tasks_collector_id_fkey"
+            columns: ["collector_id"]
+            isOneToOne: false
+            referencedRelation: "user_backup_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_collector_id_fkey"
+            columns: ["collector_id"]
+            isOneToOne: false
+            referencedRelation: "user_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_collector_id_fkey"
+            columns: ["collector_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_mfid_id_fkey"
+            columns: ["mfid_id"]
+            isOneToOne: false
+            referencedRelation: "flattened_field_data"
+            referencedColumns: ["mfid_id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_mfid_id_fkey"
+            columns: ["mfid_id"]
+            isOneToOne: false
+            referencedRelation: "mfids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_retake_of_fkey"
+            columns: ["retake_of"]
+            isOneToOne: false
+            referencedRelation: "collection_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_retake_of_fkey"
+            columns: ["retake_of"]
+            isOneToOne: false
+            referencedRelation: "collection_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "latest_season"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crop_establishments: {
         Row: {
           actual_crop_establishment_date: string
@@ -222,6 +341,20 @@ export type Database = {
             foreignKeyName: "crop_establishments_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["activity_id"]
+          },
+          {
+            foreignKeyName: "crop_establishments_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["original_activity_id"]
+          },
+          {
+            foreignKeyName: "crop_establishments_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
           },
@@ -231,6 +364,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "field_activity_details"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_establishments_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "field_activity_details"
+            referencedColumns: ["original_activity_id"]
           },
         ]
       }
@@ -267,6 +407,20 @@ export type Database = {
             foreignKeyName: "damage_assessments_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["activity_id"]
+          },
+          {
+            foreignKeyName: "damage_assessments_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["original_activity_id"]
+          },
+          {
+            foreignKeyName: "damage_assessments_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
           },
@@ -276,6 +430,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "field_activity_details"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "damage_assessments_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "field_activity_details"
+            referencedColumns: ["original_activity_id"]
           },
         ]
       }
@@ -330,6 +491,20 @@ export type Database = {
             foreignKeyName: "fertilization_records_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["activity_id"]
+          },
+          {
+            foreignKeyName: "fertilization_records_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["original_activity_id"]
+          },
+          {
+            foreignKeyName: "fertilization_records_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
           },
@@ -339,6 +514,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "field_activity_details"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fertilization_records_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "field_activity_details"
+            referencedColumns: ["original_activity_id"]
           },
         ]
       }
@@ -394,9 +576,11 @@ export type Database = {
           activity_type: Database["public"]["Enums"]["activity_type"]
           collected_at: string | null
           collected_by: string | null
+          collection_task_id: string | null
           field_id: number
           id: number
           image_urls: Json | null
+          monitoring_visit_id: number | null
           remarks: string | null
           season_id: number
           synced_at: string | null
@@ -409,9 +593,11 @@ export type Database = {
           activity_type: Database["public"]["Enums"]["activity_type"]
           collected_at?: string | null
           collected_by?: string | null
+          collection_task_id?: string | null
           field_id: number
           id?: number
           image_urls?: Json | null
+          monitoring_visit_id?: number | null
           remarks?: string | null
           season_id: number
           synced_at?: string | null
@@ -424,9 +610,11 @@ export type Database = {
           activity_type?: Database["public"]["Enums"]["activity_type"]
           collected_at?: string | null
           collected_by?: string | null
+          collection_task_id?: string | null
           field_id?: number
           id?: number
           image_urls?: Json | null
+          monitoring_visit_id?: number | null
           remarks?: string | null
           season_id?: number
           synced_at?: string | null
@@ -458,6 +646,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "field_activities_collection_task_id_fkey"
+            columns: ["collection_task_id"]
+            isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_collection_task_id_fkey"
+            columns: ["collection_task_id"]
+            isOneToOne: true
+            referencedRelation: "collection_tasks"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "field_activities_field_id_fkey"
             columns: ["field_id"]
             isOneToOne: false
@@ -469,6 +671,13 @@ export type Database = {
             columns: ["field_id"]
             isOneToOne: false
             referencedRelation: "fields"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_monitoring_visit_id_fkey"
+            columns: ["monitoring_visit_id"]
+            isOneToOne: false
+            referencedRelation: "monitoring_visits"
             referencedColumns: ["id"]
           },
           {
@@ -548,6 +757,20 @@ export type Database = {
             foreignKeyName: "field_plannings_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["activity_id"]
+          },
+          {
+            foreignKeyName: "field_plannings_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["original_activity_id"]
+          },
+          {
+            foreignKeyName: "field_plannings_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
           },
@@ -557,6 +780,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "field_activity_details"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_plannings_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "field_activity_details"
+            referencedColumns: ["original_activity_id"]
           },
         ]
       }
@@ -659,6 +889,20 @@ export type Database = {
             foreignKeyName: "harvest_records_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["activity_id"]
+          },
+          {
+            foreignKeyName: "harvest_records_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["original_activity_id"]
+          },
+          {
+            foreignKeyName: "harvest_records_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
             referencedRelation: "field_activities"
             referencedColumns: ["id"]
           },
@@ -668,6 +912,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "field_activity_details"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "harvest_records_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "field_activity_details"
+            referencedColumns: ["original_activity_id"]
           },
         ]
       }
@@ -704,7 +955,7 @@ export type Database = {
           avg_plant_height?: number | null
           crop_stage: string
           date_monitored: string
-          id: number
+          id?: number
           soil_moisture_status: string
         }
         Update: {
@@ -714,22 +965,7 @@ export type Database = {
           id?: number
           soil_moisture_status?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "monitoring_visits_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "field_activities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "monitoring_visits_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "field_activity_details"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       predicted_yields: {
         Row: {
@@ -932,6 +1168,158 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_details: {
+        Row: {
+          activity_id: number | null
+          activity_type: Database["public"]["Enums"]["activity_type"] | null
+          assigned_at: string | null
+          barangay: string | null
+          can_retake: boolean | null
+          city_municipality: string | null
+          collected_at: string | null
+          collected_by: string | null
+          collector_id: string | null
+          collector_name: string | null
+          created_at: string | null
+          dependency_data: Json | null
+          end_date: string | null
+          farmer_name: string | null
+          full_address: string | null
+          id: string | null
+          image_urls: Json | null
+          is_overdue: boolean | null
+          is_retake: boolean | null
+          mfid: string | null
+          mfid_id: number | null
+          original_activity_id: number | null
+          province: string | null
+          remarks: string | null
+          retake_of: string | null
+          season_id: number | null
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_tasks_collector_id_fkey"
+            columns: ["collector_id"]
+            isOneToOne: false
+            referencedRelation: "user_backup_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_collector_id_fkey"
+            columns: ["collector_id"]
+            isOneToOne: false
+            referencedRelation: "user_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_collector_id_fkey"
+            columns: ["collector_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_mfid_id_fkey"
+            columns: ["mfid_id"]
+            isOneToOne: false
+            referencedRelation: "flattened_field_data"
+            referencedColumns: ["mfid_id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_mfid_id_fkey"
+            columns: ["mfid_id"]
+            isOneToOne: false
+            referencedRelation: "mfids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_retake_of_fkey"
+            columns: ["retake_of"]
+            isOneToOne: false
+            referencedRelation: "collection_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_retake_of_fkey"
+            columns: ["retake_of"]
+            isOneToOne: false
+            referencedRelation: "collection_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "latest_season"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_collected_by_fkey"
+            columns: ["collected_by"]
+            isOneToOne: false
+            referencedRelation: "user_backup_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_collected_by_fkey"
+            columns: ["collected_by"]
+            isOneToOne: false
+            referencedRelation: "user_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_collected_by_fkey"
+            columns: ["collected_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_backup_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       field_activity_details: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"] | null
@@ -943,8 +1331,10 @@ export type Database = {
           form_data: Json | null
           id: number | null
           image_urls: Json | null
+          is_retake: boolean | null
           mfid: string | null
           municipality: string | null
+          original_activity_id: number | null
           province: string | null
           remarks: string | null
           season_id: number | null
@@ -1148,7 +1538,7 @@ export type Database = {
         Row: {
           barangay: string | null
           city_municipality: string | null
-          coordinates: unknown
+          coordinates: string | null
           created_at: string | null
           farmer_name: string | null
           mfid: string | null
@@ -1440,6 +1830,11 @@ export type Database = {
       sync_auth_audit_entries: { Args: never; Returns: number }
       trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
       trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
+      upload_cultural_management: { Args: { data: Json }; Returns: number }
+      upload_field_data: { Args: { data: Json }; Returns: number }
+      upload_form_data: { Args: { data: Json }; Returns: number }
+      upload_nutrient_management: { Args: { data: Json }; Returns: number }
+      upload_production: { Args: { data: Json }; Returns: number }
       yield_by_location: {
         Args: {
           p_barangay?: string

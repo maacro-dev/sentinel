@@ -43,3 +43,4 @@ create index idx_fields_location on fields using gist (location);
 create index idx_fields_barangay_id on fields using btree (barangay_id);
 
 create index idx_fields_mfid_id on public.fields(mfid_id);
+

@@ -41,8 +41,6 @@ create type activity_type as enum(
     'field-data',
     'cultural-management',
     'nutrient-management',
-    -- 'crop_cut',
-    -- 'rice-non-rice',
     'production',
     'monitoring-visit',
     'damage-assessment'

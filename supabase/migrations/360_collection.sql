@@ -1,0 +1,22 @@
+
+create table collection_tasks (
+    id              uuid primary key default gen_random_uuid(),
+    mfid_id         int NOT NULL REFERENCES public.mfids(id),
+    collector_id    uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    season_id       int NOT NULL REFERENCES seasons(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    activity_type   activity_type NOT NULL,
+    can_retake      boolean default false,
+    retake_of       uuid references collection_tasks(id),
+    start_date      date NOT NULL,
+    end_date        date NOT NULL,
+    status          text NOT NULL DEFAULT 'pending' CHECK (status in ('pending', 'completed')),
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    updated_at      timestamptz NOT NULL DEFAULT now(),
+    assigned_at     timestamptz
+);
+
+create index idx_collection_tasks_season on collection_tasks(season_id);
+
+create index idx_collection_tasks_collector on collection_tasks(collector_id);
+
+alter publication supabase_realtime add table collection_tasks;

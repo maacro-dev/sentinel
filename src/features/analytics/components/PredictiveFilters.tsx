@@ -118,7 +118,7 @@ export function PredictiveFilters({
           <SelectTrigger className="w-full h-8 text-2xs">
             <SelectValue placeholder="All Varieties" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position='popper' className="max-h-96">
             <SelectItem value="all">All Varieties</SelectItem>
             {['NSIC', 'PSB', 'Others'].map(v => (
               <SelectItem key={v} value={v} onMouseEnter={() => prefetchMoreFilterData?.(undefined, v)}>
@@ -138,7 +138,7 @@ export function PredictiveFilters({
           <SelectTrigger className="w-full h-8 text-2xs">
             <SelectValue placeholder="All Methods" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position='popper' className="max-h-96">
             <SelectItem value="all">All Methods</SelectItem>
             {['direct-seeded', 'transplanted'].map(m => (
               <SelectItem key={m} value={m} onMouseEnter={() => prefetchMoreFilterData?.(m, undefined)}>

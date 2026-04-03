@@ -16,7 +16,7 @@ export const VerificationToasts = {
   updateFailed: { message: 'Verification update failed', description: 'There was an error updating the verification status.' },
 };
 
-export function useVerification(formType: string, mfid: string, seasonId?: number) {
+export function useVerification(formType: string, id: number, seasonId?: number) {
   const queryClient = useQueryClient();
   const { notifyLoading, notifySuccess, notifyError } = useToast();
   const user = useSessionStore((state) => state.user);
@@ -33,9 +33,10 @@ export function useVerification(formType: string, mfid: string, seasonId?: numbe
     },
     onError: (_error, _variables, id) => notifyError({ id, ...VerificationToasts.updateFailed }),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['form-data-entry', formType, mfid, seasonId] as const, });
+      queryClient.invalidateQueries({ queryKey: ['form-data-entry', formType, id, seasonId] as const, });
       queryClient.invalidateQueries({ queryKey: ['form-data', formType, seasonId] as const, });
       queryClient.invalidateQueries({ queryKey: ['dashboard-data', seasonId] as const, });
+      queryClient.refetchQueries({ queryKey: ['collection-tasks'] });
     },
   });
 }

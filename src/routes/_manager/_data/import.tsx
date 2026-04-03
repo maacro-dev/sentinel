@@ -20,7 +20,7 @@ import { Button } from "@/core/components/ui/button"
 import { Spinner } from '@/core/components/ui/spinner'
 import { useQueryClient } from '@tanstack/react-query'
 import { useImportNotificationStore } from '@/features/import/store/useImportNotificationStore'
-import { getFormTypeFromForm } from '@/features/forms/schemas/forms'
+import { getActivityTypeFromForm } from '@/features/forms/schemas/forms'
 
 export const Route = createFileRoute('/_manager/_data/import')({
   loader: () => ({ breadcrumb: createCrumbLoader({ label: "Import" }) }),
@@ -71,7 +71,7 @@ function RouteComponent() {
       setStep('success');
 
       if (datasetSeasonId) {
-        const formType = getFormTypeFromForm(datasetType);
+        const formType = getActivityTypeFromForm(datasetType);
         useImportNotificationStore.getState().setImported(datasetSeasonId, formType);
       }
 

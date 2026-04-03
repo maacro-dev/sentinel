@@ -26,6 +26,9 @@ export class Lgu {
     const { data, error } = await client
       .from("provinces")
       .select("*");
+
+    console.log("Fetched provinces:", data)
+
     if (error) throw error;
     return parseProvinces(data);
   }

@@ -1,13 +1,11 @@
-import { FormType } from "@/routes/_manager/forms/-config";
-import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useCallback } from "react";
-import { useTableStore } from "../store";
-import { useFormEntriesTable } from "./useFormDataTable";
-import { useShallow } from "zustand/react/shallow";
+import { useNavigate } from '@tanstack/react-router';
+import { useMemo, useEffect, useCallback } from 'react';
+import { useShallow } from 'zustand/react/shallow';
+import { FormType } from '@/routes/_manager/forms/-config';
+import { useFormEntriesTable } from './useFormDataTable';
+import { useTableStore } from '../store';
 
-// TODO: refactor this. sakit sa mata
-
-export function useFormDetailNavigator(formType?: FormType, mfid?: string, seasonId?: number) {
+export function useFormDetailNavigator(formType?: FormType, id?: string, seasonId?: number) {
   const navigate = useNavigate();
 
   const { table: entriesTable, isLoading: isLoadingEntries } = useFormEntriesTable(formType as FormType, seasonId);
@@ -21,33 +19,32 @@ export function useFormDetailNavigator(formType?: FormType, mfid?: string, seaso
     }))
   );
 
+  // Build ID list from table rows (strings) when entries load
   useEffect(() => {
-    if (!mfid) return;
-
-    const shouldRebuild = ids.length === 0 || storedFormType !== formType;
-    if (!shouldRebuild) return;
-    if (isLoadingEntries) return;
     if (!entriesTable) return;
+    if (isLoadingEntries) return;
 
-    const rebuiltIds = entriesTable.getCoreRowModel().rows.map((r) => r.original.field.mfid);
-
+    const rebuiltIds = entriesTable.getCoreRowModel().rows.map((row) => row.id);
     if (rebuiltIds.length === 0) return;
 
-    setIds(rebuiltIds, formType);
+    // Only rebuild if store is empty or form type changed
+    if (ids.length === 0 || storedFormType !== formType) {
+      setIds(rebuiltIds, formType);
+      const idx = rebuiltIds.indexOf(id ?? '');
+      setCurrentIndex(idx === -1 ? null : idx);
+    }
+  }, [entriesTable, isLoadingEntries, ids.length, storedFormType, formType, setIds, setCurrentIndex, id]);
 
-    const idx = rebuiltIds.indexOf(mfid);
-    setCurrentIndex(idx === -1 ? null : idx);
-  }, [mfid, isLoadingEntries, entriesTable]);
-
+  // Synchronize store with current ID (e.g., when ID changes via browser navigation)
   useEffect(() => {
-    if (!mfid || ids.length === 0 || storedFormType !== formType) return;
-    const idx = ids.indexOf(mfid);
+    if (!id || ids.length === 0 || storedFormType !== formType) return;
+    const idx = ids.indexOf(id);
     if (idx === -1) {
       setCurrentIndex(null);
     } else if (idx !== currentIndex) {
       setCurrentIndex(idx);
     }
-  }, [mfid, ids, currentIndex, setCurrentIndex, storedFormType, formType]);
+  }, [id, ids, currentIndex, setCurrentIndex, storedFormType, formType]);
 
   const hasNext = useMemo(() => currentIndex !== null && currentIndex < ids.length - 1, [currentIndex, ids.length]);
   const hasPrev = useMemo(() => currentIndex !== null && currentIndex > 0, [currentIndex]);
@@ -58,8 +55,8 @@ export function useFormDetailNavigator(formType?: FormType, mfid?: string, seaso
       if (!nextId || !formType) return;
       setCurrentIndex(nextIndex);
       navigate({
-        to: "/forms/$formType/$mfid",
-        params: { formType, mfid: nextId },
+        to: '/forms/$formType/$id',
+        params: { formType, id: Number(nextId) },
         replace: true,
       });
     },

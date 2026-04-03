@@ -11,6 +11,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Download } from 'lucide-react'
 import { useRef, useState } from 'react'
 import html2canvas from "html2canvas-pro"
+import { MfidCollectionTasks } from '@/features/collection/components/MfidCollectionTasks'
+import { useCurrentSeasonId } from '@/features/fields/hooks/useSeasons'
 
 export const Route = createFileRoute('/_manager/_data/mfid/$mfid')({
   loader: ({ params }) => {
@@ -23,6 +25,7 @@ export const Route = createFileRoute('/_manager/_data/mfid/$mfid')({
 function RouteComponent() {
   const { mfid } = Route.useParams()
   const { data: raw, isLoading } = useMfid({ mfid: mfid })
+  const { data: currentSeasonId } = useCurrentSeasonId();
 
   if (!raw || isLoading) {
     return <PageContainer>Loading...</PageContainer>
@@ -33,8 +36,9 @@ function RouteComponent() {
   return (
     <PageContainer>
       <NavBackButton label='Back' />
-      <div className='h-full flex flex-col justify-center items-center '>
+      <div className='flex flex-col gap-4'>
         <MfidCard data={data} status={status} mfid={mfid} />
+        <MfidCollectionTasks mfid={mfid} seasonId={currentSeasonId} />
       </div>
     </PageContainer>
   );
@@ -77,7 +81,7 @@ function MfidCard({ data, status, mfid }: MfidCardProps) {
   return (
     <div
       ref={cardRef}
-      className="flex flex-col gap-6 max-h-80 w-full max-w-140 shadow-sm border border-input p-6 rounded-container"
+      className="flex flex-col gap-6 max-h-80 w-full max-w-140 border border-input p-6 rounded-container"
     >
       <MfidCardHeader
         status={status}
