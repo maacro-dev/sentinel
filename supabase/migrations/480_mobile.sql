@@ -113,7 +113,7 @@ begin
     values (
         v_field_id,
         (data->>'season_id')::int,
-        (data->>'collection_task_id')::uuid,
+        (data->>'collection_task_id')::int,
         (data->>'activity_type')::activity_type,
         (data->>'collected_by')::uuid,
         NULLIF(data->>'collected_at','null')::timestamptz,
@@ -235,7 +235,7 @@ begin
     values (
         v_field_id,
         (data->>'season_id')::int,
-        (data->>'collection_task_id')::uuid,
+        (data->>'collection_task_id')::int,
         (data->>'activity_type')::activity_type,
         (data->>'collected_by')::uuid,
         NULLIF(data->>'collected_at','null')::timestamptz,
@@ -404,7 +404,7 @@ begin
     values (
         v_field_id,
         (data->>'season_id')::int,
-        (data->>'collection_task_id')::uuid,
+        (data->>'collection_task_id')::int,
         (data->>'activity_type')::activity_type,
         (data->>'collected_by')::uuid,
         NULLIF(data->>'collected_at','null')::timestamptz,
@@ -539,7 +539,7 @@ begin
     values (
         v_field_id,
         (data->>'season_id')::int,
-        (data->>'collection_task_id')::uuid,
+        (data->>'collection_task_id')::int,
         (data->>'activity_type')::activity_type,
         (data->>'collected_by')::uuid,
         NULLIF(data->>'collected_at','null')::timestamptz,

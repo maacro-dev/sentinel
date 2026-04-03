@@ -152,9 +152,9 @@ export type Database = {
           collector_id: string
           created_at: string
           end_date: string
-          id: string
+          id: number
           mfid_id: number
-          retake_of: string | null
+          retake_of: number | null
           season_id: number
           start_date: string
           status: string
@@ -167,9 +167,9 @@ export type Database = {
           collector_id: string
           created_at?: string
           end_date: string
-          id?: string
+          id?: number
           mfid_id: number
-          retake_of?: string | null
+          retake_of?: number | null
           season_id: number
           start_date: string
           status?: string
@@ -182,9 +182,9 @@ export type Database = {
           collector_id?: string
           created_at?: string
           end_date?: string
-          id?: string
+          id?: number
           mfid_id?: number
-          retake_of?: string | null
+          retake_of?: number | null
           season_id?: number
           start_date?: string
           status?: string
@@ -576,7 +576,7 @@ export type Database = {
           activity_type: Database["public"]["Enums"]["activity_type"]
           collected_at: string | null
           collected_by: string | null
-          collection_task_id: string | null
+          collection_task_id: number | null
           field_id: number
           id: number
           image_urls: Json | null
@@ -593,7 +593,7 @@ export type Database = {
           activity_type: Database["public"]["Enums"]["activity_type"]
           collected_at?: string | null
           collected_by?: string | null
-          collection_task_id?: string | null
+          collection_task_id?: number | null
           field_id: number
           id?: number
           image_urls?: Json | null
@@ -610,7 +610,7 @@ export type Database = {
           activity_type?: Database["public"]["Enums"]["activity_type"]
           collected_at?: string | null
           collected_by?: string | null
-          collection_task_id?: string | null
+          collection_task_id?: number | null
           field_id?: number
           id?: number
           image_urls?: Json | null
@@ -1185,7 +1185,7 @@ export type Database = {
           end_date: string | null
           farmer_name: string | null
           full_address: string | null
-          id: string | null
+          id: number | null
           image_urls: Json | null
           is_overdue: boolean | null
           is_retake: boolean | null
@@ -1194,7 +1194,7 @@ export type Database = {
           original_activity_id: number | null
           province: string | null
           remarks: string | null
-          retake_of: string | null
+          retake_of: number | null
           season_id: number | null
           start_date: string | null
           status: string | null

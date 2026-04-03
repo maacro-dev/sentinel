@@ -6,7 +6,7 @@ export const collectionTaskStatusSchema = z.enum(["pending", "completed"]);
 export type CollectionTaskStatus = z.infer<typeof collectionTaskStatusSchema>;
 
 export const collectionTaskSchema = z.object({
-  id: z.uuid(),
+  id: z.number(),
   season_id: z.number(),
   activity_type: activityTypeSchema,
   collector_id: z.uuid(),

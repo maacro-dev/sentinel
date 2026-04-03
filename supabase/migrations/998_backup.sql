@@ -7,11 +7,14 @@ create or replace function public.restore_backup(p_backup jsonb)
 as $$
 declare
     table_name text;
+    -- Insertion order: parent tables first
     table_order text[] := array[
         'mfids',
         'farmers',
         'fields',
         'seasons',
+        'collection_tasks',
+        'monitoring_visits',
         'field_activities',
         'field_plannings',
         'crop_establishments',
@@ -19,18 +22,24 @@ declare
         'fertilizer_applications',
         'harvest_records',
         'damage_assessments',
-        'monitoring_visits',
         'system_audit_logs',
         'activity_logs',
         'audit_errors',
         'predicted_yields'
     ];
-
-
 begin
-    for table_name in select unnest(table_order) loop
+    -- Delete in reverse order (children first)
+    for i in reverse array_upper(table_order, 1)..1 loop
+        table_name := table_order[i];
         if p_backup ? table_name then
             execute format('delete from public.%I', table_name);
+        end if;
+    end loop;
+
+    -- Insert in forward order (parents first)
+    for i in 1..array_upper(table_order, 1) loop
+        table_name := table_order[i];
+        if p_backup ? table_name then
             execute format('
                 insert into public.%I
                 select *
