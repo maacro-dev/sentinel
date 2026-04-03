@@ -51,7 +51,7 @@ export class Collection {
     if (error) throw error;
   }
 
-  static async transfer(taskId: string, newCollectorId: string): Promise<CollectionTask> {
+  static async transfer(taskId: number, newCollectorId: string): Promise<CollectionTask> {
     const client = await getSupabase();
     const { data, error } = await client
       .from("collection_tasks")

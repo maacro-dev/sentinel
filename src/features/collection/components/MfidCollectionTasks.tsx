@@ -86,7 +86,7 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
   }, [tasks]);
 
   const retakeMap = useMemo(() => {
-    const map = new Map<string, CollectionTask>();
+    const map = new Map<number, CollectionTask>();
     tasks.forEach((task) => {
       if (task.retake_of) map.set(task.retake_of, task);
     });
@@ -344,7 +344,7 @@ interface MainTaskRowProps {
   previousCount: number;
   isExpanded: boolean;
   onToggle: () => void;
-  retakeMap: Map<string, CollectionTask>;
+  retakeMap: Map<number, CollectionTask>;
   onRetake: () => void;
   status: { icon: React.ReactNode; label: string; color: string };
   onViewForm: () => void;

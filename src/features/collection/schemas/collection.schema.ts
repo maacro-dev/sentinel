@@ -12,7 +12,7 @@ export const collectionTaskSchema = z.object({
   collector_id: z.uuid(),
   start_date: z.string(),
   end_date: z.string(),
-  retake_of: z.string().optional().nullable(),
+  retake_of: z.number().optional().nullable(),
   status: collectionTaskStatusSchema,
   verification_status: z.string().nullable().optional(),
   assigned_at: z.string().nullable().optional(),
@@ -36,7 +36,7 @@ export const collectionTaskInputSchema = z.object({
   collector_id: z.uuid(),
   start_date: z.string(),
   end_date: z.string(),
-  retake_of: z.string().optional().nullable(),
+  retake_of: z.number().optional().nullable(),
   activity_id: z.number().nullable().optional(),
 }).refine(data => new Date(data.end_date) > new Date(data.start_date), {
   message: "End date must be after start date",

@@ -12,7 +12,7 @@ export const PREREQUISITE_ORDER: CoreMetadataType[] = [
 
 interface PrerequisiteTrackerProps {
   tasksMap: Map<CoreMetadataType, CollectionTask>;
-  retakeMap: Map<string, CollectionTask>;
+  retakeMap: Map<number, CollectionTask>;
 }
 
 export function PrerequisiteTracker({ tasksMap, retakeMap }: PrerequisiteTrackerProps) {
