@@ -8,7 +8,7 @@ export const analyticsGroupConfig = createRouteConfig("analytics", {
     createRouteConfig("forms", {
       role: "data_manager",
       label: "Forms",
-      path: "/forms",
+      path: "/forms-analytics",
       icon: Library,
     }),
     createRouteConfig("descriptive", {

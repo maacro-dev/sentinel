@@ -10,7 +10,7 @@ import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import PlaceholderBody from "@/core/components/PlaceholderBody";
 import { useSeason } from "@/features/fields/hooks/useSeasons";
 
-export const Route = createFileRoute('/_manager/_analytics/forms')({
+export const Route = createFileRoute('/_manager/_analytics/forms-analytics')({
   component: RouteComponent,
   head: () => ({ meta: [{ title: "Forms | Humay" }] }),
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),

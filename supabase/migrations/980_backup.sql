@@ -22,6 +22,7 @@ declare
         'fertilizer_applications',
         'harvest_records',
         'damage_assessments',
+        'notifications',
         'system_audit_logs',
         'activity_logs',
         'audit_errors',

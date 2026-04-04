@@ -1,12 +1,6 @@
 import { Validator } from "@/core/utils/validator";
+import { userSchema } from "@/features/users";
 import * as z from "zod/v4";
-
-
-const userInfoSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.email(),
-});
 
 export const formDataEntryResponseSchema = z.object({
   mfid: z.string(),
@@ -26,8 +20,8 @@ export const formDataEntryResponseSchema = z.object({
     "monitoring-visit",
   ]),
   verification_status: z.enum(['pending', 'approved', 'rejected', 'unknown']),
-  collected_by: userInfoSchema.nullable(),
-  verified_by: userInfoSchema.nullable(),
+  collected_by: userSchema.nullable(),
+  verified_by: userSchema.nullable(),
   collected_at: z.iso.datetime({ offset: true }),
   verified_at: z.nullable(z.iso.datetime({ offset: true })),
   synced_at: z.nullable(z.iso.datetime({ offset: true })),
@@ -45,9 +39,9 @@ export const formDataEntryResponseSchema = z.object({
 
 const collectionSchema = z.object({
   farmer: z.string(),
-  collectedBy: userInfoSchema,
+  collectedBy: userSchema,
   collectedAt: z.string(),
-  verifiedBy: userInfoSchema.nullable()
+  verifiedBy: userSchema.nullable()
 });
 
 const fieldSchema = z.object({

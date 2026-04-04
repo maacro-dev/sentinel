@@ -44,20 +44,8 @@ select
     fa.field_id as field_id,
     fa.season_id as season_id,
     fa.activity_type as activity_type,
-    case when u_collected.id is not null then
-        jsonb_build_object(
-            'id', u_collected.id,
-            'name', concat(u_collected.first_name, ' ', u_collected.last_name),
-            'email', u_collected.email
-        )
-    else null end as collected_by,
-    case when u_verified.id is not null then
-        jsonb_build_object(
-            'id', u_verified.id,
-            'name', concat(u_verified.first_name, ' ', u_verified.last_name),
-            'email', u_verified.email
-        )
-    else null end as verified_by,
+    row_to_json(u_collected) as collected_by,
+    row_to_json(u_verified) as verified_by,
     fa.remarks as remarks,
     fa.verification_status as verification_status,
     fa.collected_at as collected_at,
@@ -174,21 +162,31 @@ select
                and fa_prev.activity_type = 'cultural-management'
                and fa_prev.verification_status = 'approved'
              limit 1)
-        -- when ct.activity_type = 'production' then
-        --     (select jsonb_build_object(
-        --         'total_field_area_ha', fp.total_field_area_ha,
-        --         'rice_variety', ce.rice_variety
-        --     )
-        --      from field_plannings fp, crop_establishments ce
-        --      join field_activities fa_fp on fp.id = fa_fp.id
-        --      join field_activities fa_ce on ce.id = fa_ce.id
-        --      where fa_fp.field_id = fld.id and fa_fp.season_id = ct.season_id
-        --        and fa_fp.activity_type = 'field_planning' and fa_fp.verification_status = 'approved'
-        --        and fa_ce.field_id = fld.id and fa_ce.season_id = ct.season_id
-        --        and fa_ce.activity_type = 'crop_establishment' and fa_ce.verification_status = 'approved'
-        --      limit 1)
+        when ct.activity_type = 'production' then
+            (select jsonb_build_object(
+                'total_field_area_ha', fp.total_field_area_ha
+             )
+             from field_plannings fp
+             join field_activities fa_fp on fp.id = fa_fp.id
+             where fa_fp.field_id = fld.id
+               and fa_fp.season_id = ct.season_id
+               and fa_fp.activity_type = 'field-data'
+               and fa_fp.verification_status = 'approved'
+             limit 1)
+        when ct.activity_type = 'damage-assessment' then
+            (select jsonb_build_object(
+                'total_field_area_ha', fp.total_field_area_ha
+            )
+             from field_plannings fp
+             join field_activities fa_prev on fp.id = fa_prev.id
+             where fa_prev.field_id = fld.id
+               and fa_prev.season_id = ct.season_id
+               and fa_prev.activity_type = 'field-data'
+               and fa_prev.verification_status = 'approved'
+             limit 1)
         else null
     end as dependency_data,
+
     case when ct.retake_of is not null then true else false end as is_retake,
     fa_original.id as original_activity_id,
     case

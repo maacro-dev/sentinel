@@ -3,6 +3,7 @@ import { ManagerRealtimeListener } from "@/core/supabase/realtime";
 import { analyticsSeasonSearchSchema } from "@/features/analytics/schemas/search.schema";
 import { Session } from "@/features/authentication";
 import { Seasons } from "@/features/fields/services/Seasons";
+import { NotificationsRealtimeListener } from "@/features/notifications/components/NotificationsRealtimeListener";
 import { Outlet, createFileRoute, redirect, retainSearchParams } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter"
 
@@ -36,6 +37,7 @@ function RouteComponent() {
   return (
     <Layout role="data_manager">
       <ManagerRealtimeListener seasonId={seasonId ?? 0} />
+      <NotificationsRealtimeListener />
       <Outlet />
     </Layout>
   );

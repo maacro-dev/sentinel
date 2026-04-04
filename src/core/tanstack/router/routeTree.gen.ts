@@ -37,7 +37,7 @@ import { Route as ManagerOverviewCollectionRouteImport } from './../../../routes
 import { Route as ManagerDataMfidRouteImport } from './../../../routes/_manager/_data/mfid'
 import { Route as ManagerDataImportRouteImport } from './../../../routes/_manager/_data/import'
 import { Route as ManagerAnalyticsPredictiveRouteImport } from './../../../routes/_manager/_analytics/predictive'
-import { Route as ManagerAnalyticsFormsRouteImport } from './../../../routes/_manager/_analytics/forms'
+import { Route as ManagerAnalyticsFormsAnalyticsRouteImport } from './../../../routes/_manager/_analytics/forms-analytics'
 import { Route as ManagerAnalyticsDescriptiveRouteImport } from './../../../routes/_manager/_analytics/descriptive'
 import { Route as ManagerAnalyticsComparativeRouteImport } from './../../../routes/_manager/_analytics/comparative'
 import { Route as ManagerFormsFormTypeIndexRouteImport } from './../../../routes/_manager/forms/$formType.index'
@@ -183,11 +183,12 @@ const ManagerAnalyticsPredictiveRoute =
     path: '/predictive',
     getParentRoute: () => ManagerAnalyticsRoute,
   } as any)
-const ManagerAnalyticsFormsRoute = ManagerAnalyticsFormsRouteImport.update({
-  id: '/forms',
-  path: '/forms',
-  getParentRoute: () => ManagerAnalyticsRoute,
-} as any)
+const ManagerAnalyticsFormsAnalyticsRoute =
+  ManagerAnalyticsFormsAnalyticsRouteImport.update({
+    id: '/forms-analytics',
+    path: '/forms-analytics',
+    getParentRoute: () => ManagerAnalyticsRoute,
+  } as any)
 const ManagerAnalyticsDescriptiveRoute =
   ManagerAnalyticsDescriptiveRouteImport.update({
     id: '/descriptive',
@@ -229,10 +230,11 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/forms': typeof ManagerAnalyticsFormsRoute
+  '/forms': typeof ManagerFormsRouteWithChildren
   '/sandbox': typeof ManagerSandboxRoute
   '/comparative': typeof ManagerAnalyticsComparativeRoute
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
+  '/forms-analytics': typeof ManagerAnalyticsFormsAnalyticsRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/import': typeof ManagerDataImportRoute
   '/mfid': typeof ManagerDataMfidRouteWithChildren
@@ -257,10 +259,11 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/forms': typeof ManagerAnalyticsFormsRoute
+  '/forms': typeof ManagerFormsRouteWithChildren
   '/sandbox': typeof ManagerSandboxRoute
   '/comparative': typeof ManagerAnalyticsComparativeRoute
   '/descriptive': typeof ManagerAnalyticsDescriptiveRoute
+  '/forms-analytics': typeof ManagerAnalyticsFormsAnalyticsRoute
   '/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/import': typeof ManagerDataImportRoute
   '/collection': typeof ManagerOverviewCollectionRoute
@@ -296,7 +299,7 @@ export interface FileRoutesById {
   '/admin/_overview': typeof AdminOverviewRouteWithChildren
   '/_manager/_analytics/comparative': typeof ManagerAnalyticsComparativeRoute
   '/_manager/_analytics/descriptive': typeof ManagerAnalyticsDescriptiveRoute
-  '/_manager/_analytics/forms': typeof ManagerAnalyticsFormsRoute
+  '/_manager/_analytics/forms-analytics': typeof ManagerAnalyticsFormsAnalyticsRoute
   '/_manager/_analytics/predictive': typeof ManagerAnalyticsPredictiveRoute
   '/_manager/_data/import': typeof ManagerDataImportRoute
   '/_manager/_data/mfid': typeof ManagerDataMfidRouteWithChildren
@@ -327,6 +330,7 @@ export interface FileRouteTypes {
     | '/sandbox'
     | '/comparative'
     | '/descriptive'
+    | '/forms-analytics'
     | '/predictive'
     | '/import'
     | '/mfid'
@@ -355,6 +359,7 @@ export interface FileRouteTypes {
     | '/sandbox'
     | '/comparative'
     | '/descriptive'
+    | '/forms-analytics'
     | '/predictive'
     | '/import'
     | '/collection'
@@ -389,7 +394,7 @@ export interface FileRouteTypes {
     | '/admin/_overview'
     | '/_manager/_analytics/comparative'
     | '/_manager/_analytics/descriptive'
-    | '/_manager/_analytics/forms'
+    | '/_manager/_analytics/forms-analytics'
     | '/_manager/_analytics/predictive'
     | '/_manager/_data/import'
     | '/_manager/_data/mfid'
@@ -616,11 +621,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerAnalyticsPredictiveRouteImport
       parentRoute: typeof ManagerAnalyticsRoute
     }
-    '/_manager/_analytics/forms': {
-      id: '/_manager/_analytics/forms'
-      path: '/forms'
-      fullPath: '/forms'
-      preLoaderRoute: typeof ManagerAnalyticsFormsRouteImport
+    '/_manager/_analytics/forms-analytics': {
+      id: '/_manager/_analytics/forms-analytics'
+      path: '/forms-analytics'
+      fullPath: '/forms-analytics'
+      preLoaderRoute: typeof ManagerAnalyticsFormsAnalyticsRouteImport
       parentRoute: typeof ManagerAnalyticsRoute
     }
     '/_manager/_analytics/descriptive': {
@@ -671,14 +676,14 @@ declare module '@tanstack/react-router' {
 interface ManagerAnalyticsRouteChildren {
   ManagerAnalyticsComparativeRoute: typeof ManagerAnalyticsComparativeRoute
   ManagerAnalyticsDescriptiveRoute: typeof ManagerAnalyticsDescriptiveRoute
-  ManagerAnalyticsFormsRoute: typeof ManagerAnalyticsFormsRoute
+  ManagerAnalyticsFormsAnalyticsRoute: typeof ManagerAnalyticsFormsAnalyticsRoute
   ManagerAnalyticsPredictiveRoute: typeof ManagerAnalyticsPredictiveRoute
 }
 
 const ManagerAnalyticsRouteChildren: ManagerAnalyticsRouteChildren = {
   ManagerAnalyticsComparativeRoute: ManagerAnalyticsComparativeRoute,
   ManagerAnalyticsDescriptiveRoute: ManagerAnalyticsDescriptiveRoute,
-  ManagerAnalyticsFormsRoute: ManagerAnalyticsFormsRoute,
+  ManagerAnalyticsFormsAnalyticsRoute: ManagerAnalyticsFormsAnalyticsRoute,
   ManagerAnalyticsPredictiveRoute: ManagerAnalyticsPredictiveRoute,
 }
 

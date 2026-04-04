@@ -30,6 +30,7 @@ export const Route = createFileRoute('/_manager/forms/$formType/$id')({
         seasonId: seasonId
       })
     )
+    // should change to mfid
     return { breadcrumb: createCrumbLoader({ label: String(params.id) }) }
   }
 })
@@ -120,13 +121,25 @@ function DataGroup({ data, title, icon }: { data: FormDataGroup, title: string, 
 
 
 function GeneralSection({ data }: { data: FormDataEntry }) {
+  const collection = {
+    ...data.collection,
+    collectedBy: data.collection.collectedBy
+      ? `${data.collection.collectedBy.first_name} ${data.collection.collectedBy.last_name}`
+      : 'N/A',
+    verifiedBy: data.collection.verifiedBy
+      ? `${data.collection.verifiedBy.first_name} ${data.collection.verifiedBy.last_name}`
+      : null,
+  } ;
+
+
   return (
     <section className='flex flex-row gap-4'>
-      <DataGroup icon={<User className="size-4" />} data={data.collection} title="Farmer & Collection" />
+      {/* @ts-ignore */}
+      <DataGroup icon={<User className="size-4" />} data={collection} title="Farmer & Collection" />
       <DataGroup icon={<Grid2x2 className="size-4" />} data={data.field} title="Field & Location" />
       <DataGroup icon={<Grid2x2 className="size-4" />} data={data.season} title="Season & Status" />
     </section>
-  )
+  );
 }
 
 function FormDataSection({ data, title }: { data: FormData, title: string }) {

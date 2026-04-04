@@ -8,6 +8,7 @@ import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import { ExpandableStatCard } from "@/features/analytics/components/ExpandableStatCard";
 import { BarangayYieldBarChart } from "@/features/analytics/components/BarangayYieldRankChart";
+import { useNotifications } from "@/features/notifications/hooks/useNotification";
 
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
@@ -23,6 +24,10 @@ function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
   const { stats, trends, ranks, isLoading } = useAnalyticsDashboard(seasonId);
+
+  const { notifications } = useNotifications()
+
+  console.log("Notifications:", notifications)
 
   if (isLoading || !stats || !trends || !ranks) {
     return <PendingComponent />

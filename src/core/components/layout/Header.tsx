@@ -14,6 +14,7 @@ import { useSessionStore } from "@/features/authentication/store";
 import { generateFullReport } from "@/features/reports/report";
 import { Spinner } from "../ui/spinner";
 import { useQueryClient } from "@tanstack/react-query";
+import { NotificationsDropdown } from "@/features/notifications/components/NotificationsDropdown";
 
 interface LayoutHeaderProps extends ComponentProps<"header"> {
   breadcrumbs: Array<CrumbDef>;
@@ -55,9 +56,12 @@ export const LayoutHeader = memo(({ breadcrumbs, className, role, ...props }: La
         {role === 'data_manager' && (
           <>
             <SeasonSelector />
-            <Button variant="ghost" className="shadow-xs" onClick={handleExport} disabled={exporting}>
-              {exporting ? <Spinner className="size-4" /> : <Download className="size-4" />}
-            </Button>
+            <div>
+              <Button variant="ghost" onClick={handleExport} disabled={exporting}>
+                {exporting ? <Spinner className="size-4" /> : <Download className="size-4" />}
+              </Button>
+              <NotificationsDropdown />
+            </div>
           </>
         )}
         <UserMenu />

@@ -9,6 +9,14 @@ create table users(
     updated_at      timestamptz not null default now()
 );
 
+create or replace view user_details as
+    select
+        v_user.*,
+        auth_user.email,
+        auth_user.last_sign_in_at
+    from users v_user
+    join auth.users auth_user on v_user.id = auth_user.id;
+
 create view public.user_backup_view as
 select
     v_user.id,
@@ -27,13 +35,6 @@ select
 from public.users v_user
 join auth.users auth_user on v_user.id = auth_user.id;
 
-create or replace view user_details as
-    select
-        v_user.*,
-        auth_user.email,
-        auth_user.last_sign_in_at
-    from users v_user
-    join auth.users auth_user on v_user.id = auth_user.id;
 
 
 create function public.handle_new_user()

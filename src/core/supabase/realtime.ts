@@ -35,9 +35,7 @@ export function ManagerRealtimeListener({ seasonId }: { seasonId: number }) {
     (async () => {
       supabase = await getSupabase();
       await supabase.realtime.setAuth();
-
       console.log(supabase.getChannels())
-
       channel = supabase
         .channel("updates")
         .on("postgres_changes", { event: "*", schema: "public", table: "field_activities" }, () => {
