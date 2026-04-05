@@ -5,6 +5,15 @@ import { formatSeasonLabel, getSeasonDisplayLabel, isCurrentSeason } from "../ut
 import { useSearch } from "@tanstack/react-router"
 import { SeasonRow } from "../schemas/seasons"
 
+export function useSeasonLabel(seasonId?: number) {
+  const { data: seasons = [] } = useSeasons();
+  const season = useMemo(() => {
+    if (!seasonId || !seasons) return null;
+    return seasons.find(s => s.id === seasonId);
+  }, [seasonId, seasons]);
+  return season ? formatSeasonLabel(season) : null;
+}
+
 export const useSeason = (id?: number) => {
   return useQuery({
     queryKey: ["season", id] as const,

@@ -3,18 +3,29 @@ import { Spinner } from '@/core/components/ui/spinner';
 import { createCrumbLoader } from '@/core/utils/breadcrumb';
 import { comparativeViewMap, MoreFilters } from '@/features/analytics/comparative-map';
 import { ComparativeToolbar } from '@/features/analytics/components/ComparativeToolbar';
+import { useComparisonDamageCauseData } from '@/features/analytics/hooks/useComparisonDamageCauseData';
+import { useComparisonDamageLocationData } from '@/features/analytics/hooks/useComparisonDamageLocationData';
+import { useComparisonYieldData } from '@/features/analytics/hooks/useComparisonYieldData';
+import { useComparisonYieldMethodData } from '@/features/analytics/hooks/useComparisonYieldMethodData';
+import { useComparisonYieldVarietyData } from '@/features/analytics/hooks/useComparisonYieldVarietyData';
 import { useDamageAnalytics } from '@/features/analytics/hooks/useDamageAnalytics';
 import { useYieldComparativeData } from '@/features/analytics/hooks/useYieldAnalytics';
 import { damageByCauseOptions, damageByLocationOptions, yieldByLocationOptions, yieldByMethodOptions, yieldByVarietyOptions } from '@/features/analytics/queries/options';
 import { ComparativeView } from '@/features/analytics/types';
+import { useSeasonLabel } from '@/features/fields/hooks/useSeasons';
 import { useAvailableLocations } from '@/features/mfid/hooks/useAvailableLocations';
 import { useLocationHierarchy } from '@/features/mfid/hooks/useLgu';
 import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useCallback, useMemo, useState } from 'react';
+import * as z from "zod/v4"
 
 export const Route = createFileRoute("/_manager/_analytics/comparative")({
   component: RouteComponent,
+  validateSearch: z.object({
+    seasonId: z.coerce.number().optional(),
+    compareSeasonId: z.coerce.number().optional(),
+  }),
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
     const defaultParam = { seasonId: seasonId, province: undefined, municipality: undefined, barangay: undefined, method: undefined, variety: undefined }
@@ -30,7 +41,9 @@ export const Route = createFileRoute("/_manager/_analytics/comparative")({
 });
 
 function RouteComponent() {
-  const { seasonId } = Route.useSearch()
+  const { seasonId, compareSeasonId } = Route.useSearch()
+
+  const navigate = useNavigate({ from: Route.fullPath });
 
   const [view, setView] = useState<ComparativeView>('yield-location');
 
@@ -96,6 +109,57 @@ function RouteComponent() {
     method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
     variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
   })
+
+  const yieldLocationCompare = useComparisonYieldData({
+    seasonId,
+    compareSeasonId,
+    province: location.province || undefined,
+    municipality: location.municipality || undefined,
+    barangay: location.barangay || undefined,
+    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
+    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+  });
+
+  const yieldMethodCompare = useComparisonYieldMethodData({
+    seasonId,
+    compareSeasonId,
+    province: location.province || undefined,
+    municipality: location.municipality || undefined,
+    barangay: location.barangay || undefined,
+    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
+    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+  });
+
+  const yieldVarietyCompare = useComparisonYieldVarietyData({
+    seasonId,
+    compareSeasonId,
+    province: location.province || undefined,
+    municipality: location.municipality || undefined,
+    barangay: location.barangay || undefined,
+    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
+    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+  });
+
+  const damageLocationCompare = useComparisonDamageLocationData({
+    seasonId,
+    compareSeasonId,
+    province: location.province || undefined,
+    municipality: location.municipality || undefined,
+    barangay: location.barangay || undefined,
+    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
+    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+  });
+
+  const damageCauseCompare = useComparisonDamageCauseData({
+    seasonId,
+    compareSeasonId,
+    province: location.province || undefined,
+    municipality: location.municipality || undefined,
+    barangay: location.barangay || undefined,
+    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
+    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+  });
+
 
   const queryClient = useQueryClient();
 
@@ -176,6 +240,32 @@ function RouteComponent() {
     return 'province';
   }, [location]);
 
+
+  const handleCompareSeasonChange = (newId: number) => {
+    navigate({
+      search: (prev) => ({ ...prev, compareSeasonId: newId }),
+      replace: true,
+    });
+  };
+
+  const handleClearComparison = () => {
+    navigate({
+      search: (prev) => ({ ...prev, compareSeasonId: undefined }),
+      replace: true,
+    });
+  };
+
+  const currentSeasonLabel = useSeasonLabel(seasonId);
+  const compareSeasonLabel = useSeasonLabel(compareSeasonId);
+
+  const comparisonMap = {
+    'yield-location': { data: yieldLocationCompare.data, stats: yieldLocationCompare.comparisonStats, },
+    'yield-method': { data: yieldMethodCompare.data, stats: yieldMethodCompare.comparisonStats, },
+    'yield-variety': { data: yieldVarietyCompare.data, stats: yieldVarietyCompare.comparisonStats, },
+    'damage-location': { data: damageLocationCompare.data, stats: damageLocationCompare.comparisonStats },
+    'damage-cause': { data: damageCauseCompare.data, stats: damageCauseCompare.comparisonStats },
+  };
+
   if (isLoading || !activeData) {
     return <PendingComponent />
   }
@@ -198,13 +288,23 @@ function RouteComponent() {
         isLoadingBarangays={locationsLoading}
         prefetchLocationData={prefetchLocationData}
         prefetchMoreFilterData={prefetchWithFilters}
+        compareSeasonId={compareSeasonId}
+        onCompareSeasonChange={handleCompareSeasonChange}
+        onClearComparison={handleClearComparison}
       />
 
-      <ViewComponent
-        data={activeData}
-        isLoading={isLoading}
-        {...(view === 'yield-location' ? { level } : {})}
-      />
+      {ViewComponent && (
+        <ViewComponent
+          data={activeData}
+          isLoading={isLoading}
+          {...(view === 'yield-location' ? { level } : {})}
+          // @ts-ignore
+          compareData={comparisonMap[view]?.data}
+          currentSeasonLabel={currentSeasonLabel}
+          compareSeasonLabel={compareSeasonLabel}
+          comparisonStats={comparisonMap[view]?.stats}
+        />
+      )}
     </PageContainer>
   );
 }

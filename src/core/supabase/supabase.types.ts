@@ -1823,17 +1823,6 @@ export type Database = {
         Args: { p_season_id?: number }
         Returns: Json
       }
-      predicted_yield_by_location: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
       predicted_yield_by_soil_type: {
         Args: {
           p_barangay?: string
@@ -1846,17 +1835,6 @@ export type Database = {
         Returns: Json
       }
       predicted_yield_by_soil_variety: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
-      predicted_yield_by_variety: {
         Args: {
           p_barangay?: string
           p_method?: string

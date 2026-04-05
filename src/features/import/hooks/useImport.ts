@@ -148,15 +148,10 @@ export function useImport(initialDataset?: Form) {
 
   const importFn = (data: ImportRow[], fileName: string) => {
     if (!datasetType) return Promise.reject("No dataset selected");
-
     let dataToSend = data;
     if (datasetType === 'fertilization_records') {
       dataToSend = transformFertilizationRecords(data);
-      console.log('Single row to send example', JSON.stringify(dataToSend[0], null, 2));
     }
-
-    console.log(dataToSend)
-
     return importMutation.mutateAsync({ datasetType, data: dataToSend, fileName });
   };
 
@@ -246,7 +241,6 @@ function parseAllRows(
 
       if (typeof seasonId === "number") {
         seasonSet.add(seasonId);
-        // Store details for logging
         if (!seasonDetails.has(seasonId)) {
           seasonDetails.set(seasonId, []);
         }
@@ -271,6 +265,11 @@ function parseAllRows(
         return;
       }
       seenKeys.add(key);
+    } else {
+      console.group(`Row ${index} validation failed`);
+      console.log("Row data:", row);
+      console.log("Issues:", result.issues);
+      console.groupEnd();
     }
 
     if (result.issues.length > 0) {

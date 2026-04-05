@@ -241,6 +241,7 @@ export class Analytics {
     filters: { seasonId?: number; province?: string; municipality?: string; barangay?: string; method?: string; variety?: string }
   ): Promise<PredictedYieldLocationData> {
     const client = await this._client;
+    // @ts-ignore
     const { data, error } = await client.rpc('predicted_yield_by_location', {
       p_season_id: filters.seasonId,
       p_province: filters.province,

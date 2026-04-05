@@ -135,9 +135,9 @@ export const FormCountBarChart = memo(({ data }: { data: FormCounts }) => {
         header={
           selectedFormData
             ? {
-                title: `Form Counts for ${getFormLabel(selectedForm!)}`,
-                description: "Breakdown by status",
-              }
+              title: `Form Counts for ${getFormLabel(selectedForm!)}`,
+              description: "Breakdown by status",
+            }
             : header
         }
         axisKeys={axisKeys}

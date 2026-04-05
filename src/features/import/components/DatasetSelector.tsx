@@ -24,7 +24,6 @@ const forms = [
   "fertilization_records",
   "harvest_records",
   "damage_assessments",
-  "monitoring_visits"
 ] as Form[];
 
 
@@ -50,7 +49,7 @@ export function DatasetSelector({ onSelect, onFileHandle, fileError }: DatasetSe
   return (
     <>
       <div className='h-full flex flex-col justify-center items-center'>
-        <Empty className="border border-muted-foreground/40 border-dashed max-h-[500px] w-3/5">
+        <Empty className="border border-muted-foreground/40 border-dashed max-h-125 w-3/5">
           <EmptyHeader>
             <EmptyMedia variant="icon"><Database /></EmptyMedia>
             <EmptyTitle>Choose Dataset Type</EmptyTitle>
@@ -58,7 +57,7 @@ export function DatasetSelector({ onSelect, onFileHandle, fileError }: DatasetSe
               Select the type of data you're importing, then pick a CSV file.
             </EmptyDescription>
           </EmptyHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-wrap justify-center w-120 gap-4 decoration-humay-bg">
             {forms.map(type => (
               <Button
                 className="text-xs"

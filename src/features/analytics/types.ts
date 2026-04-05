@@ -61,16 +61,15 @@ export interface StatMetadata {
   unit: string;
 }
 
-export type ComparativeView = "yield-location" | "yield-method" | "yield-variety" | "damage-location" | "damage-cause"
-
 export type PredictiveView = "forecast" | "general"
+
+export type ComparativeView = "yield-location" | "yield-method" | "yield-variety" | "damage-location" | "damage-cause"
 
 export type ComparativeViewProps = { data?: any; isLoading: boolean }
 
 export type ComparativeViewComponent = React.ComponentType<ComparativeViewProps>
 
-
-export interface PredictiveDataParams {
+export interface ComparativeDataParams {
     seasonId: number | undefined,
     province: string | undefined,
     municipality: string | undefined,
@@ -79,7 +78,7 @@ export interface PredictiveDataParams {
     variety: string | undefined,
 }
 
-export interface ComparativeDataParams {
+export interface PredictiveDataParams {
     seasonId: number | undefined,
     province: string | undefined,
     municipality: string | undefined,

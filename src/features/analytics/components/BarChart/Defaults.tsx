@@ -17,6 +17,7 @@ export const BarChartDefaults = {
   },
   barChart: {
     barCategoryGap: "32%",
-    animationDuration: 800
+    animationDuration: 800,
+    barGap: 8
   }
 }

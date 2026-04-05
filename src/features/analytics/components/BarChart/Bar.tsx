@@ -11,13 +11,14 @@ const clickableActiveBar = {
 type BarProps = {
   axisKey: string
   onClick?: (item: any) => void
+  name?: string
   activeBar?: any
   dataLength: number | undefined
   layout?: "vertical" | "horizontal"
 }
 
 export const Bar = memo(
-  ({ axisKey, onClick, activeBar, dataLength, layout }: BarProps) => {
+  ({ axisKey, onClick, name, activeBar, dataLength, layout }: BarProps) => {
     const isVertical = layout === 'vertical';
     const resolvedActiveBar = activeBar !== undefined ? activeBar : onClick ? clickableActiveBar : false;
 
@@ -28,6 +29,7 @@ export const Bar = memo(
     return (
       <PrimitiveBar
         dataKey={axisKey}
+        name={name}
         onClick={onClick}
         cursor={onClick ? "pointer" : "default"}
         activeBar={resolvedActiveBar}

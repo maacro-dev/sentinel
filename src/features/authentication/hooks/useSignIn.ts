@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Auth } from "../services/Auth";
 import { useSession } from "./useSession";
 import { useToast } from "@/features/toast";
@@ -17,6 +17,7 @@ export const useSignIn = ({ onSignIn }: SignInOptions) => {
   const router = useRouter();
   const { notifySuccess, notifyError } = useToast()
   const { updateSession } = useSession();
+  const queryClient = useQueryClient();
   const { mutateAsync: signIn, isPending: isLoading } = useMutation({
     mutationKey: ['signIn'] as const,
     mutationFn: Auth.signIn,
@@ -35,6 +36,9 @@ export const useSignIn = ({ onSignIn }: SignInOptions) => {
       }
 
       return notifyError(AuthToasts.signInFailed)
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries();
     }
   })
   return { signIn, isLoading };

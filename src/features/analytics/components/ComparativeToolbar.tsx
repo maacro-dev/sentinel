@@ -16,6 +16,8 @@ import {
 import { Separator } from '@/core/components/ui/separator';
 import { ComparativeView, LocationFilters, MoreFilters } from '../types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
+import { SeasonPicker } from './SeasonPicker';
+import { Button } from '@/core/components/ui/button';
 
 
 interface ComparativeToolbarProps {
@@ -41,6 +43,10 @@ interface ComparativeToolbarProps {
 
   prefetchLocationData: (province?: string, municipality?: string, barangay?: string) => void;
   prefetchMoreFilterData?: (method?: string, variety?: string) => void;
+
+  compareSeasonId?: number;
+  onCompareSeasonChange: (id: number) => void;
+  onClearComparison: () => void;
 }
 
 export function ComparativeToolbar({
@@ -59,9 +65,11 @@ export function ComparativeToolbar({
   isLoadingMunicipalities = false,
   isLoadingBarangays = false,
   prefetchLocationData,
-  prefetchMoreFilterData
+  prefetchMoreFilterData,
+  compareSeasonId,
+  onCompareSeasonChange,
+  onClearComparison
 }: ComparativeToolbarProps) {
-
 
   const handleYieldChange = (view: ComparativeView) => {
     if (view) onViewChange(view);
@@ -91,6 +99,42 @@ export function ComparativeToolbar({
   return (
     <div className={cn('w-full flex gap-6 py-4 items-center', className)}>
       <div className='flex gap-4'>
+
+        <div className="flex gap-4 items-center">
+          <div className='flex flex-col gap-2'>
+            <Label className="text-xs text-muted-foreground">Compare with</Label>
+            <div className='flex'>
+              <SeasonPicker
+                value={compareSeasonId}
+                onChange={onCompareSeasonChange}
+              />
+              {compareSeasonId && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onClearComparison}
+                  className="ml-2 h-8 px-2 text-xs"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center mt-5">
+            <TooltipProvider>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <Info className="size-4 text-muted-foreground/75 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Seasons with no data are not included in the options.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+
+        <Separator orientation='vertical' />
         <div className="flex gap-2 flex-col min-w-50">
           <Label className="text-xs font-medium text-muted-foreground">Yield</Label>
           <ToggleGroup variant="outline" type="single" value={view} onValueChange={handleYieldChange}>
@@ -115,7 +159,7 @@ export function ComparativeToolbar({
           <TooltipProvider>
             <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
-              <Info className="size-4 text-muted-foreground/75 cursor-help" />
+                <Info className="size-4 text-muted-foreground/75 cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
                 <p className="text-xs">Locations with no data are not included in the options.</p>

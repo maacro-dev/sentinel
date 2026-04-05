@@ -1,35 +1,41 @@
 
-// refactor this shit
-
 
 import * as z from "zod/v4"
 import { strclean, strcleanOpt, zodNumberRange } from "../utils";
 import { baseFields } from "./base";
 
-// export const fertilizer_application_schema = z.object({
-//   // commented out for now
-//   // fertilizer_type: z.string(),
-//   brand: z.string(),
-//   nitrogen_content_pct: zodNumberRange(0, 100),
-//   phosphorus_content_pct: zodNumberRange(0, 100),
-//   potassium_content_pct: zodNumberRange(0, 100),
-//   amount_applied: z.number().positive(),
-//   amount_unit: z.string(),
-//   crop_stage_on_application: z.string(),
-// });
-
-// export const fertilization_records_schema = baseFields.extend({
-//   applied_area_sqm: zodNumberRange(0.01, 100000),
-//   fertilizer_applications: z.array(fertilizer_application_schema).min(1),
-// });
-
-// export type FertilizationRecord = z.infer<typeof fertilization_records_schema>;
 
 const MAX_APPS = 3;
 
 const flatShape: any = {
   ...baseFields.shape,
   applied_area_sqm: zodNumberRange(0.01, 100000),
+  crop_stage: z.string().optional()
+    .transform(strcleanOpt)
+    .refine(
+      val => !val || ["Not Yet Planted", "Emerging", "Vegetative", "Flowering", "Harvest Ready"].includes(val),
+      { message: "Invalid crop stage. Allowed: Not Yet Planted, Emerging, Vegetative, Flowering, Harvest Ready" }
+    ),
+
+  soil_moisture_status: z.string().optional()
+    .transform(strcleanOpt)
+    .refine(
+      val => !val || ["Dry", "Moist", "Wet", "Flooded"].includes(val),
+      { message: "Invalid soil moisture status. Allowed: Dry, Moist, Wet, Flooded" }
+    ),
+
+  avg_plant_height: z.string().optional()
+    .transform(val => {
+      if (!val) return "";
+      const trimmed = val.trim();
+      if (trimmed === "0" || trimmed === "0.0" || trimmed.toLowerCase() === "n/a") return "";
+      return trimmed;
+    })
+    .transform(strcleanOpt)
+    .refine(
+      val => !val || /^\d+(\.\d+)?$/.test(val),
+      { message: "Average plant height must be 'N/A' or a positive number" }
+    ),
 };
 
 for (let i = 1; i <= MAX_APPS; i++) {
@@ -49,6 +55,7 @@ for (let i = 1; i <= MAX_APPS; i++) {
   flatShape[`amount_unit_${i}`] = z.string().transform(strclean);
 
   flatShape[`crop_stage_on_application_${i}`] = z.string().transform(strclean);
+
 
   // For i > 1, make fields optional
   if (i > 1) {
@@ -91,6 +98,7 @@ for (let i = 1; i <= MAX_APPS; i++) {
 }
 
 export const fertilization_records_schema = z.object(flatShape).superRefine((data, ctx) => {
+
   for (let i = 2; i <= MAX_APPS; i++) {
     const fields = [
       `fertilizer_type_${i}`,
@@ -117,5 +125,15 @@ export const fertilization_records_schema = z.object(flatShape).superRefine((dat
         }
       });
     }
+  }
+
+
+  if (data.crop_stage === "Not Yet Planted" && data.avg_plant_height !== "") {
+    ctx.addIssue({
+      code: "custom",
+      path: ["avg_plant_height"],
+      message: "When crop stage is 'Not Yet Planted', average plant height must be 'N/A'",
+      input: data.avg_plant_height,
+    });
   }
 });

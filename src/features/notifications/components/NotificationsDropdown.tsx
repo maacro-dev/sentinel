@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/core/components/ui/button";
 import {
@@ -58,7 +58,7 @@ export function NotificationsDropdown() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ScrollAreaProvider>
-          <ScrollArea className="max-h-[300px]">
+          <ScrollArea className="max-h-75">
             {notifications.length === 0 ? (
               <div className="py-6 text-center text-sm text-muted-foreground">
                 No notifications
@@ -67,22 +67,19 @@ export function NotificationsDropdown() {
               notifications.map((notification) => (
                 <DropdownMenuItem
                   key={notification.id}
-                  className={cn(
-                    "flex cursor-pointer flex-col items-start gap-1 px-3 py-2",
-                    !notification.is_read && "bg-muted/50"
-                  )}
+                  className={cn("flex cursor-pointer flex-col items-start gap-1.5 px-3 py-2 h-16", !notification.is_read && "bg-muted/50")}
                   onClick={() => markAsRead(notification.id)}
                 >
                   <div className="flex w-full items-center justify-between">
-                    <span className="text-sm font-medium">{notification.title}</span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs font-medium">{notification.title}</span>
+                    <span className="text-2xs text-muted-foreground">
                       {formatDistanceToNow(new Date(notification.created_at), {
                         addSuffix: true,
                       })}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{notification.message}</p>
-                  {!notification.is_read && (
+                  <p className="text-2xs text-muted-foreground">{notification.message}</p>
+                  {/* {!notification.is_read && (
                     <div className="mt-1 flex w-full justify-end">
                       <Button
                         variant="ghost"
@@ -97,7 +94,7 @@ export function NotificationsDropdown() {
                         Mark read
                       </Button>
                     </div>
-                  )}
+                  )} */}
                 </DropdownMenuItem>
               ))
             )}

@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Auth } from "../services/Auth";
 import { useSession } from "./useSession";
 import { useToast } from "@/features/toast";
@@ -12,6 +12,7 @@ interface SignOutOptions {
 export const useSignOut = ({ onSignOut }: SignOutOptions = {}) => {
   const { notifySuccess, notifyError } = useToast()
   const { clearSession } = useSession();
+  const queryClient = useQueryClient();
   const { mutateAsync: signOut, isPending: isLoading } = useMutation({
     mutationKey: ['signOut'] as const,
     mutationFn: Auth.signOut,
@@ -22,6 +23,9 @@ export const useSignOut = ({ onSignOut }: SignOutOptions = {}) => {
     },
     onError: () => {
       notifyError(AuthToasts.signOutFailed)
+    },
+    onSettled: () => {
+      queryClient.clear()
     }
   })
 

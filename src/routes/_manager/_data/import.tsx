@@ -33,7 +33,9 @@ type ImportStep = 'upload' | 'preview' | 'confirm' | 'success'
 function RouteComponent() {
   const [cancelOpen, setCancelOpen] = useState(false)
   const [step, setStep] = useState<ImportStep>('upload')
-  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false)
+
+  const [noValidRowsDialogOpen, setNoValidRowsDialogOpen] = useState(false);
+
   const queryClient = useQueryClient()
 
   const { datasetType, setDatasetType, rawData, isProcessing, parsedData, issues, fileError, fileName, handleFiles, reset, importFn, datasetSeasonId } = useImport();
@@ -52,18 +54,45 @@ function RouteComponent() {
   useEffect(() => {
     if (rawData.length && !isProcessing) {
       if (allRowsAreDuplicates) {
-        setDuplicateDialogOpen(true);
+        setNoValidRowsDialogOpen(true);
       } else {
         setStep('preview');
       }
     }
   }, [rawData, isProcessing, allRowsAreDuplicates]);
 
-  const handleDuplicateDialogClose = () => {
-    setDuplicateDialogOpen(false)
-    reset()
-    setStep('upload')
-  }
+  const errorSummary = useMemo(() => {
+    if (!issues.length) return null;
+    const errorCounts = new Map<string, number>();
+    issues.forEach(issue => {
+      if (issue.level === 'error') {
+        const key = `${issue.col}: ${issue.message}`;
+        errorCounts.set(key, (errorCounts.get(key) || 0) + 1);
+      }
+    });
+    return Array.from(errorCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([msg, count]) => ({ msg, count }));
+  }, [issues]);
+
+  const allRowsAreInvalid = useMemo(() => parsedData.length === 0, [parsedData]);
+
+  useEffect(() => {
+    if (rawData.length && !isProcessing) {
+      if (allRowsAreInvalid) {
+        setNoValidRowsDialogOpen(true);
+      } else {
+        setStep('preview');
+      }
+    }
+  }, [rawData, isProcessing, allRowsAreInvalid]);
+
+  const handleNoValidRowsDialogClose = () => {
+    setNoValidRowsDialogOpen(false);
+    reset();
+    setStep('upload');
+  };
 
   const doImport = async () => {
     try {
@@ -90,6 +119,10 @@ function RouteComponent() {
 
       queryClient.invalidateQueries({ queryKey: ['seasons-with-data'], refetchType: "all" });
       queryClient.invalidateQueries({ queryKey: ['current-season'], refetchType: "all" });
+
+      localStorage.removeItem('notifications_read');
+      queryClient.refetchQueries({ queryKey: ['notifications'] });
+
     } catch (err) {
       console.error("error importing", fileName, "-", err)
     }
@@ -154,7 +187,12 @@ function RouteComponent() {
       )}
 
       <ImportCancelDialog cancelOpen={cancelOpen} setCancelOpen={setCancelOpen} confirmCancel={confirmCancel} />
-      <DuplicateDialog open={duplicateDialogOpen} onClose={handleDuplicateDialogClose} />
+      <NoValidRowsDialog
+        open={noValidRowsDialogOpen}
+        onClose={handleNoValidRowsDialogClose}
+        errorSummary={errorSummary}
+        totalRows={rawData.length}
+      />
     </PageContainer>
   )
 }
@@ -184,26 +222,42 @@ function ImportCancelDialog({ cancelOpen, setCancelOpen, confirmCancel }: Import
   )
 }
 
-interface DuplicateDialogProps {
+
+interface NoValidRowsDialogProps {
   open: boolean;
   onClose: () => void;
+  errorSummary: Array<{ msg: string; count: number }> | null;
+  totalRows: number;
 }
 
-function DuplicateDialog({ open, onClose }: DuplicateDialogProps) {
+function NoValidRowsDialog({ open, onClose, errorSummary, totalRows }: NoValidRowsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>All Rows Are Duplicates</DialogTitle>
+          <DialogTitle>No Valid Rows Found</DialogTitle>
           <DialogDescription>
-            The file you uploaded contains only duplicate records. No new data can be imported.
-            Please check the file and try again.
+            None of the {totalRows} row(s) in your file passed validation. Please review the errors below and correct your data.
           </DialogDescription>
         </DialogHeader>
+        <div className="py-4">
+          <h4 className="text-sm font-semibold mb-2">Common errors:</h4>
+          {errorSummary && errorSummary.length > 0 ? (
+            <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+              {errorSummary.map(({ msg, count }, i) => (
+                <li key={i}>
+                  {msg} <span className="text-xs">({count} row{count !== 1 ? 's' : ''})</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No specific error details available.</p>
+          )}
+        </div>
         <DialogFooter>
           <Button onClick={onClose}>OK</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

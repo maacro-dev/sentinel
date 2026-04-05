@@ -59,13 +59,13 @@ Deno.serve(async (req) => {
 
     const { form, data, fileName } = await req.json();
 
-    console.log('RPC got this data: formType =', form, "fileName =", fileName, "data =", data);
-
     if (!user || userError) {
+      console.error("User not found.")
       return response({ success: false, message: `error = ${userError}` }, 500);
     }
 
     if (form === 'field_plannings' || form === 'harvest_records' || form === 'crop_establishments' || form === 'damage_assessments' || form == 'fertilization_records') {
+      console.log(`Importing ${form} with ${data.length} rows`);
       const { data: result, error } = await supabase.rpc('import_data_transaction', {
         p_dataset_type: form,
         p_data: data,
@@ -74,12 +74,11 @@ Deno.serve(async (req) => {
       console.log('RPC result:', JSON.stringify(result));
 
       if (error || (data.errors && data.errors.length > 0)) {
-        console.log('RPC error or data errors:', error, data.errors);
+        console.error('RPC error or data errors:', error, data.errors);
         return response({ success: false, message: `Error importing ${form}` }, 400);
       }
 
-      console.log(result)
-
+      console.log("Import success.")
       return response({ success: true, message: `Successfully imported ${result.imported_count} rows from "${fileName}".` }, 200);
 
     } else {

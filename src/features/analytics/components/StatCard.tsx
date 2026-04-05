@@ -43,7 +43,7 @@ export const StatCard = memo(({ title, subtitle, current_value, previous_value, 
 });
 
 
-interface StatCardMinimalProps extends Omit<Stat, "previous_value" | "percent_change"> {}
+interface StatCardMinimalProps extends Omit<Stat, "previous_value" | "percent_change"> { }
 
 export const StatCardMinimal = memo(({ title, subtitle, current_value, unit }: StatCardMinimalProps) => {
   return (
@@ -68,6 +68,44 @@ export const StatCardMinimal = memo(({ title, subtitle, current_value, unit }: S
           <span className="text-5xs lt:text-4xs dt:text-3xs font-light text-muted-foreground">
             {unit}
           </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
+interface StatCardComparisonProps {
+  title: string;
+  subtitle: string;
+  currentValue: number;
+  currentUnit: string;
+  compareValue: number;
+  compareUnit: string;
+  currentLabel: string;
+  compareLabel: string;
+}
+
+export const StatCardComparison = memo(({ title, subtitle, currentValue, currentUnit, compareValue, compareUnit, currentLabel, compareLabel }: StatCardComparisonProps) => {
+  return (
+    <Card className="flex-1 h-full min-h-36 flex flex-col gap-2.5 justify-between rounded-container hover:shadow-sm transition-all">
+      <CardHeader className="flex flex-col gap-0.5 lt:gap-1 dt:gap-1.5">
+        <CardTitle className="leading-none font-medium text-primary">{title}</CardTitle>
+        <CardDescription className="text-left font-light text-muted-foreground">{subtitle}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        <div className="flex justify-between items-baseline">
+          <span className="text-xs font-medium text-muted-foreground">{currentLabel}</span>
+          <div className="space-x-1">
+            <span className="font-semibold text-lg">{currentValue.toFixed(2)}</span>
+            <span className="text-5xs font-light text-muted-foreground">{currentUnit}</span>
+          </div>
+        </div>
+        <div className="flex justify-between items-baseline">
+          <span className="text-xs font-medium text-muted-foreground">{compareLabel}</span>
+          <div className="space-x-1">
+            <span className="font-semibold text-lg">{compareValue.toFixed(2)}</span>
+            <span className="text-5xs font-light text-muted-foreground">{compareUnit}</span>
+          </div>
         </div>
       </CardContent>
     </Card>

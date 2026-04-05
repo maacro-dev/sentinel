@@ -4,7 +4,7 @@ create or replace function find_season_id_by_date(
 )
     returns int
     language plpgsql
-    set search_path = ''
+    set search_path = public
 as $$
 declare
     v_season_id int;
@@ -104,7 +104,7 @@ create or replace function public.handle_mfid(
 )
     returns int
     language plpgsql
-    set search_path = ''
+    set search_path = public
 as $$
 declare
     v_field_id int;
@@ -149,7 +149,7 @@ $$;
 create or replace function parse_date(date_str text)
     returns date
     language sql immutable
-    set search_path = ''
+    set search_path = public
 as $$
     select case
         when date_str is null or trim(date_str) = '' or date_str = 'N/A' then null
@@ -160,7 +160,7 @@ $$;
 create or replace function parse_timestamptz(timestamptz_str text)
     returns timestamptz
     language sql immutable
-    set search_path = ''
+    set search_path = public
 as $$
     select case
         when timestamptz_str is null or trim(timestamptz_str) = '' or timestamptz_str = 'N/A' then null
@@ -171,7 +171,7 @@ $$;
 create or replace function find_season_id_by_date(p_date date)
     returns bigint
     language sql immutable
-    set search_path = ''
+    set search_path = public
 as $$
     select id
     from public.seasons

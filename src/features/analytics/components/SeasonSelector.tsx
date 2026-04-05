@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Calendar } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import {
@@ -22,10 +22,11 @@ export const SeasonSelector = memo(() => {
   const { options: seasonOptions, isLoading: loadingOptions } = useSeasonsForSelector();
   const { data: currentSeasonId } = useCurrentSeasonId();
   const { clearSeasonDot, showSeasonDot, importedSeasonId } = useImportNotificationStore();
+  const router = useRouter()
 
   const handleSeasonChange = (value: string) => {
     clearSeasonDot();
-    navigate({ to: "/dashboard", search: () => ({ seasonId: Number(value) }) });
+    navigate({ to: ".", search: () => ({ seasonId: Number(value) }) });
     setOpen(false);
   };
 
@@ -76,6 +77,10 @@ export const SeasonSelector = memo(() => {
                     value={option.value}
                     onSelect={(currentValue) => handleSeasonChange(currentValue)}
                     className="flex items-center justify-between cursor-pointer rounded-sm text-2xs"
+                    onMouseEnter={() => {
+                      const newSeasonId = Number(option.value);
+                      router.preloadRoute({ to: ".", search: { seasonId: newSeasonId } });
+                    }}
                   >
                     <span className="truncate">{option.label}</span>
                     <div className="flex gap-2 shrink-0">

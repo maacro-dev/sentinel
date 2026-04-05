@@ -96,6 +96,10 @@ as $$
 declare
     field_mfid text;
 begin
+    if current_setting('app.import_mode', true) = 'true' then
+        return new;
+    end if;
+
     select m.mfid into field_mfid
     from fields f
     join mfids m on f.mfid_id = m.id

@@ -10,7 +10,6 @@ import { zodValidator } from "@tanstack/zod-adapter"
 export const Route = createFileRoute("/_manager")({
   beforeLoad: async ({ location }) => {
     await Session.ensure({ role: "data_manager" })
-
     const search = location.search as Record<string, unknown>;
     if (search.seasonId !== undefined) return;
     const latest = await Seasons.getCurrent();

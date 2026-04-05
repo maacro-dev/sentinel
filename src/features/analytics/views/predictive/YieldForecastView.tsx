@@ -14,24 +14,20 @@ interface YieldForecastViewProps {
   data: YieldForecastData;
   seasonId: number;
 
-  // Filter state and handlers (from parent)
   location: { province: string; municipality: string; barangay: string };
   onLocationChange: (key: keyof LocationFilters, value: string) => void;
   moreFilters: { variety: string[]; method: string[] };
   onMoreFiltersChange: (key: keyof MoreFilters, value: string[]) => void;
   onResetAll: () => void;
 
-  // Location options (from parent)
   provinceOptions: Array<{ value: string; label: string }>;
   municipalityOptions: Array<{ value: string; label: string }>;
   barangayOptions: Array<{ value: string; label: string }>;
 
-  // Loading states (optional)
   isLoadingProvinces?: boolean;
   isLoadingMunicipalities?: boolean;
   isLoadingBarangays?: boolean;
 
-  // Prefetch functions (optional)
   prefetchLocationData?: (province?: string, municipality?: string, barangay?: string) => void;
   prefetchMoreFilterData?: (method?: string, variety?: string) => void;
 }
@@ -53,6 +49,8 @@ export function YieldForecastView({
   prefetchLocationData,
   prefetchMoreFilterData,
 }: YieldForecastViewProps) {
+
+  console.log("Yield forecast data:", JSON.stringify(data, null, 2))
 
   const { mutate: predictForms, isPending: isPredicting } = usePredictForms(seasonId);
 
