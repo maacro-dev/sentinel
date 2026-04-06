@@ -79,6 +79,12 @@ SELECT public.create_seed_user('9ea752ca-dd53-4967-b555-dccc88844731', 'reyangel
 SELECT public.create_seed_user('5f998b6f-2724-4453-a8ec-d5017afd831e', 'mawmao@humayapp.com', '$2a$12$VgODp3JGz1CWqrYcwyOqS.dbuHPWmlN5uS1DS8hdcXiWDvGcQ1Omm', 'Mel Adry',
     'Olivo', '2003-04-30', 'data_collector');
 
+
+
+
+
+
+
 -- 2010
 INSERT INTO seasons(start_date, end_date, semester, season_year)
 VALUES

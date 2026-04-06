@@ -15,6 +15,7 @@ declare
     v_farmer_id int;
     v_barangay_id int;
     v_field_id int;
+    v_mfid_id int;
     v_season_id int;
     v_activity_id int;
     v_collector_id uuid;
@@ -23,13 +24,14 @@ declare
 
     v_land_prep_start date;
     v_est_establish_date date;
+
+    v_collection_task_id int;   -- new variable
 begin
     v_row_count := jsonb_array_length(p_data);
     raise notice 'Input data contains % rows', v_row_count;
 
     for v_row in
         select * from jsonb_to_recordset(p_data) as x(
-            -- field_activities
             province                        text,
             municity                        text,
             barangay                        text,
@@ -38,8 +40,6 @@ begin
             last_name                       text,
             collected_by                    jsonb,
             collected_at                    text,
-
-            -- field_plannings
             gender                          text,
             date_of_birth                   text,
             cellphone_no                    text,
@@ -50,23 +50,18 @@ begin
             soil_type                       text,
             current_field_condition         text,
             location                        spatial.geometry,
-
-            -- monitoring_visits (new columns)
             crop_stage                      text,
             soil_moisture_status            text,
-            avg_plant_height                text      -- could be double precision, but read as text
+            avg_plant_height                text
         )
     loop
         begin
-            -- parse dates & timestamptz (null if invalid)
             v_land_prep_start   := public.parse_date(v_row.land_preparation_start_date);
             v_est_establish_date := public.parse_date(v_row.est_crop_establishment_date);
             v_collected_at := public.parse_timestamptz(v_row.collected_at);
 
-            -- resolve collector id
             v_collector_id := public.find_or_create_collector_id(v_row.collected_by);
 
-            -- farmer
             v_farmer_id := public.find_or_create_farmer(
               v_row.first_name,
               v_row.last_name,
@@ -75,10 +70,8 @@ begin
               v_row.cellphone_no
             );
 
-            -- barangay
             v_barangay_id := public.find_barangay_id(v_row.province, v_row.municity, v_row.barangay);
 
-            -- field
             v_field_id := public.handle_mfid(
               v_row.mfid,
               v_farmer_id,
@@ -87,10 +80,13 @@ begin
               p_auto_create_mfid
             );
 
-            -- season
+            select mfid_id into v_mfid_id
+            from public.fields
+            where id = v_field_id;
+
             v_season_id := public.find_season_id_by_date(v_row.collected_at);
 
-            -- Insert monitoring visit if any of the fields are provided
+            -- Monitoring visit
             v_monitoring_visit_id := null;
             if (v_row.crop_stage is not null and v_row.crop_stage != '') or
                (v_row.soil_moisture_status is not null and v_row.soil_moisture_status != '') or
@@ -102,7 +98,7 @@ begin
                     soil_moisture_status,
                     avg_plant_height
                 ) values (
-                    v_collected_at::date,   -- date_monitored = collected_at date
+                    v_collected_at::date,
                     coalesce(v_row.crop_stage, ''),
                     coalesce(v_row.soil_moisture_status, ''),
                     nullif(v_row.avg_plant_height, '')::double precision
@@ -110,7 +106,32 @@ begin
                 returning id into v_monitoring_visit_id;
             end if;
 
-            -- field_activities (parent)
+            -- Create collection task FIRST, so we have its ID
+            insert into public.collection_tasks (
+                mfid_id,
+                collector_id,
+                season_id,
+                activity_type,
+                can_retake,
+                start_date,
+                end_date,
+                status,
+                created_at,
+                updated_at
+            ) values (
+                v_mfid_id,
+                v_collector_id,
+                v_season_id,
+                'field-data',
+                false,
+                v_collected_at::date,
+                v_collected_at::date,
+                'completed',
+                now(),
+                now()
+            ) returning id into v_collection_task_id;
+
+            -- Now insert field_activities, linking to the collection task
             insert into public.field_activities (
                 field_id,
                 season_id,
@@ -119,7 +140,8 @@ begin
                 collected_at,
                 image_urls,
                 verification_status,
-                monitoring_visit_id
+                monitoring_visit_id,
+                collection_task_id      -- new column
             ) values (
                 v_field_id,
                 v_season_id,
@@ -128,12 +150,14 @@ begin
                 v_collected_at,
                 '[]'::jsonb,
                 'unknown',
-                v_monitoring_visit_id
+                v_monitoring_visit_id,
+                v_collection_task_id
             ) returning id into v_activity_id;
 
-            -- field_plannings
+            -- Field planning
             insert into public.field_plannings (
-                id, land_preparation_start_date,
+                id,
+                land_preparation_start_date,
                 est_crop_establishment_date,
                 est_crop_establishment_method,
                 total_field_area_ha,
@@ -151,7 +175,8 @@ begin
 
             v_imported := v_imported + 1;
 
-            exception when others then v_errors := array_append(v_errors, format('Row with MFID %s: %s', v_row.mfid, SQLERRM));
+            exception when others then
+                v_errors := array_append(v_errors, format('Row with MFID %s: %s', v_row.mfid, SQLERRM));
         end;
     end loop;
 
@@ -175,6 +200,7 @@ declare
     v_farmer_id int;
     v_barangay_id int;
     v_field_id int;
+    v_mfid_id int;
     v_season_id int;
     v_activity_id int;
     v_collector_id uuid;
@@ -183,6 +209,12 @@ declare
     -- crop establishment specific dates
     v_actual_date date;
     v_sowing_date date;
+
+    -- monitoring visit
+    v_monitoring_visit_id int;
+
+    -- collection task
+    v_collection_task_id int;               -- new variable
 begin
     for v_row in
         select * from jsonb_to_recordset(p_data) as x(
@@ -216,14 +248,19 @@ begin
             distance_within_plant_row_3     double precision,
             seeding_rate_kg_ha              double precision,
             direct_seeding_method           text,
-            num_plants_1                     int,
-            num_plants_2                     int,
-            num_plants_3                     int,
-            rice_variety                     text,
-            rice_variety_no                  text,
-            rice_variety_maturity_duration   int,
-            seed_class                       text,
-            location                         spatial.geometry
+            num_plants_1                    int,
+            num_plants_2                    int,
+            num_plants_3                    int,
+            rice_variety                    text,
+            rice_variety_no                 text,
+            rice_variety_maturity_duration  int,
+            seed_class                      text,
+            location                        spatial.geometry,
+
+            -- monitoring visit fields
+            crop_stage                      text,
+            soil_moisture_status            text,
+            avg_plant_height                text
         )
     loop
         begin
@@ -256,10 +293,60 @@ begin
                 p_auto_create_mfid
             );
 
+            -- Get mfid_id for collection task
+            select mfid_id into v_mfid_id
+            from public.fields
+            where id = v_field_id;
+
             -- season derived from collected_at
             v_season_id := public.find_season_id_by_date(v_row.collected_at);
 
-            -- field_activities
+            -- Insert monitoring visit if any monitoring field is provided
+            v_monitoring_visit_id := null;
+            if (v_row.crop_stage is not null and v_row.crop_stage != '') or
+               (v_row.soil_moisture_status is not null and v_row.soil_moisture_status != '') or
+               (v_row.avg_plant_height is not null and v_row.avg_plant_height != '') then
+
+                insert into public.monitoring_visits (
+                    date_monitored,
+                    crop_stage,
+                    soil_moisture_status,
+                    avg_plant_height
+                ) values (
+                    v_collected_at::date,
+                    coalesce(v_row.crop_stage, ''),
+                    coalesce(v_row.soil_moisture_status, ''),
+                    nullif(v_row.avg_plant_height, '')::double precision
+                )
+                returning id into v_monitoring_visit_id;
+            end if;
+
+            -- Create collection task FIRST, so we have its ID
+            insert into public.collection_tasks (
+                mfid_id,
+                collector_id,
+                season_id,
+                activity_type,
+                can_retake,
+                start_date,
+                end_date,
+                status,
+                created_at,
+                updated_at
+            ) values (
+                v_mfid_id,
+                v_collector_id,
+                v_season_id,
+                'cultural-management',
+                false,
+                v_collected_at::date,
+                v_collected_at::date,
+                'completed',
+                now(),
+                now()
+            ) returning id into v_collection_task_id;
+
+            -- field_activities with collection_task_id link
             insert into public.field_activities (
                 field_id,
                 season_id,
@@ -267,7 +354,9 @@ begin
                 collected_by,
                 collected_at,
                 image_urls,
-                verification_status
+                verification_status,
+                monitoring_visit_id,
+                collection_task_id          -- new column
             ) values (
                 v_field_id,
                 v_season_id,
@@ -275,10 +364,12 @@ begin
                 v_collector_id,
                 v_collected_at,
                 '[]'::jsonb,
-                'unknown'
+                'unknown',                  -- keep as unknown
+                v_monitoring_visit_id,
+                v_collection_task_id        -- link to collection task
             ) returning id into v_activity_id;
 
-            -- crop_establishments (actual_land_preparation_method removed)
+            -- crop_establishments
             insert into public.crop_establishments (
                 id,
                 ecosystem,
@@ -354,12 +445,19 @@ declare
     v_farmer_id int;
     v_barangay_id int;
     v_field_id int;
+    v_mfid_id int;                          -- for collection task
     v_season_id int;
     v_activity_id int;
     v_collector_id uuid;
     v_collected_at timestamptz;
 
     v_harvest_date date;
+
+    -- monitoring visit
+    v_monitoring_visit_id int;
+
+    -- collection task
+    v_collection_task_id int;
 begin
     for v_row in
         select * from jsonb_to_recordset(p_data) as x(
@@ -379,7 +477,12 @@ begin
             bags_harvested      int,
             avg_bag_weight_kg   double precision,
             area_harvested_ha   double precision,
-            irrigation_supply   text
+            irrigation_supply   text,
+
+            -- monitoring visit fields
+            crop_stage              text,
+            soil_moisture_status    text,
+            avg_plant_height        text
         )
     loop
         begin
@@ -390,19 +493,69 @@ begin
             -- resolve collector id (creates user if not present, null if N/A)
             v_collector_id := public.find_or_create_collector_id(v_row.collected_by);
 
-            -- public.farmer
+            -- farmer
             v_farmer_id := public.find_or_create_farmer(v_row.first_name, v_row.last_name);
 
-            -- public.barangay
+            -- barangay
             v_barangay_id := public.find_barangay_id(v_row.province, v_row.municity, v_row.barangay);
 
-            -- public.field
+            -- field
             v_field_id := public.handle_mfid(v_row.mfid, v_farmer_id, v_barangay_id, null, p_auto_create_mfid);
 
-            -- todo: should be derived from collected_at
+            -- Get mfid_id for collection task
+            select mfid_id into v_mfid_id
+            from public.fields
+            where id = v_field_id;
+
+            -- season derived from collected_at
             v_season_id := public.find_season_id_by_date(v_row.collected_at);
 
-            -- public.field_activities
+            -- Insert monitoring visit if any monitoring field is provided
+            v_monitoring_visit_id := null;
+            if (v_row.crop_stage is not null and v_row.crop_stage != '') or
+               (v_row.soil_moisture_status is not null and v_row.soil_moisture_status != '') or
+               (v_row.avg_plant_height is not null and v_row.avg_plant_height != '') then
+
+                insert into public.monitoring_visits (
+                    date_monitored,
+                    crop_stage,
+                    soil_moisture_status,
+                    avg_plant_height
+                ) values (
+                    v_collected_at::date,
+                    coalesce(v_row.crop_stage, ''),
+                    coalesce(v_row.soil_moisture_status, ''),
+                    nullif(v_row.avg_plant_height, '')::double precision
+                )
+                returning id into v_monitoring_visit_id;
+            end if;
+
+            -- Create collection task FIRST, so we have its ID
+            insert into public.collection_tasks (
+                mfid_id,
+                collector_id,
+                season_id,
+                activity_type,
+                can_retake,
+                start_date,
+                end_date,
+                status,
+                created_at,
+                updated_at
+            ) values (
+                v_mfid_id,
+                v_collector_id,
+                v_season_id,
+                'production',
+                false,
+                v_collected_at::date,
+                v_collected_at::date,
+                'completed',
+                now(),
+                now()
+            ) returning id into v_collection_task_id;
+
+            -- field_activities with collection_task_id link
             insert into public.field_activities (
                 field_id,
                 season_id,
@@ -410,7 +563,9 @@ begin
                 collected_by,
                 collected_at,
                 image_urls,
-                verification_status
+                verification_status,
+                monitoring_visit_id,
+                collection_task_id
             ) values (
                 v_field_id,
                 v_season_id,
@@ -418,10 +573,12 @@ begin
                 v_collector_id,
                 v_collected_at,
                 '[]'::jsonb,
-                'unknown' -- review this.
+                'unknown',                  -- keep as unknown
+                v_monitoring_visit_id,
+                v_collection_task_id
             ) returning id into v_activity_id;
 
-            -- public.field_plannings
+            -- harvest_records
             insert into public.harvest_records (
                 id,
                 harvest_date,
@@ -599,12 +756,19 @@ declare
     v_farmer_id int;
     v_barangay_id int;
     v_field_id int;
+    v_mfid_id int;                          -- for collection task
     v_season_id int;
     v_activity_id int;
     v_collector_id uuid;
     v_collected_at timestamptz;
 
     v_applied_area_sqm double precision;
+
+    -- monitoring visit
+    v_monitoring_visit_id int;
+
+    -- collection task
+    v_collection_task_id int;
 begin
     for v_row in select jsonb_array_elements(p_data) loop
         begin
@@ -640,10 +804,60 @@ begin
                 p_auto_create_mfid
             );
 
+            -- Get mfid_id for collection task
+            select mfid_id into v_mfid_id
+            from public.fields
+            where id = v_field_id;
+
             -- season
             v_season_id := public.find_season_id_by_date(v_row->>'collected_at');
 
-            -- field_activities
+            -- Insert monitoring visit if any monitoring field is provided
+            v_monitoring_visit_id := null;
+            if (v_row->>'crop_stage' is not null and v_row->>'crop_stage' != '') or
+               (v_row->>'soil_moisture_status' is not null and v_row->>'soil_moisture_status' != '') or
+               (v_row->>'avg_plant_height' is not null and v_row->>'avg_plant_height' != '') then
+
+                insert into public.monitoring_visits (
+                    date_monitored,
+                    crop_stage,
+                    soil_moisture_status,
+                    avg_plant_height
+                ) values (
+                    v_collected_at::date,
+                    coalesce(v_row->>'crop_stage', ''),
+                    coalesce(v_row->>'soil_moisture_status', ''),
+                    nullif(v_row->>'avg_plant_height', '')::double precision
+                )
+                returning id into v_monitoring_visit_id;
+            end if;
+
+            -- Create collection task FIRST, so we have its ID
+            insert into public.collection_tasks (
+                mfid_id,
+                collector_id,
+                season_id,
+                activity_type,
+                can_retake,
+                start_date,
+                end_date,
+                status,
+                created_at,
+                updated_at
+            ) values (
+                v_mfid_id,
+                v_collector_id,
+                v_season_id,
+                'nutrient-management',
+                false,
+                v_collected_at::date,
+                v_collected_at::date,
+                'completed',
+                now(),
+                now()
+            ) returning id into v_collection_task_id;
+
+            -- field_activities with collection_task_id link
             insert into public.field_activities (
                 field_id,
                 season_id,
@@ -651,7 +865,9 @@ begin
                 collected_by,
                 collected_at,
                 image_urls,
-                verification_status
+                verification_status,
+                monitoring_visit_id,
+                collection_task_id
             ) values (
                 v_field_id,
                 v_season_id,
@@ -659,7 +875,9 @@ begin
                 v_collector_id,
                 v_collected_at,
                 '[]'::jsonb,
-                'unknown'
+                'unknown',
+                v_monitoring_visit_id,
+                v_collection_task_id
             ) returning id into v_activity_id;
 
             -- fertilization_records

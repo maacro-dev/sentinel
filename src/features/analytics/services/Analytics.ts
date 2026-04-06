@@ -262,7 +262,8 @@ export class Analytics {
       municipality?: string;
       barangay?: string;
       method?: string;
-      variety?: string;
+      riceVarietyName?: string;   // exact name, e.g. "NSIC Rc 222"
+      soilType?: string;          // e.g. "clay", "loam"
     }
   ): Promise<YieldForecastData> {
     const client = await this._client;
@@ -274,7 +275,8 @@ export class Analytics {
       p_municipality: filters.municipality,
       p_barangay: filters.barangay,
       p_method: filters.method,
-      p_variety: filters.variety,
+      p_rice_variety_name: filters.riceVarietyName,
+      p_soil_type: filters.soilType,
     });
     if (error) throw new Error(`Failed to fetch yield forecast: ${error.message}`);
     return parseYieldForecastData(data);

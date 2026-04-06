@@ -120,6 +120,8 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: ['seasons-with-data'], refetchType: "all" });
       queryClient.invalidateQueries({ queryKey: ['current-season'], refetchType: "all" });
 
+      queryClient.invalidateQueries({ queryKey: ['mfids'], refetchType: "all" });
+
       localStorage.removeItem('notifications_read');
       queryClient.refetchQueries({ queryKey: ['notifications'] });
 

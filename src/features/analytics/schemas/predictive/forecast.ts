@@ -1,5 +1,5 @@
 import { Validator } from '@/core/utils/validator';
-import * as z from "zod/v4"
+import * as z from "zod/v4";
 
 export const forecastPointSchema = z.object({
   month: z.string(),
@@ -8,8 +8,16 @@ export const forecastPointSchema = z.object({
   avg_yield_per_field: z.number(),
 });
 
+export const extrapolatedPointSchema = z.object({
+  month: z.string(),
+  avg_yield_per_field: z.number(),
+});
+
 export const yieldForecastDataSchema = z.object({
-  forecast: z.array(forecastPointSchema),
+  predicted_forecast: z.array(forecastPointSchema),
+  actual_forecast: z.array(forecastPointSchema),
+  extrapolated_forecast: z.array(extrapolatedPointSchema),
+  harvest_order: z.array(z.string()),
   total_predicted: z.number(),
   max_monthly: z.number(),
   min_monthly: z.number(),

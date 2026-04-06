@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { PageContainer } from '@/core/components/layout';
 import { Spinner } from '@/core/components/ui/spinner';
@@ -6,18 +5,13 @@ import { createCrumbLoader } from '@/core/utils/breadcrumb';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Tabs, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
-import { usePredictedYieldByLocation, predictedYieldByLocationOptions } from '@/features/analytics/hooks/usePredictiveAnalytics';
-import { PredictedYieldByLocationView } from '@/features/analytics/views/predictive/PredictiveYieldByLocationView';
 import { useYieldForecast, yieldForecastOptions } from '@/features/analytics/hooks/useYieldForecast';
 import { YieldForecastView } from '@/features/analytics/views/predictive/YieldForecastView';
-import { Button } from '@/core/components/ui/button';
-import { usePredictForms } from '@/features/analytics/hooks/usePredictForms';
 import { useAvailableLocationsForPredictions } from '@/features/mfid/hooks/useAvailableLocations';
+import { useRiceVarieties, useSoilTypes } from '@/features/analytics/hooks/useRiceVarieties';
 
 export const Route = createFileRoute("/_manager/_analytics/predictive")({
   component: RouteComponent,
-  // Prefetch initial data with empty filters
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
     const defaultParams = {
@@ -26,29 +20,32 @@ export const Route = createFileRoute("/_manager/_analytics/predictive")({
       municipality: undefined,
       barangay: undefined,
       method: undefined,
-      variety: undefined,
+      riceVarietyName: undefined,
+      soilType: undefined,
     };
-    await Promise.all([
-      queryClient.ensureQueryData(predictedYieldByLocationOptions(defaultParams)),
-      queryClient.ensureQueryData(yieldForecastOptions(defaultParams)),
-    ]);
+    await queryClient.ensureQueryData(yieldForecastOptions(defaultParams));
     return { breadcrumb: createCrumbLoader({ label: "Predictive Analytics" }) };
   },
   head: () => ({ meta: [{ title: "Predictive Analytics | Humay" }] }),
 });
 
-type PredictiveView = 'forecast' | 'general';
-
 function RouteComponent() {
   const { seasonId } = Route.useSearch();
-
-  const [view, setView] = useState<PredictiveView>('forecast');
   const queryClient = useQueryClient();
 
   const [location, setLocation] = useState({ province: '', municipality: '', barangay: '' });
-  const [moreFilters, setMoreFilters] = useState({ variety: [] as string[], method: [] as string[] });
+  const [moreFilters, setMoreFilters] = useState({
+    method: [] as string[],
+    riceVarietyName: [] as string[],
+    soilType: [] as string[],
+  });
 
+  // Fetch available locations (provinces, municipalities, barangays)
   const { data: availableLocations, isLoading: locationsLoading } = useAvailableLocationsForPredictions(seasonId);
+
+  // Fetch dynamic options for rice varieties and soil types based on current location & season
+  const { data: riceVarieties = [] } = useRiceVarieties(seasonId, location.province || undefined, location.municipality || undefined);
+  const { data: soilTypes = [] } = useSoilTypes(seasonId, location.province || undefined, location.municipality || undefined);
 
   const provinceOptions = useMemo(() =>
     availableLocations?.provinces.map(name => ({ value: name, label: name })) ?? [],
@@ -73,22 +70,21 @@ function RouteComponent() {
     return filtered.map(b => ({ value: b.name, label: b.name }));
   }, [availableLocations, location.municipality]);
 
-  const { data: locationData, isLoading: locationLoading } = usePredictedYieldByLocation({
-    seasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
-  });
+  const riceVarietyOptions = useMemo(() =>
+    riceVarieties.map(v => ({ value: v, label: v })), [riceVarieties]
+  );
+  const soilTypeOptions = useMemo(() =>
+    soilTypes.map(s => ({ value: s, label: s })), [soilTypes]
+  );
 
   const { data: forecastData, isLoading: forecastLoading } = useYieldForecast({
     seasonId,
     province: location.province || undefined,
     municipality: location.municipality || undefined,
     barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+    method: moreFilters.method[0],
+    riceVarietyName: moreFilters.riceVarietyName[0],
+    soilType: moreFilters.soilType[0],
   });
 
   const handleLocationChange = (key: keyof typeof location, value: string) => {
@@ -103,7 +99,7 @@ function RouteComponent() {
 
   const resetAll = () => {
     setLocation({ province: '', municipality: '', barangay: '' });
-    setMoreFilters({ variety: [], method: [] });
+    setMoreFilters({ method: [], riceVarietyName: [], soilType: [] });
   };
 
   const prefetchLocationData = useCallback((
@@ -112,72 +108,61 @@ function RouteComponent() {
     barangay?: string
   ) => {
     if (!province && !municipality && !barangay) return;
-
     const baseParams = {
       seasonId,
       province,
       municipality,
       barangay,
-      method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-      variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+      method: moreFilters.method[0],
+      riceVarietyName: moreFilters.riceVarietyName[0],
+      soilType: moreFilters.soilType[0],
     };
-
-    queryClient.prefetchQuery(predictedYieldByLocationOptions(baseParams));
     queryClient.prefetchQuery(yieldForecastOptions(baseParams));
   }, [seasonId, moreFilters, queryClient]);
 
   const prefetchMoreFilterData = useCallback((
     method?: string,
-    variety?: string
+    riceVarietyName?: string,
+    soilType?: string
   ) => {
     const params = {
       seasonId,
       province: location.province || undefined,
       municipality: location.municipality || undefined,
       barangay: location.barangay || undefined,
-      method: method || (moreFilters.method.length === 1 ? moreFilters.method[0] : undefined),
-      variety: variety || (moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined),
+      method: method ?? moreFilters.method[0],
+      riceVarietyName: riceVarietyName ?? moreFilters.riceVarietyName[0],
+      soilType: soilType ?? moreFilters.soilType[0],
     };
-
-    queryClient.prefetchQuery(predictedYieldByLocationOptions(params));
     queryClient.prefetchQuery(yieldForecastOptions(params));
   }, [seasonId, location, moreFilters, queryClient]);
 
-
-  const isLoading = locationLoading || forecastLoading;
-
-  if (isLoading) return <PendingComponent />;
+  if (forecastLoading) return <PendingComponent />;
 
   return (
     <PageContainer>
-      <Tabs value={view} onValueChange={(v) => setView(v as PredictiveView)}>
-        <TabsList variant="line">
-          <TabsTrigger value="forecast">Forecast</TabsTrigger>
-          {/* <TabsTrigger value="general">By Location</TabsTrigger> */}
-        </TabsList>
-      </Tabs>
-
-      {view === 'general' && <PredictedYieldByLocationView data={locationData} />}
-      {view === 'forecast' && (
-        <YieldForecastView
-          data={forecastData!}
-          seasonId={seasonId}
-          location={location}
-          onLocationChange={handleLocationChange}
-          moreFilters={moreFilters}
-          onMoreFiltersChange={handleMoreFiltersChange}
-          onResetAll={resetAll}
-          provinceOptions={provinceOptions}
-          municipalityOptions={municipalityOptions}
-          barangayOptions={barangayOptions}
-          isLoadingProvinces={locationsLoading}
-          isLoadingMunicipalities={locationsLoading}
-          isLoadingBarangays={locationsLoading}
-          prefetchLocationData={prefetchLocationData}
-          prefetchMoreFilterData={prefetchMoreFilterData}
-        />
-      )}
-
+      <YieldForecastView
+        data={forecastData!}
+        // @ts-ignore
+        seasonId={seasonId}
+        location={location}
+        onLocationChange={handleLocationChange}
+        // @ts-ignore
+        moreFilters={moreFilters}
+        // @ts-ignore
+        onMoreFiltersChange={handleMoreFiltersChange}
+        onResetAll={resetAll}
+        provinceOptions={provinceOptions}
+        municipalityOptions={municipalityOptions}
+        barangayOptions={barangayOptions}
+        riceVarietyOptions={riceVarietyOptions}
+        soilTypeOptions={soilTypeOptions}
+        isLoadingProvinces={locationsLoading}
+        isLoadingMunicipalities={locationsLoading}
+        isLoadingBarangays={locationsLoading}
+        prefetchLocationData={prefetchLocationData}
+        prefetchMoreFilterData={prefetchMoreFilterData}
+      />
     </PageContainer>
   );
 }

@@ -98,3 +98,16 @@ export interface MoreFilters {
   variety: string[];   // 'NSIC', 'PSB', 'Others'
   method: string[];    // 'direct-seeded', 'transplanted'
 }
+
+
+export interface LocationFilters {
+  province: string;
+  municipality: string;
+  barangay: string;
+}
+
+export interface MoreFilters {
+  method: string[];
+  riceVarietyName: string[];
+  soilType: string[];
+}

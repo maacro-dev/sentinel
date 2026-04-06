@@ -1,4 +1,4 @@
-import { AlertCircle, CalendarClock, CheckCircle2, ChevronRight, Circle, Clock, XCircle } from "lucide-react";
+import { AlertCircle, CalendarClock, CheckCircle2, ChevronRight, Circle, Clock, Edit, XCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/core/components/ui/table";
 import { Badge } from "@/core/components/ui/badge";
 import { format } from "date-fns";
@@ -21,6 +21,8 @@ import { PREREQUISITE_ORDER } from "./PrerequisiteTracker";
 import React from "react";
 import { cn } from "@/core/utils/style";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUpdateCollectionTask } from "../hooks/useUpdateCollectionTask";
 
 interface MfidCollectionTasksProps {
   mfid: string;
@@ -28,22 +30,38 @@ interface MfidCollectionTasksProps {
 }
 
 export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps) {
+  const queryClient = useQueryClient();
   const { data: allTasks, isLoading } = useCollectionTasksByMfid(mfid);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedFormType, setSelectedFormType] = useState<ActivityType | undefined>();
   const [retakeOriginalTask, setRetakeOriginalTask] = useState<CollectionTask | undefined>();
+
+  const [editingTask, setEditingTask] = useState<CollectionTask | undefined>();
   const { mutate: createTask, isPending: isCreating } = useCreateCollectionTask();
+
+  const { mutate: updateTask, isPending: isUpdating } = useUpdateCollectionTask();
+
   const navigate = useNavigate();
+
 
   const handleCreateTask = (formType: ActivityType) => {
     setSelectedFormType(formType);
     setRetakeOriginalTask(undefined);
+    setEditingTask(undefined);
     setDialogOpen(true);
   };
 
   const handleRetakeTask = (task: CollectionTask) => {
     setRetakeOriginalTask(task);
     setSelectedFormType(undefined);
+    setEditingTask(undefined);
+    setDialogOpen(true);
+  };
+
+  const handleEditTask = (task: CollectionTask) => {
+    setEditingTask(task);
+    setSelectedFormType(undefined);
+    setRetakeOriginalTask(undefined);
     setDialogOpen(true);
   };
 
@@ -57,11 +75,28 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
   };
 
   const handleCreate = (input: any) => {
-    createTask(input);
-    setSelectedFormType(undefined);
-    setRetakeOriginalTask(undefined);
-    setDialogOpen(false);
+    createTask(input, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
+        setDialogOpen(false);
+        setSelectedFormType(undefined);
+        setRetakeOriginalTask(undefined);
+        setEditingTask(undefined);
+      }
+    });
   };
+
+  const handleUpdate = (input: any) => {
+    if (!editingTask) return;
+    updateTask({ id: editingTask.id, ...input }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
+        setDialogOpen(false);
+        setEditingTask(undefined);
+      }
+    });
+  };
+
 
   const tasks = useMemo(() => {
     if (!allTasks) return [];
@@ -95,7 +130,9 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
 
   const isPrerequisiteCompleted = (formType: CoreMetadataType): boolean => {
     const latest = groupedTasks[formType]?.[0];
-    return !!latest && latest.status === "completed" && latest.verification_status === "approved";
+    if (!latest) return false;
+
+    return latest.status === "completed" && (latest.verification_status === "approved" || latest.verification_status === "unknown");
   };
 
   const getSchedulability = (formType: CoreMetadataType): { allowed: boolean; reason?: string } => {
@@ -148,7 +185,7 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
       };
     }
 
-    const isApproved = task.status === "completed" && task.verification_status === "approved";
+    const isApproved = task.status === "completed" && (task.verification_status === "approved" || task.verification_status === "unknown");
     const isRejected = task.verification_status === "rejected";
     const hasRetakeScheduled = isRejected && retakeMap.has(task.id) && retakeMap.get(task.id)!.status === "pending";
     const isPendingVerification = task.status === "completed" && task.verification_status === "pending";
@@ -204,21 +241,23 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
     <div>
       <div className="flex justify-between items-center mb-4">
         <CollectionFormDialog
-          key={`${selectedFormType}-${retakeOriginalTask?.id}-${dialogOpen}`}
+          key={`${selectedFormType}-${retakeOriginalTask?.id}-${editingTask?.id}-${dialogOpen}`}
           open={dialogOpen}
           onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) {
               setSelectedFormType(undefined);
               setRetakeOriginalTask(undefined);
+              setEditingTask(undefined);
             }
           }}
-          onSubmit={handleCreate}
-          disabled={isCreating}
+          onSubmit={editingTask ? handleUpdate : handleCreate}
+          disabled={isCreating || isUpdating}
           mfid={mfid}
           seasonId={seasonId}
           activityType={selectedFormType}
           originalTask={retakeOriginalTask}
+          editingTask={editingTask}        // pass editing task if any
           hideTrigger={true}
         />
       </div>
@@ -269,6 +308,7 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
                     onToggle={() => toggleGroup(formType)}
                     retakeMap={retakeMap}
                     onRetake={() => handleRetakeTask(latestTask!)}
+                    onEdit={() => handleEditTask(latestTask!)}   // pass edit handler
                     status={status}
                     onViewForm={() => handleViewForm(latestTask!)}
                   />
@@ -339,6 +379,7 @@ function UnscheduledRow({ formType, allowed, reason, onSchedule, status }: Unsch
   );
 }
 
+
 interface MainTaskRowProps {
   task: CollectionTask;
   previousCount: number;
@@ -346,11 +387,12 @@ interface MainTaskRowProps {
   onToggle: () => void;
   retakeMap: Map<number, CollectionTask>;
   onRetake: () => void;
+  onEdit: () => void;                     // new prop
   status: { icon: React.ReactNode; label: string; color: string };
   onViewForm: () => void;
 }
 
-function MainTaskRow({ task, previousCount, isExpanded, onToggle, retakeMap, onRetake, status, onViewForm }: MainTaskRowProps) {
+function MainTaskRow({ task, previousCount, isExpanded, onToggle, retakeMap, onRetake, onEdit, status, onViewForm }: MainTaskRowProps) {
   const isRejected = task.verification_status === "rejected";
   const retakeTask = isRejected ? retakeMap.get(task.id) : undefined;
   const hasPendingRetake = retakeTask && retakeTask.status === "pending";
@@ -361,6 +403,9 @@ function MainTaskRow({ task, previousCount, isExpanded, onToggle, retakeMap, onR
       ? "default"
       : "warning";
   const isRetake = !!task.retake_of;
+
+  // Show edit button only if task is not completed (still editable)
+  const canEdit = task.status !== "completed";
 
   return (
     <TableRow
@@ -419,6 +464,7 @@ function MainTaskRow({ task, previousCount, isExpanded, onToggle, retakeMap, onR
       </TableCell>
       <TableCell>
         <div className="flex flex-col gap-1">
+          {/* View button */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -440,6 +486,31 @@ function MainTaskRow({ task, previousCount, isExpanded, onToggle, retakeMap, onR
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
+          {/* Edit button (only if not completed) */}
+          {canEdit && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit();
+                    }}
+                  >
+                    <Edit className="size-3 mr-1" />
+                    Edit
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Edit task details (dates, collector, etc.)</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {/* Retake button for rejected tasks */}
           {isRejected && !hasPendingRetake && (
             <TooltipProvider>
               <Tooltip delayDuration={300}>

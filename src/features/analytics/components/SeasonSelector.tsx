@@ -26,10 +26,9 @@ export const SeasonSelector = memo(() => {
 
   const handleSeasonChange = (value: string) => {
     clearSeasonDot();
-    navigate({ to: ".", search: () => ({ seasonId: Number(value) }) });
+    navigate({ to: "/dashboard", search: () => ({ seasonId: Number(value) }) });
     setOpen(false);
   };
-
 
   const isSelected = (value: string) => selectedSeason?.id === Number(value);
 

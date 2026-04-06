@@ -26,6 +26,13 @@ const forms = [
   "damage_assessments",
 ] as Form[];
 
+const FORM_LABEL_MAP: Record<string, string> = {
+  "field_plannings": "Farmer & Field",
+  "crop_establishments": "Cultural Management",
+  "fertilization_records": "Nutrient Management",
+  "harvest_records": "Production",
+  "damage_assessments": "Damage Assessments",
+}
 
 interface DatasetSelectorProps {
   onSelect: (type: Form) => void;
@@ -65,7 +72,7 @@ export function DatasetSelector({ onSelect, onFileHandle, fileError }: DatasetSe
                 variant="outline"
                 onClick={() => handleDatasetClick(type)}
               >
-                {type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                {FORM_LABEL_MAP[type]}
               </Button>
             ))}
           </div>

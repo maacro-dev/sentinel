@@ -76,7 +76,28 @@ export class Collection {
       .eq("mfid", mfid)
       .order("created_at", { ascending: false });
 
+    console.log(data)
+
     if (error) throw error;
     return Validator.create<CollectionTask[]>(z.array(collectionTaskSchema))(data || []);
+  }
+
+  static async update(taskId: number, input: Partial<CollectionTaskInput>): Promise<CollectionTask> {
+    const client = await getSupabase();
+    const updateData: any = {};
+    if (input.collector_id !== undefined) updateData.collector_id = input.collector_id;
+    if (input.start_date !== undefined) updateData.start_date = input.start_date;
+    if (input.end_date !== undefined) updateData.end_date = input.end_date;
+    updateData.updated_at = new Date().toISOString();
+
+    const { data, error } = await client
+      .from("collection_tasks")
+      .update(updateData)
+      .eq("id", taskId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return Validator.create<CollectionTask>(collectionTaskSchema)(data);
   }
 }

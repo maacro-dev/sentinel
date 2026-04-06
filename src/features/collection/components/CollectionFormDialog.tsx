@@ -17,7 +17,7 @@ import { FormSelect } from "@/core/components/forms/FormSelect";
 import { CollectionTask } from "../schemas/collection.schema";
 
 interface CollectionFormDialogProps {
-  onSubmit: (input: CollectionTaskInput) => void;
+  onSubmit: (input: CollectionTaskInput | (CollectionTaskInput & { id: number })) => void;
   disabled?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -25,6 +25,7 @@ interface CollectionFormDialogProps {
   seasonId?: number;
   activityType?: ActivityType;
   originalTask?: CollectionTask;
+  editingTask?: CollectionTask;    // new: task to edit
   hideTrigger?: boolean;
 }
 
@@ -37,6 +38,7 @@ export function CollectionFormDialog({
   seasonId: presetSeasonId,
   activityType: presetActivityType,
   originalTask,
+  editingTask,
   hideTrigger = false,
 }: CollectionFormDialogProps) {
   const { data: currentSeasonId } = useCurrentSeasonId();
@@ -45,8 +47,20 @@ export function CollectionFormDialog({
   const { data: mfids, isLoading: mfidsLoading, error: mfidsError } = useMfids();
 
   const isRetake = !!originalTask;
+  const isEditing = !!editingTask;
 
+  // Determine default values: edit > retake > new
   const defaultValues = useMemo(() => {
+    if (isEditing && editingTask) {
+      return {
+        mfid: editingTask.mfid,
+        season_id: editingTask.season_id,
+        activity_type: editingTask.activity_type as ActivityType,
+        collector_id: editingTask.collector_id,
+        start_date: editingTask.start_date,
+        end_date: editingTask.end_date,
+      };
+    }
     if (isRetake && originalTask) {
       return {
         mfid: originalTask.mfid,
@@ -65,7 +79,7 @@ export function CollectionFormDialog({
       start_date: new Date().toISOString().slice(0, 10),
       end_date: new Date().toISOString().slice(0, 10),
     };
-  }, [isRetake, originalTask, presetMfid, presetSeasonId, currentSeasonId, presetActivityType]);
+  }, [isEditing, editingTask, isRetake, originalTask, presetMfid, presetSeasonId, currentSeasonId, presetActivityType]);
 
   const form = useForm<CollectionTaskInput>({
     resolver: zodResolver(collectionTaskInputSchema),
@@ -74,7 +88,16 @@ export function CollectionFormDialog({
 
   useEffect(() => {
     if (open) {
-      if (originalTask) {
+      if (isEditing && editingTask) {
+        form.reset({
+          mfid: editingTask.mfid,
+          season_id: editingTask.season_id,
+          activity_type: editingTask.activity_type as ActivityType,
+          collector_id: editingTask.collector_id,
+          start_date: editingTask.start_date,
+          end_date: editingTask.end_date,
+        });
+      } else if (isRetake && originalTask) {
         form.reset({
           mfid: originalTask.mfid,
           season_id: originalTask.season_id,
@@ -94,19 +117,24 @@ export function CollectionFormDialog({
         });
       }
     }
-  }, [open, originalTask, form, presetMfid, presetSeasonId, currentSeasonId, presetActivityType]);
+  }, [open, isEditing, editingTask, isRetake, originalTask, form, presetMfid, presetSeasonId, currentSeasonId, presetActivityType]);
 
+  // Auto-select first collector for new tasks
   useEffect(() => {
-    if (!isRetake && users && users.length > 0 && !form.getValues().collector_id) {
+    if (!isRetake && !isEditing && users && users.length > 0 && !form.getValues().collector_id) {
       form.setValue("collector_id", users[0].id);
     }
-  }, [users, form, isRetake]);
+  }, [users, form, isRetake, isEditing]);
 
   const handleSubmit = (input: CollectionTaskInput) => {
-    const payload = isRetake && originalTask
-      ? { ...input, retake_of: originalTask.id }
-      : input;
-    onSubmit(payload);
+    if (isEditing && editingTask) {
+      // For edit, include the task id
+      onSubmit({ id: editingTask.id, ...input });
+    } else if (isRetake && originalTask) {
+      onSubmit({ ...input, retake_of: originalTask.id });
+    } else {
+      onSubmit(input);
+    }
     form.reset();
   };
 
@@ -116,8 +144,8 @@ export function CollectionFormDialog({
     onOpenChange(isOpen);
   };
 
-  const showMfidField = !presetMfid && !isRetake;
-  const showActivityTypeField = !presetActivityType && !isRetake;
+  const showMfidField = !presetMfid && !isRetake && !isEditing;
+  const showActivityTypeField = !presetActivityType && !isRetake && !isEditing;
 
   const isLoading = usersLoading || (showMfidField && mfidsLoading);
   const hasCollectors = users && users.length > 0;
@@ -137,6 +165,15 @@ export function CollectionFormDialog({
   const buttonDisabled = disabled || isLoading || (!canOpen && !usersError && !mfidsError);
   const isSubmitDisabled = disabled || !hasCollectors || !form.formState.isValid;
 
+  // Determine dialog title and submit button text
+  const dialogTitle = isEditing ? "Edit Collection Task" : (isRetake ? "Schedule Retake" : "Create Collection Task");
+  const dialogDescription = isEditing
+    ? "Update the collector or date range for this task."
+    : (isRetake
+        ? "Schedule a new collection task to retake this rejected form. The collector will see it in their pending list."
+        : "Assign a data collector to collect a specific form within a date range.");
+  const submitButtonText = isEditing ? "Save Changes" : (isRetake ? "Schedule Retake" : "Create");
+
   return (
     <>
       <TooltipProvider>
@@ -150,7 +187,7 @@ export function CollectionFormDialog({
                     disabled={buttonDisabled}
                     className="min-w-32 text-xs"
                   >
-                    <Plus /> Create Task
+                    <Plus /> {isEditing ? "Edit Task" : "Create Task"}
                   </Button>
                 </span>
               </TooltipTrigger>
@@ -167,7 +204,7 @@ export function CollectionFormDialog({
               className="min-w-32 text-xs"
               onClick={() => onOpenChange(true)}
             >
-              <Plus /> Create Task
+              <Plus /> {isEditing ? "Edit Task" : "Create Task"}
             </Button>
           )
         )}
@@ -178,25 +215,33 @@ export function CollectionFormDialog({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <DialogHeader className="mb-4">
-                <DialogTitle>{isRetake ? "Schedule Retake" : "Create Collection Task"}</DialogTitle>
-                <DialogDescription>
-                  {isRetake
-                    ? "Schedule a new collection task to retake this rejected form. The collector will see it in their pending list."
-                    : "Assign a data collector to collect a specific form within a date range."}
-                </DialogDescription>
+                <DialogTitle>{dialogTitle}</DialogTitle>
+                <DialogDescription>{dialogDescription}</DialogDescription>
               </DialogHeader>
 
               <div className="grid gap-4 py-4">
-                {showMfidField && (
+                {/* MFID field – disabled when editing or retake or preset */}
+                {showMfidField ? (
                   <FormSelect
                     name="mfid"
                     label="MFID"
                     placeholder="Select mfid"
                     options={mfids.map((m) => ({ label: m.mfid, value: m.mfid }))}
                   />
+                ) : (isEditing || isRetake) && (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium">MFID</label>
+                    <input
+                      type="text"
+                      value={isEditing ? editingTask!.mfid : originalTask!.mfid}
+                      disabled
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
                 )}
 
-                {showActivityTypeField && (
+                {/* Activity Type field – disabled when editing or retake or preset */}
+                {showActivityTypeField ? (
                   <FormSelect
                     name="activity_type"
                     label="Form Type"
@@ -206,6 +251,16 @@ export function CollectionFormDialog({
                       value: form,
                     }))}
                   />
+                ) : (isEditing || isRetake) && (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium">Form Type</label>
+                    <input
+                      type="text"
+                      value={getActivityTypeLabel(isEditing ? editingTask!.activity_type as ActivityType : originalTask!.activity_type as ActivityType)}
+                      disabled
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
                 )}
 
                 <FormSelect
@@ -241,7 +296,7 @@ export function CollectionFormDialog({
                     type="submit"
                     disabled={isSubmitDisabled}
                   >
-                    {isRetake ? "Schedule Retake" : "Create"}
+                    {submitButtonText}
                   </Button>
                 </div>
               </DialogFooter>

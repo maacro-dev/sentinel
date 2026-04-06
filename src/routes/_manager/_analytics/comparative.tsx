@@ -280,7 +280,9 @@ function RouteComponent() {
         provinces={provinceOptions}
         municipalities={municipalityOptions}
         barangays={barangayOptions}
+        // @ts-ignore
         moreFilters={moreFilters}
+        // @ts-ignore
         onMoreFiltersChange={handleMoreFiltersChange}
         onResetAll={resetAll}
         isLoadingProvinces={locationsLoading}

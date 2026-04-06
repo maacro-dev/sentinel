@@ -1,3 +1,5 @@
+// design scheme
+
 import { memo, JSX } from "react";
 import { ChartConfig, ChartContainer } from "@/core/components/ui/chart";
 import { chartContainerDefaults } from "../../config";

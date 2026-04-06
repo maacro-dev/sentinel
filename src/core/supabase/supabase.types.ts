@@ -1779,6 +1779,22 @@ export type Database = {
         Args: { p_field_id: number; p_harvest_date: string }
         Returns: number
       }
+      get_rice_varieties_for_predictions: {
+        Args: {
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+        }
+        Returns: Json
+      }
+      get_soil_types_for_predictions: {
+        Args: {
+          p_municipality?: string
+          p_province?: string
+          p_season_id?: number
+        }
+        Returns: Json
+      }
       handle_mfid: {
         Args: {
           p_auto_create_mfid?: boolean
@@ -1819,44 +1835,18 @@ export type Database = {
       }
       parse_date: { Args: { date_str: string }; Returns: string }
       parse_timestamptz: { Args: { timestamptz_str: string }; Returns: string }
-      predicted_harvest_distribution_by_month: {
-        Args: { p_season_id?: number }
-        Returns: Json
-      }
-      predicted_yield_by_soil_type: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
-      predicted_yield_by_soil_variety: {
-        Args: {
-          p_barangay?: string
-          p_method?: string
-          p_municipality?: string
-          p_province?: string
-          p_season_id?: number
-          p_variety?: string
-        }
-        Returns: Json
-      }
       predicted_yield_forecast: {
         Args: {
           p_barangay?: string
           p_method?: string
           p_municipality?: string
           p_province?: string
+          p_rice_variety_name?: string
           p_season_id?: number
-          p_variety?: string
+          p_soil_type?: string
         }
         Returns: Json
       }
-      predicted_yield_per_year: { Args: never; Returns: Json }
       province_yields: { Args: { p_season_id?: number }; Returns: Json }
       reset_sequence: { Args: { table_name: string }; Returns: undefined }
       restore_backup: { Args: { p_backup: Json }; Returns: Json }

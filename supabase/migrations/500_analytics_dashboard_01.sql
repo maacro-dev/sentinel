@@ -1,5 +1,4 @@
 
--- todo to clean
 
 create or replace function public.dashboard_summary(p_season_id int default null)
     returns jsonb

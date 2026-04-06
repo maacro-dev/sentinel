@@ -69,17 +69,17 @@ export const crop_establishments_schema = baseFields.extend({
 
   num_plants_1: z.string().optional()
     .transform(val => val === "N/A" ? undefined : val)
-    .refine(val => val === undefined || !isNaN(parseFloat(val)), "Must be a number")
+    .refine(val => val === undefined || Number.isInteger(Number(val)), "Must be a whole number")
     .transform(val => val === undefined ? undefined : Number(val)),
 
   num_plants_2: z.string().optional()
     .transform(val => val === "N/A" ? undefined : val)
-    .refine(val => val === undefined || !isNaN(parseFloat(val)), "Must be a number")
+    .refine(val => val === undefined || Number.isInteger(Number(val)), "Must be a whole number")
     .transform(val => val === undefined ? undefined : Number(val)),
 
   num_plants_3: z.string().optional()
     .transform(val => val === "N/A" ? undefined : val)
-    .refine(val => val === undefined || !isNaN(parseFloat(val)), "Must be a number")
+    .refine(val => val === undefined || Number.isInteger(Number(val)), "Must be a whole number")
     .transform(val => val === undefined ? undefined : Number(val)),
 
   rice_variety: z.string().transform(strclean),

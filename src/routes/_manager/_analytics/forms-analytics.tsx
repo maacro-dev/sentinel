@@ -24,6 +24,7 @@ export const Route = createFileRoute('/_manager/_analytics/forms-analytics')({
   },
 })
 
+
 function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
