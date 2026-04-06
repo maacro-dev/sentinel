@@ -168,6 +168,10 @@ begin
         and collector_id = (data->>'collected_by')::uuid
         and status = 'pending';
 
+    update mfids
+    set used_at = now()
+    where id = v_mfid_id;
+
     return v_parent_id;
 end;
 $$;
@@ -335,6 +339,10 @@ begin
         and collector_id = (data->>'collected_by')::uuid
         and status = 'pending';
 
+    update mfids
+    set used_at = now()
+    where id = v_mfid_id;
+
     return v_parent_id;
 end;
 $$;
@@ -472,6 +480,10 @@ begin
         and collector_id = (data->>'collected_by')::uuid
         and status = 'pending';
 
+    update mfids
+    set used_at = now()
+    where id = v_mfid_id;
+
     return v_parent_id;
 end;
 $$;
@@ -594,6 +606,114 @@ begin
         and collector_id = (data->>'collected_by')::uuid
         and status = 'pending';
 
+    update mfids
+    set used_at = now()
+    where id = v_mfid_id;
+
+    return v_parent_id;
+end;
+$$;
+
+create or replace function public.upload_damage_assessment(data jsonb)
+returns int
+language plpgsql
+as $$
+declare
+    v_mfid_id int;
+    v_field_id int;
+    v_parent_id int;
+    v_payload jsonb := data->'payload';
+begin
+    -- 1. Get MFID id from the mfid string
+    select id into v_mfid_id
+    from mfids
+    where mfid = data->>'mfid'
+    limit 1;
+    if v_mfid_id is null then
+        raise exception 'MFID not found: %', data->>'mfid';
+    end if;
+
+    -- 2. Get field id from mfid
+    select id into v_field_id
+    from fields
+    where mfid_id = v_mfid_id
+    limit 1;
+    if v_field_id is null then
+        raise exception 'Field not found for MFID: %', data->>'mfid';
+    end if;
+
+    -- 3. Insert field_activity (parent) – no monitoring_visit_id
+    insert into field_activities (
+        field_id,
+        season_id,
+        collection_task_id,
+        activity_type,
+        collected_by,
+        collected_at,
+        image_urls,
+        synced_at
+    )
+    values (
+        v_field_id,
+        (data->>'season_id')::int,
+        (data->>'collection_task_id')::int,
+        (data->>'activity_type')::activity_type,
+        (data->>'collected_by')::uuid,
+        NULLIF(data->>'collected_at','null')::timestamptz,
+        coalesce(data->'image_urls', '[]'::jsonb),
+        NULLIF(data->>'synced_at','null')::timestamptz
+    )
+    on conflict (collection_task_id)
+    do update set
+        image_urls = excluded.image_urls,
+        synced_at = excluded.synced_at
+    returning id into v_parent_id;
+
+    -- 4. Insert damage_assessment metadata (all fields)
+    insert into damage_assessments (
+        id,
+        cause,
+        crop_stage,
+        soil_type,
+        severity,
+        affected_area_ha,
+        observed_pest
+    )
+    values (
+        v_parent_id,
+        v_payload->>'cause',
+        v_payload->>'crop_stage',
+        v_payload->>'soil_type',
+        v_payload->>'severity',
+        (v_payload->>'affected_area_ha')::double precision,
+        NULLIF(v_payload->>'observed_pest', '')  -- allow null if empty string
+    )
+    on conflict (id)
+    do update set
+        cause = excluded.cause,
+        crop_stage = excluded.crop_stage,
+        soil_type = excluded.soil_type,
+        severity = excluded.severity,
+        affected_area_ha = excluded.affected_area_ha,
+        observed_pest = excluded.observed_pest;
+
+    -- 5. Update collection task to completed
+    update collection_tasks
+    set
+        status = 'completed',
+        updated_at = now()
+    where
+        mfid_id = v_mfid_id
+        and season_id = (data->>'season_id')::int
+        and activity_type = (data->>'activity_type')::activity_type
+        and collector_id = (data->>'collected_by')::uuid
+        and status = 'pending';
+
+    -- 6. Update MFID's used_at timestamp
+    update mfids
+    set used_at = now()
+    where id = v_mfid_id;
+
     return v_parent_id;
 end;
 $$;
@@ -616,6 +736,8 @@ begin
             v_result := public.upload_nutrient_management(data);
         when 'production' then
             v_result := public.upload_production(data);
+        when 'damage-assessment' then
+            v_result := public.upload_damage_assessment(data);
         else
             raise exception 'Unsupported activity_type: %', v_activity_type;
     end case;

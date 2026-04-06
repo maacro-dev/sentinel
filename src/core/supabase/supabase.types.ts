@@ -1384,6 +1384,7 @@ export type Database = {
           barangay: string | null
           collected_at: string | null
           collected_by: Json | null
+          collection_task_id: number | null
           farmer_name: string | null
           field_id: number | null
           form_data: Json | null
@@ -1406,6 +1407,20 @@ export type Database = {
           verified_by: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "field_activities_collection_task_id_fkey"
+            columns: ["collection_task_id"]
+            isOneToOne: true
+            referencedRelation: "collection_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_collection_task_id_fkey"
+            columns: ["collection_task_id"]
+            isOneToOne: true
+            referencedRelation: "collection_tasks"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "field_activities_field_id_fkey"
             columns: ["field_id"]
@@ -1857,6 +1872,7 @@ export type Database = {
       trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
       trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
       upload_cultural_management: { Args: { data: Json }; Returns: number }
+      upload_damage_assessment: { Args: { data: Json }; Returns: number }
       upload_field_data: { Args: { data: Json }; Returns: number }
       upload_form_data: { Args: { data: Json }; Returns: number }
       upload_nutrient_management: { Args: { data: Json }; Returns: number }

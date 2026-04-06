@@ -24,7 +24,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   const form = useForm<Credentials>({
     resolver: zodResolver(credentialsSchema),
-    defaultValues: { email: "manager@humayapp.com", password: "manager" },
+    defaultValues: { email: "", password: "" },
     mode: "onChange",
     reValidateMode: "onChange",
   });

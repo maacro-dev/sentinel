@@ -52,6 +52,7 @@ select
     fa.verified_at as verified_at,
     fa.synced_at as synced_at,
     fa.image_urls as image_urls,
+    fa.collection_task_id as collection_task_id,
     concat(fm.first_name, ' ', fm.last_name) as farmer_name,
     a.barangay as barangay,
     a.city_municipality as municipality,

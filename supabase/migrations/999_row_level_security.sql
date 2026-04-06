@@ -197,6 +197,9 @@ CREATE POLICY "allow authenticated uploads" ON storage.objects
 CREATE POLICY "allow authenticated reads" ON storage.objects
     FOR SELECT TO authenticated USING (bucket_id = 'form-images');
 
+CREATE POLICY "Allow authenticated users to update files in form-images" ON storage.objects
+    FOR UPDATE TO authenticated USING (bucket_id = 'form-images') WITH CHECK ( bucket_id = 'form-images');
+
 -- storage end --
 
 GRANT SELECT ON field_details TO authenticated;

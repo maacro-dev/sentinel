@@ -307,6 +307,8 @@ begin
                    when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
                    else true
                end)
+          and hr.area_harvested_ha > 0
+          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0  -- exclude zero yield
     ),
     aggregated as (
         select
@@ -316,9 +318,8 @@ begin
                 when p_province is not null then municipality_name
                 else province_name
             end as location,
-            avg(yield_t / nullif(area_harvested_ha, 0)) as avg_yield_t_ha
+            avg(yield_t / area_harvested_ha) as avg_yield_t_ha
         from base
-        where area_harvested_ha > 0
         group by location
     ),
     all_locations as (
@@ -332,7 +333,7 @@ begin
         from public.provinces p
         left join public.cities_municipalities cm on
             (p_province is not null and cm.province_id = p.id) or
-            (p_province is null)  -- include all municipalities when no province filter
+            (p_province is null)
         left join public.barangays b on
             (p_municipality is not null and b.city_municipality_id = cm.id) or
             (p_municipality is null)
@@ -341,9 +342,8 @@ begin
           and (p_barangay is null or b.name = p_barangay)
     ),
     overall as (
-        select coalesce(avg(yield_t / nullif(area_harvested_ha, 0)), 0) as overall_avg
+        select avg(yield_t / area_harvested_ha) as overall_avg
         from base
-        where area_harvested_ha > 0
     ),
     final_ranking as (
         select
@@ -355,14 +355,14 @@ begin
     select
         (select overall_avg from overall),
         (select jsonb_build_object('value', avg_yield_t_ha, 'location', location)
-         from final_ranking order by avg_yield_t_ha desc limit 1),
+         from final_ranking where avg_yield_t_ha > 0 order by avg_yield_t_ha desc limit 1),
         (select jsonb_build_object('value', avg_yield_t_ha, 'location', location)
-         from final_ranking order by avg_yield_t_ha asc limit 1),
+         from final_ranking where avg_yield_t_ha > 0 order by avg_yield_t_ha asc limit 1),
         (select jsonb_agg(
             jsonb_build_object('location', location, 'yield', avg_yield_t_ha)
             order by avg_yield_t_ha desc
          )
-         from final_ranking)
+         from final_ranking where avg_yield_t_ha > 0)
     into avg_yield, highest, lowest, ranking;
 
     gap_percentage := case
@@ -375,7 +375,7 @@ begin
     end;
 
     result := jsonb_build_object(
-        'average_yield', avg_yield,
+        'average_yield', coalesce(avg_yield, 0),
         'highest_yield', coalesce(highest, 'null'::jsonb),
         'lowest_yield', coalesce(lowest, 'null'::jsonb),
         'gap_percentage', gap_percentage,
@@ -444,11 +444,12 @@ begin
                    when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
                    else true
                end)
+          and hr.area_harvested_ha > 0
+          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0   -- exclude zero yield
     ),
     overall as (
-        select coalesce(avg(yield_t / nullif(area_harvested_ha, 0)), 0) as overall_avg
+        select avg(yield_t / area_harvested_ha) as overall_avg
         from base
-        where area_harvested_ha > 0
     ),
     all_methods as (
         select unnest(array['direct-seeded', 'transplanted']) as method
@@ -456,26 +457,29 @@ begin
     method_agg as (
         select
             am.method,
-            coalesce(avg(b.yield_t / nullif(b.area_harvested_ha, 0)), 0) as avg_yield_t_ha,
+            avg(b.yield_t / b.area_harvested_ha) as avg_yield_t_ha,
             count(b.area_harvested_ha) as record_count
         from all_methods am
-        left join base b on b.method = am.method and b.area_harvested_ha > 0
+        left join base b on b.method = am.method
         group by am.method
     )
     select
-        (select overall_avg from overall),
+        (select coalesce(overall_avg, 0) from overall),
         (select jsonb_build_object('value', avg_yield_t_ha, 'method', method)
          from method_agg
+         where avg_yield_t_ha > 0
          order by avg_yield_t_ha desc
          limit 1),
         (select jsonb_build_object('value', avg_yield_t_ha, 'method', method)
          from method_agg
+         where avg_yield_t_ha > 0
          order by avg_yield_t_ha asc
          limit 1),
         (select jsonb_agg(
             jsonb_build_object('method', method, 'yield', avg_yield_t_ha, 'count', record_count)
             order by avg_yield_t_ha desc)
-         from method_agg)
+         from method_agg
+         where avg_yield_t_ha > 0)
     into avg_yield, highest, lowest, ranking;
 
     gap_percentage := case
@@ -489,8 +493,8 @@ begin
 
     result := jsonb_build_object(
         'average_yield', avg_yield,
-        'highest_method', highest,
-        'lowest_method', lowest,
+        'highest_method', coalesce(highest, 'null'::jsonb),
+        'lowest_method', coalesce(lowest, 'null'::jsonb),
         'gap_percentage', gap_percentage,
         'ranking', coalesce(ranking, '[]'::jsonb)
     );
@@ -527,7 +531,7 @@ begin
             cm.name as municipality,
             b.name as barangay,
             ce.actual_crop_establishment_method as method,
-            nullif(trim(coalesce(ce.rice_variety, '')), '') as variety -- keep the real variety string (distinct)
+            nullif(trim(coalesce(ce.rice_variety, '')), '') as variety
         from public.harvest_records hr
         join public.field_activities fa on hr.id = fa.id
         join public.fields f on fa.field_id = f.id
@@ -549,49 +553,48 @@ begin
           and (p_method is null or ce.actual_crop_establishment_method ilike '%' || p_method || '%')
           and (
                 p_variety is null
-             -- allow special filter tokens but do NOT collapse actual variety strings in the result
              or (upper(p_variety) = 'NSIC' and coalesce(ce.rice_variety, '') ilike '%nsic%')
              or (upper(p_variety) = 'PSB' and coalesce(ce.rice_variety, '') ilike '%psb%')
              or (upper(p_variety) = 'OTHERS' and (coalesce(ce.rice_variety, '') NOT ILIKE '%nsic%' and coalesce(ce.rice_variety, '') NOT ILIKE '%psb%'))
              or (ce.rice_variety = p_variety)
           )
+          and hr.area_harvested_ha > 0
+          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0   -- exclude zero yield
     ),
     overall as (
-        select coalesce(avg(yield_t / nullif(area_harvested_ha, 0)), 0) as overall_avg
+        select avg(yield_t / area_harvested_ha) as overall_avg
         from base
-        where area_harvested_ha > 0
     ),
-    -- aggregate by the actual variety string. exclude NULL/empty varieties so we get distinct real varieties
     variety_agg as (
         select
             variety,
-            avg(yield_t / nullif(area_harvested_ha, 0)) as avg_yield_t_ha
+            avg(yield_t / area_harvested_ha) as avg_yield_t_ha
         from base
-        where area_harvested_ha > 0
-          and variety is not null
+        where variety is not null
         group by variety
     )
     select
-        (select overall_avg from overall),
-        -- highest variety explicitly ordered to ensure correct top result
+        (select coalesce(overall_avg, 0) from overall),
         (select jsonb_build_object('value', avg_yield_t_ha, 'variety', variety)
          from variety_agg
+         where avg_yield_t_ha > 0
          order by avg_yield_t_ha desc
          limit 1),
-        -- return each distinct variety (no grouping into "Others") ordered by avg yield desc
         (select jsonb_agg(jsonb_build_object('variety', variety, 'yield', avg_yield_t_ha) order by avg_yield_t_ha desc)
-         from variety_agg)
+         from variety_agg
+         where avg_yield_t_ha > 0)
     into avg_yield, highest, ranking;
 
     result := jsonb_build_object(
         'average_yield', avg_yield,
-        'highest_variety', highest,
+        'highest_variety', coalesce(highest, 'null'::jsonb),
         'ranking', coalesce(ranking, '[]'::jsonb)
     );
 
     return result;
 end;
 $$;
+
 
 create or replace function public.damage_by_location(
     p_season_id int default null,
@@ -635,13 +638,14 @@ begin
           and (p_municipality is null or cm.name = p_municipality)
           and (p_barangay is null or b.name = p_barangay)
           and (p_cause is null or da.cause ilike '%' || p_cause || '%')
+          and da.affected_area_ha > 0                    -- exclude zero or null damage area
+          and da.cause is not null                       -- only valid damage records
     ),
     totals as (
         select
             count(*) as total_reports,
             coalesce(sum(affected_area_ha), 0) as total_area
         from base
-        where cause is not null
     ),
     ranked as (
         select
@@ -654,16 +658,15 @@ begin
             count(*) as damage_count,
             coalesce(sum(affected_area_ha), 0) as total_affected_area
         from base
-        where cause is not null
         group by location
     )
     select
         (select total_reports from totals),
         (select total_area from totals),
         (select jsonb_build_object('value', total_affected_area, 'location', location)
-         from ranked order by total_affected_area desc limit 1),
+         from ranked where total_affected_area > 0 order by total_affected_area desc limit 1),
         (select jsonb_build_object('value', damage_count, 'location', location)
-         from ranked order by damage_count desc limit 1),
+         from ranked where damage_count > 0 order by damage_count desc limit 1),
         (select jsonb_agg(
             jsonb_build_object(
                 'location', location,
@@ -685,12 +688,12 @@ begin
                 end,
                 total_affected_area desc
          )
-         from ranked)
+         from ranked where total_affected_area > 0)
     into v_total_reports, v_total_area, v_highest_area, v_highest_count, v_ranking;
 
     result := jsonb_build_object(
-        'total_damage_reports', v_total_reports,
-        'total_affected_area_ha', v_total_area,
+        'total_damage_reports', coalesce(v_total_reports, 0),
+        'total_affected_area_ha', coalesce(v_total_area, 0),
         'highest_affected_area', coalesce(v_highest_area, 'null'::jsonb),
         'highest_damage_count', coalesce(v_highest_count, 'null'::jsonb),
         'ranking', coalesce(v_ranking, '[]'::jsonb)
@@ -756,13 +759,14 @@ begin
                    when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
                    else true
                end)
+          and da.affected_area_ha > 0        -- exclude zero or null affected area
+          and da.cause is not null           -- only valid causes
     ),
     totals as (
         select
             count(*) as total_reports,
             coalesce(sum(affected_area_ha), 0) as total_area
         from base
-        where cause is not null
     ),
     cause_agg as (
         select
@@ -770,16 +774,15 @@ begin
             count(*) as report_count,
             coalesce(sum(affected_area_ha), 0) as total_affected_area
         from base
-        where cause is not null
         group by cause
     )
     select
         (select total_reports from totals),
         (select total_area from totals),
         (select jsonb_build_object('value', report_count, 'cause', cause)
-         from cause_agg order by report_count desc limit 1),
+         from cause_agg where report_count > 0 order by report_count desc limit 1),
         (select jsonb_build_object('value', total_affected_area, 'cause', cause)
-         from cause_agg order by total_affected_area desc limit 1),
+         from cause_agg where total_affected_area > 0 order by total_affected_area desc limit 1),
         (select jsonb_agg(
             jsonb_build_object(
                 'cause', cause,
@@ -788,12 +791,12 @@ begin
             )
             order by report_count desc
          )
-         from cause_agg)
+         from cause_agg where total_affected_area > 0)
     into v_total_reports, v_total_area, v_highest_reports, v_highest_area, v_ranking;
 
     result := jsonb_build_object(
-        'total_damage_reports', v_total_reports,
-        'total_affected_area_ha', v_total_area,
+        'total_damage_reports', coalesce(v_total_reports, 0),
+        'total_affected_area_ha', coalesce(v_total_area, 0),
         'highest_damage_count', coalesce(v_highest_reports, 'null'::jsonb),
         'highest_affected_area', coalesce(v_highest_area, 'null'::jsonb),
         'ranking', coalesce(v_ranking, '[]'::jsonb)

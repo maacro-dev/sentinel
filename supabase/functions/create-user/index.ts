@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
     const { first_name, last_name, email, role, date_of_birth } = body;
 
     const supabase = getAdminAuthClient();
-    const password = "ohmygodiforgotmypassword";
+    const password = "temporary";
 
     const pendingUser = {
       role: "authenticated",
