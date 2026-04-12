@@ -4,14 +4,25 @@ select
     case fa.activity_type
         when 'field-data' then
             to_jsonb(fp) - 'id' ||
-            jsonb_build_object('monitoring_visit', to_jsonb(mv_core) - 'id')
+            jsonb_build_object('monitoring_visit', to_jsonb(mv_core) - 'id') ||
+            jsonb_build_object(
+                'first_name', fm.first_name,
+                'last_name', fm.last_name,
+                'gender', fm.gender,
+                'date_of_birth', fm.date_of_birth,
+                'cellphone_no', fm.cellphone_no,
+                'province', a.province,
+                'municipality_or_city', a.city_municipality,
+                'barangay', a.barangay,
+                'location', spatial.ST_Y(f.location) || ',' || spatial.ST_X(f.location)
+            )
         when 'cultural-management' then
             to_jsonb(ce) - 'id' ||
             jsonb_build_object('monitoring_visit', to_jsonb(mv_core) - 'id')
         when 'nutrient-management' then
             jsonb_build_object(
-                'id', fr.id,
                 'applied_area_sqm', fr.applied_area_sqm,
+                'monitoring_visit', to_jsonb(mv_core) - 'id',
                 'applications', coalesce((
                     select jsonb_agg(
                         jsonb_build_object(
@@ -27,8 +38,7 @@ select
                     )
                     from public.fertilizer_applications fapp
                     where fapp.fertilization_record_id = fr.id
-                ), '[]'::jsonb),
-                'monitoring_visit', to_jsonb(mv_core) - 'id'
+                ), '[]'::jsonb)
             )
         when 'production' then
             to_jsonb(hr) - 'id' ||
@@ -53,6 +63,7 @@ select
     fa.synced_at as synced_at,
     fa.image_urls as image_urls,
     fa.collection_task_id as collection_task_id,
+    fa.updated_at as updated_at,
     concat(fm.first_name, ' ', fm.last_name) as farmer_name,
     a.barangay as barangay,
     a.city_municipality as municipality,
@@ -78,28 +89,6 @@ left join public.collection_tasks ct on fa.collection_task_id = ct.id
 left join public.collection_tasks ct_original on ct.retake_of = ct_original.id
 left join public.field_activities fa_original on ct_original.id = fa_original.collection_task_id;
 
-
-create or replace function public.get_planting_season_for_harvest(p_field_id int, p_harvest_date date)
-returns int
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-    v_season_id int;
-begin
-    select fa.season_id into v_season_id
-    from public.field_activities fa
-    join public.crop_establishments ce on fa.id = ce.id
-    where fa.field_id = p_field_id
-      and fa.activity_type = 'cultural-management'
-      and ce.actual_crop_establishment_date <= p_harvest_date
-    order by ce.actual_crop_establishment_date desc
-    limit 1;
-
-    return v_season_id;
-end;
-$$;
 
 
 create or replace view collection_details as
@@ -129,6 +118,9 @@ select
         when a.barangay is not null then concat(a.barangay, ', ', coalesce(loc.municipality, ''), ', ', coalesce(loc.province, ''))
         else concat(coalesce(loc.municipality, ''), ', ', coalesce(loc.province, ''))
     end as full_address,
+
+
+    -- to be removed
 
     coalesce(fa.verification_status, 'pending') as verification_status,
     fa.id as activity_id,
@@ -206,8 +198,71 @@ left join field_activities fa_original on ct_original.id = fa_original.collectio
 left join lateral get_mfid_location(m.mfid) as loc on true;
 
 
+create or replace function public.get_planting_season_for_harvest(p_field_id int, p_harvest_date date)
+returns int
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    v_season_id int;
+begin
+    select fa.season_id into v_season_id
+    from public.field_activities fa
+    join public.crop_establishments ce on fa.id = ce.id
+    where fa.field_id = p_field_id
+      and fa.activity_type = 'cultural-management'
+      and ce.actual_crop_establishment_date <= p_harvest_date
+    order by ce.actual_crop_establishment_date desc
+    limit 1;
+
+    return v_season_id;
+end;
+$$;
+
+
+
 
 create or replace view seasons_with_data as
     select distinct s.*
     from seasons s
     join field_activities fa on fa.season_id = s.id;
+
+
+create or replace function public.has_new_forms(
+    p_user_id uuid,
+    p_updated_after timestamptz
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    return exists (
+        select 1
+        from public.field_activity_details
+        where collected_by->>'id' = p_user_id::text
+          and (p_updated_after is null or updated_at > p_updated_after)
+    );
+end;
+$$;
+
+create or replace function public.has_new_tasks(
+    p_user_id uuid,
+    p_updated_after timestamptz
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    return exists (
+        select 1
+        from public.collection_details
+        where collected_by = p_user_id
+          and (p_updated_after is null or updated_at > p_updated_after)
+    );
+end;
+$$;

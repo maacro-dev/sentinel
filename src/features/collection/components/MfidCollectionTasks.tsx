@@ -43,7 +43,6 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
 
   const navigate = useNavigate();
 
-
   const handleCreateTask = (formType: ActivityType) => {
     setSelectedFormType(formType);
     setRetakeOriginalTask(undefined);
@@ -90,10 +89,9 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
     if (!editingTask) return;
     updateTask({ id: editingTask.id, ...input }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
         setDialogOpen(false);
         setEditingTask(undefined);
-      }
+      },
     });
   };
 
@@ -241,7 +239,7 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
     <div>
       <div className="flex justify-between items-center mb-4">
         <CollectionFormDialog
-          key={`${selectedFormType}-${retakeOriginalTask?.id}-${editingTask?.id}-${dialogOpen}`}
+          // key={`${selectedFormType}-${retakeOriginalTask?.id}-${editingTask?.id}-${dialogOpen}`}
           open={dialogOpen}
           onOpenChange={(open) => {
             setDialogOpen(open);
@@ -257,7 +255,7 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
           seasonId={seasonId}
           activityType={selectedFormType}
           originalTask={retakeOriginalTask}
-          editingTask={editingTask}        // pass editing task if any
+          editingTask={editingTask}
           hideTrigger={true}
         />
       </div>
@@ -308,7 +306,7 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
                     onToggle={() => toggleGroup(formType)}
                     retakeMap={retakeMap}
                     onRetake={() => handleRetakeTask(latestTask!)}
-                    onEdit={() => handleEditTask(latestTask!)}   // pass edit handler
+                    onEdit={() => handleEditTask(latestTask!)}
                     status={status}
                     onViewForm={() => handleViewForm(latestTask!)}
                   />
@@ -387,7 +385,7 @@ interface MainTaskRowProps {
   onToggle: () => void;
   retakeMap: Map<number, CollectionTask>;
   onRetake: () => void;
-  onEdit: () => void;                     // new prop
+  onEdit: () => void;
   status: { icon: React.ReactNode; label: string; color: string };
   onViewForm: () => void;
 }

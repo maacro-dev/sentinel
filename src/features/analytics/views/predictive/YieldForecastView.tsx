@@ -113,7 +113,7 @@ export function YieldForecastView({
           <StatCardMinimal title="Total Predicted Yield" subtitle="Season total" current_value={Number(data.total_predicted.toFixed(2))} unit="t/ha" />
           <StatCardMinimal title="Average Yield per Field" subtitle="Season average" current_value={Number(data.overall_avg_yield_per_field.toFixed(2))} unit="t/ha" />
           <StatCardMinimal title="Expected Change" subtitle="Peak vs trough" current_value={Number(avgChange.toFixed(1))} unit="%" />
-          <StatCardMinimal title="Risk Level" subtitle={riskLevel} current_value={0} unit="" />
+          <StatCardMinimal title="Risk Level" subtitle="Based on yield variation" current_value={riskLevel} unit="" />
         </div>
         <YieldForecastChart
           predicted={predictedData}

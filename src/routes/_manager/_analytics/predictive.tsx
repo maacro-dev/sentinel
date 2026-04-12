@@ -1,4 +1,3 @@
-
 import { PageContainer } from '@/core/components/layout';
 import { Spinner } from '@/core/components/ui/spinner';
 import { createCrumbLoader } from '@/core/utils/breadcrumb';
@@ -9,6 +8,8 @@ import { useYieldForecast, yieldForecastOptions } from '@/features/analytics/hoo
 import { YieldForecastView } from '@/features/analytics/views/predictive/YieldForecastView';
 import { useAvailableLocationsForPredictions } from '@/features/mfid/hooks/useAvailableLocations';
 import { useRiceVarieties, useSoilTypes } from '@/features/analytics/hooks/useRiceVarieties';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/components/ui/tabs';
+import { YearlyOverviewView } from '@/features/analytics/views/predictive/YieldOverviewView';
 
 export const Route = createFileRoute("/_manager/_analytics/predictive")({
   component: RouteComponent,
@@ -40,10 +41,8 @@ function RouteComponent() {
     soilType: [] as string[],
   });
 
-  // Fetch available locations (provinces, municipalities, barangays)
   const { data: availableLocations, isLoading: locationsLoading } = useAvailableLocationsForPredictions(seasonId);
 
-  // Fetch dynamic options for rice varieties and soil types based on current location & season
   const { data: riceVarieties = [] } = useRiceVarieties(seasonId, location.province || undefined, location.municipality || undefined);
   const { data: soilTypes = [] } = useSoilTypes(seasonId, location.province || undefined, location.municipality || undefined);
 
@@ -86,6 +85,7 @@ function RouteComponent() {
     riceVarietyName: moreFilters.riceVarietyName[0],
     soilType: moreFilters.soilType[0],
   });
+
 
   const handleLocationChange = (key: keyof typeof location, value: string) => {
     if (key === 'province') setLocation(prev => ({ ...prev, province: value, municipality: '', barangay: '' }));
@@ -141,28 +141,36 @@ function RouteComponent() {
 
   return (
     <PageContainer>
-      <YieldForecastView
-        data={forecastData!}
-        // @ts-ignore
-        seasonId={seasonId}
-        location={location}
-        onLocationChange={handleLocationChange}
-        // @ts-ignore
-        moreFilters={moreFilters}
-        // @ts-ignore
-        onMoreFiltersChange={handleMoreFiltersChange}
-        onResetAll={resetAll}
-        provinceOptions={provinceOptions}
-        municipalityOptions={municipalityOptions}
-        barangayOptions={barangayOptions}
-        riceVarietyOptions={riceVarietyOptions}
-        soilTypeOptions={soilTypeOptions}
-        isLoadingProvinces={locationsLoading}
-        isLoadingMunicipalities={locationsLoading}
-        isLoadingBarangays={locationsLoading}
-        prefetchLocationData={prefetchLocationData}
-        prefetchMoreFilterData={prefetchMoreFilterData}
-      />
+      <Tabs defaultValue="overview">
+        <TabsList variant="line">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="forecast">Forecast</TabsTrigger>
+        </TabsList>
+        <TabsContent value='overview'>
+          <YearlyOverviewView />
+        </TabsContent>
+        <TabsContent value='forecast'>
+          <YieldForecastView
+            data={forecastData!}
+            seasonId={seasonId}
+            location={location}
+            onLocationChange={handleLocationChange}
+            moreFilters={moreFilters}
+            onMoreFiltersChange={handleMoreFiltersChange}
+            onResetAll={resetAll}
+            provinceOptions={provinceOptions}
+            municipalityOptions={municipalityOptions}
+            barangayOptions={barangayOptions}
+            riceVarietyOptions={riceVarietyOptions}
+            soilTypeOptions={soilTypeOptions}
+            isLoadingProvinces={locationsLoading}
+            isLoadingMunicipalities={locationsLoading}
+            isLoadingBarangays={locationsLoading}
+            prefetchLocationData={prefetchLocationData}
+            prefetchMoreFilterData={prefetchMoreFilterData}
+          />
+        </TabsContent>
+      </Tabs>
     </PageContainer>
   );
 }

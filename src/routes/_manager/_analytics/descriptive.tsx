@@ -35,7 +35,7 @@ function RouteComponent() {
       <ProvinceYieldsBarChart data={provinceYields} />
       <div className="flex h-full gap-4 ">
 
-        <div className="h-full flex-5">
+        <div className="h-full w-[70%]">
           <FertilizerTypeBarChart data={fertilizerTypeSummary} />
         </div>
 

@@ -13,9 +13,6 @@ declare
     v_payload jsonb := data->'payload';
 begin
 
-    -- =========================
-    -- 1. Farmer
-    -- =========================
     insert into farmers (
         first_name,
         last_name,
@@ -34,17 +31,12 @@ begin
     do update set first_name = excluded.first_name
     returning id into v_farmer_id;
 
-    -- =========================
-    -- 2. Barangay
-    -- =========================
     select id into v_barangay_id
     from barangays
     where name = v_payload->>'barangay'
     limit 1;
 
-    -- =========================
-    -- 3. MFID
-    -- =========================
+
     insert into mfids (mfid, used_at)
     values (
         data->>'mfid',
@@ -54,9 +46,7 @@ begin
     do update set used_at = excluded.used_at
     returning id into v_mfid_id;
 
-    -- =========================
-    -- 4. Field
-    -- =========================
+
     insert into fields (
         farmer_id,
         barangay_id,
@@ -73,9 +63,6 @@ begin
     do update set location = excluded.location
     returning id into v_field_id;
 
-    -- =========================
-    -- 5. Monitoring Visit FIRST
-    -- =========================
     v_monitoring_id := null;
 
     if v_payload->>'date_monitored' is not null then
@@ -96,9 +83,7 @@ begin
         raise notice 'monitoring_id inserted: %', v_monitoring_id;
     end if;
 
-    -- =========================
-    -- 6. Field Activity (parent)
-    -- =========================
+
     insert into field_activities (
         field_id,
         season_id,
@@ -127,9 +112,9 @@ begin
         synced_at = excluded.synced_at
     returning id into v_parent_id;
 
-    -- =========================
-    -- 7. Field Planning
-    -- =========================
+
+
+
     insert into field_plannings (
         id,
         land_preparation_start_date,
@@ -188,7 +173,7 @@ declare
     v_monitoring_id int;
     v_payload jsonb := data->'payload';
 begin
-    -- 1. Get MFID id from the mfid string
+
     select id into v_mfid_id
     from mfids
     where mfid = data->>'mfid'
@@ -197,7 +182,7 @@ begin
         raise exception 'MFID not found: %', data->>'mfid';
     end if;
 
-    -- 2. Get field id from mfid
+
     select id into v_field_id
     from fields
     where mfid_id = v_mfid_id
@@ -206,7 +191,7 @@ begin
         raise exception 'Field not found for MFID: %', data->>'mfid';
     end if;
 
-    -- 3. Insert monitoring visit (if date_monitored present)
+
     v_monitoring_id := null;
     if v_payload->>'date_monitored' is not null then
         insert into monitoring_visits (
@@ -224,7 +209,7 @@ begin
         returning id into v_monitoring_id;
     end if;
 
-    -- 4. Insert field_activity (parent)
+
     insert into field_activities (
         field_id,
         season_id,
@@ -254,7 +239,7 @@ begin
         monitoring_visit_id = excluded.monitoring_visit_id
     returning id into v_parent_id;
 
-    -- 5. Insert crop_establishment metadata
+
     insert into crop_establishments (
         id,
         ecosystem,
@@ -327,7 +312,7 @@ begin
         rice_variety_maturity_duration = excluded.rice_variety_maturity_duration,
         seed_class = excluded.seed_class;
 
-    -- 6. Update collection task to completed
+
     update collection_tasks
     set
         status = 'completed',
@@ -362,7 +347,7 @@ declare
     v_fertilizer_apps jsonb := v_payload->'fertilizer_application';
     v_app jsonb;
 begin
-    -- 1. Get MFID id from the mfid string
+
     select id into v_mfid_id
     from mfids
     where mfid = data->>'mfid'
@@ -371,7 +356,6 @@ begin
         raise exception 'MFID not found: %', data->>'mfid';
     end if;
 
-    -- 2. Get field id from mfid
     select id into v_field_id
     from fields
     where mfid_id = v_mfid_id
@@ -380,7 +364,6 @@ begin
         raise exception 'Field not found for MFID: %', data->>'mfid';
     end if;
 
-    -- 3. Insert monitoring visit (if date_monitored present)
     v_monitoring_id := null;
     if v_payload->>'date_monitored' is not null then
         insert into monitoring_visits (
@@ -500,7 +483,6 @@ declare
     v_monitoring_id int;
     v_payload jsonb := data->'payload';
 begin
-    -- 1. Get MFID id from the mfid string
     select id into v_mfid_id
     from mfids
     where mfid = data->>'mfid'
@@ -509,7 +491,6 @@ begin
         raise exception 'MFID not found: %', data->>'mfid';
     end if;
 
-    -- 2. Get field id from mfid
     select id into v_field_id
     from fields
     where mfid_id = v_mfid_id
@@ -518,7 +499,6 @@ begin
         raise exception 'Field not found for MFID: %', data->>'mfid';
     end if;
 
-    -- 3. Insert monitoring visit (if date_monitored present)
     v_monitoring_id := null;
     if v_payload->>'date_monitored' is not null then
         insert into monitoring_visits (
@@ -536,7 +516,6 @@ begin
         returning id into v_monitoring_id;
     end if;
 
-    -- 4. Insert field_activity (parent)
     insert into field_activities (
         field_id,
         season_id,
@@ -566,7 +545,6 @@ begin
         monitoring_visit_id = excluded.monitoring_visit_id
     returning id into v_parent_id;
 
-    -- 5. Insert harvest_record metadata
     insert into harvest_records (
         id,
         harvest_date,
@@ -594,7 +572,6 @@ begin
         area_harvested_ha = excluded.area_harvested_ha,
         irrigation_supply = excluded.irrigation_supply;
 
-    -- 6. Update collection task to completed
     update collection_tasks
     set
         status = 'completed',
@@ -624,7 +601,6 @@ declare
     v_parent_id int;
     v_payload jsonb := data->'payload';
 begin
-    -- 1. Get MFID id from the mfid string
     select id into v_mfid_id
     from mfids
     where mfid = data->>'mfid'
@@ -633,7 +609,6 @@ begin
         raise exception 'MFID not found: %', data->>'mfid';
     end if;
 
-    -- 2. Get field id from mfid
     select id into v_field_id
     from fields
     where mfid_id = v_mfid_id
@@ -642,7 +617,6 @@ begin
         raise exception 'Field not found for MFID: %', data->>'mfid';
     end if;
 
-    -- 3. Insert field_activity (parent) – no monitoring_visit_id
     insert into field_activities (
         field_id,
         season_id,
@@ -669,7 +643,6 @@ begin
         synced_at = excluded.synced_at
     returning id into v_parent_id;
 
-    -- 4. Insert damage_assessment metadata (all fields)
     insert into damage_assessments (
         id,
         cause,
@@ -686,7 +659,7 @@ begin
         v_payload->>'soil_type',
         v_payload->>'severity',
         (v_payload->>'affected_area_ha')::double precision,
-        NULLIF(v_payload->>'observed_pest', '')  -- allow null if empty string
+        NULLIF(v_payload->>'observed_pest', '')
     )
     on conflict (id)
     do update set
@@ -697,7 +670,6 @@ begin
         affected_area_ha = excluded.affected_area_ha,
         observed_pest = excluded.observed_pest;
 
-    -- 5. Update collection task to completed
     update collection_tasks
     set
         status = 'completed',
@@ -709,7 +681,7 @@ begin
         and collector_id = (data->>'collected_by')::uuid
         and status = 'pending';
 
-    -- 6. Update MFID's used_at timestamp
+
     update mfids
     set used_at = now()
     where id = v_mfid_id;

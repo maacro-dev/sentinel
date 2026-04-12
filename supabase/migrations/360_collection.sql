@@ -20,3 +20,25 @@ create index idx_collection_tasks_season on collection_tasks(season_id);
 create index idx_collection_tasks_collector on collection_tasks(collector_id);
 
 alter publication supabase_realtime add table collection_tasks;
+
+
+create or replace function set_retake_flag()
+returns trigger as $$
+begin
+    -- if a retake_of is set (non‑null), mark that original task as retakeable
+    if new.retake_of is not null then
+        update collection_tasks
+        set can_retake = true
+        where id = new.retake_of;
+    end if;
+
+    return new;
+end;
+$$ language plpgsql;
+
+
+create trigger trigger_set_retake_flag
+    after insert or update of retake_of
+    on collection_tasks
+    for each row
+    execute function set_retake_flag();

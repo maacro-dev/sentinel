@@ -25,7 +25,7 @@ interface CollectionFormDialogProps {
   seasonId?: number;
   activityType?: ActivityType;
   originalTask?: CollectionTask;
-  editingTask?: CollectionTask;    // new: task to edit
+  editingTask?: CollectionTask;
   hideTrigger?: boolean;
 }
 
@@ -49,7 +49,6 @@ export function CollectionFormDialog({
   const isRetake = !!originalTask;
   const isEditing = !!editingTask;
 
-  // Determine default values: edit > retake > new
   const defaultValues = useMemo(() => {
     if (isEditing && editingTask) {
       return {
@@ -119,7 +118,6 @@ export function CollectionFormDialog({
     }
   }, [open, isEditing, editingTask, isRetake, originalTask, form, presetMfid, presetSeasonId, currentSeasonId, presetActivityType]);
 
-  // Auto-select first collector for new tasks
   useEffect(() => {
     if (!isRetake && !isEditing && users && users.length > 0 && !form.getValues().collector_id) {
       form.setValue("collector_id", users[0].id);
@@ -128,7 +126,6 @@ export function CollectionFormDialog({
 
   const handleSubmit = (input: CollectionTaskInput) => {
     if (isEditing && editingTask) {
-      // For edit, include the task id
       onSubmit({ id: editingTask.id, ...input });
     } else if (isRetake && originalTask) {
       onSubmit({ ...input, retake_of: originalTask.id });
@@ -165,7 +162,6 @@ export function CollectionFormDialog({
   const buttonDisabled = disabled || isLoading || (!canOpen && !usersError && !mfidsError);
   const isSubmitDisabled = disabled || !hasCollectors || !form.formState.isValid;
 
-  // Determine dialog title and submit button text
   const dialogTitle = isEditing ? "Edit Collection Task" : (isRetake ? "Schedule Retake" : "Create Collection Task");
   const dialogDescription = isEditing
     ? "Update the collector or date range for this task."
@@ -220,7 +216,6 @@ export function CollectionFormDialog({
               </DialogHeader>
 
               <div className="grid gap-4 py-4">
-                {/* MFID field – disabled when editing or retake or preset */}
                 {showMfidField ? (
                   <FormSelect
                     name="mfid"
@@ -240,7 +235,6 @@ export function CollectionFormDialog({
                   </div>
                 )}
 
-                {/* Activity Type field – disabled when editing or retake or preset */}
                 {showActivityTypeField ? (
                   <FormSelect
                     name="activity_type"

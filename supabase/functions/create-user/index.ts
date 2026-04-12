@@ -83,8 +83,7 @@ Deno.serve(async (req: Request) => {
     })
 
     if (resetError) {
-      console.log("resetError =", resetError)
-      return response({ success: true, message: `Reset error my bro bro. ${resetError}` }, 400);
+      return response({ success: false, message: `Invalid email. ${resetError.message}` }, 400);
     }
 
     return response({ success: true, message: "User created successfully. Email sent." }, 200);

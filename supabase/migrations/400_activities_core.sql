@@ -13,12 +13,12 @@ create table field_activities(
     field_id            int not null references fields(id),
     season_id           int not null references seasons(id),
     activity_type       activity_type not null,
-    collected_by        uuid null references users(id),
+    collected_by        uuid null references users(id), -- to be removed
     verified_by         uuid null references users(id),
     verification_status verification_status not null default 'pending',
     remarks             text null,
     image_urls          jsonb null check (jsonb_typeof(image_urls) = 'array'),
-    collected_at        timestamptz null default now(),
+    collected_at        timestamptz null default now(), -- to be removed
     updated_at          timestamptz not null default now(),
     verified_at         timestamptz null,
     synced_at           timestamptz null,

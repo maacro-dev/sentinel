@@ -52,10 +52,8 @@ export function YieldForecastChart({
 }: YieldForecastChartProps) {
 
   const chartData = useMemo(() => {
-
     const monthMap = new Map<string, ChartDataPoint>();
     const harvestMonthSet = new Set(harvestOrder);
-
 
     const parseMonth = (monthStr: string) => {
       const [mon, yearStr] = monthStr.split(' ');
@@ -126,7 +124,7 @@ export function YieldForecastChart({
 
   const handoffMonth = chartData.find(p => p.combinedSolid !== undefined && p.combinedDashed !== undefined)?.month;
 
-  const height = 360
+  const height = 360;
 
   return (
     <ChartCard
@@ -141,13 +139,8 @@ export function YieldForecastChart({
       ) : (
         <ChartContainer
           config={chartConfig}
-          className={cn(
-            chartContainerDefaults.className,
-            "w-full",
-            containerClass,
-            height ? `h-[${height}px]` : ""
-          )}
-          style={height ? { height: `${height}px` } : undefined}
+          className={cn(chartContainerDefaults.className, "w-full", containerClass)}
+          style={{ height: `${height}px` }}
         >
           <LineChart data={chartData} margin={TrendChartDefaults.margins} accessibilityLayer>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -169,7 +162,7 @@ export function YieldForecastChart({
             )}
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="line" color="var(--color-humay)" />}
+              content={<ChartTooltipContent indicator="line" />}
             />
             {/* Predicted line (solid) */}
             <Line
@@ -184,7 +177,6 @@ export function YieldForecastChart({
                   <g key={cx} />
                 )
               }
-              name="Predicted"
               connectNulls
               isAnimationActive={true}
               animationDuration={600}
@@ -193,11 +185,10 @@ export function YieldForecastChart({
             <Line
               type="monotone"
               dataKey="actual"
-              stroke="var(--color-humay-3)"
+              stroke="var(--color-humay-light)"
               strokeWidth={2}
               strokeDasharray="5 5"
-              dot={{ r: 4 }}
-              name="Actual"
+              dot={{ r: 4, fill: "var(--color-humay-light)" }}
               connectNulls
               isAnimationActive={true}
               animationDuration={600}
@@ -216,7 +207,6 @@ export function YieldForecastChart({
                   <g key={cx} />
                 )
               }
-              name="Next Season Prediction"
               connectNulls
               isAnimationActive={true}
               animationDuration={600}

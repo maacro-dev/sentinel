@@ -1400,6 +1400,7 @@ export type Database = {
           season_year: string | null
           semester: Database["public"]["Enums"]["semester"] | null
           synced_at: string | null
+          updated_at: string | null
           verification_status:
             | Database["public"]["Enums"]["verification_status"]
             | null
@@ -1819,6 +1820,14 @@ export type Database = {
           p_mfid: string
         }
         Returns: number
+      }
+      has_new_forms: {
+        Args: { p_updated_after: string; p_user_id: string }
+        Returns: boolean
+      }
+      has_new_tasks: {
+        Args: { p_updated_after: string; p_user_id: string }
+        Returns: boolean
       }
       import_crop_establishments: {
         Args: { p_auto_create_mfid?: boolean; p_data: Json }
