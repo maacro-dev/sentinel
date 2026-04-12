@@ -19,8 +19,8 @@ export const Route = createFileRoute('/_manager/_data/mfid/$mfid')({
 })
 
 function RouteComponent() {
-  // @ts-ignore
-  const { mfid, seasonId } = Route.useParams()
+  const { mfid } = Route.useParams()
+  const { seasonId } = Route.useSearch()
   const { data: raw, isLoading } = useMfid({ mfid: mfid })
 
   if (!raw || isLoading) {

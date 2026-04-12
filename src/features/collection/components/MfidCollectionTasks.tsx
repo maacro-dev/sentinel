@@ -31,7 +31,7 @@ interface MfidCollectionTasksProps {
 
 export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps) {
   const queryClient = useQueryClient();
-  const { data: allTasks, isLoading } = useCollectionTasksByMfid(mfid);
+  const { data: allTasks, isLoading } = useCollectionTasksByMfid(mfid, seasonId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedFormType, setSelectedFormType] = useState<ActivityType | undefined>();
   const [retakeOriginalTask, setRetakeOriginalTask] = useState<CollectionTask | undefined>();

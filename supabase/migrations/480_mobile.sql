@@ -344,7 +344,7 @@ declare
     v_monitoring_id int;
     v_rec_id int;
     v_payload jsonb := data->'payload';
-    v_fertilizer_apps jsonb := v_payload->'fertilizer_application';
+    v_fertilizer_apps jsonb := v_payload->'applications';
     v_app jsonb;
 begin
 

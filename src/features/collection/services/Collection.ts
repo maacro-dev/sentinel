@@ -20,8 +20,6 @@ export class Collection {
     const { data, error } = await query;
     if (error) throw error;
 
-    console.log("collectionTasks:", data[0])
-
     return parseCollectionTasks(data)
   }
 
@@ -68,17 +66,21 @@ export class Collection {
     return Validator.create<CollectionTask>(collectionTaskSchema)(data);
   }
 
-  static async getByMfid(mfid: string): Promise<CollectionTask[]> {
+  static async getByMfid(mfid: string, seasonId?: number): Promise<CollectionTask[]> {
     const client = await getSupabase();
-    const { data, error } = await client
+    let query = client
       .from("collection_details")
       .select("*")
       .eq("mfid", mfid)
       .order("created_at", { ascending: false });
 
-    console.log(data)
+    if (seasonId) {
+      query = query.eq("season_id", seasonId);
+    }
 
+    const { data, error } = await query;
     if (error) throw error;
+
     return Validator.create<CollectionTask[]>(z.array(collectionTaskSchema))(data || []);
   }
 
