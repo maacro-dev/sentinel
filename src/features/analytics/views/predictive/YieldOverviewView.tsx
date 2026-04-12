@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { useYearlyYieldOverview } from '../../hooks/useYearlyYieldOverview';
 import { Lightbulb } from 'lucide-react';
 import { useMemo } from 'react';

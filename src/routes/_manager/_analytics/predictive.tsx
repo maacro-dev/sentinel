@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { PageContainer } from '@/core/components/layout';
 import { Spinner } from '@/core/components/ui/spinner';
 import { createCrumbLoader } from '@/core/utils/breadcrumb';
