@@ -15,12 +15,15 @@ export function YearlyOverviewView() {
     return parseInt(currentSeason.season_year.split('-')[0], 10);
   }, [currentSeason]);
 
+  // Data to display in the chart (only the current season if it's a range, or all seasons up to current)
   const realData = useMemo(() => {
     if (!currentStartYear) return data.filter(d => d.totalPredicted > 0);
     const isRangeSeason = currentSeason?.season_year?.includes('-');
     if (isRangeSeason) {
+      // For a range season (e.g., "2021-2022"), show only that exact season in the chart
       return data.filter(d => d.year === currentSeason.season_year && d.totalPredicted > 0);
     }
+    // For a single-year season, show all seasons up to that year
     return data
       .filter(d => {
         const seasonStartYear = parseInt(d.year.split('-')[0], 10);
@@ -33,61 +36,77 @@ export function YearlyOverviewView() {
       });
   }, [data, currentStartYear, currentSeason]);
 
+  // Historical data for extrapolation (includes ALL seasons up to current start year, even if not shown)
+  const historicalData = useMemo(() => {
+    if (!currentStartYear) return [];
+    return data
+      .filter(d => {
+        const seasonStartYear = parseInt(d.year.split('-')[0], 10);
+        return seasonStartYear <= currentStartYear && d.totalPredicted > 0;
+      })
+      .sort((a, b) => {
+        const aYear = parseInt(a.year.split('-')[0], 10);
+        const bYear = parseInt(b.year.split('-')[0], 10);
+        return aYear - bYear;
+      });
+  }, [data, currentStartYear]);
+
   const realDataMap = useMemo(() => new Map(realData.map(d => [d.year, d])), [realData]);
 
+  // --- Improved extrapolation using ALL historical points (including hidden ones) ---
   const extrapolatedData = useMemo(() => {
-    if (realData.length < 2) return [];
+    if (historicalData.length === 0) return [];
 
-    // Use the last 3 real points (or all if fewer) for regression
-    const points = realData.slice(-3).map(d => ({
+    // Extract numeric points for regression (use ALL historical points)
+    const points = historicalData.map(d => ({
       x: parseInt(d.year.split('-')[0], 10),
       y: d.totalPredicted,
     }));
 
-    let regression = linearRegression(points);
     let futureYields: number[] = [];
+    const lastYear = Math.max(...points.map(p => p.x));
 
-    if (regression) {
-      const lastYear = Math.max(...points.map(p => p.x));
-      // Extrapolate up to 2 years beyond the last year (you can adjust the count)
-      const years = [lastYear + 1, lastYear + 2];
-      futureYields = years.map(year => Math.max(0, regression!.slope * year + regression!.intercept));
+    if (points.length === 1) {
+      // Only one data point: flat extrapolation (no growth)
+      const lastYield = points[0].y;
+      futureYields = [lastYield, lastYield];
     } else {
-      // Fallback: simple moving average of last two points
-      const lastTwo = points.slice(-2);
-      const avgChange = (lastTwo[1].y - lastTwo[0].y) / lastTwo[0].y;
-      const lastYield = lastTwo[1].y;
-      futureYields = [lastYield * (1 + avgChange), lastYield * (1 + avgChange * 2)];
+      // Two or more points: linear regression on all points
+      const regression = linearRegression(points);
+      if (regression) {
+        const years = [lastYear + 1, lastYear + 2];
+        futureYields = years.map(year => Math.max(0, regression.slope * year + regression.intercept));
+      } else {
+        // Fallback: use average change from last two points if regression fails
+        const lastTwo = points.slice(-2);
+        const avgChange = (lastTwo[1].y - lastTwo[0].y) / lastTwo[0].y;
+        const lastYield = lastTwo[1].y;
+        futureYields = [lastYield * (1 + avgChange), lastYield * (1 + avgChange * 2)];
+      }
     }
 
-    const lastStartYear = points[points.length - 1].x;
     const extrapolatedPoints: YearlyDataPoint[] = [];
 
-    // Generate both single-year and range-year labels for the extrapolated years
     for (let i = 0; i < futureYields.length; i++) {
-      const yearNum = lastStartYear + i + 1;
-      // Single-year label
+      const yearNum = lastYear + i + 1;
       extrapolatedPoints.push({
         year: `${yearNum}`,
         totalPredictedExtrapolated: futureYields[i],
       });
-      // Range label (except for the last year if we don't want to go beyond)
-      if (i < futureYields.length - 1 || true) { // always add range for each step
-        extrapolatedPoints.push({
-          year: `${yearNum}-${yearNum + 1}`,
-          totalPredictedExtrapolated: futureYields[i],
-        });
-      }
+      extrapolatedPoints.push({
+        year: `${yearNum}-${yearNum + 1}`,
+        totalPredictedExtrapolated: futureYields[i],
+      });
     }
 
-    // Remove duplicates if any (e.g., if both single and range share same start year)
+    // Remove duplicate years (if any)
     const seen = new Set();
     return extrapolatedPoints.filter(p => {
       if (seen.has(p.year)) return false;
       seen.add(p.year);
       return true;
     });
-  }, [realData]);
+  }, [historicalData]);
 
   const fullYearRange = useMemo(() => {
     if (realData.length === 0) return { min: 0, max: 0 };
@@ -204,7 +223,6 @@ export function YearlyOverviewView() {
   );
 }
 
-
 function linearRegression(points: { x: number; y: number }[]) {
   const n = points.length;
   if (n < 2) return null;
@@ -218,4 +236,3 @@ function linearRegression(points: { x: number; y: number }[]) {
   const intercept = (sumY - slope * sumX) / n;
   return { slope, intercept };
 }
-
