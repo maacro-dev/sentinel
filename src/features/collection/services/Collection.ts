@@ -84,19 +84,28 @@ export class Collection {
     return Validator.create<CollectionTask[]>(z.array(collectionTaskSchema))(data || []);
   }
 
-static async update(taskId: number, input: Partial<CollectionTaskInput>): Promise<void> {
-  const client = await getSupabase();
-  const updateData: any = {};
-  if (input.collector_id !== undefined) updateData.collector_id = input.collector_id;
-  if (input.start_date !== undefined) updateData.start_date = input.start_date;
-  if (input.end_date !== undefined) updateData.end_date = input.end_date;
-  updateData.updated_at = new Date().toISOString();
+  static async update(taskId: number, input: Partial<CollectionTaskInput>): Promise<void> {
+    const client = await getSupabase();
+    const updateData: any = {};
+    if (input.collector_id !== undefined) updateData.collector_id = input.collector_id;
+    if (input.start_date !== undefined) updateData.start_date = input.start_date;
+    if (input.end_date !== undefined) updateData.end_date = input.end_date;
+    updateData.updated_at = new Date().toISOString();
 
-  const { error } = await client
-    .from("collection_tasks")
-    .update(updateData)
-    .eq("id", taskId);
+    const { error } = await client
+      .from("collection_tasks")
+      .update(updateData)
+      .eq("id", taskId);
 
-  if (error) throw error;
-}
+    if (error) throw error;
+  }
+
+  static async delete(taskId: number): Promise<void> {
+    const client = await getSupabase();
+    const { error } = await client
+      .from("collection_tasks")
+      .delete()
+      .eq("id", taskId);
+    if (error) throw error;
+  }
 }

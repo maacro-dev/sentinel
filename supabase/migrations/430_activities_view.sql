@@ -94,7 +94,11 @@ left join public.field_activities fa_original on ct_original.id = fa_original.co
 create or replace view collection_details as
 select
     ct.id,
+
     ct.season_id,
+    s.start_date as season_start_date,
+    s.end_date as season_end_date,
+
     ct.mfid_id,
     ct.activity_type,
     ct.collector_id,
@@ -188,6 +192,7 @@ select
     end as is_overdue
 from collection_tasks ct
 join public.mfids m on ct.mfid_id = m.id
+left join seasons s on s.id = ct.season_id
 left join fields fld on fld.mfid_id = m.id
 left join farmers f on fld.farmer_id = f.id
 left join addresses a on fld.barangay_id = a.barangay_id

@@ -1253,7 +1253,9 @@ export type Database = {
           province: string | null
           remarks: string | null
           retake_of: number | null
+          season_end_date: string | null
           season_id: number | null
+          season_start_date: string | null
           start_date: string | null
           status: string | null
           updated_at: string | null

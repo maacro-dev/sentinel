@@ -200,6 +200,9 @@ CREATE POLICY "allow authenticated reads" ON storage.objects
 CREATE POLICY "Allow authenticated users to update files in form-images" ON storage.objects
     FOR UPDATE TO authenticated USING (bucket_id = 'form-images') WITH CHECK ( bucket_id = 'form-images');
 
+CREATE POLICY "Allow authenticated to delete tasks" ON collection_tasks AS permissive
+    FOR DELETE TO authenticated USING (TRUE);
+
 -- storage end --
 
 GRANT SELECT ON field_details TO authenticated;
@@ -227,6 +230,8 @@ GRANT SELECT ON fields TO authenticated;
 GRANT SELECT ON seasons TO authenticated;
 
 GRANT SELECT ON field_activities TO authenticated;
+
+GRANT SELECT ON collection_details TO authenticated;
 
 GRANT SELECT ON field_plannings TO authenticated;
 

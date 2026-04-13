@@ -4,7 +4,6 @@ import { TableSkeleton } from "@/core/components/TableSkeleton";
 import { DefaultTableToolbar } from "@/core/components/TableToolbar";
 import { CollectionTask, CollectionTaskInput } from "../../schemas/collection.schema";
 import { useCollectionTable } from "../../hooks/useCollectionTable";
-import { CollectionFormDialog } from "../CollectionFormDialog";
 import { memo, useState } from "react";
 import { useCreateCollectionTask } from "../../hooks/useCreateCollectionTask";
 
@@ -58,10 +57,10 @@ interface CollectionToolbarProps {
 
 const CollectionTableToolbar = memo(({
   onSearchChange,
-  dialogOpen,
-  setDialogOpen,
-  onDialogSubmit,
-  dialogDisabled,
+  // dialogOpen,
+  // setDialogOpen,
+  // onDialogSubmit,
+  // dialogDisabled,
 }: CollectionToolbarProps) => {
   return (
     <div className="w-full flex justify-between items-center gap-2">
@@ -71,14 +70,14 @@ const CollectionTableToolbar = memo(({
           actions={null}
         />
       </div>
-      <div className="flex gap-2">
+      {/* <div className="flex gap-2">
         <CollectionFormDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           onSubmit={onDialogSubmit}
           disabled={dialogDisabled}
         />
-      </div>
+      </div> */}
     </div>
   );
 });
