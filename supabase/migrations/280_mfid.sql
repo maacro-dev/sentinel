@@ -32,7 +32,7 @@ declare
     v_barangay_name text := nullif(trim(p_barangay_name), '');
     v_first_name text := nullif(trim(p_farmer_first_name), '');
     v_last_name text := nullif(trim(p_farmer_last_name), '');
-    v_gender public.gender := p_farmer_gender;  -- gender enum, no empty string issue
+    v_gender public.gender := p_farmer_gender;
     v_dob date := nullif(p_farmer_dob, '')::date;
     v_cellphone text := nullif(trim(p_farmer_cellphone), '');
 begin
@@ -48,7 +48,7 @@ begin
         raise exception 'Municipality not found';
     end if;
 
-    -- 2. Lock and generate new MFID (hex suffix)
+    -- 2. Lock and generate new MFID
     perform pg_advisory_xact_lock(hashtext(municipal_code));
 
     select coalesce(max(('x' || right(mfid, 3))::bit(12)::int), 0)
@@ -67,9 +67,8 @@ begin
     insert into public.mfids(mfid) values (new_mfid)
     returning id into new_mfid_id;
 
-    -- 4. If assignment data provided (all three required fields non-empty), create/retrieve farmer and link field
-    if v_barangay_name is not null and v_first_name is not null and v_last_name is not null then
-        -- Resolve barangay ID (must exist)
+    -- 4. If barangay is provided, always create a fields record (even without farmer)
+    if v_barangay_name is not null then
         select id into v_barangay_id
         from public.barangays
         where name = v_barangay_name
@@ -79,34 +78,39 @@ begin
             raise exception 'Barangay "%" not found', v_barangay_name;
         end if;
 
-        -- Get or create farmer
-        select id into v_farmer_id
-        from public.farmers
-        where first_name = v_first_name and last_name = v_last_name
-        limit 1;
+        -- 5. Handle farmer if provided
+        if v_first_name is not null and v_last_name is not null then
+            -- Get or create farmer
+            select id into v_farmer_id
+            from public.farmers
+            where first_name = v_first_name and last_name = v_last_name
+            limit 1;
 
-        if v_farmer_id is null then
-            insert into public.farmers (first_name, last_name, gender, date_of_birth, cellphone_no)
-            values (v_first_name, v_last_name, v_gender, v_dob, v_cellphone)
-            returning id into v_farmer_id;
-        else
-            -- Update existing farmer with new optional info (if provided)
-            update public.farmers
-            set gender = coalesce(v_gender, gender),
-                date_of_birth = coalesce(v_dob, date_of_birth),
-                cellphone_no = coalesce(v_cellphone, cellphone_no),
-                updated_at = now()
-            where id = v_farmer_id;
+            if v_farmer_id is null then
+                insert into public.farmers (first_name, last_name, gender, date_of_birth, cellphone_no)
+                values (v_first_name, v_last_name, v_gender, v_dob, v_cellphone)
+                returning id into v_farmer_id;
+            else
+                update public.farmers
+                set gender = coalesce(v_gender, gender),
+                    date_of_birth = coalesce(v_dob, date_of_birth),
+                    cellphone_no = coalesce(v_cellphone, cellphone_no),
+                    updated_at = now()
+                where id = v_farmer_id;
+            end if;
+
+            -- Mark MFID as used (assigned to farmer)
+            update public.mfids
+            set used_at = now()
+            where id = new_mfid_id;
         end if;
 
-        -- Mark MFID as used
-        update public.mfids
-        set used_at = now()
-        where id = new_mfid_id;
-
-        -- Insert field record
+        -- Insert field record (farmer_id may be null for open MFID)
         insert into public.fields (mfid_id, barangay_id, farmer_id)
-        values (new_mfid_id, v_barangay_id, v_farmer_id);
+        values (new_mfid_id, v_barangay_id, v_farmer_id)
+        on conflict (mfid_id) do update
+        set barangay_id = excluded.barangay_id,
+            farmer_id = coalesce(excluded.farmer_id, fields.farmer_id);
     end if;
 
     return new_mfid;

@@ -59,8 +59,10 @@ begin
         v_mfid_id,
         v_payload->>'location'
     )
-    on conflict (mfid_id)
-    do update set location = excluded.location
+    on conflict (mfid_id) do update set
+        location = excluded.location,
+        farmer_id = excluded.farmer_id,
+        barangay_id = excluded.barangay_id
     returning id into v_field_id;
 
     v_monitoring_id := null;
@@ -158,6 +160,10 @@ begin
     where id = v_mfid_id;
 
     return v_parent_id;
+
+    EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Error in upload_field_data: SQLSTATE=%, SQLERRM=%', SQLSTATE, SQLERRM;
+    RAISE;
 end;
 $$;
 

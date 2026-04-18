@@ -794,7 +794,7 @@ export type Database = {
         Row: {
           barangay_id: number
           created_at: string
-          farmer_id: number
+          farmer_id: number | null
           id: number
           location: unknown
           mfid_id: number
@@ -803,7 +803,7 @@ export type Database = {
         Insert: {
           barangay_id: number
           created_at?: string
-          farmer_id: number
+          farmer_id?: number | null
           id?: number
           location?: unknown
           mfid_id: number
@@ -812,7 +812,7 @@ export type Database = {
         Update: {
           barangay_id?: number
           created_at?: string
-          farmer_id?: number
+          farmer_id?: number | null
           id?: number
           location?: unknown
           mfid_id?: number

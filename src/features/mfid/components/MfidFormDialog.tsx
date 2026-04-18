@@ -18,6 +18,12 @@ import { useLguHierarchy } from "../hooks/useLgu"
 import { Form, FormDatePicker, FormTextField } from "@/core/components/forms"
 import { cn } from "@/core/utils/style"
 import { FormSelect } from "@/core/components/forms/FormSelect"
+import { calculateAge, getDateYearsAgo } from "@/core/utils/date"
+
+function isValidPhilippineMobile(phone: string): boolean {
+  const cleaned = phone.replace(/\D/g, ''); // remove non-digits
+  return /^09\d{9}$/.test(cleaned); // starts with 09 and exactly 11 digits
+}
 
 const mfidFormSchema = z.object({
   mfid_type: z.enum(["open", "assigned"]),
@@ -39,9 +45,18 @@ const mfidFormSchema = z.object({
     }
     if (!data.farmer_date_of_birth?.trim()) {
       ctx.addIssue({ code: "custom", message: "Date of birth is required", path: ["farmer_date_of_birth"] })
+    } else {
+      const age = calculateAge(data.farmer_date_of_birth)
+      if (age < 16) {
+        ctx.addIssue({ code: "custom", message: "Farmer must be at least 16 years old", path: ["farmer_date_of_birth"] })
+      } else if (age > 80) {
+        ctx.addIssue({ code: "custom", message: "Farmer must be at most 80 years old", path: ["farmer_date_of_birth"] })
+      }
     }
     if (!data.farmer_cellphone_no?.trim()) {
-      ctx.addIssue({ code: "custom", message: "Cellphone number is required", path: ["farmer_cellphone_no"] })
+      ctx.addIssue({ code: "custom", message: "Cellphone number is required", path: ["farmer_cellphone_no"] });
+    } else if (!isValidPhilippineMobile(data.farmer_cellphone_no)) {
+      ctx.addIssue({ code: "custom", message: "Invalid cellphone number (must be 11 digits starting with 09, e.g., 09171234567)", path: ["farmer_cellphone_no"] });
     }
   }
 })
@@ -63,6 +78,8 @@ export function MfidFormDialog({
   open,
   onOpenChange,
 }: MfidFormDialogProps) {
+  const minDateOfBirth = getDateYearsAgo(16)
+
   const [step, setStep] = useState<1 | 2>(1)
 
   const form = useForm<MfidFormInput>({
@@ -77,10 +94,17 @@ export function MfidFormDialog({
       farmer_first_name: "",
       farmer_last_name: "",
       farmer_gender: "male",
-      farmer_date_of_birth: "",
+      farmer_date_of_birth: minDateOfBirth,
       farmer_cellphone_no: "",
     },
   })
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const maxDate = new Date(today);
+  maxDate.setFullYear(today.getFullYear() - 16);
+  const minDate = new Date(today);
+  minDate.setFullYear(today.getFullYear() - 80);
 
   const mfidType = form.watch("mfid_type")
   const isOpen = mfidType === "open"
@@ -105,7 +129,6 @@ export function MfidFormDialog({
   const handleNext = () => {
     if (mfidType) {
       if (mfidType === "open") {
-        form.setValue("barangay", "")
         form.setValue("farmer_first_name", "")
         form.setValue("farmer_last_name", "")
         form.setValue("farmer_gender", "male")
@@ -205,8 +228,8 @@ export function MfidFormDialog({
               {!isOpen && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
-                    <FormTextField name="farmer_first_name" label="First Name" />
-                    <FormTextField name="farmer_last_name" label="Last Name" />
+                    <FormTextField name="farmer_first_name" label="First Name" placeholder="Enter farmer first name"/>
+                    <FormTextField name="farmer_last_name" label="Last Name" placeholder="Enter farmer last name"/>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
@@ -219,7 +242,13 @@ export function MfidFormDialog({
                         value: opt.toLowerCase()
                       }))}
                     />
-                    <FormDatePicker name="farmer_date_of_birth" label="Date of Birth" />
+                    <FormDatePicker
+                      name="farmer_date_of_birth"
+                      label="Date of Birth"
+                      minDate={minDate}
+                      maxDate={maxDate}
+                      initialValue={minDateOfBirth}
+                    />
                     <FormTextField
                       name="farmer_cellphone_no"
                       label="Cellphone No."

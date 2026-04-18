@@ -41,7 +41,7 @@ export class Mfid {
     const { data, error } = await client.rpc('create_mfid', {
       p_municity: payload.city_municipality,
       p_province: payload.province,
-      p_barangay_name: payload.barangay ?? null,
+      p_barangay_name: payload.barangay,
       p_farmer_first_name: payload.farmer_first_name,
       p_farmer_last_name: payload.farmer_last_name,
       p_farmer_gender: payload.farmer_gender,

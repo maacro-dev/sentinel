@@ -12,12 +12,29 @@ import { formatDate } from "../utils/date";
 import { cn } from "../utils/style";
 
 interface DatePickerProps {
-  value: Date;
+  value: Date | string;
   onSelect: (date: Date) => void;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
-export function DatePicker({ value, onSelect }: DatePickerProps) {
+export function DatePicker({ value, onSelect, minDate, maxDate }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
+
+  const dateValue = React.useMemo(() => {
+    if (typeof value === "string") return value ? new Date(value) : undefined;
+    return value;
+  }, [value]);
+
+  const defaultMonth = dateValue ?? minDate ?? maxDate ?? new Date();
+  const [displayMonth, setDisplayMonth] = React.useState(defaultMonth);
+
+  React.useEffect(() => {
+    if (open) {
+      const newMonth = dateValue ?? minDate ?? maxDate ?? new Date();
+      setDisplayMonth(newMonth);
+    }
+  }, [open, dateValue?.getTime(), minDate?.getTime(), maxDate?.getTime()]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -27,26 +44,31 @@ export function DatePicker({ value, onSelect }: DatePickerProps) {
             variant="outline"
             className={cn(
               "h-8 text-left font-normal text-xs",
-              !value && "text-muted-foreground"
+              !dateValue && "text-muted-foreground"
             )}
           >
-            {value ? formatDate(value) : <span>Pick a date</span>}
+            {dateValue ? formatDate(dateValue) : <span>Pick a date</span>}
             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
           </Button>
         </FormControl>
       </PopoverTrigger>
-
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           required
           mode="single"
-          selected={value}
+          selected={dateValue}
+          month={displayMonth}
+          onMonthChange={setDisplayMonth}
           onSelect={(date) => {
             if (!date) return;
             onSelect(date);
             setOpen(false);
           }}
-          disabled={(date: Date) => date < new Date("1900-01-01")}
+          disabled={(date: Date) => {
+            if (minDate && date < minDate) return true;
+            if (maxDate && date > maxDate) return true;
+            return false;
+          }}
           captionLayout="dropdown"
         />
       </PopoverContent>
