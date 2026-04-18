@@ -27,24 +27,10 @@ function RouteComponent() {
     return <PendingComponent />
   }
 
-  const normalizedStats = stats.map((s) => {
-    const current = Number(s.current_value);
-    const percent = s.percent_change;
-
-    const isMissingPrevious =
-      percent === 100 && current !== 0 ||
-      percent === 0 && current === 0;
-
-    return {
-      ...s,
-      percent_change: isMissingPrevious ? undefined : percent,
-    };
-  });
-
   return (
     <PageContainer>
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-        {normalizedStats.map((stat) => (
+        {stats.map((stat) => (
           <ExpandableStatCard
             key={stat.title}
             statCard={

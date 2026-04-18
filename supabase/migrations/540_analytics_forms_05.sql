@@ -52,8 +52,8 @@ begin
             coalesce(count(*) filter (where fa.verification_status = 'pending' and fa.season_id = prev.id), 0),
             coalesce(count(*) filter (where fa.verification_status = 'rejected' and fa.season_id = curr.id), 0),
             coalesce(count(*) filter (where fa.verification_status = 'rejected' and fa.season_id = prev.id), 0),
-            coalesce(count(*) filter (where (fa.verification_status = 'unknown' or fa.verification_status is null) and fa.season_id = curr.id), 0),  -- 👈 unknown
-            coalesce(count(*) filter (where (fa.verification_status = 'unknown' or fa.verification_status is null) and fa.season_id = prev.id), 0)   -- 👈 unknown
+            coalesce(count(*) filter (where (fa.verification_status = 'unknown' or fa.verification_status is null) and fa.season_id = curr.id), 0),
+            coalesce(count(*) filter (where (fa.verification_status = 'unknown' or fa.verification_status is null) and fa.season_id = prev.id), 0)
         into
             current_total_forms,
             previous_total_forms,
@@ -73,7 +73,7 @@ begin
             coalesce(count(*) filter (where fa.verification_status = 'approved'), 0),
             coalesce(count(*) filter (where fa.verification_status = 'pending'), 0),
             coalesce(count(*) filter (where fa.verification_status = 'rejected'), 0),
-            coalesce(count(*) filter (where fa.verification_status = 'unknown' or fa.verification_status is null), 0)  -- 👈 unknown
+            coalesce(count(*) filter (where fa.verification_status = 'unknown' or fa.verification_status is null), 0)
         into
             current_total_forms,
             current_completed_forms,

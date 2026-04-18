@@ -107,7 +107,6 @@ begin
 
     total := nsic_count + psb_count + other_count;
 
-    -- Determine dominant variety and percentage difference
     if nsic_count >= psb_count and nsic_count >= other_count then
         dominant := 'NSIC';
         if nsic_count > 0 then

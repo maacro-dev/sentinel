@@ -13,8 +13,23 @@ export const useAnalyticsDashboard = (seasonId?: number) => {
     stats: data?.seasonalStats
   })
 
+
+  const normalizedStats = seasonalStats.map((s) => {
+    const current = Number(s.current_value);
+    const percent = s.percent_change;
+
+    const isMissingPrevious =
+      percent === 100 && current !== 0 ||
+      percent === 0 && current === 0;
+
+    return {
+      ...s,
+      percent_change: isMissingPrevious ? undefined : percent,
+    };
+  });
+
   return {
-    stats: seasonalStats || [],
+    stats: normalizedStats || [],
     trends: data?.overallYieldTrend.data,
     ranks: data?.barangayYieldRanking,
     isLoading,

@@ -28,8 +28,11 @@ join public.provinces p on p.id = cm.province_id;
 
 create or replace view public.mfid_details as
 select
-    case when m.used_at is null then 'available' else 'used' end as status,
+    case when m.used_at is null then 'available' else 'assigned' end as status,
     case when fa.id is not null then concat_ws(' ', fa.first_name, fa.last_name) else null end as farmer_name,
+    fa.gender as farmer_gender,
+    fa.date_of_birth as farmer_date_of_birth,
+    fa.cellphone_no as farmer_cellphone_no,
     m.mfid,
     a.barangay,
     loc.municipality as city_municipality,
@@ -43,3 +46,41 @@ left join public.addresses a on f.barangay_id = a.barangay_id
 left join public.farmers fa on f.farmer_id = fa.id
 left join lateral get_mfid_location(m.mfid) loc on true
 order by m.mfid;
+
+
+
+
+create or replace function public.create_field_with_new_mfid(
+    p_municity text,
+    p_province text,
+    p_barangay_id int,
+    p_farmer_id int,
+    p_location spatial.geometry(Point, 4326) default null
+)
+    returns int  -- returns fields.id
+    language plpgsql
+    security definer
+    set search_path = ''
+as $$
+declare
+    new_mfid text;
+    new_mfid_id int;
+    new_field_id int;
+begin
+    -- 1. generate unassigned MFID
+    new_mfid := public.generate_mfid(p_municity, p_province);
+
+    -- 2. get its id
+    select id into new_mfid_id from public.mfids where mfid = new_mfid;
+
+    -- 3. mark it as used (set used_at = now())
+    update public.mfids set used_at = now() where id = new_mfid_id;
+
+    -- 4. insert into fields
+    insert into public.fields (mfid_id, barangay_id, farmer_id, location)
+    values (new_mfid_id, p_barangay_id, p_farmer_id, p_location)
+    returning id into new_field_id;
+
+    return new_field_id;
+end;
+$$;

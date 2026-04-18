@@ -6,9 +6,15 @@ create table mfids (
     created_at  timestamptz not null default now());
 
 
-create or replace function public.generate_mfid(
+create or replace function public.create_mfid(
     p_municity text,
-    p_province text
+    p_province text,
+    p_barangay_name text default null,
+    p_farmer_first_name text default null,
+    p_farmer_last_name text default null,
+    p_farmer_gender public.gender default null,
+    p_farmer_dob text default null,
+    p_farmer_cellphone text default null
 )
     returns text
     language plpgsql
@@ -20,11 +26,21 @@ declare
     last_suffix int;
     next_suffix text;
     new_mfid text;
+    new_mfid_id int;
+    v_barangay_id int;
+    v_farmer_id int;
+    v_barangay_name text := nullif(trim(p_barangay_name), '');
+    v_first_name text := nullif(trim(p_farmer_first_name), '');
+    v_last_name text := nullif(trim(p_farmer_last_name), '');
+    v_gender public.gender := p_farmer_gender;  -- gender enum, no empty string issue
+    v_dob date := nullif(p_farmer_dob, '')::date;
+    v_cellphone text := nullif(trim(p_farmer_cellphone), '');
 begin
-    select
-        cm.code
+    -- 1. Lookup municipal code
+    select cm.code
     into municipal_code
-    from public.cities_municipalities cm join public.provinces p on p.id = cm.province_id
+    from public.cities_municipalities cm
+    join public.provinces p on p.id = cm.province_id
     where cm.name = p_municity and p.name = p_province
     limit 1;
 
@@ -32,25 +48,117 @@ begin
         raise exception 'Municipality not found';
     end if;
 
+    -- 2. Lock and generate new MFID (hex suffix)
     perform pg_advisory_xact_lock(hashtext(municipal_code));
 
-    select coalesce(max(substring(mfid from 7 for 3)::int), 0)
+    select coalesce(max(('x' || right(mfid, 3))::bit(12)::int), 0)
     into last_suffix
     from public.mfids
     where mfid like municipal_code || '%';
 
-    if last_suffix >= 999 then
+    if last_suffix >= 4096 then
         raise exception 'MFID overflow for %', municipal_code;
     end if;
 
-    next_suffix := lpad((last_suffix + 1)::text, 3, '0');
+    next_suffix := lpad(to_hex(last_suffix + 1), 3, '0');
     new_mfid := municipal_code || next_suffix;
 
-    insert into public.mfids(mfid) values (new_mfid);
+    -- 3. Insert base MFID record (initially unused)
+    insert into public.mfids(mfid) values (new_mfid)
+    returning id into new_mfid_id;
+
+    -- 4. If assignment data provided (all three required fields non-empty), create/retrieve farmer and link field
+    if v_barangay_name is not null and v_first_name is not null and v_last_name is not null then
+        -- Resolve barangay ID (must exist)
+        select id into v_barangay_id
+        from public.barangays
+        where name = v_barangay_name
+        limit 1;
+
+        if v_barangay_id is null then
+            raise exception 'Barangay "%" not found', v_barangay_name;
+        end if;
+
+        -- Get or create farmer
+        select id into v_farmer_id
+        from public.farmers
+        where first_name = v_first_name and last_name = v_last_name
+        limit 1;
+
+        if v_farmer_id is null then
+            insert into public.farmers (first_name, last_name, gender, date_of_birth, cellphone_no)
+            values (v_first_name, v_last_name, v_gender, v_dob, v_cellphone)
+            returning id into v_farmer_id;
+        else
+            -- Update existing farmer with new optional info (if provided)
+            update public.farmers
+            set gender = coalesce(v_gender, gender),
+                date_of_birth = coalesce(v_dob, date_of_birth),
+                cellphone_no = coalesce(v_cellphone, cellphone_no),
+                updated_at = now()
+            where id = v_farmer_id;
+        end if;
+
+        -- Mark MFID as used
+        update public.mfids
+        set used_at = now()
+        where id = new_mfid_id;
+
+        -- Insert field record
+        insert into public.fields (mfid_id, barangay_id, farmer_id)
+        values (new_mfid_id, v_barangay_id, v_farmer_id);
+    end if;
 
     return new_mfid;
-END;
+end;
 $$;
+
+-- create or replace function public.generate_mfid(
+--     p_municity text,
+--     p_province text
+-- )
+--     returns text
+--     language plpgsql
+--     security definer
+--     set search_path = ''
+-- as $$
+-- declare
+--     municipal_code text;
+--     last_suffix int;
+--     next_suffix text;
+--     new_mfid text;
+-- begin
+--     select
+--         cm.code
+--     into municipal_code
+--     from public.cities_municipalities cm
+--     join public.provinces p on p.id = cm.province_id
+--     where cm.name = p_municity and p.name = p_province
+--     limit 1;
+
+--     if municipal_code is null then
+--         raise exception 'Municipality not found';
+--     end if;
+
+--     perform pg_advisory_xact_lock(hashtext(municipal_code));
+
+--     select coalesce(max(('x' || right(mfid, 3))::bit(12)::int), 0)
+--     into last_suffix
+--     from public.mfids
+--     where mfid like municipal_code || '%';
+
+--     if last_suffix >= 4096 then
+--         raise exception 'MFID overflow for %', municipal_code;
+--     end if;
+
+--     next_suffix := lpad(to_hex(last_suffix + 1), 3, '0');
+--     new_mfid := municipal_code || next_suffix;
+
+--     insert into public.mfids(mfid) values (new_mfid);
+
+--     return new_mfid;
+-- end;
+-- $$;
 
 
 create or replace function check_duplicate_activities(

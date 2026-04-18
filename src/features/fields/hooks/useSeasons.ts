@@ -18,7 +18,7 @@ export const useSeason = (id?: number) => {
   return useQuery({
     queryKey: ["season", id] as const,
     queryFn: () => Seasons.getById(id),
-    staleTime: 6000 * 60 * 60,
+    staleTime: Infinity,
   })
 }
 
@@ -26,7 +26,7 @@ export const useSeasons = () => {
   return useQuery({
     queryKey: ["seasons"] as const,
     queryFn: () => Seasons.getAll(),
-    staleTime: 6000 * 60 * 60,
+    staleTime: Infinity,
   })
 }
 
@@ -35,7 +35,7 @@ export const useSeasonsWithData = () => {
   return useQuery({
     queryKey: ["seasons-with-data"] as const,
     queryFn: () => Seasons.getSeasonsWithData(),
-    staleTime: 6000 * 60 * 60,
+    staleTime: Infinity,
   })
 }
 
@@ -119,6 +119,6 @@ export const useCurrentSeasonId = () => {
   return useQuery({
     queryKey: ["current-season-id"],
     queryFn: () => Seasons.getCurrent(),
-    staleTime: 6000 * 60 * 60,
+    staleTime: Infinity,
   });
 };

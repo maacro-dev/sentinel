@@ -3,9 +3,9 @@ import { provincesQueryOptions, provinceQueryOptions, municitiesByProvinceQueryO
 import { Province, CityMunicipality, Barangay, Location } from "../schemas/lgu.schema";
 import { UseFormReturn } from "react-hook-form";
 import { useMemo, useRef, useEffect, useState } from "react";
-import { MfidFormInput } from "../schemas/mfid-create.schema";
 import { Lgu } from "../services/Lgu";
 import leven from "leven";
+import { MfidFormInput } from "../components/MfidFormDialog";
 
 export function useLocationHierarchy() {
   const [location, setLocation] = useState({ province: '', municipality: '', barangay: '', });
@@ -95,6 +95,7 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
 
   const selectedProvinceName = form.watch("province");
   const selectedMunicityName = form.watch("city_municipality");
+  const selectedBarangayName = form.watch("barangay");
 
   const selectedProvince = useMemo(
     () => provinces.find((p: Province) => p.name === selectedProvinceName),
@@ -108,13 +109,21 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
     enabled: Boolean(provinceId),
   });
 
-  // const selectedMunicity = useMemo(
-  //   () => cities.find((c: CityMunicipality) => c.name === selectedMunicityName),
-  //   [cities, selectedMunicityName]
-  // );
+  const selectedMunicity = useMemo(
+    () => cities.find((c: CityMunicipality) => c.name === selectedMunicityName),
+    [cities, selectedMunicityName]
+  );
+
+  const municityId = selectedMunicity?.id ?? null;
+
+  const { data: barangays, isLoading: isLoadingBarangays } = useBarangaysByMunicity({
+    cityId: municityId ?? undefined,
+    enabled: Boolean(provinceId)
+  })
 
   const prevProvinceRef = useRef(selectedProvinceName);
   const prevMunicityRef = useRef(selectedMunicityName);
+  const prevBarangayRef = useRef(selectedBarangayName);
   const isInitialMount = useRef(true);
 
   useEffect(() => {
@@ -122,29 +131,30 @@ export function useLguHierarchy(form: UseFormReturn<MfidFormInput>) {
       isInitialMount.current = false;
       prevProvinceRef.current = selectedProvinceName;
       prevMunicityRef.current = selectedMunicityName;
+      prevBarangayRef.current = selectedBarangayName;
       return;
     }
 
     if (prevProvinceRef.current !== selectedProvinceName) {
       form.setValue("city_municipality", "", { shouldValidate: false });
-      // form.setValue("barangay", "", { shouldValidate: false });
+      form.setValue("barangay", "", { shouldValidate: false });
       prevProvinceRef.current = selectedProvinceName;
       prevMunicityRef.current = "";
     }
 
     if (prevMunicityRef.current !== selectedMunicityName) {
-      // form.setValue("barangay", "", { shouldValidate: false });
+      form.setValue("barangay", "", { shouldValidate: false });
       prevMunicityRef.current = selectedMunicityName;
     }
-  }, [selectedProvinceName, selectedMunicityName, form]);
+  }, [selectedProvinceName, selectedMunicityName, selectedBarangayName, form]);
 
   return {
     provinces,
     cities,
-    // barangays,
+    barangays,
     isLoadingProvinces,
     isLoadingMunicities,
-    // isLoadingBarangays
+    isLoadingBarangays
   };
 }
 
@@ -202,7 +212,7 @@ export const useAllBarangaysWithLocation = () => {
   return useQuery({
     queryKey: ["barangays-with-location"],
     queryFn: () => Lgu.getAllBarangaysWithLocation(),
-    staleTime: Infinity, // cache forever
+    staleTime: Infinity,
   });
 };
 
@@ -214,7 +224,7 @@ export interface LocationMatch {
   province: string;
   municity: string;
   barangay: string;
-  score: number; // lower is better
+  score: number;
   matchedFields: { province: boolean; municity: boolean; barangay: boolean };
 }
 
@@ -246,7 +256,7 @@ export function findBestLocationMatch(
 
     const provOk = provDist <= maxLenProv * 0.3;
     const municOk = municDist <= maxLenMunic * 0.3;
-    const brgyOk = brgyDist <= maxLenBrgy * 0.4; // barangay more lenient
+    const brgyOk = brgyDist <= maxLenBrgy * 0.4;
 
     if (provOk && municOk && brgyOk && totalScore < bestScore) {
       bestScore = totalScore;

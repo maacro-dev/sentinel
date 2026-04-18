@@ -9,7 +9,6 @@ declare
     season_info jsonb;
     collection_data jsonb;
 begin
-    -- Determine target season
     if p_season_id is null then
         select id into target_season_id
         from public.seasons
@@ -19,12 +18,10 @@ begin
         target_season_id := p_season_id;
     end if;
 
-    -- If no season found, return empty structure
     if target_season_id is null then
         return jsonb_build_object('season', null, 'data', '[]'::jsonb);
     end if;
 
-    -- Get season information
     select jsonb_build_object(
         'start_date', s.start_date,
         'end_date', s.end_date,
@@ -34,7 +31,6 @@ begin
     from public.seasons s
     where s.id = target_season_id;
 
-    -- Calculate daily collection rate for the selected season
     with collection_rate as (
         select
             date(fa.collected_at) as date,

@@ -90,7 +90,6 @@ left join public.collection_tasks ct_original on ct.retake_of = ct_original.id
 left join public.field_activities fa_original on ct_original.id = fa_original.collection_task_id;
 
 
-
 create or replace view collection_details as
 select
     ct.id,
@@ -123,9 +122,6 @@ select
         else concat(coalesce(loc.municipality, ''), ', ', coalesce(loc.province, ''))
     end as full_address,
 
-
-    -- to be removed
-
     coalesce(fa.verification_status, 'pending') as verification_status,
     fa.id as activity_id,
     fa.collected_by,
@@ -136,6 +132,14 @@ select
     fa.image_urls,
 
     case
+        when ct.activity_type = 'field-data' then
+            jsonb_build_object(
+                'first_name', f.first_name,
+                'last_name', f.last_name,
+                'gender', f.gender,
+                'date_of_birth', f.date_of_birth,
+                'cellphone_no', f.cellphone_no
+            )
         when ct.activity_type = 'cultural-management' then
             (select jsonb_build_object(
                 'total_field_area_ha', fp.total_field_area_ha,

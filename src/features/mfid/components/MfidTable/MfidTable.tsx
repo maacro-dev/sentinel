@@ -3,8 +3,7 @@ import { DefaultTablePagination } from "@/core/components/TablePagination";
 import { TableSkeleton } from "@/core/components/TableSkeleton";
 import { useMfidTable } from "../../hooks/useMfidTable";
 import { memo, useCallback, useState } from "react";
-import { MfidFormDialog } from "../MfidFormDialog";
-import { MfidFormInput } from "../../schemas/mfid-create.schema";
+import { MfidFormDialog, MfidFormPayload } from "../MfidFormDialog";
 import { useCreateMfid } from "../../hooks/useCreateMfid";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { DefaultTableToolbar } from "@/core/components/TableToolbar";
@@ -21,9 +20,9 @@ export const MfidTable = <T extends { mfid: string }>({
   const [dialogOpen, setDialogOpen] = useState(false);
   const { createMfid, isLoading: isCreatingMfid } = useCreateMfid();
 
-  const handleSubmit = useCallback(async (user: MfidFormInput) => {
+  const handleSubmit = useCallback(async (payload: MfidFormPayload) => {
     setDialogOpen(false);
-    await createMfid(user);
+    await createMfid(payload);
   }, [createMfid]);
 
   if (isLoading) {
@@ -56,7 +55,7 @@ interface MfidToolbarProps {
   onStatusFilterChange: (value: 'all' | 'available' | 'used') => void;
   dialogOpen: boolean;
   setDialogOpen: (v: boolean) => void;
-  onDialogSubmit: (user: MfidFormInput) => Promise<void>;
+  onDialogSubmit: (payload: MfidFormPayload) => Promise<void>;
   dialogDisabled: boolean;
 }
 

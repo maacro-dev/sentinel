@@ -1,7 +1,8 @@
 import { useFormContext } from "react-hook-form";
 import { FormLabel } from "./FormLabel";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { FormField, FormItem, FormControl, FormMessage } from "../ui/form";
+import { FormField, FormItem, FormControl } from "../ui/form";
+import { FormFieldError } from "./FormFieldError";
 
 interface Option {
   label: string;
@@ -47,9 +48,9 @@ export const FormSelect = ({
 
             <SelectContent position="popper">
               {options.length > 0 ? (
-                options.map((opt) => (
+                options.map((opt, i) => (
                   <SelectItem
-                    key={opt.value}
+                    key={`${opt.value}-${i}`}
                     value={opt.value}
                     disabled={opt.disabled}
                     className="text-xs"
@@ -65,7 +66,7 @@ export const FormSelect = ({
             </SelectContent>
           </Select>
 
-          <FormMessage />
+          <FormFieldError />
         </FormItem>
       )}
     />

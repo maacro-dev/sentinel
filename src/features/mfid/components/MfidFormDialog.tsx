@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -10,23 +11,47 @@ import {
 import { Button } from "@/core/components/ui/button"
 import { Plus } from "lucide-react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm } from "react-hook-form"
-import { MfidFormInput, mfidFormInputSchema } from "../schemas/mfid-create.schema"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from "@/core/components/ui/select"
-import { Field, FieldLabel, FieldError, FieldGroup } from "@/core/components/ui/field"
+import * as z from "zod/v4"
+import { useForm } from "react-hook-form"
+import { FieldGroup } from "@/core/components/ui/field"
 import { useLguHierarchy } from "../hooks/useLgu"
+import { Form, FormDatePicker, FormTextField } from "@/core/components/forms"
+import { cn } from "@/core/utils/style"
+import { FormSelect } from "@/core/components/forms/FormSelect"
 
+const mfidFormSchema = z.object({
+  mfid_type: z.enum(["open", "assigned"]),
+  province: z.string().min(1, "Province is required"),
+  city_municipality: z.string().min(1, "City / Municipality is required"),
+  barangay: z.string().min(1, "Barangay is required"),
+  farmer_first_name: z.string().optional(),
+  farmer_last_name: z.string().optional(),
+  farmer_gender: z.enum(["male", "female", "other"]).optional(),
+  farmer_date_of_birth: z.string().optional(),
+  farmer_cellphone_no: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.mfid_type === "assigned") {
+    if (!data.farmer_first_name?.trim()) {
+      ctx.addIssue({ code: "custom", message: "First name is required", path: ["farmer_first_name"] })
+    }
+    if (!data.farmer_last_name?.trim()) {
+      ctx.addIssue({ code: "custom", message: "Last name is required", path: ["farmer_last_name"] })
+    }
+    if (!data.farmer_date_of_birth?.trim()) {
+      ctx.addIssue({ code: "custom", message: "Date of birth is required", path: ["farmer_date_of_birth"] })
+    }
+    if (!data.farmer_cellphone_no?.trim()) {
+      ctx.addIssue({ code: "custom", message: "Cellphone number is required", path: ["farmer_cellphone_no"] })
+    }
+  }
+})
+
+
+export type MfidFormInput = z.infer<typeof mfidFormSchema>
+export type MfidFormPayload = Omit<MfidFormInput, "mfid_type">
 
 interface MfidFormDialogProps {
-  onSubmit: (input: MfidFormInput) => void
+  onSubmit: (payload: MfidFormPayload) => void
   disabled?: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -36,43 +61,72 @@ export function MfidFormDialog({
   onSubmit,
   disabled,
   open,
-  onOpenChange
+  onOpenChange,
 }: MfidFormDialogProps) {
+  const [step, setStep] = useState<1 | 2>(1)
+
   const form = useForm<MfidFormInput>({
-    resolver: zodResolver(mfidFormInputSchema),
+    resolver: zodResolver(mfidFormSchema),
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
+      mfid_type: undefined,
       province: "",
       city_municipality: "",
-      // barangay: ""
+      barangay: "",
+      farmer_first_name: "",
+      farmer_last_name: "",
+      farmer_gender: "male",
+      farmer_date_of_birth: "",
+      farmer_cellphone_no: "",
     },
-  });
+  })
 
-  const {
-    provinces,
-    cities,
-    // barangays,
-    isLoadingProvinces,
-    isLoadingMunicities,
-    // isLoadingBarangays,
-  } = useLguHierarchy(form);
+  const mfidType = form.watch("mfid_type")
+  const isOpen = mfidType === "open"
 
-  const handleSubmit = (input: MfidFormInput) => {
-    onSubmit(input);
-    form.reset();
-  };
+  const { provinces, cities, barangays } = useLguHierarchy(form)
+
+  const resetAll = () => {
+    form.reset()
+    setStep(1)
+  }
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) form.reset();
-    onOpenChange(isOpen);
-  };
+    if (!isOpen) resetAll()
+    onOpenChange(isOpen)
+  }
 
   const handleCancel = () => {
-    form.reset();
-    onOpenChange(false);
-  };
+    resetAll()
+    onOpenChange(false)
+  }
 
+  const handleNext = () => {
+    if (mfidType) {
+      if (mfidType === "open") {
+        form.setValue("barangay", "")
+        form.setValue("farmer_first_name", "")
+        form.setValue("farmer_last_name", "")
+        form.setValue("farmer_gender", "male")
+        form.setValue("farmer_date_of_birth", "")
+        form.setValue("farmer_cellphone_no", "")
+      }
+      setStep(2)
+    }
+  }
+
+  const handleBack = () => {
+    setStep(1)
+    form.reset({ mfid_type: mfidType })
+  }
+
+  const handleSubmit = (input: MfidFormInput) => {
+    const { mfid_type, ...payload } = input
+    onSubmit(payload)
+    resetAll()
+    onOpenChange(false)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -82,103 +136,167 @@ export function MfidFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="w-96 max-w-sm">
-        <form id="mfid-create-form" onSubmit={form.handleSubmit(handleSubmit)}>
-          <DialogHeader className="mb-6 pb-4 border-b">
-            <DialogTitle>Create MFID</DialogTitle>
-            <DialogDescription> Enter the details to create a new MFID.  </DialogDescription>
-          </DialogHeader>
+      <DialogContent className="w-175 sm:max-w-none max-w-none">
 
-          <FieldGroup>
-            <FormSelect
-              form={form}
-              name="province"
-              label="Province"
-              placeholder="Select a province"
-              options={provinces.map((p) => p.name)}
-              isLoading={isLoadingProvinces}
-            />
-
-            <FormSelect
-              form={form}
-              name="city_municipality"
-              label="City / Municipality"
-              placeholder="Select a city/municipality"
-              options={cities.map((c) => c.name)}
-              disabled={!form.watch("province")}
-              isLoading={isLoadingMunicities}
-            />
-          </FieldGroup>
-
-          <DialogFooter className="border-t mt-6 pt-4 flex justify-between">
-            <Field>
-              <Button className="w-full" type="submit">
-                Create MFID
-              </Button>
-              <Button
-                className="w-full"
-                type="button"
-                variant="outline"
-                onClick={handleCancel}
+        <div className="flex items-center gap-2 mb-1">
+          {[1, 2].map((s) => (
+            <div key={s} className="flex items-center gap-2">
+              <div
+                className={cn(
+                  "w-6 h-6 rounded-full text-xs font-semibold flex items-center justify-center",
+                  step === s
+                    ? "bg-primary text-primary-foreground"
+                    : step > s
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted text-muted-foreground"
+                )}
               >
-                Cancel
-              </Button>
-            </Field>
-          </DialogFooter>
-        </form>
+                {s}
+              </div>
+              {s < 2 && (
+                <div className={cn("h-px w-8", step > s ? "bg-primary/40" : "bg-primary/15")} />
+              )}
+            </div>
+          ))}
+          <span className="text-xs text-muted-foreground ml-1">Step {step} of 2</span>
+        </div>
+
+        {step === 1 && (
+          <>
+            <DialogHeader className="mb-6 pb-4 border-b">
+              <DialogTitle>Create MFID</DialogTitle>
+              <DialogDescription>Select the type of MFID you want to create.</DialogDescription>
+            </DialogHeader>
+
+            <div className="grid grid-cols-2 gap-4 py-2">
+              <MfidTypeCard
+                selected={mfidType === "open"}
+                onClick={() => form.setValue("mfid_type", "open")}
+                title="Open MFID"
+                description="Not yet linked to a specific farmer. Only requires a location."
+              />
+              <MfidTypeCard
+                selected={mfidType === "assigned"}
+                onClick={() => form.setValue("mfid_type", "assigned")}
+                title="Assigned MFID"
+                description="Directly tied to a specific farmer. Requires farmer and location details."
+              />
+            </div>
+
+            <DialogFooter className="border-t mt-6 pt-4">
+              <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+              <Button onClick={handleNext} disabled={!mfidType}>Next</Button>
+            </DialogFooter>
+          </>
+        )}
+
+        {step === 2 && (
+          <Form form={form} onSubmit={handleSubmit}>
+            <DialogHeader className="mb-6 pb-4 border-b">
+              <DialogTitle>Create {isOpen ? "Open" : "Assigned"} MFID</DialogTitle>
+              <DialogDescription>
+                {isOpen
+                  ? "Enter the location for this MFID."
+                  : "Enter the farmer and location details for this MFID."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <FieldGroup>
+              {!isOpen && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormTextField name="farmer_first_name" label="First Name" />
+                    <FormTextField name="farmer_last_name" label="Last Name" />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <FormSelect
+                      name="farmer_gender"
+                      label="Gender"
+                      placeholder="Select gender"
+                      options={["Male", "Female", "Other"].map(opt => ({
+                        label: opt,
+                        value: opt.toLowerCase()
+                      }))}
+                    />
+                    <FormDatePicker name="farmer_date_of_birth" label="Date of Birth" />
+                    <FormTextField
+                      name="farmer_cellphone_no"
+                      label="Cellphone No."
+                      placeholder="09171234567"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormSelect
+                  name="province"
+                  label="Province"
+                  placeholder="Select a province"
+                  options={provinces.map((p) => ({
+                    label: p.name,
+                    value: p.name
+                  }))}
+                />
+                <FormSelect
+                  name="city_municipality"
+                  label="City / Municipality"
+                  placeholder="Select a city/municipality"
+                  options={cities.map((p) => ({
+                    label: p.name,
+                    value: p.name
+                  }))}
+                  disabled={!form.watch("province")}
+                />
+                <FormSelect
+                  name="barangay"
+                  label="Barangay"
+                  placeholder="Select a barangay"
+                  options={barangays.map((p) => ({
+                    label: p.name,
+                    value: p.name
+                  }))}
+                  disabled={!form.watch("city_municipality")}
+                />
+              </div>
+            </FieldGroup>
+
+            <DialogFooter className="border-t mt-6 pt-4">
+              <Button type="button" variant="outline" onClick={handleBack}>Back</Button>
+              <Button type="submit">Create MFID</Button>
+            </DialogFooter>
+          </Form>
+        )}
+
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 
-interface FormSelectProps {
-  form: any
-  name: string
-  label: string
-  placeholder: string
-  options: Array<string>,
-  disabled?: boolean,
-  isLoading?: boolean
+
+interface MfidTypeCardProps {
+  selected: boolean
+  onClick: () => void
+  title: string
+  description: string
 }
 
-function FormSelect({ form, name, label, placeholder, options, disabled = false, isLoading }: FormSelectProps) {
+function MfidTypeCard({ selected, onClick, title, description }: MfidTypeCardProps) {
   return (
-    <Controller
-      name={name}
-      control={form.control}
-      render={({ field, fieldState }) => (
-        <Field orientation="vertical" data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={`mfid-create-${name}`}>{label}</FieldLabel>
-          <Select
-            name={field.name}
-            value={field.value}
-            onValueChange={field.onChange}
-            disabled={disabled || isLoading}
-          >
-            <SelectTrigger
-              aria-invalid={fieldState.invalid}
-              id={`mfid-create-${name}`}
-              disabled={disabled || isLoading}
-            >
-              <SelectValue
-                placeholder={isLoading ? "Loading..." : placeholder}
-              />
-            </SelectTrigger>
-            <SelectContent position="popper">
-              <SelectGroup>
-                <SelectLabel>{label}</SelectLabel>
-                {options.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-lg border-2 p-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        selected
+          ? "border-primary bg-primary/5"
+          : "border-muted hover:border-primary/40 hover:bg-muted/40"
       )}
-    />
+    >
+      <p className={cn("font-semibold text-sm mb-1", selected && "text-primary")}>{title}</p>
+      <p className="text-xs text-muted-foreground leading-snug">{description}</p>
+    </button>
   )
 }

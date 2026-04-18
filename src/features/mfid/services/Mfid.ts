@@ -1,6 +1,6 @@
 import { getSupabase } from "@/core/supabase/supabase";
 import { parseMfidTable, parseMfidTableRow } from "../schemas/mfid-table.schema";
-import { MfidFormInput } from "../schemas/mfid-create.schema";
+import { MfidFormPayload } from "../components/MfidFormDialog";
 
 
 export class Mfid {
@@ -33,17 +33,23 @@ export class Mfid {
     return parseMfidTableRow(data)
   }
 
-  static async create(form: MfidFormInput) {
+  static async create(payload: MfidFormPayload) {
     const client = await getSupabase()
-    const { data, error } = await client.functions.invoke("create-mfid", {
-      body: form,
+
+    console.log("Mfid.create - payload", payload)
+
+    const { data, error } = await client.rpc('create_mfid', {
+      p_municity: payload.city_municipality,
+      p_province: payload.province,
+      p_barangay_name: payload.barangay ?? null,
+      p_farmer_first_name: payload.farmer_first_name,
+      p_farmer_last_name: payload.farmer_last_name,
+      p_farmer_gender: payload.farmer_gender,
+      p_farmer_dob: payload.farmer_date_of_birth,
+      p_farmer_cellphone: payload.farmer_cellphone_no,
     });
 
-    if (error) {
-      throw error
-    }
-
-    console.log("data =", data)
+    if (error) throw error;
     return data;
   }
 

@@ -1,8 +1,0 @@
-{
-  "imports": {
-    "@clients": "../_shared/clients.ts",
-    "@http": "../_shared/http.ts",
-    "zod/v4": "npm:zod@latest/v4"
-  }
-}
-

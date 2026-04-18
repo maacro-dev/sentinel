@@ -1616,6 +1616,9 @@ export type Database = {
           city_municipality: string | null
           coordinates: string | null
           created_at: string | null
+          farmer_cellphone_no: string | null
+          farmer_date_of_birth: string | null
+          farmer_gender: Database["public"]["Enums"]["gender"] | null
           farmer_name: string | null
           mfid: string | null
           province: string | null
@@ -1690,6 +1693,29 @@ export type Database = {
       check_duplicate_activities: {
         Args: { p_activity_type: string; p_rows: Json }
         Returns: Json
+      }
+      create_field_with_new_mfid: {
+        Args: {
+          p_barangay_id: number
+          p_farmer_id: number
+          p_location?: unknown
+          p_municity: string
+          p_province: string
+        }
+        Returns: number
+      }
+      create_mfid: {
+        Args: {
+          p_barangay_name?: string
+          p_farmer_cellphone?: string
+          p_farmer_dob?: string
+          p_farmer_first_name?: string
+          p_farmer_gender?: Database["public"]["Enums"]["gender"]
+          p_farmer_last_name?: string
+          p_municity: string
+          p_province: string
+        }
+        Returns: string
       }
       create_seed_user: {
         Args: {
@@ -1777,10 +1803,6 @@ export type Database = {
               error: true
             } & "Could not choose the best candidate function between: public.find_season_id_by_date(p_date => text), public.find_season_id_by_date(p_date => date). Try renaming the parameters or the function itself in the database so function overloading can be resolved"
           }
-      generate_mfid: {
-        Args: { p_municity: string; p_province: string }
-        Returns: string
-      }
       get_available_locations: { Args: { p_season_id?: number }; Returns: Json }
       get_available_locations_for_predictions: {
         Args: { p_season_id?: number }

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as z from "zod/v4"
 import { PageContainer } from '@/core/components/layout';
 import { Spinner } from '@/core/components/ui/spinner';
@@ -199,8 +201,6 @@ function RouteComponent() {
       variety: variety || (moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined),
     };
 
-    console.log('Query key:', yieldByLocationOptions(params).queryKey);
-
     queryClient.prefetchQuery(yieldByLocationOptions(params));
     queryClient.prefetchQuery(yieldByMethodOptions(params));
     queryClient.prefetchQuery(yieldByVarietyOptions(params));
@@ -280,9 +280,7 @@ function RouteComponent() {
         provinces={provinceOptions}
         municipalities={municipalityOptions}
         barangays={barangayOptions}
-        // @ts-ignore
         moreFilters={moreFilters}
-        // @ts-ignore
         onMoreFiltersChange={handleMoreFiltersChange}
         onResetAll={resetAll}
         isLoadingProvinces={locationsLoading}
@@ -300,7 +298,6 @@ function RouteComponent() {
           data={activeData}
           isLoading={isLoading}
           {...(view === 'yield-location' ? { level } : {})}
-          // @ts-ignore
           compareData={comparisonMap[view]?.data}
           currentSeasonLabel={currentSeasonLabel}
           compareSeasonLabel={compareSeasonLabel}

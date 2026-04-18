@@ -7,7 +7,7 @@ import {
 import { HumayLogo } from "@/core/components/HumayLogo";
 
 import { Toaster } from "@/features/toast";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
+// import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterContext } from "@/core/tanstack/router";
 import { Session } from "@/features/authentication";
@@ -18,9 +18,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { charSet: "UTF-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" }
     ],
-    links: [
-      { rel: 'icon', href: 'favicon.ico' }
-    ],
+    links: [{ rel: 'icon', href: 'favicon.ico' }],
   }),
 
   component: RootComponent,
@@ -33,7 +31,7 @@ function RootComponent() {
     <>
       <HeadContent />
       <Outlet />
-      <TanStackRouterDevtools />
+      {/* <TanStackRouterDevtools /> */}
       {/* <ReactQueryDevtools /> */}
       <Toaster />
     </>

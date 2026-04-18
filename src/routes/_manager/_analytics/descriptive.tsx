@@ -22,13 +22,16 @@ export const Route = createFileRoute("/_manager/_analytics/descriptive")({
 function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
-  const { provinceYields, methodSummary, riceVarietySummary, fertilizerTypeSummary, isLoading } = useDescriptiveAnalytics(seasonId);
+  const { provinceYields,
+    methodSummary,
+    riceVarietySummary,
+    fertilizerTypeSummary,
+    isLoading
+  } = useDescriptiveAnalytics(seasonId);
 
   if (isLoading || !provinceYields || !methodSummary || !riceVarietySummary || !fertilizerTypeSummary) {
     return <PendingComponent />;
   }
-
-  console.log("fertilizerTypeSummary =", fertilizerTypeSummary)
 
   return (
     <PageContainer>

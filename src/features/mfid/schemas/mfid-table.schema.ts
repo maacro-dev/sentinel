@@ -1,18 +1,21 @@
 import { Validator } from "@/core/utils/validator";
 import * as z from "zod/v4"
 
-const mfidStatusSchema = z.enum(["available", "used"])
+const mfidStatusSchema = z.enum(["available", "assigned"])
 export const mfidRowSchema = z.object({
   mfid: z.string(),
   created_at: z.string(),
   used_at: z.string().nullable(),
   status: mfidStatusSchema,
   farmer_name: z.string().nullable(),
+  farmer_gender: z.string().nullable(),
+  farmer_date_of_birth: z.string().nullable(),
+  farmer_cellphone_no: z.string().nullable(),
   barangay: z.string().nullable(),
   city_municipality: z.string().nullable(),
   coordinates: z.string().nullable(),
   province: z.string().nullable(),
-})
+});
 
 export const mfidTableSchema = z.array(mfidRowSchema);
 
