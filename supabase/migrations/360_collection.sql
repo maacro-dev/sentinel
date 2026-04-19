@@ -25,7 +25,6 @@ alter publication supabase_realtime add table collection_tasks;
 create or replace function set_retake_flag()
 returns trigger as $$
 begin
-    -- if a retake_of is set (non‑null), mark that original task as retakeable
     if new.retake_of is not null then
         update collection_tasks
         set can_retake = true
@@ -42,3 +41,108 @@ create trigger trigger_set_retake_flag
     on collection_tasks
     for each row
     execute function set_retake_flag();
+
+
+create or replace function create_collection_task(
+  p_mfid text,
+  p_season_id int,
+  p_activity_type text,
+  p_collector_id uuid,
+  p_start_date date,
+  p_end_date date,
+  p_retake_of int default null,
+  p_user_id uuid default auth.uid()
+)
+returns int
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_mfid_id int;
+  v_task_id int;
+begin
+  perform set_config('app.current_user_id', p_user_id::text, true);
+
+  select id into v_mfid_id
+  from public.mfids
+  where mfid = p_mfid;
+
+  if not found then
+    raise exception 'MFID "%" not found', p_mfid;
+  end if;
+
+  insert into public.collection_tasks (
+    mfid_id,
+    season_id,
+    activity_type,
+    collector_id,
+    start_date,
+    end_date,
+    retake_of,
+    assigned_at
+  ) values (
+    v_mfid_id,
+    p_season_id,
+    p_activity_type::public.activity_type,
+    p_collector_id,
+    p_start_date,
+    p_end_date,
+    p_retake_of,
+    now()
+  )
+  returning id into v_task_id;
+
+  return v_task_id;
+end;
+$$;
+
+create or replace function update_collection_task(
+  p_task_id int,
+  p_collector_id uuid default null,
+  p_start_date date default null,
+  p_end_date date default null,
+  p_user_id uuid default auth.uid()
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  perform set_config('app.current_user_id', p_user_id::text, true);
+
+  update public.collection_tasks
+  set
+    collector_id = coalesce(p_collector_id, collector_id),
+    start_date = coalesce(p_start_date, start_date),
+    end_date = coalesce(p_end_date, end_date),
+    updated_at = now()
+  where id = p_task_id;
+
+  if not found then
+    raise exception 'Collection task % not found', p_task_id;
+  end if;
+end;
+$$;
+
+create or replace function delete_collection_task(
+  p_task_id int,
+  p_user_id uuid default auth.uid()
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  perform set_config('app.current_user_id', p_user_id::text, true);
+
+  delete from public.collection_tasks
+  where id = p_task_id;
+
+  if not found then
+    raise exception 'Collection task % not found', p_task_id;
+  end if;
+end;
+$$;

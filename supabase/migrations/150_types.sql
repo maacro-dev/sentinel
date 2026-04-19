@@ -1,8 +1,3 @@
-create schema if not exists spatial;
-
-create extension if not exists postgis schema spatial;
-
-create extension if not exists pg_cron;
 
 create type user_role as enum(
     'admin',

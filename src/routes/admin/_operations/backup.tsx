@@ -1,120 +1,104 @@
-  import { PageContainer } from '@/core/components/layout'
-  import { createCrumbLoader } from '@/core/utils/breadcrumb'
-  import { createFileRoute } from '@tanstack/react-router'
-  import { useState, useRef } from "react";
-  import { Button } from "@/core/components/ui/button";
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
-  import { Input } from "@/core/components/ui/input";
-  import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/alert";
-  import { CheckCircle2, AlertCircle, Loader2, Download } from "lucide-react";
-  import { handleBackup } from "@/features/backup/backup";
-  import { Field, FieldDescription, FieldLabel } from '@/core/components/ui/field';
-  import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-  } from "@/core/components/ui/dialog";
-  import { useQueryClient } from '@tanstack/react-query';
+import { PageContainer } from '@/core/components/layout'
+import { createCrumbLoader } from '@/core/utils/breadcrumb'
+import { createFileRoute } from '@tanstack/react-router'
+import { useState, useRef } from "react";
+import { Button } from "@/core/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Input } from "@/core/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/alert";
+import { CheckCircle2, AlertCircle, Loader2, Download } from "lucide-react";
+import { handleBackup, handleRestore } from "@/features/backup/backup";
+import { Field, FieldDescription, FieldLabel } from '@/core/components/ui/field';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/core/components/ui/dialog";
+import { useQueryClient } from '@tanstack/react-query';
 
-  export const Route = createFileRoute('/admin/_operations/backup')({
-    component: RouteComponent,
-    loader: () => {
-      return { breadcrumb: createCrumbLoader({ label: "Backup" }) }
-    },
-    head: () => ({
-      meta: [{ title: "Backup | Humay" }],
-    }),
-  })
+export const Route = createFileRoute('/admin/_operations/backup')({
+  component: RouteComponent,
+  loader: () => {
+    return { breadcrumb: createCrumbLoader({ label: "Backup" }) }
+  },
+  head: () => ({
+    meta: [{ title: "Backup | Humay" }],
+  }),
+})
 
-  function RouteComponent() {
-    const [backupStatus, setBackupStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-    const [backupMessage, setBackupMessage] = useState<string>("");
-    const [restoreStatus, setRestoreStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-    const [restoreMessage, setRestoreMessage] = useState<string>("");
-    const [pendingFile, setPendingFile] = useState<File | null>(null);
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const queryClient = useQueryClient()
+function RouteComponent() {
+  const [backupStatus, setBackupStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [backupMessage, setBackupMessage] = useState<string>("");
+  const [restoreStatus, setRestoreStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [restoreMessage, setRestoreMessage] = useState<string>("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient()
 
-    const onBackup = async () => {
-      setBackupStatus("loading");
-      setBackupMessage("");
-      try {
-        await handleBackup();
-        setBackupStatus("success");
-        setBackupMessage("Backup downloaded successfully.");
-      } catch (err: any) {
-        setBackupStatus("error");
-        setBackupMessage(err.message || "Backup failed");
-      } finally {
-        setTimeout(() => {
-          if (backupStatus === "success" || backupStatus === "error") {
-            setBackupStatus("idle");
-            setBackupMessage("");
-          }
-        }, 5000);
-      }
-    };
+  const onBackup = async () => {
+    setBackupStatus("loading");
+    setBackupMessage("");
+    try {
+      await handleBackup();
+      setBackupStatus("success");
+      setBackupMessage("Backup downloaded successfully.");
+    } catch (err: any) {
+      setBackupStatus("error");
+      setBackupMessage(err.message || "Backup failed");
+    } finally {
+      setTimeout(() => {
+        if (backupStatus === "success" || backupStatus === "error") {
+          setBackupStatus("idle");
+          setBackupMessage("");
+        }
+      }, 5000);
+    }
+  };
 
-    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      setPendingFile(file);
-      setConfirmOpen(true);
-    };
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setPendingFile(file);
+    setConfirmOpen(true);
+  };
 
-    const handleConfirmRestore = async () => {
-      if (!pendingFile) return;
-      setConfirmOpen(false);
-      setRestoreStatus("loading");
-      setRestoreMessage("");
+  const handleConfirmRestore = async () => {
+    if (!pendingFile) return;
 
-      try {
-        const formData = new FormData();
-        formData.append("backup", pendingFile);
+    setConfirmOpen(false);
+    setRestoreStatus("loading");
+    setRestoreMessage("");
 
-        const url =
-          import.meta.env.DEV
-            ? import.meta.env.VITE_SUPABASE_DEV_URL
-            : import.meta.env.VITE_SUPABASE_URL;
+    try {
+      await handleRestore(pendingFile);
 
-        if (!url) throw new Error("Missing Supabase URL");
-
-        const response = await fetch(`${url}/functions/v1/backup-restore`, {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || "Restore failed");
-
-        setRestoreStatus("success");
-        setRestoreMessage("Restore completed successfully.");
-
-        queryClient.invalidateQueries()
-      } catch (err: any) {
-        setRestoreStatus("error");
-        setRestoreMessage(err.message || "Restore failed");
-      } finally {
-        setTimeout(() => {
-          if (restoreStatus === "success" || restoreStatus === "error") {
-            setRestoreStatus("idle");
-            setRestoreMessage("");
-          }
-        }, 5000);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        setPendingFile(null);
-      }
-    };
-
-    const handleCancelRestore = () => {
-      setConfirmOpen(false);
-      setPendingFile(null);
+      setRestoreStatus("success");
+      setRestoreMessage("Restore completed successfully.");
+      queryClient.invalidateQueries();
+    } catch (err: any) {
+      setRestoreStatus("error");
+      setRestoreMessage(err.message || "Restore failed");
+    } finally {
+      setTimeout(() => {
+        if (restoreStatus === "success" || restoreStatus === "error") {
+          setRestoreStatus("idle");
+          setRestoreMessage("");
+        }
+      }, 5000);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    };
+      setPendingFile(null);
+    }
+  };
+
+  const handleCancelRestore = () => {
+    setConfirmOpen(false);
+    setPendingFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   return (
     <PageContainer>

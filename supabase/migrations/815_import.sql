@@ -25,7 +25,7 @@ declare
     v_land_prep_start date;
     v_est_establish_date date;
 
-    v_collection_task_id int;   -- new variable
+    v_collection_task_id int;
 begin
     v_row_count := jsonb_array_length(p_data);
     raise notice 'Input data contains % rows', v_row_count;

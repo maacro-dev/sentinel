@@ -25,7 +25,7 @@ declare
         'notifications',
         'system_audit_logs',
         'activity_logs',
-        'audit_errors',
+        -- 'audit_errors',
         'predicted_yields'
     ];
 begin

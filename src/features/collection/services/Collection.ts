@@ -19,51 +19,25 @@ export class Collection {
 
     const { data, error } = await query;
     if (error) throw error;
-
-    return parseCollectionTasks(data)
+    return parseCollectionTasks(data);
   }
 
-  static async create(input: CollectionTaskInput) {
+  static async create(input: CollectionTaskInput): Promise<number> {
     const client = await getSupabase();
-    const { data: mfidRecord, error: mfidError } = await client
-      .from("mfids")
-      .select("id")
-      .eq("mfid", input.mfid)
-      .single();
-    if (mfidError || !mfidRecord) throw new Error(`MFID "${input.mfid}" not found`);
 
-    const insertData: any = {
-      mfid_id: mfidRecord.id,
-      season_id: input.season_id,
-      activity_type: input.activity_type,
-      collector_id: input.collector_id,
-      start_date: input.start_date,
-      end_date: input.end_date,
-      assigned_at: new Date().toISOString(),
-    };
-    if (input.retake_of) {
-      insertData.retake_of = input.retake_of;
-    }
-
-    const { error } = await client.from("collection_tasks").insert(insertData).single();
-    if (error) throw error;
-  }
-
-  static async transfer(taskId: number, newCollectorId: string): Promise<CollectionTask> {
-    const client = await getSupabase();
-    const { data, error } = await client
-      .from("collection_tasks")
-      .update({
-        collector_id: newCollectorId,
-        assigned_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", taskId)
-      .select()
-      .single();
+    const { data: taskId, error } = await client.rpc('create_collection_task', {
+      p_mfid: input.mfid,
+      p_season_id: input.season_id,
+      p_activity_type: input.activity_type,
+      p_collector_id: input.collector_id,
+      p_start_date: input.start_date,
+      p_end_date: input.end_date,
+      // @ts-ignore
+      p_retake_of: input.retake_of || null,
+    });
 
     if (error) throw error;
-    return Validator.create<CollectionTask>(collectionTaskSchema)(data);
+    return taskId;
   }
 
   static async getByMfid(mfid: string, seasonId?: number): Promise<CollectionTask[]> {
@@ -80,32 +54,29 @@ export class Collection {
 
     const { data, error } = await query;
     if (error) throw error;
-
     return Validator.create<CollectionTask[]>(z.array(collectionTaskSchema))(data || []);
   }
 
   static async update(taskId: number, input: Partial<CollectionTaskInput>): Promise<void> {
     const client = await getSupabase();
-    const updateData: any = {};
-    if (input.collector_id !== undefined) updateData.collector_id = input.collector_id;
-    if (input.start_date !== undefined) updateData.start_date = input.start_date;
-    if (input.end_date !== undefined) updateData.end_date = input.end_date;
-    updateData.updated_at = new Date().toISOString();
 
-    const { error } = await client
-      .from("collection_tasks")
-      .update(updateData)
-      .eq("id", taskId);
+    const { error } = await client.rpc('update_collection_task', {
+      p_task_id: taskId,
+      p_collector_id: input.collector_id,
+      p_start_date: input.start_date,
+      p_end_date: input.end_date,
+    });
 
     if (error) throw error;
   }
 
   static async delete(taskId: number): Promise<void> {
     const client = await getSupabase();
-    const { error } = await client
-      .from("collection_tasks")
-      .delete()
-      .eq("id", taskId);
+
+    const { error } = await client.rpc('delete_collection_task', {
+      p_task_id: taskId,
+    });
+
     if (error) throw error;
   }
 }

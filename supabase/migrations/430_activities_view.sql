@@ -92,12 +92,11 @@ left join public.field_activities fa_original on ct_original.id = fa_original.co
 
 create or replace view collection_details as
 select
+    s.start_date                            as season_start_date,
+    s.end_date                              as season_end_date,
+
     ct.id,
-
     ct.season_id,
-    s.start_date as season_start_date,
-    s.end_date as season_end_date,
-
     ct.mfid_id,
     ct.activity_type,
     ct.collector_id,
@@ -111,15 +110,19 @@ select
     ct.retake_of,
 
     m.mfid,
-    concat(u.first_name, ' ', u.last_name) as collector_name,
-    concat(f.first_name, ' ', f.last_name) as farmer_name,
 
-    coalesce(loc.municipality, '') as city_municipality,
-    coalesce(loc.province, '') as province,
-    coalesce(a.barangay, '') as barangay,
+    concat(u.first_name, ' ', u.last_name)  as collector_name,
+    concat(f.first_name, ' ', f.last_name)  as farmer_name,
+
+    coalesce(a.city_municipality, '')       as city_municipality,
+    coalesce(a.province, '')                as province,
+    coalesce(a.barangay, '')                as barangay,
+
     case
-        when a.barangay is not null then concat(a.barangay, ', ', coalesce(loc.municipality, ''), ', ', coalesce(loc.province, ''))
-        else concat(coalesce(loc.municipality, ''), ', ', coalesce(loc.province, ''))
+        when a.barangay is not null then
+            concat(a.barangay, ', ', coalesce(a.city_municipality, ''), ', ', coalesce(a.province, ''))
+        else
+            concat(coalesce(a.city_municipality, ''), ', ', coalesce(a.province, ''))
     end as full_address,
 
     coalesce(fa.verification_status, 'pending') as verification_status,
@@ -203,8 +206,7 @@ left join addresses a on fld.barangay_id = a.barangay_id
 left join users u on ct.collector_id = u.id
 left join field_activities fa on fa.collection_task_id = ct.id
 left join collection_tasks ct_original on ct.retake_of = ct_original.id
-left join field_activities fa_original on ct_original.id = fa_original.collection_task_id
-left join lateral get_mfid_location(m.mfid) as loc on true;
+left join field_activities fa_original on ct_original.id = fa_original.collection_task_id;
 
 
 create or replace function public.get_planting_season_for_harvest(p_field_id int, p_harvest_date date)

@@ -48,30 +48,6 @@ export type Database = {
         }
         Relationships: []
       }
-      audit_errors: {
-        Row: {
-          error_text: string | null
-          function_name: string | null
-          id: number
-          occurred_at: string
-          payload: Json | null
-        }
-        Insert: {
-          error_text?: string | null
-          function_name?: string | null
-          id?: number
-          occurred_at?: string
-          payload?: Json | null
-        }
-        Update: {
-          error_text?: string | null
-          function_name?: string | null
-          id?: number
-          occurred_at?: string
-          payload?: Json | null
-        }
-        Relationships: []
-      }
       barangays: {
         Row: {
           city_municipality_id: number
@@ -1694,6 +1670,19 @@ export type Database = {
         Args: { p_activity_type: string; p_rows: Json }
         Returns: Json
       }
+      create_collection_task: {
+        Args: {
+          p_activity_type: string
+          p_collector_id: string
+          p_end_date: string
+          p_mfid: string
+          p_retake_of?: number
+          p_season_id: number
+          p_start_date: string
+          p_user_id?: string
+        }
+        Returns: number
+      }
       create_field_with_new_mfid: {
         Args: {
           p_barangay_id: number
@@ -1761,6 +1750,10 @@ export type Database = {
         Returns: Json
       }
       dashboard_summary: { Args: { p_season_id?: number }; Returns: Json }
+      delete_collection_task: {
+        Args: { p_task_id: number; p_user_id?: string }
+        Returns: undefined
+      }
       fertilizer_type_summary: {
         Args: {
           p_barangay?: string
@@ -1807,13 +1800,6 @@ export type Database = {
       get_available_locations_for_predictions: {
         Args: { p_season_id?: number }
         Returns: Json
-      }
-      get_mfid_location: {
-        Args: { p_mfid: string }
-        Returns: {
-          municipality: string
-          province: string
-        }[]
       }
       get_planting_season_for_harvest: {
         Args: { p_field_id: number; p_harvest_date: string }
@@ -1904,6 +1890,16 @@ export type Database = {
       sync_auth_audit_entries: { Args: never; Returns: number }
       trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
       trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
+      update_collection_task: {
+        Args: {
+          p_collector_id?: string
+          p_end_date?: string
+          p_start_date?: string
+          p_task_id: number
+          p_user_id?: string
+        }
+        Returns: undefined
+      }
       upload_cultural_management: { Args: { data: Json }; Returns: number }
       upload_damage_assessment: { Args: { data: Json }; Returns: number }
       upload_field_data: { Args: { data: Json }; Returns: number }

@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { formatSeasonLabel } from '@/features/fields/util';
 import { Seasons } from '../fields/services/Seasons';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 const defaultFilters = {
   seasonId: 0,
@@ -11,7 +12,12 @@ const defaultFilters = {
   variety: undefined,
 };
 
-export async function generateFullReport(seasonId: number, queryClient: QueryClient, userName?: string) {
+export async function generateFullReport(
+  seasonId: number,
+  queryClient: QueryClient,
+  supabase: SupabaseClient,
+  userName?: string,
+) {
   const season = await Seasons.getById(seasonId);
   const seasonLabel = season ? formatSeasonLabel(season) : `Season ${seasonId}`;
 
@@ -127,4 +133,29 @@ export async function generateFullReport(seasonId: number, queryClient: QueryCli
   console.log(builder.getLog());
   builder.addExportMetadata(userName);
   builder.save('humay-full-report.pdf');
+
+  const { data: session } = await supabase.auth.getSession();
+  const userId = session?.session?.user?.id;
+
+  await supabase.from('activity_logs').insert({
+    occurred_at: new Date().toISOString(),
+    user_id: userId || null,
+    event_type: 'report_exported',
+    table_name: null,
+    record_id: seasonId.toString(),
+    action: 'export',
+    details: {
+      report_type: 'full',
+      season_id: seasonId,
+      season_label: seasonLabel,
+      exported_by: userName || 'Unknown user',
+      sections_included: [
+        dashboardData.status === 'fulfilled' ? 'summary' : null,
+        formsProgressData.status === 'fulfilled' || formsCountData.status === 'fulfilled' ? 'collection' : null,
+        descriptiveData.status === 'fulfilled' ? 'descriptive' : null,
+        (yieldLocationData.status === 'fulfilled' || yieldMethodData.status === 'fulfilled' || yieldVarietyData.status === 'fulfilled') ? 'yield' : null,
+        (damageLocationData.status === 'fulfilled' || damageCauseData.status === 'fulfilled') ? 'damage' : null,
+      ].filter(Boolean),
+    }
+  });
 }

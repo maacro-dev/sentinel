@@ -26,8 +26,9 @@ import { Route as ManagerOverviewRouteImport } from './../../../routes/_manager/
 import { Route as ManagerDataRouteImport } from './../../../routes/_manager/_data'
 import { Route as ManagerAnalyticsRouteImport } from './../../../routes/_manager/_analytics'
 import { Route as AdminOverviewDashboardRouteImport } from './../../../routes/admin/_overview/dashboard'
-import { Route as AdminOperationsLogsRouteImport } from './../../../routes/admin/_operations/logs'
 import { Route as AdminOperationsBackupRouteImport } from './../../../routes/admin/_operations/backup'
+import { Route as AdminOperationsAuditLogsRouteImport } from './../../../routes/admin/_operations/audit-logs'
+import { Route as AdminOperationsActivityLogsRouteImport } from './../../../routes/admin/_operations/activity-logs'
 import { Route as AdminConfigurationSettingsRouteImport } from './../../../routes/admin/_configuration/settings'
 import { Route as AdminAccessControlUserManagementRouteImport } from './../../../routes/admin/_accessControl/user-management'
 import { Route as ManagerFormsFormTypeRouteImport } from './../../../routes/_manager/forms/$formType'
@@ -122,16 +123,23 @@ const AdminOverviewDashboardRoute = AdminOverviewDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminOverviewRoute,
 } as any)
-const AdminOperationsLogsRoute = AdminOperationsLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => AdminOperationsRoute,
-} as any)
 const AdminOperationsBackupRoute = AdminOperationsBackupRouteImport.update({
   id: '/backup',
   path: '/backup',
   getParentRoute: () => AdminOperationsRoute,
 } as any)
+const AdminOperationsAuditLogsRoute =
+  AdminOperationsAuditLogsRouteImport.update({
+    id: '/audit-logs',
+    path: '/audit-logs',
+    getParentRoute: () => AdminOperationsRoute,
+  } as any)
+const AdminOperationsActivityLogsRoute =
+  AdminOperationsActivityLogsRouteImport.update({
+    id: '/activity-logs',
+    path: '/activity-logs',
+    getParentRoute: () => AdminOperationsRoute,
+  } as any)
 const AdminConfigurationSettingsRoute =
   AdminConfigurationSettingsRouteImport.update({
     id: '/settings',
@@ -244,8 +252,9 @@ export interface FileRoutesByFullPath {
   '/forms/$formType': typeof ManagerFormsFormTypeRouteWithChildren
   '/admin/user-management': typeof AdminAccessControlUserManagementRoute
   '/admin/settings': typeof AdminConfigurationSettingsRoute
+  '/admin/activity-logs': typeof AdminOperationsActivityLogsRoute
+  '/admin/audit-logs': typeof AdminOperationsAuditLogsRoute
   '/admin/backup': typeof AdminOperationsBackupRoute
-  '/admin/logs': typeof AdminOperationsLogsRoute
   '/admin/dashboard': typeof AdminOverviewDashboardRoute
   '/mfid/$mfid': typeof ManagerDataMfidMfidRoute
   '/forms/$formType/$id': typeof ManagerFormsFormTypeIdRoute
@@ -271,8 +280,9 @@ export interface FileRoutesByTo {
   '/monitored-fields': typeof ManagerOverviewMonitoredFieldsRoute
   '/admin/user-management': typeof AdminAccessControlUserManagementRoute
   '/admin/settings': typeof AdminConfigurationSettingsRoute
+  '/admin/activity-logs': typeof AdminOperationsActivityLogsRoute
+  '/admin/audit-logs': typeof AdminOperationsAuditLogsRoute
   '/admin/backup': typeof AdminOperationsBackupRoute
-  '/admin/logs': typeof AdminOperationsLogsRoute
   '/admin/dashboard': typeof AdminOverviewDashboardRoute
   '/mfid/$mfid': typeof ManagerDataMfidMfidRoute
   '/forms/$formType/$id': typeof ManagerFormsFormTypeIdRoute
@@ -309,8 +319,9 @@ export interface FileRoutesById {
   '/_manager/forms/$formType': typeof ManagerFormsFormTypeRouteWithChildren
   '/admin/_accessControl/user-management': typeof AdminAccessControlUserManagementRoute
   '/admin/_configuration/settings': typeof AdminConfigurationSettingsRoute
+  '/admin/_operations/activity-logs': typeof AdminOperationsActivityLogsRoute
+  '/admin/_operations/audit-logs': typeof AdminOperationsAuditLogsRoute
   '/admin/_operations/backup': typeof AdminOperationsBackupRoute
-  '/admin/_operations/logs': typeof AdminOperationsLogsRoute
   '/admin/_overview/dashboard': typeof AdminOverviewDashboardRoute
   '/_manager/_data/mfid/$mfid': typeof ManagerDataMfidMfidRoute
   '/_manager/forms/$formType/$id': typeof ManagerFormsFormTypeIdRoute
@@ -340,8 +351,9 @@ export interface FileRouteTypes {
     | '/forms/$formType'
     | '/admin/user-management'
     | '/admin/settings'
+    | '/admin/activity-logs'
+    | '/admin/audit-logs'
     | '/admin/backup'
-    | '/admin/logs'
     | '/admin/dashboard'
     | '/mfid/$mfid'
     | '/forms/$formType/$id'
@@ -367,8 +379,9 @@ export interface FileRouteTypes {
     | '/monitored-fields'
     | '/admin/user-management'
     | '/admin/settings'
+    | '/admin/activity-logs'
+    | '/admin/audit-logs'
     | '/admin/backup'
-    | '/admin/logs'
     | '/admin/dashboard'
     | '/mfid/$mfid'
     | '/forms/$formType/$id'
@@ -404,8 +417,9 @@ export interface FileRouteTypes {
     | '/_manager/forms/$formType'
     | '/admin/_accessControl/user-management'
     | '/admin/_configuration/settings'
+    | '/admin/_operations/activity-logs'
+    | '/admin/_operations/audit-logs'
     | '/admin/_operations/backup'
-    | '/admin/_operations/logs'
     | '/admin/_overview/dashboard'
     | '/_manager/_data/mfid/$mfid'
     | '/_manager/forms/$formType/$id'
@@ -544,18 +558,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOverviewDashboardRouteImport
       parentRoute: typeof AdminOverviewRoute
     }
-    '/admin/_operations/logs': {
-      id: '/admin/_operations/logs'
-      path: '/logs'
-      fullPath: '/admin/logs'
-      preLoaderRoute: typeof AdminOperationsLogsRouteImport
-      parentRoute: typeof AdminOperationsRoute
-    }
     '/admin/_operations/backup': {
       id: '/admin/_operations/backup'
       path: '/backup'
       fullPath: '/admin/backup'
       preLoaderRoute: typeof AdminOperationsBackupRouteImport
+      parentRoute: typeof AdminOperationsRoute
+    }
+    '/admin/_operations/audit-logs': {
+      id: '/admin/_operations/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AdminOperationsAuditLogsRouteImport
+      parentRoute: typeof AdminOperationsRoute
+    }
+    '/admin/_operations/activity-logs': {
+      id: '/admin/_operations/activity-logs'
+      path: '/activity-logs'
+      fullPath: '/admin/activity-logs'
+      preLoaderRoute: typeof AdminOperationsActivityLogsRouteImport
       parentRoute: typeof AdminOperationsRoute
     }
     '/admin/_configuration/settings': {
@@ -801,13 +822,15 @@ const AdminConfigurationRouteWithChildren =
   AdminConfigurationRoute._addFileChildren(AdminConfigurationRouteChildren)
 
 interface AdminOperationsRouteChildren {
+  AdminOperationsActivityLogsRoute: typeof AdminOperationsActivityLogsRoute
+  AdminOperationsAuditLogsRoute: typeof AdminOperationsAuditLogsRoute
   AdminOperationsBackupRoute: typeof AdminOperationsBackupRoute
-  AdminOperationsLogsRoute: typeof AdminOperationsLogsRoute
 }
 
 const AdminOperationsRouteChildren: AdminOperationsRouteChildren = {
+  AdminOperationsActivityLogsRoute: AdminOperationsActivityLogsRoute,
+  AdminOperationsAuditLogsRoute: AdminOperationsAuditLogsRoute,
   AdminOperationsBackupRoute: AdminOperationsBackupRoute,
-  AdminOperationsLogsRoute: AdminOperationsLogsRoute,
 }
 
 const AdminOperationsRouteWithChildren = AdminOperationsRoute._addFileChildren(

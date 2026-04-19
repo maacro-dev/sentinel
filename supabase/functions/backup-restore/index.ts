@@ -57,7 +57,7 @@ const tableOrder = [
   'notifications',
   "system_audit_logs",
   "activity_logs",
-  "audit_errors",
+  // "audit_errors",
   "predicted_yields",
 ];
 
@@ -77,6 +77,22 @@ Deno.serve(async (req) => {
     if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
     if (req.method !== "POST") return new Response("Method not allowed", { status: 405, headers: corsHeaders });
 
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { persistSession: false } }
+    );
+
+    let userId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (!userError && user) {
+        userId = user.id;
+      }
+    }
+
     const formData = await req.formData();
     const file = formData.get("backup") as File | null;
     if (!file) return new Response("Missing backup file", { status: 400, headers: corsHeaders });
@@ -86,17 +102,11 @@ Deno.serve(async (req) => {
     const jsonString = new TextDecoder().decode(decompressed);
     const backupData = JSON.parse(jsonString);
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      { auth: { persistSession: false } }
-    );
-
     const users = backupData.users;
     if (users && users.length > 0) {
       console.log(`Restoring ${users.length} users...`);
       for (const user of users) {
-        await restoreUser(supabase, user);
+        await restoreUser(supabaseAdmin, user);
       }
     }
 
@@ -105,7 +115,7 @@ Deno.serve(async (req) => {
       if (table === "users") continue;
 
       console.log(`Deleting from ${table}`);
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await supabaseAdmin
         .from(table)
         .delete()
         .neq('id', -1);
@@ -113,7 +123,7 @@ Deno.serve(async (req) => {
         throw new Error(`Error deleting from ${table}: ${deleteError.message}`);
       }
 
-      const { count, error: countError } = await supabase
+      const { count, error: countError } = await supabaseAdmin
         .from(table)
         .select('*', { count: 'exact', head: true });
       if (countError) {
@@ -123,6 +133,9 @@ Deno.serve(async (req) => {
         console.warn(`WARNING: Table ${table} still has ${count} rows after deletion.`);
       }
     }
+
+    const restoredTables: string[] = [];
+    let totalRowsRestored = 0;
 
     for (const table of tableOrder) {
       if (table === "users") continue;
@@ -141,7 +154,7 @@ Deno.serve(async (req) => {
       const batchSize = 500;
       for (let i = 0; i < uniqueRows.length; i += batchSize) {
         const batch = uniqueRows.slice(i, i + batchSize);
-        const { error: upsertError } = await supabase
+        const { error: upsertError } = await supabaseAdmin
           .from(table)
           .upsert(batch, { onConflict: 'id' });
         if (upsertError) {
@@ -149,7 +162,32 @@ Deno.serve(async (req) => {
         }
       }
 
-      await resetSequence(supabase, table);
+      restoredTables.push(table);
+      totalRowsRestored += uniqueRows.length;
+      await resetSequence(supabaseAdmin, table);
+    }
+
+    // --- Log the restore event ---
+    const logEntry = {
+      occurred_at: new Date().toISOString(),
+      user_id: userId,
+      event_type: 'backup_restored',
+      table_name: null,
+      record_id: null,
+      action: 'restore',
+      details: {
+        tables_restored: restoredTables,
+        total_rows_restored: totalRowsRestored,
+        timestamp: new Date().toISOString(),
+        ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || null,
+      }
+    };
+
+    try {
+      const { error } = await supabaseAdmin.from("system_audit_logs").insert(logEntry);
+      if (error) console.warn("Failed to log backup restore:", error.message);
+    } catch (err) {
+      console.warn("Log insertion error:", err);
     }
 
     return new Response(JSON.stringify({ success: true }), {

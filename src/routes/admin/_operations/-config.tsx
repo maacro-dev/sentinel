@@ -1,15 +1,22 @@
 import { createRouteConfig } from "@/core/tanstack/router/utils";
-import { DatabaseBackup, LogsIcon } from "lucide-react";
+import { DatabaseBackup } from "lucide-react";
+import { Shield, Activity } from 'lucide-react';
 
 export const adminOperationsGroupConfig = createRouteConfig("operations", {
   role: "admin",
   label: "Operations",
   children: [
-    createRouteConfig("logs", {
+    createRouteConfig("audit-logs", {
       role: "admin",
-      label: "System Logs",
-      path: "/admin/logs",
-      icon: LogsIcon,
+      label: "System Audit",
+      path: "/admin/audit-logs",
+      icon: Shield,
+    }),
+    createRouteConfig("activity-logs", {
+      role: "admin",
+      label: "Activity Logs",
+      path: "/admin/activity-logs",
+      icon: Activity,
     }),
     createRouteConfig("backup", {
       role: "admin",
@@ -18,4 +25,4 @@ export const adminOperationsGroupConfig = createRouteConfig("operations", {
       icon: DatabaseBackup,
     }),
   ]
-})
+});

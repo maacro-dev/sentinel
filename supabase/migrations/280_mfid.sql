@@ -35,8 +35,12 @@ declare
     v_gender public.gender := p_farmer_gender;
     v_dob date := nullif(p_farmer_dob, '')::date;
     v_cellphone text := nullif(trim(p_farmer_cellphone), '');
+    v_is_open boolean;
+    v_farmer_name text;
 begin
-    -- 1. Lookup municipal code
+    -- Set the actor for activity logging
+    perform set_config('app.current_user_id', auth.uid()::text, true);
+
     select cm.code
     into municipal_code
     from public.cities_municipalities cm
@@ -48,7 +52,6 @@ begin
         raise exception 'Municipality not found';
     end if;
 
-    -- 2. Lock and generate new MFID
     perform pg_advisory_xact_lock(hashtext(municipal_code));
 
     select coalesce(max(('x' || right(mfid, 3))::bit(12)::int), 0)
@@ -63,12 +66,13 @@ begin
     next_suffix := lpad(to_hex(last_suffix + 1), 3, '0');
     new_mfid := municipal_code || next_suffix;
 
-    -- 3. Insert base MFID record (initially unused)
     insert into public.mfids(mfid) values (new_mfid)
     returning id into new_mfid_id;
 
-    -- 4. If barangay is provided, always create a fields record (even without farmer)
-    if v_barangay_name is not null then
+    -- Determine if this is an "open" or "assigned" MFID
+    v_is_open := (v_barangay_name is null or v_first_name is null or v_last_name is null);
+
+    if not v_is_open then
         select id into v_barangay_id
         from public.barangays
         where name = v_barangay_name
@@ -78,34 +82,30 @@ begin
             raise exception 'Barangay "%" not found', v_barangay_name;
         end if;
 
-        -- 5. Handle farmer if provided
-        if v_first_name is not null and v_last_name is not null then
-            -- Get or create farmer
-            select id into v_farmer_id
-            from public.farmers
-            where first_name = v_first_name and last_name = v_last_name
-            limit 1;
+        select id into v_farmer_id
+        from public.farmers
+        where first_name = v_first_name and last_name = v_last_name
+        limit 1;
 
-            if v_farmer_id is null then
-                insert into public.farmers (first_name, last_name, gender, date_of_birth, cellphone_no)
-                values (v_first_name, v_last_name, v_gender, v_dob, v_cellphone)
-                returning id into v_farmer_id;
-            else
-                update public.farmers
-                set gender = coalesce(v_gender, gender),
-                    date_of_birth = coalesce(v_dob, date_of_birth),
-                    cellphone_no = coalesce(v_cellphone, cellphone_no),
-                    updated_at = now()
-                where id = v_farmer_id;
-            end if;
-
-            -- Mark MFID as used (assigned to farmer)
-            update public.mfids
-            set used_at = now()
-            where id = new_mfid_id;
+        if v_farmer_id is null then
+            insert into public.farmers (first_name, last_name, gender, date_of_birth, cellphone_no)
+            values (v_first_name, v_last_name, v_gender, v_dob, v_cellphone)
+            returning id into v_farmer_id;
+        else
+            update public.farmers
+            set gender = coalesce(v_gender, gender),
+                date_of_birth = coalesce(v_dob, date_of_birth),
+                cellphone_no = coalesce(v_cellphone, cellphone_no),
+                updated_at = now()
+            where id = v_farmer_id;
         end if;
 
-        -- Insert field record (farmer_id may be null for open MFID)
+        v_farmer_name := v_first_name || ' ' || v_last_name;
+
+        update public.mfids
+        set used_at = now()
+        where id = new_mfid_id;
+
         insert into public.fields (mfid_id, barangay_id, farmer_id)
         values (new_mfid_id, v_barangay_id, v_farmer_id)
         on conflict (mfid_id) do update
@@ -113,61 +113,44 @@ begin
             farmer_id = coalesce(excluded.farmer_id, fields.farmer_id);
     end if;
 
+    -- Insert activity log entry
+    insert into public.activity_logs (
+        occurred_at,
+        user_id,
+        event_type,
+        table_name,
+        record_id,
+        action,
+        old_data,
+        new_data,
+        details
+    ) values (
+        now(),
+        auth.uid(),
+        case when v_is_open then 'mfid_created_open' else 'mfid_created_assigned' end,
+        'mfids',
+        new_mfid_id::text,
+        'insert',
+        null,
+        jsonb_build_object('mfid', new_mfid, 'used_at', case when not v_is_open then now() else null end),
+        jsonb_build_object(
+            'is_open', v_is_open,
+            'mfid', new_mfid,
+            'municipality', p_municity,
+            'province', p_province,
+            'barangay', v_barangay_name,
+            'farmer_name', v_farmer_name
+        )
+    );
+
     return new_mfid;
 end;
 $$;
 
--- create or replace function public.generate_mfid(
---     p_municity text,
---     p_province text
--- )
---     returns text
---     language plpgsql
---     security definer
---     set search_path = ''
--- as $$
--- declare
---     municipal_code text;
---     last_suffix int;
---     next_suffix text;
---     new_mfid text;
--- begin
---     select
---         cm.code
---     into municipal_code
---     from public.cities_municipalities cm
---     join public.provinces p on p.id = cm.province_id
---     where cm.name = p_municity and p.name = p_province
---     limit 1;
-
---     if municipal_code is null then
---         raise exception 'Municipality not found';
---     end if;
-
---     perform pg_advisory_xact_lock(hashtext(municipal_code));
-
---     select coalesce(max(('x' || right(mfid, 3))::bit(12)::int), 0)
---     into last_suffix
---     from public.mfids
---     where mfid like municipal_code || '%';
-
---     if last_suffix >= 4096 then
---         raise exception 'MFID overflow for %', municipal_code;
---     end if;
-
---     next_suffix := lpad(to_hex(last_suffix + 1), 3, '0');
---     new_mfid := municipal_code || next_suffix;
-
---     insert into public.mfids(mfid) values (new_mfid);
-
---     return new_mfid;
--- end;
--- $$;
-
 
 create or replace function check_duplicate_activities(
-  p_activity_type text,
-  p_rows jsonb
+    p_activity_type text,
+    p_rows jsonb
 )
     returns jsonb
     language plpgsql
@@ -186,7 +169,7 @@ begin
                     select 1
                     from public.field_activities fa
                     join public.fields f on fa.field_id = f.id
-                    join public.mfids m on f.mfid_id = m.id  -- join to get mfid string
+                    join public.mfids m on f.mfid_id = m.id
                     where m.mfid = (elem->>'mfid')
                         and fa.season_id = (elem->>'season_id')::int
                         and fa.activity_type = p_activity_type::public.activity_type
@@ -197,45 +180,5 @@ begin
     );
 
     return v_result;
-end;
-$$;
-
-create or replace function public.get_mfid_location(p_mfid text)
-returns table (
-    municipality text,
-    province text
-)
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-    v_field_id int;
-    v_mun_code text;
-begin
-    -- Check if the MFID is used (linked to a field)
-    select f.id into v_field_id
-    from public.fields f
-    join public.mfids m on f.mfid_id = m.id
-    where m.mfid = p_mfid
-    limit 1;
-
-    if v_field_id is not null then
-        -- Used: return the field's actual address
-        return query
-        select a.city_municipality, a.province
-        from public.fields f
-        join public.addresses a on f.barangay_id = a.barangay_id
-        join public.mfids m on f.mfid_id = m.id
-        where m.mfid = p_mfid;
-    else
-        -- Not used: extract municipal code from MFID (first 6 digits)
-        v_mun_code := left(p_mfid, 6);
-        return query
-        select cm.name, p.name
-        from public.cities_municipalities cm
-        join public.provinces p on cm.province_id = p.id
-        where cm.code = v_mun_code;
-    end if;
 end;
 $$;

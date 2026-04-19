@@ -1,6 +1,4 @@
 
-set search_path = public, pg_catalog;
-
 -- system audit logs (admin/user management events)
 create table if not exists public.system_audit_logs (
   id bigserial primary key,
@@ -36,17 +34,6 @@ create index if not exists idx_activity_logs_time on public.activity_logs(occurr
 create index if not exists idx_activity_logs_user on public.activity_logs(user_id);
 create index if not exists idx_activity_logs_record on public.activity_logs(table_name, record_id);
 
--- emergency audit errors
-create table if not exists public.audit_errors (
-  id bigserial primary key,
-  occurred_at timestamptz not null default now(),
-  function_name text,
-  error_text text,
-  payload jsonb
-);
-create index if not exists idx_audit_errors_time on public.audit_errors(occurred_at);
-
-
 create or replace view public.system_audit_logs_view as
 select
   l.id,
@@ -72,7 +59,7 @@ from public.system_audit_logs l
 left join public.user_details u on l.user_id = u.id
 left join public.user_details tu on l.target_user_id = tu.id;
 
--- View for activity logs with user names
+-- view for activity logs with user names
 create or replace view public.activity_logs_view as
 select
   l.id,
@@ -91,7 +78,6 @@ from public.activity_logs l
 left join public.user_details u on l.user_id = u.id;
 
 
--- log system changes (for user-management/admin triggers)
 create or replace function public.log_system_change()
 returns trigger
 security definer
@@ -131,7 +117,6 @@ begin
     return coalesce(new, old);
   end if;
 
-  -- Add trigger metadata
   _details := _details || jsonb_build_object(
     'trigger_table_schema', tg_table_schema,
     'trigger_table_name', tg_table_name,
@@ -157,20 +142,13 @@ begin
     ) values (
       now(), _actor, _evt, _target, tg_table_name, _rec, lower(tg_op), _details
     );
-  exception when others then
-    begin
-      insert into public.audit_errors(function_name, error_text, payload)
-      values ('log_system_change', sqlerrm, jsonb_build_object('table', tg_table_name, 'rec', _rec));
-    exception when others then null; end;
-    return coalesce(new, old);
-  end;
 
   return coalesce(new, old);
+  end;
 end;
 $$;
 
 
--- log activity changes (for business tables)
 create or replace function public.log_activity_change()
 returns trigger
 security definer
@@ -184,7 +162,16 @@ declare
   _rec text;
   _actor uuid;
   _details jsonb;
+  _mfid_text text;
+  _collector_name text;
+  _old_collector_name text;
 begin
+
+  if nullif(current_setting('app.import_mode', true), '') = 'true' then
+    return coalesce(new, old);
+  end if;
+
+
   if tg_table_schema = 'auth' then return coalesce(new, old); end if;
 
   if tg_op = 'INSERT' then
@@ -196,7 +183,6 @@ begin
     _old := pg_catalog.to_jsonb(old);
     _new := pg_catalog.to_jsonb(new);
     _rec := coalesce(_new ->> 'id', _old ->> 'id');
-    -- special case: domain-level events
     if tg_table_name = 'field_activities' and (_old ->> 'verified') is distinct from (_new ->> 'verified') then
       _evt := 'field_activity_verified';
     else
@@ -217,6 +203,85 @@ begin
 
   begin
     _details := jsonb_build_object('trigger_table', tg_table_name, 'op', lower(tg_op));
+
+    if tg_table_name = 'field_activities' and _evt = 'field_activity_verified' then
+      with activity_data as (
+        select
+          fa.activity_type,
+          s.label as season_label,
+          f.mfid
+        from public.field_activities fa
+        join public.fields f on f.id = fa.field_id
+        left join public.seasons s on s.id = fa.season_id
+        where fa.id = (case when tg_op = 'DELETE' then old.id else new.id end)
+      )
+      select
+        coalesce(jsonb_agg(jsonb_build_object(
+          'activity_type', activity_type,
+          'season', season_label,
+          'mfid', mfid
+        )), '[]'::jsonb) -> 0
+      into _details
+      from activity_data;
+
+      _details := _details || jsonb_build_object(
+        'verification_status', _new->>'verification_status',
+        'verified_by', _new->>'verified_by',
+        'verified_at', _new->>'verified_at',
+        'remarks', _new->>'remarks'
+      );
+    end if;
+
+   if tg_table_name = 'collection_tasks' then
+      if tg_op = 'INSERT' then
+        select m.mfid, coalesce(u.raw_user_meta_data->>'full_name', u.email) as collector_name
+        into _mfid_text, _collector_name
+        from public.mfids m
+        left join auth.users u on u.id = new.collector_id
+        where m.id = new.mfid_id;
+
+      elsif tg_op = 'UPDATE' then
+        -- Get MFID text
+        select m.mfid into _mfid_text
+        from public.mfids m
+        where m.id = coalesce(new.mfid_id, old.mfid_id);
+
+        -- Get new collector name
+        if new.collector_id is not null then
+          select coalesce(u.raw_user_meta_data->>'full_name', u.email) into _collector_name
+          from auth.users u
+          where u.id = new.collector_id;
+        end if;
+
+        -- Get old collector name (only if collector changed)
+        if old.collector_id is distinct from new.collector_id then
+          select coalesce(u.raw_user_meta_data->>'full_name', u.email) into _old_collector_name
+          from auth.users u
+          where u.id = old.collector_id;
+        end if;
+
+      elsif tg_op = 'DELETE' then
+        select m.mfid, coalesce(u.raw_user_meta_data->>'full_name', u.email) as collector_name
+        into _mfid_text, _collector_name
+        from public.mfids m
+        left join auth.users u on u.id = old.collector_id
+        where m.id = old.mfid_id;
+      end if;
+
+      -- Add MFID to details
+      if _mfid_text is not null then
+        _details := _details || jsonb_build_object('mfid', _mfid_text);
+      end if;
+      -- Add current collector name
+      if _collector_name is not null then
+        _details := _details || jsonb_build_object('collector_name', _collector_name);
+      end if;
+      -- Add old collector name (for reassignment)
+      if _old_collector_name is not null then
+        _details := _details || jsonb_build_object('old_collector_name', _old_collector_name);
+      end if;
+    end if;
+
     if nullif(pg_catalog.current_setting('app.import_batch_id', true),'') is not null then
       _details := _details || jsonb_build_object('import_batch_id', pg_catalog.current_setting('app.import_batch_id', true));
     end if;
@@ -231,11 +296,8 @@ begin
       now(), _actor, _evt, tg_table_name, _rec, lower(tg_op), _old, _new, _details
     );
   exception when others then
-    begin
-      insert into public.audit_errors(function_name, error_text, payload)
-      values ('log_activity_change', sqlerrm, jsonb_build_object('table', tg_table_name, 'rec', _rec));
-    exception when others then null; end;
-    return coalesce(new, old);
+    -- Optionally log to a separate error table
+    raise warning 'Activity log insert failed: %', sqlerrm;
   end;
 
   return coalesce(new, old);
@@ -243,21 +305,15 @@ end;
 $$;
 
 
--- system audit: user table
+
 drop trigger if exists system_users_trigger on public.users;
 create trigger system_users_trigger
   after insert or update or delete on public.users
   for each row execute function public.log_system_change();
 
--- activity triggers (business tables)
-drop trigger if exists activity_farmers on public.farmers;
-create trigger activity_farmers
-  after insert or update or delete on public.farmers
-  for each row execute function public.log_activity_change();
-
-drop trigger if exists activity_fields on public.fields;
-create trigger activity_fields
-  after insert or update or delete on public.fields
+drop trigger if exists activity_collection_tasks on public.collection_tasks;
+create trigger activity_collection_tasks
+  after insert or update or delete on public.collection_tasks
   for each row execute function public.log_activity_change();
 
 drop trigger if exists activity_field_activities on public.field_activities;
@@ -266,32 +322,36 @@ create trigger activity_field_activities
   for each row execute function public.log_activity_change();
 
 
--- sync auth.audit_log_entries -> system_audit_logs (run this periodically)
 create or replace function public.sync_auth_audit_entries()
 returns integer
 language sql
+security definer
+set search_path = ''
 as $$
-insert into public.system_audit_logs(
-  occurred_at, user_id, event_type, target_user_id, table_name, record_id, action, details
-)
-select
-  created_at,
-  (payload->>'actor_id')::uuid,
-  coalesce(payload->>'action', payload->>'type', 'auth_event'),
-  nullif((payload->>'actor_id'), '')::uuid,
-  'auth.audit_log_entries',
-  (payload->>'actor_id')::text,
-  payload->>'action',
-  jsonb_build_object('entry_payload', payload, 'entry_id', auth.audit_log_entries.id)
-from auth.audit_log_entries
-where (payload->>'action') is not null
-  and not exists (
-    select 1 from public.system_audit_logs s where s.details->>'entry_id' = auth.audit_log_entries.id::text
-  )
-returning 1;
+    insert into public.system_audit_logs(
+        occurred_at, user_id, event_type, target_user_id, table_name, record_id, action, details
+    )
+    select
+        created_at,
+        (payload->>'actor_id')::uuid,
+        coalesce(payload->>'action', payload->>'type', 'auth_event'),
+        nullif((payload->>'actor_id'), '')::uuid,
+        'auth.audit_log_entries',
+        (payload->>'actor_id')::text,
+        payload->>'action',
+        jsonb_build_object('entry_payload', payload, 'entry_id', auth.audit_log_entries.id)
+    from auth.audit_log_entries
+    where payload->>'action' in ('login', 'logout', 'user_updated_password', 'user_recovery_requested')
+      and not exists (
+          select 1 from public.system_audit_logs s
+          where s.details->>'entry_id' = auth.audit_log_entries.id::text
+      )
+    returning 1;
 $$;
 
 
 create index if not exists idx_activity_logs_event_time on public.activity_logs(event_type, occurred_at);
 create index if not exists idx_system_audit_logs_event_type on public.system_audit_logs(event_type, occurred_at);
 
+
+SELECT cron.schedule( 'sync-auth-audit-5min', '*/5 * * * *', $$ SELECT public.sync_auth_audit_entries(); $$);

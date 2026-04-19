@@ -26,6 +26,7 @@ const UsersTableToolbar = memo(({
 }: UsersToolbarProps) => {
   return (
     <DefaultTableToolbar
+      className="w-full"
       onSearchChange={onSearchChange}
       actions={
         <UserFormDialog

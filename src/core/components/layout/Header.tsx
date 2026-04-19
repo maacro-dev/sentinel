@@ -15,6 +15,7 @@ import { generateFullReport } from "@/features/reports/report";
 import { Spinner } from "../ui/spinner";
 import { useQueryClient } from "@tanstack/react-query";
 import { NotificationsDropdown } from "@/features/notifications/components/NotificationsDropdown";
+import { getSupabase } from "@/core/supabase";
 
 interface LayoutHeaderProps extends ComponentProps<"header"> {
   breadcrumbs: Array<CrumbDef>;
@@ -35,7 +36,8 @@ export const LayoutHeader = memo(({ breadcrumbs, className, role, ...props }: La
     }
     setExporting(true);
     try {
-      await generateFullReport(seasonId, queryClient, user?.email || 'Unknown');
+      const supabase = await getSupabase();
+      await generateFullReport(seasonId, queryClient, supabase, user?.email || 'Unknown');
     } catch (err) {
       console.error('Export failed', err);
     } finally {

@@ -36,8 +36,6 @@ export class Mfid {
   static async create(payload: MfidFormPayload) {
     const client = await getSupabase()
 
-    console.log("Mfid.create - payload", payload)
-
     const { data, error } = await client.rpc('create_mfid', {
       p_municity: payload.city_municipality,
       p_province: payload.province,

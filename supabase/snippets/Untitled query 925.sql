@@ -1,1 +1,0 @@
-SELECT id FROM barangays WHERE name ILIKE 'Girado-Magsaysay';

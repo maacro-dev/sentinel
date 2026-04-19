@@ -31,7 +31,7 @@ schema_paths = []
 
 [db.seed]
 enabled = true
-sql_paths = [""]
+sql_paths = ['./seeds/*.sql']
 
 
 [realtime]

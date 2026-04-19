@@ -171,14 +171,14 @@ CREATE POLICY "Allow authenticated to insert activity logs" ON activity_logs AS 
 CREATE POLICY "Allow authenticated to update activity logs" ON activity_logs AS permissive
     FOR UPDATE TO authenticated USING (TRUE);
 
-CREATE POLICY "Allow authenticated to read audit errors" ON audit_errors AS permissive
-    FOR SELECT TO authenticated USING (TRUE);
+-- CREATE POLICY "Allow authenticated to read audit errors" ON audit_errors AS permissive
+--     FOR SELECT TO authenticated USING (TRUE);
 
-CREATE POLICY "Allow authenticated to insert audit errors" ON audit_errors AS permissive
-    FOR INSERT TO authenticated WITH CHECK (TRUE);
+-- CREATE POLICY "Allow authenticated to insert audit errors" ON audit_errors AS permissive
+--     FOR INSERT TO authenticated WITH CHECK (TRUE);
 
-CREATE POLICY "Allow authenticated to update audit errors" ON audit_errors AS permissive
-    FOR UPDATE TO authenticated USING (TRUE);
+-- CREATE POLICY "Allow authenticated to update audit errors" ON audit_errors AS permissive
+--     FOR UPDATE TO authenticated USING (TRUE);
 
 create policy "Allow authenticated to read tasks" on collection_tasks as permissive
     FOR SELECT TO authenticated USING (TRUE);
@@ -240,6 +240,8 @@ GRANT SELECT ON crop_establishments TO authenticated;
 GRANT SELECT ON fertilization_records TO authenticated;
 
 GRANT SELECT ON fertilizer_applications TO authenticated;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE collection_tasks to authenticated;
 
 GRANT SELECT ON harvest_records TO authenticated;
 

@@ -703,8 +703,13 @@ as $$
 declare
     v_activity_type text;
     v_result int;
+    v_mfid text;
+    v_season_label text;
+    v_collector_name text;
+    v_user_id uuid;
 begin
     v_activity_type := data->>'activity_type';
+
     case v_activity_type
         when 'field-data' then
             v_result := public.upload_field_data(data);
@@ -719,6 +724,51 @@ begin
         else
             raise exception 'Unsupported activity_type: %', v_activity_type;
     end case;
+
+    begin
+        v_user_id := nullif(current_setting('app.current_user_id', true), '')::uuid;
+        if v_user_id is null then
+            v_user_id := auth.uid();
+        end if;
+    exception when others then
+        v_user_id := auth.uid();
+    end;
+
+    select m.mfid, s.label, coalesce(u.raw_user_meta_data->>'full_name', u.email)
+    into v_mfid, v_season_label, v_collector_name
+    from public.fields f
+    join public.mfids m on m.id = f.mfid_id
+    left join public.seasons s on s.id = (data->>'season_id')::int
+    left join auth.users u on u.id = (data->>'collected_by')::uuid
+    where f.id = (data->>'field_id')::int;
+
+    insert into public.activity_logs (
+        occurred_at,
+        user_id,
+        event_type,
+        table_name,
+        record_id,
+        action,
+        old_data,
+        new_data,
+        details
+    ) values (
+        now(),
+        v_user_id,
+        'form_data_collected',
+        v_activity_type,
+        v_result::text,
+        'insert',
+        null,
+        jsonb_build_object('id', v_result, 'activity_type', v_activity_type),
+        jsonb_build_object(
+            'mfid', v_mfid,
+            'season', v_season_label,
+            'collector_name', v_collector_name,
+            'submitted_at', data->>'collected_at'
+        )
+    );
+
     return v_result;
 end;
 $$;
