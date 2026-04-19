@@ -56,7 +56,7 @@ create or replace function create_collection_task(
 returns int
 language plpgsql
 security definer
-set search_path = ''
+set search_path = 'public'
 as $$
 declare
   v_mfid_id int;
@@ -145,4 +145,28 @@ begin
     raise exception 'Collection task % not found', p_task_id;
   end if;
 end;
+$$;
+
+
+CREATE OR REPLACE FUNCTION public.update_task_status(
+    task_id INT,
+    new_status TEXT DEFAULT 'completed'
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.collection_tasks
+    SET status = new_status,
+        updated_at = NOW()
+    WHERE id = task_id
+      AND status = 'pending'
+      AND collector_id = auth.uid();
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Task not found, already completed, or not owned by user';
+    END IF;
+END;
 $$;

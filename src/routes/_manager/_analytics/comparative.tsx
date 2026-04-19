@@ -260,7 +260,11 @@ function RouteComponent() {
 
   const comparisonMap = {
     'yield-location': { data: yieldLocationCompare.data, stats: yieldLocationCompare.comparisonStats, },
-    'yield-method': { data: yieldMethodCompare.data, stats: yieldMethodCompare.comparisonStats, },
+    'yield-method': {
+      data: yieldMethodCompare.data,
+      stats: yieldMethodCompare.comparisonStats,
+      compareRanking: yieldMethodCompare.compareRanking,
+    },
     'yield-variety': { data: yieldVarietyCompare.data, stats: yieldVarietyCompare.comparisonStats, },
     'damage-location': { data: damageLocationCompare.data, stats: damageLocationCompare.comparisonStats },
     'damage-cause': { data: damageCauseCompare.data, stats: damageCauseCompare.comparisonStats },
@@ -269,6 +273,7 @@ function RouteComponent() {
   if (isLoading || !activeData) {
     return <PendingComponent />
   }
+
 
   return (
     <PageContainer>
@@ -299,6 +304,7 @@ function RouteComponent() {
           isLoading={isLoading}
           {...(view === 'yield-location' ? { level } : {})}
           compareData={comparisonMap[view]?.data}
+          compareRanking={comparisonMap[view]?.compareRanking}
           currentSeasonLabel={currentSeasonLabel}
           compareSeasonLabel={compareSeasonLabel}
           comparisonStats={comparisonMap[view]?.stats}

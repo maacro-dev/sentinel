@@ -1,6 +1,6 @@
 
 create or replace view public.field_activity_details
-with (security_invoker = true) as
+ as
 select
     case fa.activity_type
         when 'field-data' then
@@ -92,7 +92,7 @@ left join public.field_activities fa_original on ct_original.id = fa_original.co
 
 
 create or replace view collection_details
-with (security_invoker = true) as
+ as
 select
     s.start_date                            as season_start_date,
     s.end_date                              as season_end_date,
@@ -237,7 +237,7 @@ $$;
 
 
 create or replace view seasons_with_data
-with (security_invoker = true) as
+ as
     select distinct s.*
     from seasons s
     join field_activities fa on fa.season_id = s.id;

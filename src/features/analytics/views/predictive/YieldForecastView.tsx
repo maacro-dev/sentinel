@@ -84,8 +84,8 @@ export function YieldForecastView({
   }, [data.extrapolated_forecast, data.harvest_order]);
 
   return (
-    <div className='flex gap-4'>
-      <div className='w-full max-w-56 flex-col'>
+    <div className='flex flex-col gap-4'>
+      <div className='w-full'>
         <PredictiveFilters
           location={location}
           onLocationChange={onLocationChange}
@@ -103,7 +103,7 @@ export function YieldForecastView({
           prefetchLocationData={prefetchLocationData || (() => {})}
           prefetchMoreFilterData={prefetchMoreFilterData}
         />
-        <Button className="w-full text-sm gap-1.5 mt-6" onClick={() => predictForms()} disabled={isPredicting}>
+        <Button variant={"outline"} className="w-full text-sm gap-1.5 mt-6" onClick={() => predictForms()} disabled={isPredicting}>
           {isPredicting ? (<RefreshCw className="size-3 animate-spin" />) : (<RefreshCw className="size-3" />)}
           {isPredicting ? "Predicting..." : "Predict Available Forms"}
         </Button>

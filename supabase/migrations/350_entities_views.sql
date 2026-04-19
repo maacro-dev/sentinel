@@ -1,6 +1,6 @@
 
 create or replace view latest_season
-with (security_invoker = true) as
+ as
     select *
     from seasons s
     where now() between s.start_date and s.end_date
@@ -9,7 +9,7 @@ with (security_invoker = true) as
 
 
 create or replace view public.field_details
-with (security_invoker = true) as
+ as
 select
     fd.id as field_id,
     m.mfid,
@@ -29,7 +29,7 @@ join public.provinces p on p.id = cm.province_id;
 
 
 create or replace view public.mfid_details
-with (security_invoker = true) as
+ as
 select
     case
         when m.used_at is null

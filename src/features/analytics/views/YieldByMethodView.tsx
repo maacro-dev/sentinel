@@ -36,21 +36,20 @@ export function YieldByMethodView({
 
   const barKeys = hasComparison
     ? [
-        { key: "current", name: currentSeasonLabel!, color: "var(--color-humay)" },
-        { key: "compare", name: compareSeasonLabel!, color: "var(--color-humay-light)" },
-      ]
+      { key: "current", name: currentSeasonLabel!, color: "var(--color-humay)" },
+      { key: "compare", name: compareSeasonLabel!, color: "var(--color-humay-light)" },
+    ]
     : [
-        { key: "current", name: currentSeasonLabel ?? "Yield (t/ha)", color: "var(--color-humay)" },
-      ];
+      { key: "current", name: currentSeasonLabel ?? "Yield (t/ha)", color: "var(--color-humay)" },
+    ];
 
   const chartData = hasComparison
     ? compareData
     : data.ranking.map(item => ({
-        method: item.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted',
-        current: Number(item.yield.toFixed(2)),
-      }));
+      method: item.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted',
+      current: Number(item.yield.toFixed(2)),
+    }));
 
-  // Current season stats
   const highestCurrent = data.highest_method;
   const directSeededCurrent = data.ranking.find(m => m.method === 'direct-seeded');
   const transplantedCurrent = data.ranking.find(m => m.method === 'transplanted');
@@ -58,7 +57,6 @@ export function YieldByMethodView({
   const tpCountCurrent = transplantedCurrent?.count ?? 0;
   const gapCurrent = data.gap_percentage;
 
-  // Comparison season stats
   let highestCompare = null;
   let dsCountCompare = 0;
   let tpCountCompare = 0;
@@ -81,12 +79,12 @@ export function YieldByMethodView({
 
   const stats = hasComparison
     ? comparisonStats || {
-        currentAvg: data.average_yield,
-        // @ts-ignore
-        compareAvg: compareData.reduce((sum, item) => sum + (item.compare || 0), 0) / compareData.length,
-        diffPercent: "0",
-        higher: true,
-      }
+      currentAvg: data.average_yield,
+      // @ts-ignore
+      compareAvg: compareData.reduce((sum, item) => sum + (item.compare || 0), 0) / compareData.length,
+      diffPercent: "0",
+      higher: true,
+    }
     : null;
 
   return (
@@ -109,8 +107,10 @@ export function YieldByMethodView({
               subtitle="Method with highest yield"
               currentValue={highestCurrent ? highestCurrent.value : 0}
               currentUnit="t/ha"
+              currentMeta={highestCurrent?.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}
               compareValue={highestCompare?.value ?? 0}
               compareUnit="t/ha"
+              compareMeta={highestCompare?.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}
               currentLabel={currentSeasonLabel!}
               compareLabel={compareSeasonLabel!}
             />

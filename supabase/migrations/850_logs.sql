@@ -33,7 +33,7 @@ create index if not exists idx_activity_logs_user on public.activity_logs(user_i
 create index if not exists idx_activity_logs_record on public.activity_logs(table_name, record_id);
 
 create or replace view public.system_audit_logs_view
-with (security_invoker = true) as
+ as
 select
   l.id,
   l.occurred_at,
@@ -59,7 +59,7 @@ left join public.user_details u on l.user_id = u.id
 left join public.user_details tu on l.target_user_id = tu.id;
 
 create or replace view public.activity_logs_view
-with (security_invoker = true) as
+ as
 select
   l.id,
   l.occurred_at,

@@ -12,7 +12,7 @@ create index idx_py_season_id on predicted_yields(season_id);
 
 
 create or replace view public.flattened_field_data
-with (security_invoker = true) as
+ as
 with
 base as (
   select

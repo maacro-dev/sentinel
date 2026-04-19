@@ -25,7 +25,7 @@ create index idx_barangays_city_municipality_id on barangays using btree(city_mu
 
 
 create or replace view addresses
-with (security_invoker = true) as
+ as
     select
         barangays.id as barangay_id,
         barangays.name as barangay,

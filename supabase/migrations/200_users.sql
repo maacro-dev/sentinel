@@ -10,7 +10,7 @@ create table users(
 );
 
 create or replace view user_details
-with (security_invoker = true) as
+ as
     select
         v_user.*,
         auth_user.email,
@@ -19,7 +19,7 @@ with (security_invoker = true) as
     join auth.users auth_user on v_user.id = auth_user.id;
 
 create view public.user_backup_view
-with (security_invoker = true) as
+ as
     select
         v_user.id,
         v_user.role,

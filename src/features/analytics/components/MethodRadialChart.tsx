@@ -73,7 +73,10 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
   return (
     <RadialChart
       data={chartData}
-      header={{ title: 'Establishment Method', description: 'Most used method this season' }}
+      header={{
+        title: 'Establishment Method',
+        description: 'Most used method this season (includes fields without yield)',
+      }}
       config={chartConfig}
       isEmpty={total === 0}
       containerClass="mx-auto h-fit w-full max-w-55"

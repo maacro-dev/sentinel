@@ -10,8 +10,8 @@ import { useYieldForecast, yieldForecastOptions } from '@/features/analytics/hoo
 import { YieldForecastView } from '@/features/analytics/views/predictive/YieldForecastView';
 import { useAvailableLocationsForPredictions } from '@/features/mfid/hooks/useAvailableLocations';
 import { useRiceVarieties, useSoilTypes } from '@/features/analytics/hooks/useRiceVarieties';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/components/ui/tabs';
 import { YearlyOverviewView } from '@/features/analytics/views/predictive/YieldOverviewView';
+import { Separator } from '@/core/components/ui/separator';
 
 export const Route = createFileRoute("/_manager/_analytics/predictive")({
   component: RouteComponent,
@@ -143,38 +143,64 @@ function RouteComponent() {
 
   return (
     <PageContainer>
-      <Tabs defaultValue="overview">
-        <TabsList variant="line">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="forecast">Forecast</TabsTrigger>
-        </TabsList>
-        <TabsContent value='overview'>
-          <YearlyOverviewView />
-        </TabsContent>
-        <TabsContent value='forecast'>
-          <YieldForecastView
-            data={forecastData!}
-            seasonId={seasonId}
-            location={location}
-            onLocationChange={handleLocationChange}
-            moreFilters={moreFilters}
-            onMoreFiltersChange={handleMoreFiltersChange}
-            onResetAll={resetAll}
-            provinceOptions={provinceOptions}
-            municipalityOptions={municipalityOptions}
-            barangayOptions={barangayOptions}
-            riceVarietyOptions={riceVarietyOptions}
-            soilTypeOptions={soilTypeOptions}
-            isLoadingProvinces={locationsLoading}
-            isLoadingMunicipalities={locationsLoading}
-            isLoadingBarangays={locationsLoading}
-            prefetchLocationData={prefetchLocationData}
-            prefetchMoreFilterData={prefetchMoreFilterData}
-          />
-        </TabsContent>
-      </Tabs>
+      <YieldForecastView
+        data={forecastData!}
+        seasonId={seasonId}
+        location={location}
+        onLocationChange={handleLocationChange}
+        moreFilters={moreFilters}
+        onMoreFiltersChange={handleMoreFiltersChange}
+        onResetAll={resetAll}
+        provinceOptions={provinceOptions}
+        municipalityOptions={municipalityOptions}
+        barangayOptions={barangayOptions}
+        riceVarietyOptions={riceVarietyOptions}
+        soilTypeOptions={soilTypeOptions}
+        isLoadingProvinces={locationsLoading}
+        isLoadingMunicipalities={locationsLoading}
+        isLoadingBarangays={locationsLoading}
+        prefetchLocationData={prefetchLocationData}
+        prefetchMoreFilterData={prefetchMoreFilterData}
+      />
+      {/* <Separator /> */}
+
+      <YearlyOverviewView />
     </PageContainer>
   );
+  // return (
+  //   <PageContainer>
+  //     <Tabs defaultValue="overview">
+  //       <TabsList variant="line">
+  //         <TabsTrigger value="overview">Overview</TabsTrigger>
+  //         <TabsTrigger value="forecast">Forecast</TabsTrigger>
+  //       </TabsList>
+  //       <TabsContent value='overview'>
+  //         <YearlyOverviewView />
+  //       </TabsContent>
+  //       <TabsContent value='forecast'>
+  //         <YieldForecastView
+  //           data={forecastData!}
+  //           seasonId={seasonId}
+  //           location={location}
+  //           onLocationChange={handleLocationChange}
+  //           moreFilters={moreFilters}
+  //           onMoreFiltersChange={handleMoreFiltersChange}
+  //           onResetAll={resetAll}
+  //           provinceOptions={provinceOptions}
+  //           municipalityOptions={municipalityOptions}
+  //           barangayOptions={barangayOptions}
+  //           riceVarietyOptions={riceVarietyOptions}
+  //           soilTypeOptions={soilTypeOptions}
+  //           isLoadingProvinces={locationsLoading}
+  //           isLoadingMunicipalities={locationsLoading}
+  //           isLoadingBarangays={locationsLoading}
+  //           prefetchLocationData={prefetchLocationData}
+  //           prefetchMoreFilterData={prefetchMoreFilterData}
+  //         />
+  //       </TabsContent>
+  //     </Tabs>
+  //   </PageContainer>
+  // );
 }
 
 function PendingComponent() {

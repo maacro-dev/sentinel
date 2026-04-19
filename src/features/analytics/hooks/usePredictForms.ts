@@ -14,6 +14,7 @@ export const usePredictForms = (seasonId?: number) => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['yield-forecast'] });
       queryClient.invalidateQueries({ queryKey: ['predicted-yield-by-location'] });
+      queryClient.invalidateQueries({ queryKey: ['available-locations-for-predictions'] })
     }
   });
 };

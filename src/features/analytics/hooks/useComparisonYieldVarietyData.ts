@@ -52,5 +52,11 @@ export function useComparisonYieldVarietyData(filters: {
     };
   }, [current.data, compare.data]);
 
-  return { data: groupedData, comparisonStats, isLoading, error };
+  return {
+    data: groupedData,
+    comparisonStats,
+    compareRanking: compare.data?.ranking,
+    isLoading,
+    error
+  };
 }

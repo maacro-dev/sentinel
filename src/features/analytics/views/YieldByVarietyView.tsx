@@ -14,7 +14,7 @@ export function YieldByVarietyView({
   comparisonStats,
 }: {
   data: YieldVarietyData;
-  compareData?: any; // array of { variety, current, compare }
+  compareData?: any;
   currentSeasonLabel?: string | null;
   compareSeasonLabel?: string | null;
   comparisonStats?: {
@@ -24,11 +24,10 @@ export function YieldByVarietyView({
     higher: boolean;
   };
 }) {
+
   const hasComparison = !!compareData?.length && currentSeasonLabel && compareSeasonLabel;
 
-  // Single season mode: show all varieties directly
   if (!hasComparison) {
-    // Transform data.ranking into chart data
     const chartData = data.ranking.map(item => ({
       variety: item.variety,
       current: Number(item.yield.toFixed(2)),
@@ -38,7 +37,6 @@ export function YieldByVarietyView({
       { key: "current", name: currentSeasonLabel ?? "Yield (t/ha)", color: "var(--color-humay)" },
     ];
 
-    // Compute insight text (similar to original but based on varieties directly)
     const insightContent = useMemo(() => {
       const varietiesWithData = data.ranking.filter(item => item.yield > 0);
       if (varietiesWithData.length === 0) return "No yield data available for any variety.";
@@ -72,7 +70,7 @@ export function YieldByVarietyView({
           <StatCardMinimal
             title="Highest Yield"
             subtitle={data.highest_variety?.variety ?? 'N/A'}
-            current_value={data.highest_variety?.yield ? Number(data.highest_variety.yield.toFixed(2)) : 0}
+            current_value={data.highest_variety?.value ? Number(data.highest_variety.value.toFixed(2)) : 0}
             unit="t/ha"
           />
         </div>
@@ -99,20 +97,25 @@ export function YieldByVarietyView({
     );
   }
 
-  // Comparison mode (two seasons)
   const barKeys = [
     { key: "current", name: currentSeasonLabel!, color: "var(--color-humay)" },
     { key: "compare", name: compareSeasonLabel!, color: "var(--color-humay-light)" },
   ];
 
   const currentHighest = data.ranking.reduce((max, item) => item.yield > max.yield ? item : max, { yield: 0, variety: '' });
-  const compareHighest = compareData.reduce((max, item) => item.compare > max.compare ? { yield: item.compare, variety: item.variety } : max, { yield: 0, variety: '' });
+  const compareHighest = compareData.reduce(
+    (max, item) => item.compare > max.compare ? { compare: item.compare, variety: item.variety } : max,
+    { compare: 0, variety: '' }
+  );
   const stats = comparisonStats || {
     currentAvg: data.average_yield,
     compareAvg: compareData.reduce((sum, item) => sum + (item.compare || 0), 0) / compareData.length,
     diffPercent: "0",
     higher: true,
   };
+
+  console.log('compareData:', compareData);
+  console.log('compareHighest:', compareHighest);
 
   return (
     <div className="flex flex-col gap-4">
@@ -132,7 +135,7 @@ export function YieldByVarietyView({
           subtitle="Variety"
           currentValue={currentHighest.yield}
           currentUnit="t/ha"
-          compareValue={compareHighest.yield}
+          compareValue={compareHighest.compare}
           compareUnit="t/ha"
           currentLabel={currentSeasonLabel!}
           compareLabel={compareSeasonLabel!}

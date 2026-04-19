@@ -20,6 +20,7 @@ export function useComparisonYieldMethodData(filters: {
     enabled: !!filters.compareSeasonId,
   });
 
+
   const isLoading = current.isLoading || compare.isLoading;
   const error = current.error || compare.error;
 
@@ -49,5 +50,11 @@ export function useComparisonYieldMethodData(filters: {
     };
   }, [current.data, compare.data]);
 
-  return { data: groupedData, comparisonStats, isLoading, error };
+  return {
+    data: groupedData,
+    comparisonStats,
+    compareRanking: compare.data?.ranking,
+    isLoading,
+    error
+  };
 }

@@ -157,7 +157,7 @@ export function ComparativeToolbar({
       <div className="flex flex-wrap items-end gap-2 ">
         <div className="flex items-center mb-2 mr-1.5 ">
           <TooltipProvider>
-            <Tooltip delayDuration={300}>
+            <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="size-4 text-muted-foreground/75 cursor-help" />
               </TooltipTrigger>

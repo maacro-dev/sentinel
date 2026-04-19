@@ -8,6 +8,7 @@ import {
 } from "@/core/components/ui/card";
 import { ChangeBadge } from "./ChangeBadge";
 import { Stat } from "../types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
 
 export interface StatCardProps extends Omit<Stat, "percent_change"> {
   percent_change?: number | undefined;
@@ -86,6 +87,7 @@ export const StatCardMinimal = memo(({ title, subtitle, current_value, unit }: S
   );
 });
 
+
 interface StatCardComparisonProps {
   title: string;
   subtitle: string;
@@ -95,9 +97,58 @@ interface StatCardComparisonProps {
   compareUnit: string;
   currentLabel: string;
   compareLabel: string;
+  currentMeta?: string;
+  compareMeta?: string;
 }
 
-export const StatCardComparison = memo(({ title, subtitle, currentValue, currentUnit, compareValue, compareUnit, currentLabel, compareLabel }: StatCardComparisonProps) => {
+export const StatCardComparison = memo(({
+  title,
+  subtitle,
+  currentValue,
+  currentUnit,
+  compareValue,
+  compareUnit,
+  currentLabel,
+  compareLabel,
+  currentMeta,
+  compareMeta,
+}: StatCardComparisonProps) => {
+  const renderRow = (
+    label: string,
+    value: number,
+    unit: string,
+    meta?: string
+  ) => {
+    // Format as integer if no unit (e.g., record counts), otherwise two decimals
+    const displayValue = unit === "" ? value.toFixed(0) : value.toFixed(2);
+    const hasMeta = !!meta;
+
+    return (
+      <div className="flex justify-between items-baseline">
+        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+        <div className="flex items-baseline gap-1">
+          {hasMeta ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-sm font-semibold cursor-help">{meta}</span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  {displayValue} {unit}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <div className="space-x-1">
+              <span className="font-semibold text-lg">{displayValue}</span>
+              {unit && <span className="text-5xs font-light text-muted-foreground">{unit}</span>}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card className="flex-1 h-full min-h-36 flex flex-col gap-2.5 justify-between rounded-container hover:shadow-sm transition-all">
       <CardHeader className="flex flex-col gap-0.5 lt:gap-1 dt:gap-1.5">
@@ -105,20 +156,8 @@ export const StatCardComparison = memo(({ title, subtitle, currentValue, current
         <CardDescription className="text-left font-light text-muted-foreground">{subtitle}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
-        <div className="flex justify-between items-baseline">
-          <span className="text-xs font-medium text-muted-foreground">{currentLabel}</span>
-          <div className="space-x-1">
-            <span className="font-semibold text-lg">{currentValue.toFixed(2)}</span>
-            <span className="text-5xs font-light text-muted-foreground">{currentUnit}</span>
-          </div>
-        </div>
-        <div className="flex justify-between items-baseline">
-          <span className="text-xs font-medium text-muted-foreground">{compareLabel}</span>
-          <div className="space-x-1">
-            <span className="font-semibold text-lg">{compareValue.toFixed(2)}</span>
-            <span className="text-5xs font-light text-muted-foreground">{compareUnit}</span>
-          </div>
-        </div>
+        {renderRow(currentLabel, currentValue, currentUnit, currentMeta)}
+        {renderRow(compareLabel, compareValue, compareUnit, compareMeta)}
       </CardContent>
     </Card>
   );

@@ -1900,6 +1900,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_task_status: {
+        Args: { new_status?: string; task_id: number }
+        Returns: undefined
+      }
       upload_cultural_management: { Args: { data: Json }; Returns: number }
       upload_damage_assessment: { Args: { data: Json }; Returns: number }
       upload_field_data: { Args: { data: Json }; Returns: number }

@@ -3,6 +3,8 @@ import { Label } from '@/core/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/core/components/ui/select';
 import { Sanitizer } from '@/core/utils/sanitizer';
 import { LocationFilters, MoreFilters } from '../types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
+import { Info } from 'lucide-react';
 
 interface PredictiveFiltersProps {
   location: LocationFilters;
@@ -31,20 +33,40 @@ export function PredictiveFilters({
   prefetchLocationData, prefetchMoreFilterData
 }: PredictiveFiltersProps) {
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex gap-4 w-full items-center">
       {/* Province */}
+      <div className="flex items-center h-fit mt-4.5">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="size-4 text-muted-foreground/75 cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">Locations with no data are not included in the options.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Province</Label>
-        <Select value={location.province} onValueChange={(val) => onLocationChange('province', val === 'all' ? '' : val)} disabled={isLoadingProvinces}>
-          <SelectTrigger className="w-full h-8 text-2xs">
+        <Select
+          value={location.province}
+          onValueChange={(val) => onLocationChange('province', val === 'all' ? '' : val)}
+          disabled={isLoadingProvinces}
+        >
+          <SelectTrigger className="w-37.5 h-8 text-2xs">
             <SelectValue placeholder="All Provinces" />
           </SelectTrigger>
           <SelectContent position='popper' className="max-h-96">
             <SelectGroup>
-              <SelectItem value="all">All Provinces</SelectItem>
+              <SelectItem className="rounded-lg text-3xs lt:text-2xs hd:text-xs" value="all">All Provinces</SelectItem>
               <SelectLabel>Provinces</SelectLabel>
               {provinces.map(p => (
-                <SelectItem key={p.value} value={p.value} onMouseEnter={() => prefetchLocationData(p.value, undefined, undefined)}>
+                <SelectItem
+                  className="rounded-lg text-3xs lt:text-2xs hd:text-xs"
+                  value={p.value}
+                  onMouseEnter={() => prefetchLocationData(p.value, undefined, undefined)}
+                >
                   {p.label}
                 </SelectItem>
               ))}
@@ -53,19 +75,26 @@ export function PredictiveFilters({
         </Select>
       </div>
 
-      {/* Municipality */}
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Municipality</Label>
-        <Select value={location.municipality} onValueChange={(val) => onLocationChange('municipality', val === 'all' ? '' : val)} disabled={!location.province || isLoadingMunicipalities}>
-          <SelectTrigger className="w-full h-8 text-2xs">
+        <Select
+          value={location.municipality}
+          onValueChange={(val) => onLocationChange('municipality', val === 'all' ? '' : val)}
+          disabled={!location.province || isLoadingMunicipalities}
+        >
+          <SelectTrigger className="w-37.5 h-8 text-2xs">
             <SelectValue placeholder="All Municipalities" />
           </SelectTrigger>
           <SelectContent position='popper' className="max-h-96">
             <SelectGroup>
-              <SelectItem value="all">All Municipalities</SelectItem>
+              <SelectItem className="rounded-lg text-3xs lt:text-2xs hd:text-xs" value="all">All Municipalities</SelectItem>
               <SelectLabel>Municipalities</SelectLabel>
               {municipalities.map(m => (
-                <SelectItem key={m.value} value={m.value} onMouseEnter={() => prefetchLocationData(location.province, m.value, undefined)}>
+                <SelectItem
+                  key={m.value}
+                  value={m.value}
+                  onMouseEnter={() => prefetchLocationData(location.province, m.value, undefined)}
+                >
                   {m.label}
                 </SelectItem>
               ))}
@@ -74,11 +103,14 @@ export function PredictiveFilters({
         </Select>
       </div>
 
-      {/* Barangay */}
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Barangay</Label>
-        <Select value={location.barangay} onValueChange={(val) => onLocationChange('barangay', val === 'all' ? '' : val)} disabled={!location.municipality || isLoadingBarangays}>
-          <SelectTrigger className="w-full h-8 text-2xs">
+        <Select
+          value={location.barangay}
+          onValueChange={(val) => onLocationChange('barangay', val === 'all' ? '' : val)}
+          disabled={!location.municipality || isLoadingBarangays}
+        >
+          <SelectTrigger className="w-37.5 h-8 text-2xs">
             <SelectValue placeholder="All Barangays" />
           </SelectTrigger>
           <SelectContent position='popper' className="max-h-96">
@@ -86,7 +118,11 @@ export function PredictiveFilters({
               <SelectItem value="all">All Barangays</SelectItem>
               <SelectLabel>Barangays</SelectLabel>
               {barangays.map(b => (
-                <SelectItem key={b.value} value={b.value} onMouseEnter={() => prefetchLocationData(location.province, location.municipality, b.value)}>
+                <SelectItem
+                  key={b.value}
+                  value={b.value}
+                  onMouseEnter={() => prefetchLocationData(location.province, location.municipality, b.value)}
+                >
                   {b.label}
                 </SelectItem>
               ))}
