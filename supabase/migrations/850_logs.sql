@@ -1,5 +1,4 @@
 
--- system audit logs (admin/user management events)
 create table if not exists public.system_audit_logs (
   id bigserial primary key,
   occurred_at timestamptz not null default now(),
@@ -16,7 +15,6 @@ create index if not exists idx_system_audit_logs_time on public.system_audit_log
 create index if not exists idx_system_audit_logs_user on public.system_audit_logs(user_id);
 create index if not exists idx_system_audit_logs_target on public.system_audit_logs(target_user_id);
 
--- activity logs (business/application events)
 create table if not exists public.activity_logs (
   id bigserial primary key,
   occurred_at timestamptz not null default now(),
@@ -34,7 +32,8 @@ create index if not exists idx_activity_logs_time on public.activity_logs(occurr
 create index if not exists idx_activity_logs_user on public.activity_logs(user_id);
 create index if not exists idx_activity_logs_record on public.activity_logs(table_name, record_id);
 
-create or replace view public.system_audit_logs_view as
+create or replace view public.system_audit_logs_view
+with (security_invoker = true) as
 select
   l.id,
   l.occurred_at,
@@ -59,8 +58,8 @@ from public.system_audit_logs l
 left join public.user_details u on l.user_id = u.id
 left join public.user_details tu on l.target_user_id = tu.id;
 
--- view for activity logs with user names
-create or replace view public.activity_logs_view as
+create or replace view public.activity_logs_view
+with (security_invoker = true) as
 select
   l.id,
   l.occurred_at,
@@ -316,10 +315,10 @@ create trigger activity_collection_tasks
   after insert or update or delete on public.collection_tasks
   for each row execute function public.log_activity_change();
 
-drop trigger if exists activity_field_activities on public.field_activities;
-create trigger activity_field_activities
-  after insert or update or delete on public.field_activities
-  for each row execute function public.log_activity_change();
+-- drop trigger if exists activity_field_activities on public.field_activities;
+-- create trigger activity_field_activities
+--   after insert or update or delete on public.field_activities
+--   for each row execute function public.log_activity_change();
 
 
 create or replace function public.sync_auth_audit_entries()

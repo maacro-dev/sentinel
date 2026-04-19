@@ -112,33 +112,6 @@ export function getSystemAuditDescription(log: SystemAuditLog): string {
 
 export function getActivityDescription(log: ActivityLog): string {
   switch (log.event_type) {
-    case 'farmers_created':
-      const firstName = log.new_data?.first_name || '';
-      const lastName = log.new_data?.last_name || '';
-      return `Added farmer ${firstName} ${lastName}`.trim() || 'Created new farmer.';
-
-    case 'farmers_updated':
-      return `Updated farmer record ${log.record_id}.`;
-
-    case 'fields_created':
-      const mfid = log.new_data?.mfid || log.record_id;
-      return `Created new field with MFID ${mfid}.`;
-
-    case 'fields_updated':
-      return `Updated field ${log.record_id}.`;
-
-    case 'field_activities_created':
-      return `Submitted ${log.table_name} form (ID: ${log.record_id}).`;
-
-    case 'field_activities_updated':
-      if (log.new_data?.verification_status && log.old_data?.verification_status !== log.new_data?.verification_status) {
-        return `Form ${log.record_id} ${log.new_data.verification_status}.`;
-      }
-      return `Updated ${log.table_name} form (ID: ${log.record_id}).`;
-
-    case 'field_activities_deleted':
-      return `Deleted ${log.table_name} form (ID: ${log.record_id}).`;
-
     case 'import_completed': {
       const importedCount = log.details?.imported_count ?? 0;
       const fileName = log.details?.file_name || 'file';

@@ -16,11 +16,6 @@ create index idx_notifications_target_role on public.notifications(target_role);
 
 alter publication supabase_realtime add table public.notifications;
 
-alter table public.notifications enable row level security;
-
-create policy "Users can view notifications" on public.notifications for select to authenticated using (true);
-
-create policy "Only triggers can insert" on public.notifications for insert with check (false);
 
 
 create or replace function notify_new_task()

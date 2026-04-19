@@ -36,10 +36,15 @@ declare
     v_dob date := nullif(p_farmer_dob, '')::date;
     v_cellphone text := nullif(trim(p_farmer_cellphone), '');
     v_is_open boolean;
-    v_farmer_name text;
+    v_farmer_full_name text;
+    v_user_id uuid;
 begin
-    -- Set the actor for activity logging
-    perform set_config('app.current_user_id', auth.uid()::text, true);
+    begin
+        v_user_id := auth.uid();
+        perform set_config('app.current_user_id', v_user_id::text, true);
+    exception when others then
+        v_user_id := null;
+    end;
 
     select cm.code
     into municipal_code
@@ -69,10 +74,7 @@ begin
     insert into public.mfids(mfid) values (new_mfid)
     returning id into new_mfid_id;
 
-    -- Determine if this is an "open" or "assigned" MFID
-    v_is_open := (v_barangay_name is null or v_first_name is null or v_last_name is null);
-
-    if not v_is_open then
+    if v_barangay_name is not null then
         select id into v_barangay_id
         from public.barangays
         where name = v_barangay_name
@@ -82,38 +84,45 @@ begin
             raise exception 'Barangay "%" not found', v_barangay_name;
         end if;
 
-        select id into v_farmer_id
-        from public.farmers
-        where first_name = v_first_name and last_name = v_last_name
-        limit 1;
+        if v_first_name is not null and v_last_name is not null then
+            select id into v_farmer_id
+            from public.farmers
+            where first_name = v_first_name and last_name = v_last_name
+            limit 1;
 
-        if v_farmer_id is null then
-            insert into public.farmers (first_name, last_name, gender, date_of_birth, cellphone_no)
-            values (v_first_name, v_last_name, v_gender, v_dob, v_cellphone)
-            returning id into v_farmer_id;
+            if v_farmer_id is null then
+                insert into public.farmers (first_name, last_name, gender, date_of_birth, cellphone_no)
+                values (v_first_name, v_last_name, v_gender, v_dob, v_cellphone)
+                returning id into v_farmer_id;
+            else
+                update public.farmers
+                set gender = coalesce(v_gender, gender),
+                    date_of_birth = coalesce(v_dob, date_of_birth),
+                    cellphone_no = coalesce(v_cellphone, cellphone_no),
+                    updated_at = now()
+                where id = v_farmer_id;
+            end if;
+
+            v_farmer_full_name := v_first_name || ' ' || v_last_name;
+
+            update public.mfids
+            set used_at = now()
+            where id = new_mfid_id;
+
+            v_is_open := false;
         else
-            update public.farmers
-            set gender = coalesce(v_gender, gender),
-                date_of_birth = coalesce(v_dob, date_of_birth),
-                cellphone_no = coalesce(v_cellphone, cellphone_no),
-                updated_at = now()
-            where id = v_farmer_id;
+            v_is_open := true;
         end if;
-
-        v_farmer_name := v_first_name || ' ' || v_last_name;
-
-        update public.mfids
-        set used_at = now()
-        where id = new_mfid_id;
 
         insert into public.fields (mfid_id, barangay_id, farmer_id)
         values (new_mfid_id, v_barangay_id, v_farmer_id)
         on conflict (mfid_id) do update
         set barangay_id = excluded.barangay_id,
             farmer_id = coalesce(excluded.farmer_id, fields.farmer_id);
+    else
+        v_is_open := true;
     end if;
 
-    -- Insert activity log entry
     insert into public.activity_logs (
         occurred_at,
         user_id,
@@ -126,7 +135,7 @@ begin
         details
     ) values (
         now(),
-        auth.uid(),
+        v_user_id,
         case when v_is_open then 'mfid_created_open' else 'mfid_created_assigned' end,
         'mfids',
         new_mfid_id::text,
@@ -139,7 +148,7 @@ begin
             'municipality', p_municity,
             'province', p_province,
             'barangay', v_barangay_name,
-            'farmer_name', v_farmer_name
+            'farmer_name', v_farmer_full_name
         )
     );
 

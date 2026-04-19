@@ -9,7 +9,8 @@ create table users(
     updated_at      timestamptz not null default now()
 );
 
-create or replace view user_details as
+create or replace view user_details
+with (security_invoker = true) as
     select
         v_user.*,
         auth_user.email,
@@ -17,23 +18,24 @@ create or replace view user_details as
     from users v_user
     join auth.users auth_user on v_user.id = auth_user.id;
 
-create view public.user_backup_view as
-select
-    v_user.id,
-    v_user.role,
-    v_user.first_name,
-    v_user.last_name,
-    v_user.is_active,
-    v_user.date_of_birth,
-    v_user.created_at as user_created_at,
-    v_user.updated_at as user_updated_at,
-    auth_user.email,
-    auth_user.last_sign_in_at,
-    auth_user.encrypted_password,
-    auth_user.created_at as auth_created_at,
-    auth_user.updated_at as auth_updated_at
-from public.users v_user
-join auth.users auth_user on v_user.id = auth_user.id;
+create view public.user_backup_view
+with (security_invoker = true) as
+    select
+        v_user.id,
+        v_user.role,
+        v_user.first_name,
+        v_user.last_name,
+        v_user.is_active,
+        v_user.date_of_birth,
+        v_user.created_at as user_created_at,
+        v_user.updated_at as user_updated_at,
+        auth_user.email,
+        auth_user.last_sign_in_at,
+        auth_user.encrypted_password,
+        auth_user.created_at as auth_created_at,
+        auth_user.updated_at as auth_updated_at
+    from public.users v_user
+    join auth.users auth_user on v_user.id = auth_user.id;
 
 
 

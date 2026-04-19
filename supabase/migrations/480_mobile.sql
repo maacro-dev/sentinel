@@ -115,8 +115,6 @@ begin
     returning id into v_parent_id;
 
 
-
-
     insert into field_plannings (
         id,
         land_preparation_start_date,
@@ -696,9 +694,11 @@ begin
 end;
 $$;
 
+
 create or replace function public.upload_form_data(data jsonb)
 returns int
 language plpgsql
+security definer
 as $$
 declare
     v_activity_type text;
@@ -707,6 +707,9 @@ declare
     v_season_label text;
     v_collector_name text;
     v_user_id uuid;
+    v_field_id int;
+    v_season_id int;
+    v_collected_by uuid;
 begin
     v_activity_type := data->>'activity_type';
 
@@ -734,13 +737,20 @@ begin
         v_user_id := auth.uid();
     end;
 
-    select m.mfid, s.label, coalesce(u.raw_user_meta_data->>'full_name', u.email)
-    into v_mfid, v_season_label, v_collector_name
-    from public.fields f
-    join public.mfids m on m.id = f.mfid_id
-    left join public.seasons s on s.id = (data->>'season_id')::int
-    left join auth.users u on u.id = (data->>'collected_by')::uuid
-    where f.id = (data->>'field_id')::int;
+    v_field_id := (data->>'field_id')::int;
+    v_season_id := (data->>'season_id')::int;
+    v_collected_by := (data->>'collected_by')::uuid;
+    v_mfid := data->>'mfid';
+
+    select semester::text || ' ' || season_year
+    into v_season_label
+    from public.seasons
+    where id = v_season_id;
+
+    select coalesce(raw_user_meta_data->>'full_name', email)
+    into v_collector_name
+    from auth.users
+    where id = v_collected_by;
 
     insert into public.activity_logs (
         occurred_at,
@@ -770,5 +780,8 @@ begin
     );
 
     return v_result;
+exception
+    when others then
+        raise exception 'upload_form_data failed: %', sqlerrm;
 end;
 $$;

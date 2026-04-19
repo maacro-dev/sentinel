@@ -15,7 +15,7 @@ fn:
 	@supabase functions serve
 
 deploy-db:
-	@supabase db reset && supabase gen types typescript --local --schema public > ./src/core/supabase/supabase.types.ts && supabase db reset --linked
+	@supabase db reset && supabase gen types typescript --local --schema public > ./src/core/supabase/supabase.types.ts && supabase db reset --linked --yes
 
 deploy-fn:
 	@supabase functions deploy

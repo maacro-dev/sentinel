@@ -11,7 +11,8 @@ create index idx_py_mfid_id on predicted_yields(mfid_id);
 create index idx_py_season_id on predicted_yields(season_id);
 
 
-create or replace view public.flattened_field_data as
+create or replace view public.flattened_field_data
+with (security_invoker = true) as
 with
 base as (
   select

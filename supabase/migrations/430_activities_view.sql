@@ -1,5 +1,6 @@
 
-create or replace view public.field_activity_details as
+create or replace view public.field_activity_details
+with (security_invoker = true) as
 select
     case fa.activity_type
         when 'field-data' then
@@ -90,7 +91,8 @@ left join public.collection_tasks ct_original on ct.retake_of = ct_original.id
 left join public.field_activities fa_original on ct_original.id = fa_original.collection_task_id;
 
 
-create or replace view collection_details as
+create or replace view collection_details
+with (security_invoker = true) as
 select
     s.start_date                            as season_start_date,
     s.end_date                              as season_end_date,
@@ -234,7 +236,8 @@ $$;
 
 
 
-create or replace view seasons_with_data as
+create or replace view seasons_with_data
+with (security_invoker = true) as
     select distinct s.*
     from seasons s
     join field_activities fa on fa.season_id = s.id;

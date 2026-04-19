@@ -1,5 +1,6 @@
 
-create or replace view latest_season as
+create or replace view latest_season
+with (security_invoker = true) as
     select *
     from seasons s
     where now() between s.start_date and s.end_date
@@ -7,7 +8,8 @@ create or replace view latest_season as
     limit 1;
 
 
-create or replace view public.field_details as
+create or replace view public.field_details
+with (security_invoker = true) as
 select
     fd.id as field_id,
     m.mfid,
@@ -26,7 +28,8 @@ join public.cities_municipalities cm on cm.id = b.city_municipality_id
 join public.provinces p on p.id = cm.province_id;
 
 
-create or replace view public.mfid_details as
+create or replace view public.mfid_details
+with (security_invoker = true) as
 select
     case
         when m.used_at is null
@@ -63,7 +66,7 @@ create or replace function public.create_field_with_new_mfid(
     p_farmer_id int,
     p_location spatial.geometry(Point, 4326) default null
 )
-    returns int  -- returns fields.id
+    returns int
     language plpgsql
     security definer
     set search_path = ''
@@ -73,16 +76,12 @@ declare
     new_mfid_id int;
     new_field_id int;
 begin
-    -- 1. generate unassigned MFID
     new_mfid := public.generate_mfid(p_municity, p_province);
 
-    -- 2. get its id
     select id into new_mfid_id from public.mfids where mfid = new_mfid;
 
-    -- 3. mark it as used (set used_at = now())
     update public.mfids set used_at = now() where id = new_mfid_id;
 
-    -- 4. insert into fields
     insert into public.fields (mfid_id, barangay_id, farmer_id, location)
     values (new_mfid_id, p_barangay_id, p_farmer_id, p_location)
     returning id into new_field_id;
