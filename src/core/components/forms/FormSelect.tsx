@@ -101,7 +101,7 @@ export const SentinelSelect = ({
 
   return (
     <div className="flex flex-col gap-2 flex-1">
-      <Label className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors" >
+      <Label id={name} className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors" >
         {label}
       </Label>
 

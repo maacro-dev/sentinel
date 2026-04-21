@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { getSupabase } from "@/core/supabase";
-import { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { RealtimeChannel } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 
 
