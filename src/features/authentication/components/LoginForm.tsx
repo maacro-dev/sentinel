@@ -13,6 +13,7 @@ import { Spinner } from "../../../core/components/ui/spinner";
 import { HumayLogo } from "@/core/components/HumayLogo";
 import { Credentials, credentialsSchema } from "../schemas";
 import { Form, FormTextField } from "@/core/components/forms";
+import { Global } from "@/core/config";
 
 type LoginFormProps = {
   onSubmit: (credentials: Credentials) => void;
@@ -24,7 +25,10 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   const form = useForm<Credentials>({
     resolver: zodResolver(credentialsSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: {
+      email: Global.IS_DEV ? "manager@humayapp.com" : "",
+      password: Global.IS_DEV ? "manager" : "",
+    },
     mode: "onChange",
     reValidateMode: "onChange",
   });

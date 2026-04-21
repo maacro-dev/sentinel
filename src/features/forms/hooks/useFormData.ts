@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { FormType } from "@/routes/_manager/forms/-config";
 import { formDataOptions, formDataByIdOptions } from "../queries/options";
 import { FormDataEntry } from "../schemas/formData";
-import { useMemo } from "react";
 
 interface useFormEntriesOptions {
   formType: FormType;
@@ -14,19 +13,11 @@ interface useFormEntriesOptions {
 export function useFormEntries({
   formType,
   seasonId,
-  hideRejected = false,
   enabled,
 }: useFormEntriesOptions) {
   const listQuery = useQuery(formDataOptions({ formType, seasonId, enabled: enabled ?? true }));
-  const data = listQuery.data ?? [];
-
-  const filteredData = useMemo(() => {
-    if (!hideRejected) return data;
-    return data.filter(item => item.activity.verificationStatus !== 'rejected');
-  }, [data, hideRejected]);
-
   return {
-    data: filteredData,
+    data: listQuery.data ?? [],
     isLoading: listQuery.isLoading,
   };
 }

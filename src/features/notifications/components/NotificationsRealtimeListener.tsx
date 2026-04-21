@@ -11,14 +11,30 @@ export function NotificationsRealtimeListener() {
   useEffect(() => {
     if (!user?.id) return;
 
-    let channel: RealtimeChannel;
-    let supabase: SupabaseClient;
+    const channelName = `notifications_${user.id}`;
 
-    (async () => {
-      supabase = await getSupabase();
+    let isMounted = true;
+    let channel: RealtimeChannel | null = null;
+    let supabase: SupabaseClient | null = null;
+
+    getSupabase().then(async (client) => {
+      if (!isMounted) return;
+
+      supabase = client;
       await supabase.realtime.setAuth();
+
+      const existing = supabase
+        .getChannels()
+        .find((c) => c.topic === channelName);
+
+      if (existing) {
+        await supabase.removeChannel(existing);
+      }
+
+      if (!isMounted) return;
+
       channel = supabase
-        .channel(`notifications_${user.id}`)
+        .channel(channelName)
         .on(
           "postgres_changes",
           {
@@ -28,14 +44,20 @@ export function NotificationsRealtimeListener() {
             filter: `target_role=eq.data_manager`,
           },
           () => {
-            queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+            queryClient.invalidateQueries({
+              queryKey: ["notifications", user.id],
+            });
           }
         )
         .subscribe();
-    })();
+    });
 
     return () => {
-      if (channel && supabase) supabase.removeChannel(channel);
+      isMounted = false;
+
+      if (channel && supabase) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [user?.id, queryClient]);
 

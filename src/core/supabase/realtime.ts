@@ -29,25 +29,31 @@ export function ManagerRealtimeListener({ seasonId }: { seasonId: number }) {
   console.log("Realtime listener attached.")
 
   useEffect(() => {
-    let channel: RealtimeChannel;
-    let supabase: SupabaseClient;
+    let isMounted = true;
+    let channel: RealtimeChannel | null = null;
 
-    (async () => {
-      supabase = await getSupabase();
+    getSupabase().then(async (supabase) => {
+      if (!isMounted) return;
+
       await supabase.realtime.setAuth();
-      console.log(supabase.getChannels())
+
       channel = supabase
         .channel("updates")
         .on("postgres_changes", { event: "*", schema: "public", table: "field_activities" }, () => {
           getInvalidateKeys(seasonId).forEach(key =>
-            queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key], })
+            queryClient.invalidateQueries({ queryKey: key })
           );
         })
         .subscribe();
-    })();
+    });
 
-    return () => { if (channel && supabase) supabase.removeChannel(channel) };
-  }, [queryClient, seasonId]);
+    return () => {
+      isMounted = false;
+      if (channel) {
+        getSupabase().then(s => s.removeChannel(channel!));
+      }
+    };
+  }, [seasonId]);
 
   return null;
 }

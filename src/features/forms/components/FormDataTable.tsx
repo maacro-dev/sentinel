@@ -5,9 +5,6 @@ import { FormType } from "@/routes/_manager/forms/-config";
 import { DefaultTableToolbar } from "@/core/components/TableToolbar";
 import { useFormEntriesTable } from "../hooks/useFormDataTable";
 import { useTableStore } from "../store";
-import { useState } from "react";
-import { Button } from "@/core/components/ui/button";
-import { cn } from "@/core/utils/style";
 
 interface FormDataTableProps<T> extends DataTableEvents<T> {
   formType: FormType;
@@ -20,36 +17,20 @@ export const FormDataTable = <T extends { activity: { id: number } }>({
   onRowClick,
   onRowIntent,
 }: FormDataTableProps<T>) => {
-  const [hideRejected, setHideRejected] = useState(false);
-  const { table, isLoading: isLoadingFieldData } = useFormEntriesTable(formType, seasonId, hideRejected);
-  const setIds = useTableStore((state) => state.setIds);
-  const setCurrentIndex = useTableStore((state) => state.setCurrentIndex);
+  const { table, isLoading } = useFormEntriesTable(formType, seasonId);
+  const setIds = useTableStore((s) => s.setIds);
+  const setCurrentIndex = useTableStore((s) => s.setCurrentIndex);
 
-  if (isLoadingFieldData) {
-    return <TableSkeleton />;
-  }
+  if (isLoading) return <TableSkeleton />;
 
   return (
     <DataTable
       table={table}
       toolbar={
         <DefaultTableToolbar
-          onSearchChange={e => table.setGlobalFilter(e.target.value)}
+          onSearchChange={(e) => table.setGlobalFilter(e.target.value)}
           defaultSearchPlaceholder="Search anything..."
-          className="gap-4"
-          actions={
-            <Button
-              className={cn(
-                "w-28 text-xs h-full",
-                hideRejected ? "text-white" : "text-muted-foreground"
-              )}
-              variant={hideRejected ? "default" : "outline"}
-              size="sm"
-              onClick={() => setHideRejected(!hideRejected)}
-            >
-              {hideRejected ? "Show Rejected" : "Hide Rejected"}
-            </Button>
-          }
+          onClearAll={() => table.resetColumnFilters()}
         />
       }
       pagination={<DefaultTablePagination table={table} />}

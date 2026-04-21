@@ -12,6 +12,8 @@ export const StatusWithRetakeCell = ({ row }: { row: any }) => {
   const originalId = row.original.activity.original_activity_id;
   const formType = row.original.activity.type;
 
+  console.log(verificationStatus)
+
   const handleViewOriginal = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (originalId) {

@@ -167,7 +167,6 @@ Deno.serve(async (req) => {
       await resetSequence(supabaseAdmin, table);
     }
 
-    // --- Log the restore event ---
     const logEntry = {
       occurred_at: new Date().toISOString(),
       user_id: userId,

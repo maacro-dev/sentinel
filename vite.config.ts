@@ -5,6 +5,13 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import svgr from "vite-plugin-svgr";
 
+const plugin = {
+  name: 'log-config',
+  configResolved(config: { optimizeDeps: { rolldownOptions: any; }; }) {
+    console.log('options', config.optimizeDeps.rolldownOptions)
+  },
+}
+
 export default defineConfig({
   base: "/",
   server: {
@@ -37,6 +44,7 @@ export default defineConfig({
         }]],
       },
     }),
+    plugin
   ],
   resolve: {
     alias: {
