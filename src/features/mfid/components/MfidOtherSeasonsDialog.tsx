@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/core/components/ui/dialog';
-import { CheckCircle2, ChevronRight, Circle, Clock, History, Import, RotateCcw, XCircle } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Circle, Clock, Eye, History, Import, RotateCcw, XCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { CollectionTask } from '@/features/collection/schemas/collection.schema';
 import {
@@ -31,10 +31,16 @@ import { getSeasonDisplayLabel } from '@/features/fields/util';
 import React from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
 import { cn } from '@/core/utils/style';
+import { FormDetailView } from '@/features/forms/components/FormDetailView';
 
 export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
   const { data: allTasks, isLoading: tasksLoading } = useCollectionTasksByMfid(mfid);
   const { data: seasons = [], isLoading: seasonsLoading } = useSeasons();
+
+  const [selectedTask, setSelectedTask] = useState<CollectionTask | null>(null);
+
+  const handleViewForm = (task: CollectionTask) => setSelectedTask(task);
+  const handleBackToSeasons = () => setSelectedTask(null);
 
   const seasonMap = useMemo(() => {
     const map = new Map<number, SeasonRow>();
@@ -42,11 +48,21 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
     return map;
   }, [seasons]);
 
+  const uniqueAllTasks = useMemo(() => {
+    if (!allTasks) return [];
+    const seen = new Set<number>();
+    return allTasks.filter(task => {
+      if (seen.has(task.id)) return false;
+      seen.add(task.id);
+      return true;
+    });
+  }, [allTasks]);
+
   const groupedBySeason = useMemo(() => {
-    if (!allTasks) return new Map<number, CollectionTask[]>();
+    if (!uniqueAllTasks.length) return new Map<number, CollectionTask[]>();
 
     const map = new Map<number, CollectionTask[]>();
-    allTasks.forEach(task => {
+    uniqueAllTasks.forEach(task => {
       const seasonTasks = map.get(task.season_id) || [];
       seasonTasks.push(task);
       map.set(task.season_id, seasonTasks);
@@ -61,9 +77,12 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
         return new Date(seasonB.start_date).getTime() - new Date(seasonA.start_date).getTime();
       })
     );
-  }, [allTasks, seasonMap]);
+  }, [uniqueAllTasks, seasonMap]);
+
 
   const isLoading = tasksLoading || seasonsLoading;
+
+
 
   return (
     <Dialog>
@@ -75,16 +94,30 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
       </DialogTrigger>
       <DialogContent className="max-w-none sm:max-w-none w-lvh h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Other Seasons – {mfid}</DialogTitle>
+          <DialogTitle>
+            {selectedTask ? `${getActivityTypeLabel(selectedTask.activity_type)} – ${mfid}` : `Other Seasons – ${mfid}`}
+          </DialogTitle>
           <DialogDescription>
-            Collection task summary across all seasons
+            {selectedTask
+              ? (() => {
+                const season = seasonMap.get(selectedTask.season_id);
+                return season ? formatSeasonLabel(season) : '';
+              })()
+              : 'Collection task summary across all seasons'}
           </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12 text-muted-foreground">
-            Loading tasks...
+            Loading...
           </div>
+        ) : selectedTask ? (
+          <FormDetailView
+            formType={selectedTask.activity_type}
+            id={selectedTask.activity_id!}
+            seasonId={selectedTask.season_id}
+            onBack={handleBackToSeasons}
+          />
         ) : groupedBySeason.size === 0 ? (
           <div className="flex items-center justify-center py-12 text-muted-foreground">
             No tasks found for other seasons
@@ -100,6 +133,7 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
                     season={season}
                     tasks={tasks}
                     allSeasons={seasons}
+                    onViewForm={handleViewForm}
                   />
                 );
               })}
@@ -126,10 +160,12 @@ function SeasonSummaryCard({
   season,
   tasks,
   allSeasons,
+  onViewForm
 }: {
   season?: SeasonRow;
   tasks: CollectionTask[];
   allSeasons: SeasonRow[];
+  onViewForm: (task: CollectionTask) => void;
 }) {
   const seasonLabel = season
     ? getSeasonDisplayLabel(season, allSeasons)
@@ -166,23 +202,52 @@ function SeasonSummaryCard({
   };
 
   const getVerificationIcon = (task: CollectionTask) => {
-
-    console.log("getVerificationIcon", task.verification_status)
+    let Icon: React.ElementType;
+    let color: string;
+    let label: string;
 
     if (task.status !== 'completed') {
-      return <Circle className="size-3.5 text-muted-foreground" />;
+      Icon = Circle;
+      color = 'text-muted-foreground';
+      label = 'Not completed';
+    } else {
+      switch (task.verification_status) {
+        case 'approved':
+          Icon = CheckCircle2;
+          color = 'text-green-600';
+          label = 'Approved';
+          break;
+        case 'rejected':
+          Icon = XCircle;
+          color = 'text-red-600';
+          label = 'Rejected';
+          break;
+        case 'pending':
+          Icon = Clock;
+          color = 'text-amber-500';
+          label = 'Pending';
+          break;
+        case 'unknown':
+        default:
+          Icon = Import;
+          color = 'text-muted-foreground';
+          label = 'Imported';
+          break;
+      }
     }
 
-    switch (task.verification_status) {
-      case 'approved':
-        return <CheckCircle2 className="size-3.5 text-green-600" />;
-      case 'rejected':
-        return <XCircle className="size-3.5 text-red-600" />;
-      case 'pending':
-        return <Clock className="size-3.5 text-amber-500" />;
-      case 'unknown':
-        return <Import className="size-3.5 text-muted-foreground" />;
-    }
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Icon className={`size-3.5 ${color}`} />
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            <p className="text-3xs">{label}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
   };
 
   return (
@@ -204,6 +269,7 @@ function SeasonSummaryCard({
             <TableHead className="w-1/4 py-1 h-6 text-center">Status</TableHead>
             <TableHead className="w-1/4 py-1 h-6">Collector</TableHead>
             <TableHead className="w-1/4 py-1 h-6">Dates</TableHead>
+            <TableHead className="w-24 py-1 h-6"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="text-3xs">
@@ -226,6 +292,7 @@ function SeasonSummaryCard({
                   </TableCell>
                   <TableCell className="py-2.5">—</TableCell>
                   <TableCell className="py-2.5">—</TableCell>
+                  <TableCell className="py-2.5"></TableCell>
                 </TableRow>
               );
             }
@@ -250,7 +317,7 @@ function SeasonSummaryCard({
                     )}
                   </TableCell>
                   <TableCell className="py-2.5 font-medium">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       {getActivityTypeLabel(formType)}
                       {latestTask!.retake_of && (
                         <TooltipProvider>
@@ -279,6 +346,31 @@ function SeasonSummaryCard({
                       {format(parseISO(latestTask!.start_date), 'MMM d')} –{' '}
                       {format(parseISO(latestTask!.end_date), 'MMM d, yyyy')}
                     </span>
+                  </TableCell>
+                  <TableCell className="py-2.5 pr-4 text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onViewForm(latestTask!);
+                            }}
+                            disabled={!latestTask!.activity_id}
+                          >
+                            <Eye className="size-3" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p className="text-3xs">
+                            {latestTask!.activity_id ? 'View submitted form' : 'No form submitted'}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
                 </TableRow>
 
@@ -309,6 +401,31 @@ function SeasonSummaryCard({
                       <TableCell className="py-2.5 text-muted-foreground">
                         {format(parseISO(task.start_date), 'MMM d')} –{' '}
                         {format(parseISO(task.end_date), 'MMM d, yyyy')}
+                      </TableCell>
+                      <TableCell className="py-2.5 pr-4 text-right">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onViewForm(task);
+                                }}
+                                disabled={!task.activity_id}
+                              >
+                                <Eye className="size-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                              <p className="text-3xs">
+                                {task.activity_id ? 'View submitted form' : 'No form submitted'}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                     </TableRow>
                   ))}

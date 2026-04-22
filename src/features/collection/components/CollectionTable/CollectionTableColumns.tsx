@@ -15,7 +15,7 @@ export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
     },
     filterFn: 'arrIncludesSome',
     meta: {
-      size: 'xs',
+      size: 'sm',
       filterVariant: "options",
       filterOptions: [
         { label: 'Field Data', value: 'field-data' },

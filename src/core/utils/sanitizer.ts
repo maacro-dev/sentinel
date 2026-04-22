@@ -1,3 +1,5 @@
+import { capitalizeFirst } from "./string";
+
 export class Sanitizer {
   public static key(key?: string | null, mappings: Record<string, string> = {}): string {
     if (key === null || key === undefined) {
@@ -70,7 +72,7 @@ export class Sanitizer {
           return Sanitizer.date(date);
         }
       }
-      return value;
+      return capitalizeFirst(value);
     }
     if (value instanceof Date) {
       return Sanitizer.date(value);

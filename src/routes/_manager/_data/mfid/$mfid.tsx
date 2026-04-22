@@ -64,7 +64,7 @@ function MfidCard({ data, status, mfid }: MfidCardProps) {
             <div className="border-t my-2" />
             <div className='flex flex-row gap-16 flex-wrap'>
               <KVItem pair={{ key: "Farmer Name", value: data.farmer_name ?? "N/A" }} />
-              <KVItem pair={{ key: "Gender", value: data.farmer_gender ?? "N/A" }} />
+              <KVItem pair={{ key: "Gender", value: Sanitizer.key(data.farmer_gender) ?? "N/A" }} />
               <KVItem pair={{ key: "Date of Birth", value: data.farmer_date_of_birth ? new Date(data.farmer_date_of_birth).toLocaleDateString() : "N/A" }} />
               <KVItem pair={{ key: "Cellphone No.", value: data.farmer_cellphone_no ?? "N/A" }} />
             </div>

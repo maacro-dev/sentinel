@@ -14,3 +14,5 @@
 - [NOPE] redesign scheduling process [high]
     - automation
     - batch scheduling
+
+- [NOPE] multi season comparison
