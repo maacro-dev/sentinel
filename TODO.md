@@ -1,25 +1,16 @@
 
 ## todo
 
-- history data on mfid [high]
-
-- redesign scheduling process [high]
-
-- multiple seasons comparisons [high]
-
 - table filters:
-    mfid per location (province, municipality, barangay)
-    ranges on all table filters
+    [OK]     mfid per location (province, municipality, barangay)
+    [NOPE]   ranges on all table filters
+    [OK]     pending forms prioritized; improve filtering
 
-- pending forms prioritized; improve filtering
+- [IN PROGRESS] history data on mfid [high]
+    - modal
+    - viewable
+    - compact
 
-- import
-    - kung mag add sa mobile app sang farmer kag field to an imported data, it must be updated
-    - check if row (form type, mfid, season) is already present, ignore make a warning
-
-
-## considerations
-
-- create notification based on all the toasts that are shown
-
-
+- [NOPE] redesign scheduling process [high]
+    - automation
+    - batch scheduling

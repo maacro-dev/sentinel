@@ -11,7 +11,10 @@ export const useFormEntriesTable = (formType: FormType, seasonId?: number) => {
     data: formData,
     columns: columns,
     getRowId: (row) => String(row.activity.id),
-    initialSorting: [{ id: 'activity_verificationStatus', desc: false }],
+    // initialSorting: [{ id: 'activity_verificationStatus', desc: false }],
+    initialColumnFilters: [
+      { id: 'activity_verificationStatus', value: ['pending'] }
+    ],
   });
   return { table, isLoading, formType };
 };

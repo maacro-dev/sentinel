@@ -10,7 +10,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/core/components/ui/command";
-import { useCurrentSeason, useCurrentSeasonId, useSeasonsForSelector } from "@/features/fields/hooks/useSeasons";
+import {
+  useCurrentSeason,
+  useCurrentSeasonId,
+  useSeasonsForSelector,
+  useNextSeasonId,
+} from "@/features/fields/hooks/useSeasons";
 import { formatSeasonLabel } from "@/features/fields/util";
 import { useImportNotificationStore } from "@/features/import/store/useImportNotificationStore";
 import { cn } from "@/core/utils/style";
@@ -21,8 +26,9 @@ export const SeasonSelector = memo(() => {
   const { selected: selectedSeason, label: displayLabel, isLoading: loadingCurrent } = useCurrentSeason();
   const { options: seasonOptions, isLoading: loadingOptions } = useSeasonsForSelector();
   const { data: currentSeasonId } = useCurrentSeasonId();
+  const { data: nextSeasonId } = useNextSeasonId();
   const { clearSeasonDot, showSeasonDot, importedSeasonId } = useImportNotificationStore();
-  const router = useRouter()
+  const router = useRouter();
 
   const handleSeasonChange = (value: string) => {
     clearSeasonDot();
@@ -39,7 +45,7 @@ export const SeasonSelector = memo(() => {
       </span>
       <Button
         variant="outline"
-        className="shadow-none min-w-35 rounded-sm lt:h-8! dt:h-9! text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90 justify-start gap-2 relative"
+        className="shadow-none min-w-37 rounded-sm lt:h-8! dt:h-9! text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90 justify-start gap-2 relative"
         onClick={() => setOpen(true)}
         disabled={loadingCurrent || loadingOptions}
       >
@@ -64,12 +70,13 @@ export const SeasonSelector = memo(() => {
         <CommandList>
           <CommandEmpty>No season found.</CommandEmpty>
           <CommandGroup>
-            <div className={cn(`grid gap-2`, seasonOptions.length > 4 ? "grid-cols-2" : "grid-cols-1")
-            }>
+            <div className={cn(`grid gap-2`, seasonOptions.length > 4 ? "grid-cols-2" : "grid-cols-1")}>
               {seasonOptions.map((option) => {
                 const isCurrent = currentSeasonId === Number(option.value);
                 const isNew = importedSeasonId === Number(option.value);
+                const isNext = nextSeasonId === Number(option.value); // 👈 check if it's the next season
                 const selected = isSelected(option.value);
+
                 return (
                   <CommandItem
                     key={option.value}
@@ -96,6 +103,11 @@ export const SeasonSelector = memo(() => {
                       {isCurrent && (
                         <span className="text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                           Current
+                        </span>
+                      )}
+                      {isNext && !isCurrent && ( // 👈 show Next only if not Current
+                        <span className="text-xs text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded">
+                          Next
                         </span>
                       )}
                     </div>

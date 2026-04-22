@@ -7,6 +7,7 @@ export const mfidTableColumns: ColumnDef<MfidTableRow, any>[] = [
     accessorKey: 'status',
     header: 'Status',
     cell: (info) => <StatusCell status={info.getValue()} />,
+    filterFn: 'arrIncludesSome',
     meta: {
       size: '3xs',
       filterVariant: "options",

@@ -92,24 +92,36 @@ export function useSeasonsForSelector() {
     },
   });
 
+  const { data: nextSeason, isLoading: loadingNext } = useQuery({
+    queryKey: ["next-season"],
+    queryFn: () => Seasons.getNextSeason(),
+  });
+
   const options = useMemo(() => {
     const seasonsSet = new Map<number, SeasonRow>();
+
     if (seasonsWithData) {
       seasonsWithData.forEach(s => seasonsSet.set(s.id, s));
     }
     if (currentSeason) {
       seasonsSet.set(currentSeason.id, currentSeason);
     }
+    if (nextSeason) {
+      seasonsSet.set(nextSeason.id, nextSeason);
+    }
+
     const seasons = Array.from(seasonsSet.values());
-    seasons.sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime());
+    seasons.sort((a, b) =>
+      new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+    );
 
     return seasons.map(season => ({
       value: String(season.id),
       label: formatSeasonLabel(season),
     }));
-  }, [seasonsWithData, currentSeason]);
+  }, [seasonsWithData, currentSeason, nextSeason]);
 
-  const isLoading = loadingData || loadingCurrent;
+  const isLoading = loadingData || loadingCurrent || loadingNext;
 
   return { options, isLoading };
 }
@@ -122,3 +134,13 @@ export const useCurrentSeasonId = () => {
     staleTime: Infinity,
   });
 };
+
+export function useNextSeasonId() {
+  return useQuery({
+    queryKey: ["next-season-id"],
+    queryFn: async () => {
+      const season = await Seasons.getNextSeason();
+      return season?.id ?? null;
+    },
+  });
+}

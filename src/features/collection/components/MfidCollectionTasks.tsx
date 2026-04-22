@@ -296,7 +296,7 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
           <TableHeader className="text-3xs">
             <TableRow>
               <TableHead className="w-2"></TableHead>
-              <TableHead></TableHead>
+              <TableHead>Verification Status</TableHead>
               <TableHead>Form</TableHead>
               <TableHead>Collector</TableHead>
               <TableHead>Start Date</TableHead>

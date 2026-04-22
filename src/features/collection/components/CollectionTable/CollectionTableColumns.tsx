@@ -8,13 +8,28 @@ import { CollectionStatusWithRetakeCell } from "@/core/components/cells/StatusWi
 
 export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
   {
-    accessorKey: "form_type",
+    accessorKey: "activity_type",
     header: "Form",
-    cell: ({ row }) => getActivityTypeLabel(row.original.activity_type),
+    cell: ({ row }) => {
+      return getActivityTypeLabel(row.original.activity_type)
+    },
+    filterFn: 'arrIncludesSome',
+    meta: {
+      size: 'xs',
+      filterVariant: "options",
+      filterOptions: [
+        { label: 'Field Data', value: 'field-data' },
+        { label: 'Cultural Management', value: 'cultural-management' },
+        { label: 'Nutrient Management', value: 'nutrient-management' },
+        { label: 'Production', value: 'production' },
+        { label: 'Damage Assessment', value: 'damage-assessment' },
+      ],
+    }
   },
   {
     accessorKey: "mfid",
     header: "MFID",
+    meta: { size: '2xs' }
   },
   {
     accessorKey: "farmer_name",

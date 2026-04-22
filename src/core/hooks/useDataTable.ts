@@ -19,19 +19,21 @@ interface UseDataTableOptions<T> {
   columns: ColumnDef<T, any>[];
   getRowId?: (row: T) => string;
   initialSorting?: SortingState;
+  initialColumnFilters?: ColumnFiltersState;
 }
 
 export const useDataTable = <T>({
   data,
   columns,
   getRowId,
-  initialSorting
+  initialSorting,
+  initialColumnFilters
 }: UseDataTableOptions<T>) => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>(initialSorting ?? []);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialColumnFilters ?? []);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({

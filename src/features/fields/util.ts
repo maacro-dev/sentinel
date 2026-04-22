@@ -42,8 +42,17 @@ export const getSeasonDisplayLabel = (
   if (isCurrentSeason(season)) {
     return `${baseLabel} (Current)`;
   }
-  const sorted = [...allSeasons].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const futureSeasons = allSeasons.filter(s => new Date(s.start_date) > today);
+  futureSeasons.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+  const nextSeason = futureSeasons[0];
+  if (nextSeason && season.id === nextSeason.id) {
+    return `${baseLabel} (Next)`;
+  }
+
+  const sorted = [...allSeasons].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
   const currentSeason = allSeasons.find(isCurrentSeason);
   if (!currentSeason) return baseLabel;
 
@@ -52,9 +61,9 @@ export const getSeasonDisplayLabel = (
 
   if (selectedIndex === -1 || currentIndex === -1) return baseLabel;
 
-  const seasonsAgo = currentIndex - selectedIndex; // positive if past
+  const seasonsAgo = currentIndex - selectedIndex;
 
-  if (seasonsAgo <= 0) return baseLabel; // not a past season (future or same)
+  if (seasonsAgo <= 0) return baseLabel;
   if (seasonsAgo === 1) return `${baseLabel} (1 season ago)`;
   return `${baseLabel} (${seasonsAgo} seasons ago)`;
 };

@@ -92,7 +92,7 @@ left join public.field_activities fa_original on ct_original.id = fa_original.co
 
 
 create or replace view collection_details
- as
+as
 select
     s.start_date                            as season_start_date,
     s.end_date                              as season_end_date,

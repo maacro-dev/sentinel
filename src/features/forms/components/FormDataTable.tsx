@@ -28,11 +28,7 @@ export const FormDataTable = <T extends { activity: { id: number } }>({
   return (
     <DataTable
       table={table}
-      toolbar={
-        <TableToolbar
-          table={table}
-        />
-      }
+      toolbar={<TableToolbar table={table} />}
       pagination={<DefaultTablePagination table={table} />}
       onRowClick={(row) => {
         const id = row.activity.id;

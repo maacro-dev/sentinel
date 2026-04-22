@@ -38,9 +38,7 @@ export const TableToolbar = <T,>({
         placeholder={defaultSearchPlaceholder}
         onChange={(e) => table.setGlobalFilter(e.target.value)}
       />
-
       <SortDropdown table={table} />
-
       <FilterDropdown table={table} />
 
       {actions && <div className="ml-auto shrink-0">{actions}</div>}

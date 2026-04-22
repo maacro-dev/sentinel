@@ -7,6 +7,7 @@ import { useMfid } from '@/features/mfid/hooks/useMfids'
 import { MfidDetail, MfidStatus } from '@/features/mfid/schemas/mfid-table.schema'
 import { createFileRoute } from '@tanstack/react-router'
 import { MfidCollectionTasks } from '@/features/collection/components/MfidCollectionTasks'
+import { MfidOtherSeasonsDialog } from '@/features/mfid/components/MfidOtherSeasonsDialog'
 
 export const Route = createFileRoute('/_manager/_data/mfid/$mfid')({
   loader: ({ params }) => {
@@ -81,6 +82,8 @@ function MfidCardHeader({ mfid, status, }: Omit<MfidCardProps, "data">) {
         <span className="text-4xl font-semibold">{mfid}</span>
         <MfidStatusBadge status={status} />
       </div>
+
+      <MfidOtherSeasonsDialog mfid={mfid} />
     </div>
   )
 }

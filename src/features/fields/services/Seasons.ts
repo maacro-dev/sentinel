@@ -18,13 +18,28 @@ export class Seasons {
     return data.id || -1
   }
 
-  public static async getAll(): Promise<SeasonRow[]> {
-    const client = await this._client
+  public static async getNextSeason(): Promise<SeasonRow | null> {
+    const client = await this._client;
     const today = new Date().toISOString().split("T")[0];
+
     const { data, error } = await client
       .from("seasons")
       .select("*")
-      .lte('start_date', today)
+      .gt("start_date", today)
+      .order("start_date", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? parseSeasonRow(data) : null;
+  }
+
+  public static async getAll(): Promise<SeasonRow[]> {
+    const client = await this._client
+    // const today = new Date().toISOString().split("T")[0];
+    const { data, error } = await client
+      .from("seasons")
+      .select("*")
       .order("start_date", { ascending: false })
 
     if (error) {
@@ -79,10 +94,10 @@ export class Seasons {
       .from('seasons_with_data')
       .select('*')
       .order('start_date', { ascending: false });
+
     if (error) throw error;
     return parseSeasonsTable(data);
   }
-
 
   private static get _client() {
     return getSupabase();

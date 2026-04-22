@@ -5,13 +5,8 @@ import { getTableColumnsByPath } from "@/core/tanstack/table/utils"
 import { useMfids } from "./useMfids"
 import { dataGroupConfig } from "@/routes/_manager/_data/-config"
 
-export const useMfidTable = (statusFilter: 'all' | 'available' | 'assigned' = 'all') => {
+export const useMfidTable = () => {
   const { data: mfids, isLoading } = useMfids()
-
-  const filteredData = useMemo(() => {
-    if (statusFilter === 'all') return mfids
-    return mfids.filter(m => m.status === statusFilter)
-  }, [mfids, statusFilter])
 
   const columns = useMemo(() => {
     return getTableColumnsByPath({
@@ -21,9 +16,9 @@ export const useMfidTable = (statusFilter: 'all' | 'available' | 'assigned' = 'a
   }, [])
 
   const table = useDataTable({
-    data: filteredData,
+    data: mfids,
     columns: columns,
     getRowId: (row) => row.mfid
   })
-  return { table, isLoading, filteredData }
+  return { table, isLoading, mfids }
 }
