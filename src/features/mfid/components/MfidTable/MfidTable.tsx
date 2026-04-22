@@ -15,7 +15,7 @@ export const MfidTable = <T extends { mfid: string }>({
 }: MfidTableProps<T>) => {
   "use no memo";
 
-  const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'used'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'assigned'>('all');
   const { table, isLoading } = useMfidTable(statusFilter);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { createMfid, isLoading: isCreatingMfid } = useCreateMfid();
@@ -51,8 +51,8 @@ export const MfidTable = <T extends { mfid: string }>({
 
 interface MfidToolbarProps {
   onSearchChange: React.ChangeEventHandler<HTMLInputElement>;
-  statusFilter: 'all' | 'available' | 'used';
-  onStatusFilterChange: (value: 'all' | 'available' | 'used') => void;
+  statusFilter: 'all' | 'available' | 'assigned';
+  onStatusFilterChange: (value: 'all' | 'available' | 'assigned') => void;
   dialogOpen: boolean;
   setDialogOpen: (v: boolean) => void;
   onDialogSubmit: (payload: MfidFormPayload) => Promise<void>;
@@ -84,7 +84,7 @@ const MfidTableToolbar = memo(({
           <SelectContent position="popper">
             <SelectItem className="text-xs" value="all">All</SelectItem>
             <SelectItem className="text-xs" value="available">Available</SelectItem>
-            <SelectItem className="text-xs" value="used">Used</SelectItem>
+            <SelectItem className="text-xs" value="assigned">Assigned</SelectItem>
           </SelectContent>
         </Select>
         <MfidFormDialog

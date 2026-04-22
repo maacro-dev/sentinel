@@ -2,6 +2,8 @@ import {
   ColumnDef,
   ColumnFiltersState,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -44,9 +46,8 @@ export const useDataTable = <T>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // "arrIncludesSome" is a built-in TanStack filter:
-    // it passes if the cell value is included in the filter array.
-    // Columns without filterOptions fall back to "includesString".
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     filterFns: {},
     state: {
       globalFilter,

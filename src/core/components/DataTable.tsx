@@ -3,9 +3,10 @@ import { flexRender, Table as TanstackTable } from "@tanstack/react-table";
 import { ScrollArea, ScrollAreaProvider, ScrollBar } from "@/core/components/ui/scroll-area";
 import { getSizeClass } from "../tanstack/table/size";
 import { cn } from "../utils/style";
-import { Quote } from "lucide-react";
+import { ArrowDown, ArrowUp, Quote, X } from "lucide-react";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "./ui/empty";
 import { ColumnHeader } from "./ColumnHeader";
+import { Badge } from "./ui/badge";
 
 export interface DataTableEvents<T> {
   onRowClick?: (row: T) => void
@@ -44,11 +45,7 @@ export const DataTable = <T,>({
             {toolbar}
           </div>
         )}
-        {secondaryToolbar && (
-          <div className="content">
-            {secondaryToolbar}
-          </div>
-        )}
+        {secondaryToolbar}
         <ScrollArea className="h-full flex-1 min-h-0 whitespace-nowrap">
           <div className="absolute inset-0">
             <Table className={`min-w-full table-fixed ${rows.length == 0 ? 'h-full min-h-0 flex-1' : ''}`}>
@@ -153,4 +150,109 @@ const EmptyTableRow = ({ colSpan }: { colSpan: number | undefined }) => {
       </TableCell>
     </TableRow>
   )
+}
+
+
+interface ActiveTableFiltersProps<T> {
+  table: TanstackTable<T>;
+  className?: string;
+}
+
+export function ActiveTableFilters<T>({ table, className }: ActiveTableFiltersProps<T>) {
+  const sorting = table.getState().sorting;
+  const columnFilters = table.getState().columnFilters;
+  const hasActive = sorting.length > 0 || columnFilters.length > 0;
+
+  return (
+    <div className={cn(
+      "flex flex-wrap items-center gap-x-3 gap-y-1.5 px-4 border-t min-h-9",
+      hasActive ? "py-2" : "py-0",
+      className
+    )}>
+      {hasActive ? (
+        <>
+          {sorting.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-3xs text-muted-foreground/50 shrink-0">Sort</span>
+              {sorting.map((sort) => {
+                const column = table.getColumn(sort.id);
+                const label = typeof column?.columnDef.header === "string"
+                  ? column.columnDef.header
+                  : sort.id;
+                const Icon = sort.desc ? ArrowDown : ArrowUp;
+                return (
+                  <Badge
+                    key={`sort-${sort.id}`}
+                    variant="outline"
+                    className="flex items-center gap-1 h-6 px-1.5 text-3xs font-normal text-muted-foreground cursor-default border-dashed"
+                  >
+                    <Icon className="size-2.5 shrink-0" />
+                    {label}
+                    <button
+                      className="ml-0.5 hover:text-foreground transition-colors"
+                      onClick={() => column?.clearSorting()}
+                    >
+                      <X className="size-2.5" />
+                    </button>
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
+
+          {sorting.length > 0 && columnFilters.length > 0 && (
+            <div className="h-3.5 w-px bg-border shrink-0" />
+          )}
+
+          {columnFilters.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-3xs text-muted-foreground/50 shrink-0">Filter</span>
+              {columnFilters.map((filter) => {
+                const column = table.getColumn(filter.id);
+                const label = typeof column?.columnDef.header === "string"
+                  ? column.columnDef.header
+                  : filter.id;
+                const filterOptions = column?.columnDef.meta?.filterOptions
+                  ?? (column ? Array.from(column.getFacetedUniqueValues().keys()).map(v => ({ label: String(v), value: String(v) })) : []);
+
+                const values = Array.isArray(filter.value) ? filter.value as string[] : [filter.value as string];
+                const displayValues = values.map((v) => {
+                  const match = filterOptions?.find((o) => o.value === v);
+                  return match ? match.label : String(v);
+                });
+
+                return (
+                  <Badge
+                    key={`filter-${filter.id}`}
+                    variant="secondary"
+                    className="flex items-center gap-1 h-6 px-1.5 text-3xs font-normal text-muted-foreground cursor-default"
+                  >
+                    <span className="text-foreground/50">{label}:</span>
+                    <span className="text-foreground/70">{displayValues.join(", ")}</span>
+                    <button
+                      className="ml-0.5 hover:text-foreground transition-colors"
+                      onClick={() => column?.setFilterValue(undefined)}
+                    >
+                      <X className="size-2.5" />
+                    </button>
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
+
+          {(sorting.length + columnFilters.length) > 1 && (
+            <button
+              className="text-3xs text-muted-foreground/50 hover:text-foreground transition-colors ml-auto"
+              onClick={() => { table.resetSorting(); table.resetColumnFilters(); }}
+            >
+              Clear all
+            </button>
+          )}
+        </>
+      ) : (
+        <span className="text-3xs text-muted-foreground/30 select-none">No active filters</span>
+      )}
+    </div>
+  );
 }

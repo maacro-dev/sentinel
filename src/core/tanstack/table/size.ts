@@ -1,7 +1,8 @@
 
-export type Size = "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
+export type Size = "4xs" | "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 
 export const SizeMap: Record<Size, string> = {
+  '4xs': '4%',
   '3xs': '6%',
   '2xs': '8%',
   xs: '10%',

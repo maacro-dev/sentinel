@@ -2,9 +2,9 @@ import { TableSkeleton } from "@/core/components/TableSkeleton";
 import { DataTable, DataTableEvents } from "@/core/components/DataTable";
 import { DefaultTablePagination } from "@/core/components/TablePagination";
 import { FormType } from "@/routes/_manager/forms/-config";
-import { DefaultTableToolbar } from "@/core/components/TableToolbar";
 import { useFormEntriesTable } from "../hooks/useFormDataTable";
 import { useTableStore } from "../store";
+import { TableToolbar } from "@/core/components/DataTableToolbar";
 
 interface FormDataTableProps<T> extends DataTableEvents<T> {
   formType: FormType;
@@ -17,6 +17,8 @@ export const FormDataTable = <T extends { activity: { id: number } }>({
   onRowClick,
   onRowIntent,
 }: FormDataTableProps<T>) => {
+  "use no memo";
+
   const { table, isLoading } = useFormEntriesTable(formType, seasonId);
   const setIds = useTableStore((s) => s.setIds);
   const setCurrentIndex = useTableStore((s) => s.setCurrentIndex);
@@ -27,10 +29,8 @@ export const FormDataTable = <T extends { activity: { id: number } }>({
     <DataTable
       table={table}
       toolbar={
-        <DefaultTableToolbar
-          onSearchChange={(e) => table.setGlobalFilter(e.target.value)}
-          defaultSearchPlaceholder="Search anything..."
-          onClearAll={() => table.resetColumnFilters()}
+        <TableToolbar
+          table={table}
         />
       }
       pagination={<DefaultTablePagination table={table} />}
@@ -44,9 +44,7 @@ export const FormDataTable = <T extends { activity: { id: number } }>({
         const ids = rows.map((r) => r.id);
         const index = rows.findIndex((r) => r.id === String(id));
         setIds(ids);
-        if (index !== -1) {
-          setCurrentIndex(index);
-        }
+        if (index !== -1) setCurrentIndex(index);
         onRowClick?.(row);
       }}
       onRowIntent={onRowIntent}

@@ -75,7 +75,7 @@ function RouteComponent() {
           `
         }
       >
-        This entry is {data.activity.verificationStatus}.
+        This record is {data.activity.verificationStatus == "unknown" ? "imported" : data.activity.verificationStatus}.
       </div>
       <div className='flex flex-col gap-4'>
         <GeneralSection data={data} />

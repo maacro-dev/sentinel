@@ -10,8 +10,14 @@ import { Input } from "@/core/components/ui/input";
 import { Checkbox } from "@/core/components/ui/checkbox";
 import { cn } from "@/core/utils/style";
 import { ArrowDown, ArrowUp, ChevronDown, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Label } from "./ui/label";
+import { Field, FieldContent, FieldLabel } from "./ui/field";
+
+export interface FilterOption {
+  label: string;
+  value: string;
+}
 
 interface ColumnHeaderProps<T> {
   column: Column<T, unknown>;
@@ -26,8 +32,19 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
   const isFiltered = column.getIsFiltered();
   const canSort = column.getCanSort();
   const canFilter = column.getCanFilter();
-  const filterOptions = column.columnDef.meta?.filterOptions;
+  const staticOptions = column.columnDef.meta?.filterOptions;
   const filterVariant = column.columnDef.meta?.filterVariant ?? 'none';
+
+  const filterOptions = useMemo(() => {
+    if (staticOptions) return staticOptions;
+    if (filterVariant === 'options' || filterVariant === 'options-search') {
+      return Array.from(column.getFacetedUniqueValues().keys())
+        .filter(Boolean)
+        .sort()
+        .map((v) => ({ label: String(v), value: String(v) }));
+    }
+    return undefined;
+  }, [staticOptions, filterVariant, column.getFacetedUniqueValues()]);
 
   const selectedValues: string[] = Array.isArray(column.getFilterValue())
     ? (column.getFilterValue() as string[])
@@ -44,6 +61,11 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
     column.setFilterValue(next.length ? next : undefined);
   };
 
+  const clearFilter = () => {
+    column.setFilterValue(undefined);
+    setFilterValue("");
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -56,14 +78,16 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
           )}
         >
           <span className="truncate">{title}</span>
-          <ChevronDown size={12} className="mr-2"/>
-          {isFiltered && (
-            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-          )}
+          <div className="flex gap-2 items-center">
+            {isFiltered && (
+              <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+            )}
+            <ChevronDown size={12} className="mr-2" />
+          </div>
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-40 shadow-xs">
+      <DropdownMenuContent align="end" className="w-56 shadow-xs">
         {canSort && (
           <>
             <DropdownMenuItem
@@ -95,8 +119,6 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
           </>
         )}
 
-        {/* {canSort && canFilter && <DropdownMenuSeparator />} */}
-
         {canFilter && filterVariant !== 'none' && (
           <div className="p-2 flex flex-col gap-2">
             <div className="flex items-center justify-between h-5">
@@ -106,34 +128,28 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
               {isFiltered && (
                 <button
                   className="text-3xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                  onClick={() => {
-                    column.setFilterValue(undefined);
-                    setFilterValue("");
-                  }}
+                  onClick={clearFilter}
                 >
                   Clear
                 </button>
               )}
             </div>
 
-            {filterOptions ? (
-              <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
-                {filterOptions.map((opt) => (
-                  <label
-                    className="flex items-center gap-2 rounded px-1 py-1 hover:bg-accent cursor-pointer"
-                  >
-                    <Checkbox
-                      id={`filter-${column.id}-${opt.value}`}
-                      checked={selectedValues.includes(opt.value)}
-                      onCheckedChange={() => toggleCheckboxValue(opt.value)}
-                    />
-                    <span className="text-3xs font-normal text-muted-foreground">
-                      {opt.label}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            ) : (
+            {filterVariant === 'options-search' && filterOptions ? (
+              <OptionsSearchFilter
+                column={column}
+                filterOptions={filterOptions}
+                selectedValues={selectedValues}
+                toggleCheckboxValue={toggleCheckboxValue}
+              />
+            ) : filterVariant === 'options' && filterOptions ? (
+              <CheckboxList
+                column={column}
+                filterOptions={filterOptions}
+                selectedValues={selectedValues}
+                toggleCheckboxValue={toggleCheckboxValue}
+              />
+            ) : filterVariant === 'search' ? (
               <div className="relative">
                 <Input
                   containerClassName="py-1 rounded-sm"
@@ -152,18 +168,136 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
                     className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setFilterValue("");
-                      column.setFilterValue(undefined);
+                      clearFilter();
                     }}
                   >
                     <X className="h-3 w-3" />
                   </button>
                 )}
               </div>
-            )}
+            ) : null}
           </div>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function CheckboxOption<T>({
+  column,
+  opt,
+  checked,
+  onToggle,
+}: {
+  column: Column<T, unknown>;
+  opt: FilterOption;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <Field
+      key={opt.value}
+      orientation="horizontal"
+      className="rounded px-0.5 py-1 hover:bg-accent cursor-pointer"
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+    >
+      <Checkbox
+        id={`filter-${column.id}-${opt.value}`}
+        checked={checked}
+        onClick={(e) => e.stopPropagation()}
+      />
+      <FieldContent>
+        <FieldLabel
+          htmlFor={`filter-${column.id}-${opt.value}`}
+          className="text-3xs font-normal text-muted-foreground cursor-pointer"
+          onClick={(e) => e.preventDefault()}
+        >
+          {opt.label}
+        </FieldLabel>
+      </FieldContent>
+    </Field>
+  );
+}
+
+function CheckboxList<T>({
+  column,
+  filterOptions,
+  selectedValues,
+  toggleCheckboxValue,
+}: {
+  column: Column<T, unknown>;
+  filterOptions: FilterOption[];
+  selectedValues: string[];
+  toggleCheckboxValue: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      {filterOptions.map((opt) => (
+        <CheckboxOption
+          key={opt.value}
+          column={column}
+          opt={opt}
+          checked={selectedValues.includes(opt.value)}
+          onToggle={() => toggleCheckboxValue(opt.value)}
+        />
+      ))}
+    </div>
+  );
+}
+
+function OptionsSearchFilter<T>({
+  column,
+  filterOptions,
+  selectedValues,
+  toggleCheckboxValue,
+}: {
+  column: Column<T, unknown>;
+  filterOptions: FilterOption[];
+  selectedValues: string[];
+  toggleCheckboxValue: (value: string) => void;
+}) {
+  const [query, setQuery] = useState('');
+  const visible = query
+    ? filterOptions.filter(o => o.label.toLowerCase().includes(query.toLowerCase()))
+    : filterOptions;
+
+  return (
+    <>
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
+        <Input
+          containerClassName="py-1 rounded-sm"
+          className="h-5 text-xs"
+          placeholder="Search..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.stopPropagation()}
+        />
+        {query && (
+          <button
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setQuery('')}
+          >
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
+      <div className="flex flex-col gap-0.5 max-h-40 overflow-y-auto">
+        {visible.length === 0 && (
+          <span className="text-3xs text-muted-foreground px-1 py-1">No results</span>
+        )}
+        {visible.map((opt) => (
+          <CheckboxOption
+            key={opt.value}
+            column={column}
+            opt={opt}
+            checked={selectedValues.includes(opt.value)}
+            onToggle={() => toggleCheckboxValue(opt.value)}
+          />
+        ))}
+      </div>
+    </>
   );
 }

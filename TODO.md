@@ -1,18 +1,17 @@
 
 ## todo
 
-- history data on mfid
+- history data on mfid [high]
 
-- redesign scheduling process
+- redesign scheduling process [high]
 
-- multiple seasons comparisons
+- multiple seasons comparisons [high]
 
 - table filters:
     mfid per location (province, municipality, barangay)
     ranges on all table filters
 
 - pending forms prioritized; improve filtering
-
 
 - import
     - kung mag add sa mobile app sang farmer kag field to an imported data, it must be updated
