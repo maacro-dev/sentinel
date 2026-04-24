@@ -38,10 +38,13 @@ export const collectionTaskInputSchema = z.object({
   end_date: z.string(),
   retake_of: z.number().optional().nullable(),
   activity_id: z.number().nullable().optional(),
-}).refine(data => new Date(data.end_date) > new Date(data.start_date), {
-  message: "End date must be after start date",
-  path: ["end_date"],
-});
+}).refine(
+  data => new Date(data.end_date + 'T00:00:00') >= new Date(data.start_date + 'T00:00:00'),
+  {
+    message: "End date must be on or after start date",
+    path: ["end_date"],
+  }
+);
 
 export type CollectionTaskInput = z.infer<typeof collectionTaskInputSchema>;
 

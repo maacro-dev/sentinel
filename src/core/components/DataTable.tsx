@@ -7,6 +7,7 @@ import { ArrowDown, ArrowUp, Quote, X } from "lucide-react";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "./ui/empty";
 import { ColumnHeader } from "./ColumnHeader";
 import { Badge } from "./ui/badge";
+import { Checkbox } from "./ui/checkbox";
 
 export interface DataTableEvents<T> {
   onRowClick?: (row: T) => void
@@ -21,7 +22,10 @@ export interface DataTableProps<T> extends DataTableEvents<T> {
   isLoading?: boolean
   pagination?: React.ReactNode
   getRowHeight?: (row: T) => number | string
+  selectable?: boolean
 }
+
+// const SELECT_COLUMN_ID = '__select__';
 
 export const DataTable = <T,>({
   table,
@@ -31,7 +35,8 @@ export const DataTable = <T,>({
   pagination,
   onRowClick,
   onRowIntent,
-  getRowHeight
+  getRowHeight,
+  selectable = false,
 }: DataTableProps<T>) => {
 
   const rows = table.getRowModel().rows
@@ -52,6 +57,19 @@ export const DataTable = <T,>({
               <TableHeader>
                 {table.getHeaderGroups().map(headerGroup => (
                   <TableRow key={headerGroup.id}>
+                    {selectable && (
+                      <TableHead
+                        className="min-w-0 relative pl-6 pr-0 cursor-pointer"
+                        style={{ width: '2.5%' }}
+                      >
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={table.getIsAllPageRowsSelected() ? true : table.getIsSomePageRowsSelected() ? "indeterminate" : false}
+                            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+                          />
+                        </div>
+                      </TableHead>
+                    )}
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
@@ -85,8 +103,9 @@ export const DataTable = <T,>({
                 ))}
               </TableHeader>
               <TableBody>
-                {rows.length === 0 ? <EmptyTableRow colSpan={table.getHeaderGroups()[0].headers.length} /> :
-                  rows.map((row) => {
+                {rows.length === 0
+                  ? <EmptyTableRow colSpan={(selectable ? 1 : 0) + (table.getHeaderGroups()[0]?.headers.length ?? 0)} />
+                  : rows.map((row) => {
                     const rowHeight = getRowHeight ? getRowHeight(row.original) : '5rem';
 
                     return (
@@ -98,9 +117,26 @@ export const DataTable = <T,>({
                         onMouseEnter={() => onRowIntent?.(row.original)}
                         onClick={(e) => {
                           onRowClick?.(row.original);
-                          row.getToggleSelectedHandler()(e)
+                          row.getToggleSelectedHandler()(e);
                         }}
                       >
+                        {selectable && (
+                          <TableCell
+                            className="pl-6 pr-0"
+                            style={{ width: '2.5%', minWidth: '2.5%', height: rowHeight }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              row.toggleSelected();
+                            }}
+                          >
+                            <Checkbox
+                              checked={row.getIsSelected()}
+                              onClick={(e) => e.stopPropagation()}
+                              onCheckedChange={(v) => row.toggleSelected(!!v)}
+                              className="cursor-pointer pointer-events-none"
+                            />
+                          </TableCell>
+                        )}
                         {row.getVisibleCells().map(cell => {
                           const cellWidth = getSizeClass(cell.column.columnDef.meta?.size)
                           return (
@@ -129,7 +165,7 @@ export const DataTable = <T,>({
   )
 };
 
-const EmptyTableRow = ({ colSpan }: { colSpan: number | undefined }) => {
+const EmptyTableRow = ({ colSpan }: { colSpan: number }) => {
   return (
     <TableRow className="p-0 hover:bg-transparent even:bg-red-50 border-b-transparent">
       <TableCell
@@ -152,6 +188,7 @@ const EmptyTableRow = ({ colSpan }: { colSpan: number | undefined }) => {
   )
 }
 
+// ─── ActiveTableFilters ───────────────────────────────────────────────────────
 
 interface ActiveTableFiltersProps<T> {
   table: TanstackTable<T>;
@@ -215,11 +252,11 @@ export function ActiveTableFilters<T>({ table, className }: ActiveTableFiltersPr
                 const filterOptions = column?.columnDef.meta?.filterOptions
                   ?? (column ? Array.from(column.getFacetedUniqueValues().keys()).map(v => ({ label: String(v), value: String(v) })) : []);
 
-                const values = Array.isArray(filter.value) ? filter.value as string[] : [filter.value as string];
-                const displayValues = values.map((v) => {
-                  const match = filterOptions?.find((o) => o.value === v);
-                  return match ? match.label : String(v);
-                });
+                const rawValue = filter.value;
+                const displayValues = rawValue === true ? ['Yes']
+                  : rawValue === false ? ['No']
+                    : (Array.isArray(rawValue) ? rawValue as string[] : [String(rawValue)])
+                      .map((v) => filterOptions.find((o) => o.value === v)?.label ?? v);
 
                 return (
                   <Badge

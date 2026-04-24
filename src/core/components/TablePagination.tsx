@@ -15,6 +15,8 @@ export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps
   const { resetScroll } = useScrollArea();
   const {
     totalRows,
+    unfilteredRows,
+    selectedRows,
     maxPages,
     currentPage,
     navigatePagination,
@@ -24,7 +26,7 @@ export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps
 
   return (
     <Pagination className="gap-2.5">
-      <div className="space-x-1.5">
+      <div className="space-x-1.5 flex">
         <Pagination.Previous
           onClick={() => navigatePagination(currentPage - 1)}
           disabled={!table.getCanPreviousPage()}
@@ -36,7 +38,7 @@ export function DefaultTablePagination<T>({ table }: DefaultTablePaginationProps
       </div>
       <Pagination.Input current={currentPage} total={maxPages} navigateFn={navigatePagination}/>
       <Pagination.SizeSelector value={pageSize} onValueChange={setPageSize} />
-      <Pagination.TotalRows totalRows={totalRows} />
+      <Pagination.TotalRows totalRows={totalRows} unfilteredRows={unfilteredRows} selectedRows={selectedRows}/>
     </Pagination>
   )
 }
@@ -46,6 +48,8 @@ interface ManualPaginationProps {
   page: number;
   pageSize: number;
   totalRows: number;
+  unfilteredRows: number;
+  selectedRows: number;
   onPageChange: (newPage: number) => void;
   onPageSizeChange?: (newSize: number) => void;
   showSizeSelector?: boolean;
@@ -55,6 +59,8 @@ export function ManualPagination({
   page,
   pageSize,
   totalRows,
+  unfilteredRows,
+  selectedRows,
   onPageChange,
   onPageSizeChange,
   showSizeSelector = true,
@@ -81,7 +87,7 @@ export function ManualPagination({
       {showSizeSelector && onPageSizeChange && (
         <Pagination.SizeSelector value={pageSize} onValueChange={onPageSizeChange} />
       )}
-      <Pagination.TotalRows totalRows={totalRows} />
+      <Pagination.TotalRows totalRows={totalRows} unfilteredRows={unfilteredRows} selectedRows={selectedRows}/>
     </Pagination>
   );
 }

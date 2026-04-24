@@ -26,11 +26,19 @@ export const Route = createFileRoute("/_manager/_analytics/comparative")({
   component: RouteComponent,
   validateSearch: z.object({
     seasonId: z.coerce.number().optional(),
-    compareSeasonId: z.coerce.number().optional(),
+    compareSeasonIds: z
+      .union([
+        z.string().transform(s =>
+          s.split(',').map(Number).filter(n => !isNaN(n) && n > 0)
+        ),
+        z.array(z.coerce.number()),
+      ])
+      .optional()
+      .default([]),
   }),
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
-    const defaultParam = { seasonId: seasonId, province: undefined, municipality: undefined, barangay: undefined, method: undefined, variety: undefined }
+    const defaultParam = { seasonId, province: undefined, municipality: undefined, barangay: undefined, method: undefined, variety: undefined }
 
     queryClient.ensureQueryData(yieldByLocationOptions(defaultParam))
     queryClient.ensureQueryData(yieldByMethodOptions(defaultParam))
@@ -42,8 +50,88 @@ export const Route = createFileRoute("/_manager/_analytics/comparative")({
   head: () => ({ meta: [{ title: "Comparative Analytics | Humay" }] }),
 });
 
+
+function useSeasonComparison(
+  seasonId: number | undefined,
+  compareSeasonId: number,
+  filters: {
+    province?: string;
+    municipality?: string;
+    barangay?: string;
+    method?: string;
+    variety?: string;
+  }
+) {
+  const params = { seasonId, compareSeasonId, ...filters };
+
+  const yieldLocation = useComparisonYieldData(params);
+  const yieldMethod = useComparisonYieldMethodData(params);
+  const yieldVariety = useComparisonYieldVarietyData(params);
+  const damageLocation = useComparisonDamageLocationData(params);
+  const damageCause = useComparisonDamageCauseData(params);
+
+  return { yieldLocation, yieldMethod, yieldVariety, damageLocation, damageCause };
+}
+
+
+type SeasonComparisonResult = ReturnType<typeof useSeasonComparison>;
+
+function buildComparisonMap(
+  results: SeasonComparisonResult[]
+): Record<ComparativeView, { data: unknown[]; stats: unknown[]; compareRanking?: unknown[] }> {
+  return {
+    'yield-location': {
+      data: results.map(r => r.yieldLocation.data),
+      stats: results.map(r => r.yieldLocation.comparisonStats),
+    },
+    'yield-method': {
+      data: results.map(r => r.yieldMethod.data),
+      stats: results.map(r => r.yieldMethod.comparisonStats),
+      compareRanking: results.map(r => r.yieldMethod.compareRanking),
+    },
+    'yield-variety': {
+      data: results.map(r => r.yieldVariety.data),
+      stats: results.map(r => r.yieldVariety.comparisonStats),
+    },
+    'damage-location': {
+      data: results.map(r => r.damageLocation.data),
+      stats: results.map(r => r.damageLocation.comparisonStats),
+    },
+    'damage-cause': {
+      data: results.map(r => r.damageCause.data),
+      stats: results.map(r => r.damageCause.comparisonStats),
+    },
+  };
+}
+
+const EMPTY_IDS: number[] = [];
+
+const MAX_COMPARE_SEASONS = 3;
+
+function useSeasonLabels(ids: number[]): string[] {
+
+  const l0 = useSeasonLabel(ids[0]);
+  const l1 = useSeasonLabel(ids[1]);
+  const l2 = useSeasonLabel(ids[2]);
+  return [l0, l1, l2].slice(0, ids.length);
+}
+
+
+function useMultiSeasonComparison(
+  seasonId: number | undefined,
+  ids: number[],
+  filters: Parameters<typeof useSeasonComparison>[2]
+): SeasonComparisonResult[] {
+  const r0 = useSeasonComparison(seasonId, ids[0] ?? 0, filters);
+  const r1 = useSeasonComparison(seasonId, ids[1] ?? 0, filters);
+  const r2 = useSeasonComparison(seasonId, ids[2] ?? 0, filters);
+  const all = [r0, r1, r2];
+  return all.slice(0, ids.length);
+}
+
+
 function RouteComponent() {
-  const { seasonId, compareSeasonId } = Route.useSearch()
+  const { seasonId, compareSeasonIds } = Route.useSearch()
 
   const navigate = useNavigate({ from: Route.fullPath });
 
@@ -94,74 +182,31 @@ function RouteComponent() {
     setMoreFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const { byLocation: yieldByLocation, byMethod, byVariety } = useYieldComparativeData({
-    seasonId: seasonId,
+  const sharedFilters = useMemo(() => ({
     province: location.province || undefined,
     municipality: location.municipality || undefined,
     barangay: location.barangay || undefined,
     method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
     variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+  }), [location, moreFilters]);
+
+  const { byLocation: yieldByLocation, byMethod, byVariety } = useYieldComparativeData({
+    seasonId,
+    ...sharedFilters,
   });
 
   const { byLocation: damageByLocation, byCause: damageByCause } = useDamageAnalytics({
-    seasonId: seasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
-  })
-
-  const yieldLocationCompare = useComparisonYieldData({
     seasonId,
-    compareSeasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
+    ...sharedFilters,
   });
 
-  const yieldMethodCompare = useComparisonYieldMethodData({
-    seasonId,
-    compareSeasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
-  });
+  const stableCompareIds = compareSeasonIds ?? EMPTY_IDS;
 
-  const yieldVarietyCompare = useComparisonYieldVarietyData({
-    seasonId,
-    compareSeasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
-  });
+  const orderedResults = useMultiSeasonComparison(seasonId, stableCompareIds, sharedFilters);
+  const comparisonMap = useMemo(() => buildComparisonMap(orderedResults), [orderedResults]);
 
-  const damageLocationCompare = useComparisonDamageLocationData({
-    seasonId,
-    compareSeasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
-  });
-
-  const damageCauseCompare = useComparisonDamageCauseData({
-    seasonId,
-    compareSeasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
-    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
-  });
-
+  const currentSeasonLabel = useSeasonLabel(seasonId);
+  const compareSeasonLabels = useSeasonLabels(stableCompareIds);
 
   const queryClient = useQueryClient();
 
@@ -214,6 +259,23 @@ function RouteComponent() {
     setMoreFilters({ variety: [], method: [] });
   };
 
+  const handleCompareSeasonIdsChange = (newIds: number[]) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        compareSeasonIds: newIds.length > 0 ? newIds : undefined,
+      }),
+      replace: true,
+    });
+  };
+
+  const handleClearComparison = () => {
+    navigate({
+      search: (prev) => ({ ...prev, compareSeasonIds: undefined }),
+      replace: true,
+    });
+  };
+
   const viewData = {
     'yield-location': yieldByLocation.data,
     'yield-method': byMethod.data,
@@ -240,43 +302,13 @@ function RouteComponent() {
     return 'province';
   }, [location]);
 
-
-  const handleCompareSeasonChange = (newId: number) => {
-    navigate({
-      search: (prev) => ({ ...prev, compareSeasonId: newId }),
-      replace: true,
-    });
-  };
-
-  const handleClearComparison = () => {
-    navigate({
-      search: (prev) => ({ ...prev, compareSeasonId: undefined }),
-      replace: true,
-    });
-  };
-
-  const currentSeasonLabel = useSeasonLabel(seasonId);
-  const compareSeasonLabel = useSeasonLabel(compareSeasonId);
-
-  const comparisonMap = {
-    'yield-location': { data: yieldLocationCompare.data, stats: yieldLocationCompare.comparisonStats, },
-    'yield-method': {
-      data: yieldMethodCompare.data,
-      stats: yieldMethodCompare.comparisonStats,
-      compareRanking: yieldMethodCompare.compareRanking,
-    },
-    'yield-variety': { data: yieldVarietyCompare.data, stats: yieldVarietyCompare.comparisonStats, },
-    'damage-location': { data: damageLocationCompare.data, stats: damageLocationCompare.comparisonStats },
-    'damage-cause': { data: damageCauseCompare.data, stats: damageCauseCompare.comparisonStats },
-  };
-
   if (isLoading || !activeData) {
     return <PendingComponent />
   }
 
-
   return (
     <PageContainer>
+
       <ComparativeToolbar
         view={view}
         onViewChange={setView}
@@ -293,8 +325,8 @@ function RouteComponent() {
         isLoadingBarangays={locationsLoading}
         prefetchLocationData={prefetchLocationData}
         prefetchMoreFilterData={prefetchWithFilters}
-        compareSeasonId={compareSeasonId}
-        onCompareSeasonChange={handleCompareSeasonChange}
+        compareSeasonIds={stableCompareIds}
+        onCompareSeasonIdsChange={handleCompareSeasonIdsChange}
         onClearComparison={handleClearComparison}
       />
 
@@ -306,7 +338,7 @@ function RouteComponent() {
           compareData={comparisonMap[view]?.data}
           compareRanking={comparisonMap[view]?.compareRanking}
           currentSeasonLabel={currentSeasonLabel}
-          compareSeasonLabel={compareSeasonLabel}
+          compareSeasonLabels={compareSeasonLabels}
           comparisonStats={comparisonMap[view]?.stats}
         />
       )}

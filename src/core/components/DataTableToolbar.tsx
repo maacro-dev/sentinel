@@ -41,7 +41,7 @@ export const TableToolbar = <T,>({
       <SortDropdown table={table} />
       <FilterDropdown table={table} />
 
-      {actions && <div className="ml-auto shrink-0">{actions}</div>}
+      {actions && <div className="ml-auto shrink-0 flex gap-4">{actions}</div>}
     </div>
   );
 }
@@ -202,6 +202,9 @@ function FilterDropdown<T>({ table }: { table: TanstackTable<T> }) {
                   {filterVariant === "search" && (
                     <ColumnFilterSearch col={col} />
                   )}
+                  {filterVariant === "boolean" && (
+                    <ColumnFilterBoolean col={col} />
+                  )}
                 </div>
               )}
             </div>
@@ -317,6 +320,44 @@ function ColumnFilterSearch<T>({ col }: { col: ReturnType<TanstackTable<T>["getA
           <X className="h-3 w-3" />
         </button>
       )}
+    </div>
+  );
+}
+
+
+function ColumnFilterBoolean<T>({ col }: { col: ReturnType<TanstackTable<T>["getAllColumns"]>[number] }) {
+  const currentValue = col.getFilterValue();
+  return (
+    <div className="flex flex-col gap-0.5">
+      {[{ label: 'Yes', value: true }, { label: 'No', value: false }].map((opt) => {
+        const isSelected = currentValue === opt.value;
+        return (
+          <Field
+            key={String(opt.value)}
+            orientation="horizontal"
+            className="rounded px-0.5 py-0.5 hover:bg-background cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              col.setFilterValue(isSelected ? undefined : opt.value);
+            }}
+          >
+            <Checkbox
+              id={`toolbar-filter-${col.id}-${opt.value}`}
+              checked={isSelected}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <FieldContent>
+              <FieldLabel
+                htmlFor={`toolbar-filter-${col.id}-${opt.value}`}
+                className="text-3xs font-normal text-muted-foreground cursor-pointer"
+                onClick={(e) => e.preventDefault()}
+              >
+                {opt.label}
+              </FieldLabel>
+            </FieldContent>
+          </Field>
+        );
+      })}
     </div>
   );
 }

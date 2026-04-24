@@ -1,7 +1,8 @@
 
-export type Size = "4xs" | "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
+export type Size = "checkbox" | "4xs" | "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 
 export const SizeMap: Record<Size, string> = {
+  'checkbox' : "2.5%",
   '4xs': '4%',
   '3xs': '6%',
   '2xs': '8%',

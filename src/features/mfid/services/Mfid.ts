@@ -1,21 +1,30 @@
 import { getSupabase } from "@/core/supabase/supabase";
-import { parseMfidTable, parseMfidTableRow } from "../schemas/mfid-table.schema";
+import { MfidTableRow, parseMfidTable, parseMfidTableRow } from "../schemas/mfid-table.schema";
 import { MfidFormPayload } from "../components/MfidFormDialog";
 
 
 export class Mfid {
   private constructor() { }
 
-  static async getAll() {
-    const client = await this._client
+  static async getAll(seasonId?: number): Promise<MfidTableRow[]> {
+    const client = await getSupabase();
+
+    if (seasonId != null) {
+      const { data, error } = await client.rpc('get_mfid_details', {
+        p_season_id: seasonId,
+      });
+      if (error) throw error;
+
+      return parseMfidTable(data);
+    }
+
     const { data, error } = await client
       .from("mfid_details")
-      .select("*")
+      .select("*");
 
-    if (error) {
-      throw error;
-    }
-    return parseMfidTable(data)
+    if (error) throw error;
+
+    return parseMfidTable(data);
   }
 
   static async getSingle(mfid: string) {
@@ -35,8 +44,6 @@ export class Mfid {
 
   static async create(payload: MfidFormPayload) {
     const client = await getSupabase()
-
-    console.log("Mfid payload -", payload)
 
     const { data, error } = await client.rpc('create_mfid', {
       p_municity: payload.city_municipality,

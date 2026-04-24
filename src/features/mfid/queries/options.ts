@@ -2,14 +2,15 @@ import { queryOptions } from "@tanstack/react-query";
 import { Mfid } from "../services/Mfid";
 import { Lgu } from "../services/Lgu";
 
-export const mfidsQueryOptions = () => {
+export const mfidsQueryOptions = (seasonId?: number) => {
   return queryOptions({
-    queryKey: ["mfids"] as const,
-    queryFn: () => Mfid.getAll(),
+    queryKey: ["mfids", seasonId] as const,
+    queryFn: () => Mfid.getAll(seasonId),
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
   });
 };
+
 
 export const mfidQueryOptions = (mfid: string) => {
   return queryOptions({

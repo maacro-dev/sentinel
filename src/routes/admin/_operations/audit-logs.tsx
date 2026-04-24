@@ -94,6 +94,8 @@ function AuditLogsPage() {
               pageSize={pageSize}
               totalRows={data?.count ?? 0}
               onPageChange={setPage}
+              selectedRows={table.getPreSelectedRowModel().rows.length}
+              unfilteredRows={table.getCoreRowModel().rows.length}
             />
           }
           toolbar={

@@ -7,6 +7,6 @@ declare module '@tanstack/react-table' {
     textAlign?: 'left' | 'center' | 'right',
     size?: Size,
     filterOptions?: FilterOption[]
-    filterVariant?: 'options' | 'search' | 'options-search' | 'none'
+    filterVariant?: 'options' | 'search' | 'options-search' | 'none' | 'boolean'
   }
 }

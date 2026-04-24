@@ -83,17 +83,21 @@ export const GroupedBarChart = memo(<T extends object>({
   const labelPosition = isVertical ? "right" : "top";
 
   const barsPerCategory = barKeys.length;
-  const heightPerCategory = barsPerCategory === 1 ? 75 : 100;
+  const heightMap: Record<number, number> = { 1: 75, 2: 100, 3: 125 };
+  const heightPerCategory = heightMap[barsPerCategory] ?? 100;
+
 
   const minHeight = 300;
-  const explicitHeight = isVertical ? Math.max(minHeight, data.length * heightPerCategory) : undefined;
+  const explicitHeight = isVertical
+    ? Math.max(minHeight, data.length * heightPerCategory)
+    : undefined;
 
   const containerStyle = isVertical ? { height: explicitHeight } : undefined;
 
   const containerClassName = cn(
     !isVertical && chartContainerDefaults.className,
     containerClass,
-    'w-full'
+    'w-full',
   );
 
   return (

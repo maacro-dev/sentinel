@@ -15,6 +15,7 @@ export const mfidRowSchema = z.object({
   city_municipality: z.string().nullable(),
   coordinates: z.string().nullable(),
   province: z.string().nullable(),
+  has_scheduling: z.boolean().catch(false)
 });
 
 export const mfidTableSchema = z.array(mfidRowSchema);

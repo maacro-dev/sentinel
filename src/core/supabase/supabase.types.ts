@@ -1596,6 +1596,7 @@ export type Database = {
           farmer_date_of_birth: string | null
           farmer_gender: Database["public"]["Enums"]["gender"] | null
           farmer_name: string | null
+          has_scheduling: boolean | null
           mfid: string | null
           province: string | null
           status: string | null
@@ -1666,6 +1667,17 @@ export type Database = {
       }
     }
     Functions: {
+      batch_schedule_core_collection_tasks: {
+        Args: {
+          p_collector_id: string
+          p_end_date: string
+          p_mfids: string[]
+          p_season_id: number
+          p_start_date: string
+          p_user_id?: string
+        }
+        Returns: undefined
+      }
       check_duplicate_activities: {
         Args: { p_activity_type: string; p_rows: Json }
         Returns: Json
@@ -1801,6 +1813,24 @@ export type Database = {
         Args: { p_season_id?: number }
         Returns: Json
       }
+      get_mfid_details: {
+        Args: { p_season_id?: number }
+        Returns: {
+          barangay: string
+          city_municipality: string
+          coordinates: string
+          created_at: string
+          farmer_cellphone_no: string
+          farmer_date_of_birth: string
+          farmer_gender: string
+          farmer_name: string
+          has_scheduling: boolean
+          mfid: string
+          province: string
+          status: string
+          used_at: string
+        }[]
+      }
       get_planting_season_for_harvest: {
         Args: { p_field_id: number; p_harvest_date: string }
         Returns: number
@@ -1885,6 +1915,20 @@ export type Database = {
       reset_sequence: { Args: { table_name: string }; Returns: undefined }
       restore_backup: { Args: { p_backup: Json }; Returns: Json }
       rice_variety_summary: { Args: { p_season_id?: number }; Returns: Json }
+      schedule_core_collection_tasks: {
+        Args: {
+          p_activity_type: string
+          p_collector_id: string
+          p_end_date: string
+          p_mfid: string
+          p_retake_of?: number
+          p_schedule_all?: boolean
+          p_season_id: number
+          p_start_date: string
+          p_user_id?: string
+        }
+        Returns: number
+      }
       summary_form_count: { Args: { p_season_id?: number }; Returns: Json }
       summary_form_progress: { Args: { p_season_id?: number }; Returns: Json }
       sync_auth_audit_entries: { Args: never; Returns: number }

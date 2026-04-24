@@ -14,12 +14,18 @@ export const Route = createFileRoute('/_manager/_data/mfid/')({
 
 function RouteComponent() {
   const navigate = useNavigate()
+  const { seasonId } = Route.useSearch()
   const handleRowClick = useCallback((row: { mfid: string }) => {
     navigate({
       to: "/mfid/$mfid",
       params: { mfid: row.mfid }
     })
   }, [])
+
+  if (seasonId == null) {
+    throw new Error("season id should not be null in this case.")
+    return
+  }
 
   return (
     <PageContainer>
@@ -30,7 +36,7 @@ function RouteComponent() {
           Use the status filter below to see available or used MFIDs.
         </span>
       </div>
-      <MfidTable onRowClick={handleRowClick} />
+      <MfidTable seasonId={seasonId} onRowClick={handleRowClick} />
     </PageContainer>
   )
 }

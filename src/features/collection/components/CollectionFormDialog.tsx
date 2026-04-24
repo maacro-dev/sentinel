@@ -27,6 +27,8 @@ interface CollectionFormDialogProps {
   originalTask?: CollectionTask;
   editingTask?: CollectionTask;
   hideTrigger?: boolean;
+  minStartDate?: Date;
+  maxEndDate?: Date;
 }
 
 export function CollectionFormDialog({
@@ -40,11 +42,17 @@ export function CollectionFormDialog({
   originalTask,
   editingTask,
   hideTrigger = false,
+  minStartDate,
+  maxEndDate,
 }: CollectionFormDialogProps) {
   const { data: currentSeasonId } = useCurrentSeasonId();
 
+  if (currentSeasonId == null) {
+    throw new Error("current season id should not be null in this case.")
+  }
+
   const { data: users, isLoading: usersLoading, error: usersError } = useAvailableCollectors();
-  const { data: mfids, isLoading: mfidsLoading, error: mfidsError } = useMfids();
+  const { data: mfids, isLoading: mfidsLoading, error: mfidsError } = useMfids(currentSeasonId);
 
   const isRetake = !!originalTask;
   const isEditing = !!editingTask;
@@ -124,6 +132,13 @@ export function CollectionFormDialog({
     }
   }, [users, form, isRetake, isEditing]);
 
+  const startDateValue = form.watch("start_date");
+
+  const minEndDate = useMemo(() => {
+    if (!startDateValue) return undefined;
+    return new Date(startDateValue + "T12:00:00");
+  }, [startDateValue]);
+
   const handleSubmit = (input: CollectionTaskInput) => {
     if (isEditing && editingTask) {
       onSubmit({ id: editingTask.id, ...input });
@@ -134,6 +149,13 @@ export function CollectionFormDialog({
     }
     form.reset();
   };
+
+  const endDateValue = form.watch("end_date");
+
+  const maxStartDate = useMemo(() => {
+    if (!endDateValue) return undefined;
+    return new Date(endDateValue + "T12:00:00");
+  }, [endDateValue]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && !canOpen) return;
@@ -166,8 +188,8 @@ export function CollectionFormDialog({
   const dialogDescription = isEditing
     ? "Update the collector or date range for this task."
     : (isRetake
-        ? "Schedule a new collection task to retake this rejected form. The collector will see it in their pending list."
-        : "Assign a data collector to collect a specific form within a date range.");
+      ? "Schedule a new collection task to retake this rejected form. The collector will see it in their pending list."
+      : "Assign a data collector to collect a specific form within a date range.");
   const submitButtonText = isEditing ? "Save Changes" : (isRetake ? "Schedule Retake" : "Create");
 
   return (
@@ -271,8 +293,18 @@ export function CollectionFormDialog({
                   }
                 />
 
-                <FormDatePicker name="start_date" label="Start Date" />
-                <FormDatePicker name="end_date" label="End Date" />
+                <FormDatePicker
+                  name="start_date"
+                  label="Start Date"
+                  minDate={minStartDate}
+                  maxDate={maxStartDate}
+                />
+                <FormDatePicker
+                  name="end_date"
+                  label="End Date"
+                  minDate={minEndDate}
+                  maxDate={maxEndDate}
+                />
               </div>
 
               <DialogFooter className="mt-4">

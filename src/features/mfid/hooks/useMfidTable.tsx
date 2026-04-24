@@ -5,8 +5,8 @@ import { getTableColumnsByPath } from "@/core/tanstack/table/utils"
 import { useMfids } from "./useMfids"
 import { dataGroupConfig } from "@/routes/_manager/_data/-config"
 
-export const useMfidTable = () => {
-  const { data: mfids, isLoading } = useMfids()
+export const useMfidTable = (seasonId: number) => {
+  const { data: mfids, isLoading } = useMfids(seasonId)
 
   const columns = useMemo(() => {
     return getTableColumnsByPath({
@@ -18,7 +18,9 @@ export const useMfidTable = () => {
   const table = useDataTable({
     data: mfids,
     columns: columns,
-    getRowId: (row) => row.mfid
+    getRowId: (row) => row.mfid,
+    enableMultiSelect: true,
   })
+
   return { table, isLoading, mfids }
 }

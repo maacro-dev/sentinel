@@ -50,7 +50,12 @@ select
     a.province,
     spatial.ST_Y(f.location) || ',' || spatial.ST_X(f.location) as coordinates,
     m.created_at,
-    m.used_at
+    m.used_at,
+    exists (
+        select 1
+        from collection_tasks ct
+        where ct.mfid_id = m.id
+    ) as has_scheduling
 from public.mfids m
 left join public.fields f on f.mfid_id = m.id
 left join public.addresses a on f.barangay_id = a.barangay_id
@@ -58,6 +63,58 @@ left join public.farmers fa on f.farmer_id = fa.id
 order by m.mfid;
 
 
+-- changed from view to pass season id
+create or replace function get_mfid_details(p_season_id int default null)
+returns table (
+  status text,
+  farmer_name text,
+  farmer_gender text,
+  farmer_date_of_birth date,
+  farmer_cellphone_no text,
+  mfid text,
+  barangay text,
+  city_municipality text,
+  province text,
+  coordinates text,
+  created_at timestamptz,
+  used_at timestamptz,
+  has_scheduling boolean
+)
+language sql
+security definer
+set search_path = 'public'
+as $$
+  select
+    case
+      when m.used_at is null then 'available'
+      else 'assigned'
+    end as status,
+    case
+      when fa.id is not null then concat_ws(' ', fa.first_name, fa.last_name)
+      else null
+    end as farmer_name,
+    fa.gender as farmer_gender,
+    fa.date_of_birth as farmer_date_of_birth,
+    fa.cellphone_no as farmer_cellphone_no,
+    m.mfid,
+    a.barangay,
+    a.city_municipality,
+    a.province,
+    spatial.ST_Y(f.location) || ',' || spatial.ST_X(f.location) as coordinates,
+    m.created_at,
+    m.used_at,
+    exists (
+      select 1
+      from collection_tasks ct
+      where ct.mfid_id = m.id
+        and (p_season_id is null or ct.season_id = p_season_id)
+    ) as has_scheduling
+  from public.mfids m
+  left join public.fields f on f.mfid_id = m.id
+  left join public.addresses a on f.barangay_id = a.barangay_id
+  left join public.farmers fa on f.farmer_id = fa.id
+  order by m.mfid;
+$$;
 
 create or replace function public.create_field_with_new_mfid(
     p_municity text,

@@ -8,9 +8,13 @@ export function useTablePagination<TData>(
   resetScroll: () => void
 ) {
 
-  const totalRows = table.getCoreRowModel().rows.length;
+  const totalRows = table.getFilteredRowModel().rows.length;
+  const unfilteredRows = table.getCoreRowModel().rows.length;
+  const selectedRows = table.getSelectedRowModel().rows.length;
+
   const maxPages = table.getPageCount();
   const currentPage = table.getState().pagination.pageIndex + 1;
+
   const pageSize = table.getState().pagination.pageSize;
   const navigate = useNavigate()
   const { search } = useLocation()
@@ -67,6 +71,8 @@ export function useTablePagination<TData>(
 
   return {
     totalRows,
+    unfilteredRows,
+    selectedRows,
     maxPages,
     currentPage,
     navigatePagination,

@@ -1,7 +1,7 @@
 import { SummaryConfig } from "./types";
 
 export const chartContainerDefaults = {
-  className: "w-full dt:h-full hd:h-full",
+  className: "w-full h-full dt:h-full hd:h-full",
 };
 
 export const barColors = [

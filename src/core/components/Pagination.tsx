@@ -111,19 +111,34 @@ const PaginationSizeSelector = memo(({
 
 interface PaginationTotalRowsProps extends ComponentProps<"span"> {
   totalRows: number;
+  unfilteredRows: number;
+  selectedRows: number;
 }
 
 export const PaginationTotalRows = memo(({
   totalRows,
+  unfilteredRows,
+  selectedRows,
   className,
   ...props
 }: PaginationTotalRowsProps) => {
   return (
-    <span className={cn("text-2xs text-muted-foreground/75", className)} {...props}>
-      {totalRows} records
-    </span>
+    <div className="w-full flex justify-between">
+      <span className={cn("text-2xs text-muted-foreground/75", className)} {...props}>
+        {totalRows === unfilteredRows
+          ? `${totalRows} rows`
+          : `${totalRows} of ${unfilteredRows} rows`}
+      </span>
+      {selectedRows > 0 && (
+        <span className={cn("text-2xs text-muted-foreground/75", className)} {...props}>
+          {selectedRows} row{selectedRows > 1 ? "s" : ""} selected
+        </span>
+      )}
+    </div>
   );
 })
+
+
 
 Pagination.Previous = PaginationPrevious;
 Pagination.Next = PaginationNext;

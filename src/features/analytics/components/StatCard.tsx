@@ -88,6 +88,14 @@ export const StatCardMinimal = memo(({ title, subtitle, current_value, unit }: S
 });
 
 
+
+interface ExtraCompare {
+  value: number;
+  unit: string;
+  label: string;
+  meta?: string;
+}
+
 interface StatCardComparisonProps {
   title: string;
   subtitle: string;
@@ -99,66 +107,76 @@ interface StatCardComparisonProps {
   compareLabel: string;
   currentMeta?: string;
   compareMeta?: string;
+  extraCompares?: ExtraCompare[];
 }
 
-export const StatCardComparison = memo(({
-  title,
-  subtitle,
-  currentValue,
-  currentUnit,
-  compareValue,
-  compareUnit,
-  currentLabel,
-  compareLabel,
-  currentMeta,
-  compareMeta,
-}: StatCardComparisonProps) => {
-  const renderRow = (
-    label: string,
-    value: number,
-    unit: string,
-    meta?: string
-  ) => {
-    // Format as integer if no unit (e.g., record counts), otherwise two decimals
-    const displayValue = unit === "" ? value.toFixed(0) : value.toFixed(2);
-    const hasMeta = !!meta;
+export const StatCardComparison = memo(
+  ({
+    title,
+    subtitle,
+    currentValue,
+    currentUnit,
+    compareValue,
+    compareUnit,
+    currentLabel,
+    compareLabel,
+    currentMeta,
+    compareMeta,
+    extraCompares = [],
+  }: StatCardComparisonProps) => {
+    const renderRow = (
+      label: string,
+      value: number,
+      unit: string,
+      meta?: string
+    ) => {
+      const displayValue =
+        value != null
+          ? unit === ''
+            ? value.toFixed(0)
+            : value.toFixed(2)
+          : '—';
+
+      return (
+        <div className="flex justify-between items-baseline" key={label}>
+          <span className="text-xs font-medium text-muted-foreground">{label}</span>
+          <div className="flex items-baseline gap-1">
+            {meta ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-sm font-semibold cursor-help">{meta}</span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    {displayValue} {unit}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <div className="space-x-1">
+                <span className="font-semibold text-lg">{displayValue}</span>
+                {unit && <span className="text-5xs font-light text-muted-foreground">{unit}</span>}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
 
     return (
-      <div className="flex justify-between items-baseline">
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
-        <div className="flex items-baseline gap-1">
-          {hasMeta ? (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="text-sm font-semibold cursor-help">{meta}</span>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs">
-                  {displayValue} {unit}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : (
-            <div className="space-x-1">
-              <span className="font-semibold text-lg">{displayValue}</span>
-              {unit && <span className="text-5xs font-light text-muted-foreground">{unit}</span>}
-            </div>
+      <Card className="flex-1 h-full min-h-36 flex flex-col gap-2.5 justify-between rounded-container hover:shadow-sm transition-all">
+        <CardHeader className="flex flex-col gap-0.5 lt:gap-1 dt:gap-1.5">
+          <CardTitle className="leading-none font-medium text-primary">{title}</CardTitle>
+          <CardDescription className="text-left font-light text-muted-foreground">{subtitle}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          {renderRow(currentLabel, currentValue, currentUnit, currentMeta)}
+          {renderRow(compareLabel, compareValue, compareUnit, compareMeta)}
+          {extraCompares.map(({ label, value, unit, meta }) =>
+            renderRow(label, value, unit, meta)
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
-  };
-
-  return (
-    <Card className="flex-1 h-full min-h-36 flex flex-col gap-2.5 justify-between rounded-container hover:shadow-sm transition-all">
-      <CardHeader className="flex flex-col gap-0.5 lt:gap-1 dt:gap-1.5">
-        <CardTitle className="leading-none font-medium text-primary">{title}</CardTitle>
-        <CardDescription className="text-left font-light text-muted-foreground">{subtitle}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-2">
-        {renderRow(currentLabel, currentValue, currentUnit, currentMeta)}
-        {renderRow(compareLabel, compareValue, compareUnit, compareMeta)}
-      </CardContent>
-    </Card>
-  );
-});
+  }
+);

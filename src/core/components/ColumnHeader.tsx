@@ -175,6 +175,39 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
                   </button>
                 )}
               </div>
+            ) : filterVariant === 'boolean' ? (
+              <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
+                {[{ label: 'Yes', value: true }, { label: 'No', value: false }].map((opt) => {
+                  const currentValue = column.getFilterValue();
+                  const isSelected = currentValue === opt.value;
+                  return (
+                    <Field
+                      key={String(opt.value)}
+                      orientation="horizontal"
+                      className="rounded px-0.5 py-1 hover:bg-accent cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        column.setFilterValue(isSelected ? undefined : opt.value);
+                      }}
+                    >
+                      <Checkbox
+                        id={`filter-${column.id}-${opt.value}`}
+                        checked={isSelected}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <FieldContent>
+                        <FieldLabel
+                          htmlFor={`filter-${column.id}-${opt.value}`}
+                          className="text-3xs font-normal text-muted-foreground cursor-pointer"
+                          onClick={(e) => e.preventDefault()}
+                        >
+                          {opt.label}
+                        </FieldLabel>
+                      </FieldContent>
+                    </Field>
+                  );
+                })}
+              </div>
             ) : null}
           </div>
         )}

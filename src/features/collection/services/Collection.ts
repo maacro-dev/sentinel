@@ -22,6 +22,44 @@ export class Collection {
     return parseCollectionTasks(data);
   }
 
+  static async scheduleFieldDataAndCore(input: CollectionTaskInput): Promise<number> {
+    const client = await getSupabase();
+
+    const { data: taskId, error } = await client.rpc('schedule_core_collection_tasks', {
+      p_mfid: input.mfid,
+      p_season_id: input.season_id,
+      p_activity_type: input.activity_type,
+      p_collector_id: input.collector_id,
+      p_start_date: input.start_date,
+      p_end_date: input.end_date,
+      p_schedule_all: true,
+      // @ts-ignore
+      p_retake_of: input.retake_of,
+    });
+
+    if (error) throw error;
+    return taskId;
+  }
+
+  static async batchScheduleFieldData(input: {
+    mfids: string[];
+    seasonId: number;
+    collectorId: string;
+    startDate: string;
+    endDate: string;
+  }): Promise<void> {
+    const client = await getSupabase();
+    const { error } = await client.rpc('batch_schedule_core_collection_tasks', {
+      p_mfids: input.mfids,
+      p_season_id: input.seasonId,
+      p_collector_id: input.collectorId,
+      p_start_date: input.startDate,
+      p_end_date: input.endDate,
+    });
+
+    if (error) throw error;
+  }
+
   static async create(input: CollectionTaskInput): Promise<number> {
     const client = await getSupabase();
 

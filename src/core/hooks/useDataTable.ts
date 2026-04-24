@@ -20,6 +20,7 @@ interface UseDataTableOptions<T> {
   getRowId?: (row: T) => string;
   initialSorting?: SortingState;
   initialColumnFilters?: ColumnFiltersState;
+  enableMultiSelect?: boolean;
 }
 
 export const useDataTable = <T>({
@@ -27,7 +28,8 @@ export const useDataTable = <T>({
   columns,
   getRowId,
   initialSorting,
-  initialColumnFilters
+  initialColumnFilters,
+  enableMultiSelect
 }: UseDataTableOptions<T>) => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
@@ -40,7 +42,7 @@ export const useDataTable = <T>({
     data,
     columns,
     enableRowSelection: true,
-    enableMultiRowSelection: false,
+    enableMultiRowSelection: enableMultiSelect ?? false,
     enableSorting: true,
     enableColumnFilters: true,
     getRowId: getRowId || undefined,

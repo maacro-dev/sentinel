@@ -1,189 +1,134 @@
-import { ChartConfig } from '@/core/components/ui/chart';
 import { YieldByLocationData } from '@/features/analytics/schemas/comparative/yield-location';
 import { StatCardComparison, StatCardMinimal } from '../components/StatCard';
 import { Lightbulb } from 'lucide-react';
 import { GroupedBarChart } from '../components/GroupedBarChart/GroupedBarChart';
+import { buildBarKeys, normaliseCompareProps } from '../utils';
 
-export const yieldByLocationChartConfig = {
-  yield: {
-    label: "Yield (t/ha)"
+function buildGroupedRows(
+  primaryRanking: { location: string; yield: number }[],
+  cmpDataItems: any[]
+): Record<string, any>[] {
+  const rowMap = new Map<string, Record<string, any>>();
+  for (const item of primaryRanking) {
+    rowMap.set(item.location, { location: item.location, current: Number(item.yield.toFixed(2)) });
   }
-} satisfies ChartConfig;
+  for (let i = 0; i < cmpDataItems.length; i++) {
+    const items = cmpDataItems[i];
+    if (!Array.isArray(items)) continue;
+    const key = `compare_${i}`;
+    for (const item of items) {
+      const loc = item.location as string;
+      if (!rowMap.has(loc)) rowMap.set(loc, { location: loc, current: 0 });
+      rowMap.get(loc)![key] = Number((item.compare ?? 0).toFixed(2));
+    }
+  }
+  return Array.from(rowMap.values());
+}
 
-const computeComparisonInsight = (groupedData: any[], currentLabel: string, compareLabel: string, stats: any) => {
-  if (!groupedData.length) return null;
-  const currentAvg = stats.primary.avg;
-  const compareAvg = stats.compare.avg;
-  const diffPercent = ((currentAvg - compareAvg) / compareAvg) * 100;
-  const higher = currentAvg > compareAvg;
-  const absDiff = Math.abs(diffPercent).toFixed(1);
-  return {
-    currentAvg: currentAvg.toFixed(2),
-    compareAvg: compareAvg.toFixed(2),
-    diffPercent: absDiff,
-    higher,
-    text: `${currentLabel}'s average yield (${currentAvg.toFixed(2)} t/ha) is ${absDiff}% ${higher ? 'higher' : 'lower'} than ${compareLabel}'s average (${compareAvg.toFixed(2)} t/ha).${higher ? ' This indicates improved performance.' : ' This suggests a decline in productivity.'}`
-  };
-};
+function buildInsight(currentLabel: string, currentAvg: number, cmpLabels: string[], cmpStatsList: any[]): string {
+  const parts = cmpLabels.map((label, i) => {
+    const cmp = cmpStatsList[i]?.avg ?? 0;
+    const diff = ((currentAvg - cmp) / (cmp || 1)) * 100;
+    return `${Math.abs(diff).toFixed(1)}% ${diff >= 0 ? 'higher' : 'lower'} than ${label} (${cmp.toFixed(2)} t/ha)`;
+  });
+  return `${currentLabel}'s average yield (${currentAvg.toFixed(2)} t/ha) is ${parts.join(', and ')}.`;
+}
 
 export function YieldByLocationView({
   data,
   compareData,
   currentSeasonLabel,
+  compareSeasonLabels,
   compareSeasonLabel,
   comparisonStats,
 }: {
   data: YieldByLocationData;
   level?: 'province' | 'municipality' | 'barangay';
-  compareData?: any;
+  compareData?: any[];
   currentSeasonLabel: string | null;
-  compareSeasonLabel: string | null;
-  comparisonStats?: any;
+  compareSeasonLabels?: string[];
+  compareSeasonLabel?: string | null;
+  comparisonStats?: any[];
 }) {
-  const hasComparison = !!compareData?.length && currentSeasonLabel && compareSeasonLabel;
+  const { cmpLabels, cmpDataItems, hasComparison, primaryStats, compareStatsList } =
+    normaliseCompareProps({ compareData, comparisonStats, compareSeasonLabels, compareSeasonLabel });
 
-  const roundedRanking = data.ranking.map(item => ({
-    ...item,
-    yield: Number(item.yield.toFixed(2))
-  }));
+  const currentLabel = currentSeasonLabel ?? "Current Season";
 
-  const singleSeasonData = data.ranking.map(item => ({
-    location: item.location,
-    current: item.yield,
-  }));
+  const groupedRows = hasComparison
+    ? buildGroupedRows(data.ranking, cmpDataItems)
+    : data.ranking.map(item => ({ location: item.location, current: Number(item.yield.toFixed(2)) }));
 
-  const groupedData = hasComparison ? compareData : singleSeasonData;
+  const barKeys = buildBarKeys(currentLabel, hasComparison ? cmpLabels : []);
 
-  const barKeys = hasComparison
-    ? [
-        { key: "current", name: currentSeasonLabel ?? "Current Season", color: "var(--color-humay)" },
-        { key: "compare", name: compareSeasonLabel ?? "Comparison Season", color: "var(--color-humay-light)" },
-      ]
-    : [
-        { key: "current", name: currentSeasonLabel ?? "Yield (t/ha)", color: "var(--color-humay)" },
-      ];
-
-  const highest = data.highest_yield;
-  const lowest = data.lowest_yield;
-  const gap = data.gap_percentage;
-  const avg = data.average_yield;
-  const locationsWithData = roundedRanking.filter(item => item.yield > 0).length;
-
-  // Use stats from hook
-  const primaryStats = hasComparison ? comparisonStats?.primary : null;
-  const compareStats = hasComparison ? comparisonStats?.compare : null;
-
-  const comparisonInsight = hasComparison && currentSeasonLabel && compareSeasonLabel && comparisonStats
-    ? computeComparisonInsight(compareData, currentSeasonLabel, compareSeasonLabel, comparisonStats)
+  const { highest_yield: highest, lowest_yield: lowest, gap_percentage: gap, average_yield: avg } = data;
+  const locationsWithData = data.ranking.filter(r => r.yield > 0).length;
+  const insightText = hasComparison
+    ? buildInsight(currentLabel, primaryStats?.avg ?? avg, cmpLabels, compareStatsList)
     : null;
 
+  const STAT_METRICS = [
+    { key: "avg",     title: "Average Yield (Provincial Mean)", subtitle: "Computed from province-level averages", unit: "t/ha" },
+    { key: "highest", title: "Highest Yield",                   subtitle: primaryStats?.highestLocation ?? "Location", unit: "t/ha" },
+    { key: "lowest",  title: "Lowest Yield",                    subtitle: primaryStats?.lowestLocation  ?? "Location", unit: "t/ha" },
+    { key: "gap",     title: "Yield Gap",                       subtitle: "High vs Low difference",                   unit: "%" },
+  ] as const;
+
   return (
-    <div className='flex flex-col gap-4'>
+    <div className="flex flex-col gap-4">
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-        {hasComparison && primaryStats && compareStats ? (
-          <>
+        {hasComparison && primaryStats ? (
+          STAT_METRICS.map(({ key, title, subtitle, unit }) => (
             <StatCardComparison
-              title="Average Yield (Provincial Mean)"
-              subtitle="Computed from province-level averages"
-              currentValue={primaryStats.avg}
-              currentUnit="t/ha"
-              compareValue={compareStats.avg}
-              compareUnit="t/ha"
-              currentLabel={currentSeasonLabel ?? "Current"}
-              compareLabel={compareSeasonLabel ?? "Comparison"}
+              key={key}
+              title={title}
+              subtitle={subtitle}
+              currentValue={primaryStats[key]}
+              currentUnit={unit}
+              compareValue={compareStatsList[0]?.[key]}
+              compareUnit={unit}
+              currentLabel={currentLabel}
+              compareLabel={cmpLabels[0] ?? "Comparison"}
+              extraCompares={compareStatsList.slice(1).map((s, i) => ({
+                value: s?.[key],
+                unit,
+                label: cmpLabels[i + 1] ?? `Season ${i + 2}`,
+              }))}
             />
-            <StatCardComparison
-              title="Highest Yield"
-              subtitle={primaryStats.highestLocation ?? "Location"}
-              currentValue={primaryStats.highest}
-              currentUnit="t/ha"
-              compareValue={compareStats.highest}
-              compareUnit="t/ha"
-              currentLabel={currentSeasonLabel ?? "Current"}
-              compareLabel={compareSeasonLabel ?? "Comparison"}
-            />
-            <StatCardComparison
-              title="Lowest Yield"
-              subtitle={primaryStats.lowestLocation ?? "Location"}
-              currentValue={primaryStats.lowest}
-              currentUnit="t/ha"
-              compareValue={compareStats.lowest}
-              compareUnit="t/ha"
-              currentLabel={currentSeasonLabel ?? "Current"}
-              compareLabel={compareSeasonLabel ?? "Comparison"}
-            />
-            <StatCardComparison
-              title="Yield Gap"
-              subtitle="High vs Low difference"
-              currentValue={primaryStats.gap}
-              currentUnit="%"
-              compareValue={compareStats.gap}
-              compareUnit="%"
-              currentLabel={currentSeasonLabel ?? "Current"}
-              compareLabel={compareSeasonLabel ?? "Comparison"}
-            />
-          </>
+          ))
         ) : (
           <>
-            <StatCardMinimal
-              title='Average Yield (Provincial Mean)'
-              subtitle='Computed from province-level averages'
-              current_value={Number(avg.toFixed(2))}
-              unit='t/ha'
-            />
-            <StatCardMinimal
-              title='Highest Yield'
-              subtitle={highest?.location ?? 'N/A'}
-              current_value={highest ? Number(highest.value.toFixed(2)) : 0}
-              unit='t/ha'
-            />
-            <StatCardMinimal
-              title='Lowest Yield'
-              subtitle={lowest?.location ?? 'N/A'}
-              current_value={lowest ? Number(lowest.value.toFixed(2)) : 0}
-              unit='t/ha'
-            />
-            <StatCardMinimal
-              title='Yield Gap'
-              subtitle="High vs Low difference"
-              current_value={Number(gap.toFixed(1))}
-              unit='%'
-            />
+            <StatCardMinimal title="Average Yield (Provincial Mean)" subtitle="Computed from province-level averages" current_value={Number(avg.toFixed(2))} unit="t/ha" />
+            <StatCardMinimal title="Highest Yield" subtitle={highest?.location ?? "N/A"} current_value={highest ? Number(highest.value.toFixed(2)) : 0} unit="t/ha" />
+            <StatCardMinimal title="Lowest Yield" subtitle={lowest?.location ?? "N/A"} current_value={lowest ? Number(lowest.value.toFixed(2)) : 0} unit="t/ha" />
+            <StatCardMinimal title="Yield Gap" subtitle="High vs Low difference" current_value={Number(gap.toFixed(1))} unit="%" />
           </>
         )}
       </div>
+
       <GroupedBarChart
-        data={groupedData}
-        header={{
-          title: "Yield by Location",
-          description: hasComparison ? `${currentSeasonLabel ?? 'Current'} vs ${compareSeasonLabel ?? 'Comparison'}` : "Current Season"
-        }}
+        data={groupedRows}
+        header={{ title: "Yield by Location", description: hasComparison ? `${currentLabel} vs ${cmpLabels.join(', ')}` : "Current Season" }}
         categoryKey="location"
         barKeys={barKeys}
-        valueUnit='t/ha'
+        valueUnit="t/ha"
       />
+
       {data.ranking.length > 0 && (
         <div className="flex items-start gap-2 text-sm text-muted-foreground mt-2">
           <Lightbulb className="size-4 mt-0.5 shrink-0" />
           <p>
-            {comparisonInsight ? (
-              comparisonInsight.text
-            ) : (
-              highest ? (
-                <>
-                  <span className="font-medium text-foreground">{highest.location}</span> leads with{' '}
-                  <span className="font-medium text-foreground">{highest.value.toFixed(2)} t/ha</span> average yield,
-                  outperforming{' '}
-                  <span className="font-medium text-foreground">{lowest?.location ?? 'the lowest'}</span> by{' '}
-                  <span className="font-medium text-foreground">{gap.toFixed(1)}%</span>.
-                  The overall average across{' '} <span className="font-medium text-foreground">{locationsWithData}</span>{' '}
-                  {locationsWithData === 1 ? 'location' : 'locations'} with data is{' '}
-                  <span className="font-medium text-foreground">{avg.toFixed(2)} t/ha</span>.
-                </>
-              ) : (
-                <>No yield data available for the selected filters.</>
-              )
-            )}
+            {insightText ?? (highest ? (
+              <>
+                <span className="font-medium text-foreground">{highest.location}</span> leads with{' '}
+                <span className="font-medium text-foreground">{highest.value.toFixed(2)} t/ha</span>,
+                outperforming <span className="font-medium text-foreground">{lowest?.location ?? 'the lowest'}</span>{' '}
+                by <span className="font-medium text-foreground">{gap.toFixed(1)}%</span>.
+                Overall average across <span className="font-medium text-foreground">{locationsWithData}</span>{' '}
+                {locationsWithData === 1 ? 'location' : 'locations'} is{' '}
+                <span className="font-medium text-foreground">{avg.toFixed(2)} t/ha</span>.
+              </>
+            ) : <>No yield data available for the selected filters.</>)}
           </p>
         </div>
       )}
