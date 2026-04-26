@@ -5,12 +5,21 @@ import { Badge } from "@/core/components/ui/badge";
 import { capitalizeFirst } from "@/core/utils/string";
 import React from "react";
 
-export const StatusWithRetakeCell = ({ row }: { row: any }) => {
+type StatusWithRetakeCellProps = {
+  verificationStatus: "approved" | "pending" | "rejected" | "unknown" | null | undefined;
+  isRetake: boolean | undefined;
+  originalId: number | null | undefined;
+  formType: string;
+};
+
+export const StatusWithRetakeCell = ({
+  verificationStatus,
+  isRetake,
+  originalId,
+  formType,
+}: StatusWithRetakeCellProps) => {
+
   const navigate = useNavigate();
-  const verificationStatus = row.original.activity.verificationStatus;
-  const isRetake = row.original.activity.is_retake;
-  const originalId = row.original.activity.original_activity_id;
-  const formType = row.original.activity.type;
 
   const handleViewOriginal = (e: React.MouseEvent) => {
     e.stopPropagation();

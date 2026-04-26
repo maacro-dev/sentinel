@@ -114,7 +114,7 @@ export const SentinelSelect = ({
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
 
-        <SelectContent position="popper">
+        <SelectContent position="popper" className="max-h-96">
           {options.length > 0 ? (
             options.map((opt, i) => (
               <SelectItem

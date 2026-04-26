@@ -28,6 +28,12 @@ interface BatchScheduleDialogProps {
   shouldShowTrigger?: boolean;
   selectedCount: number;
   scheduledMfids?: string[];
+  locationWarning?: boolean;
+  locations?: {
+    provinces: string[];
+    municipalities: string[];
+  };
+  canSchedule?: boolean;
 }
 
 export function BatchScheduleDialog({
@@ -39,6 +45,9 @@ export function BatchScheduleDialog({
   shouldShowTrigger,
   selectedCount,
   scheduledMfids = [],
+  locationWarning,
+  locations,
+  canSchedule
 }: BatchScheduleDialogProps) {
   const { data: users, isLoading: usersLoading } = useAvailableCollectors();
   const form = useForm<BatchScheduleInput>({
@@ -71,7 +80,6 @@ export function BatchScheduleDialog({
       {shouldShowTrigger && (
         <DialogTrigger asChild>
           <Button
-            // disabled={isBatchScheduling}
             className="min-w-32 text-xs"
             variant='outline'
           >
@@ -87,6 +95,34 @@ export function BatchScheduleDialog({
             field IDs. They will be assigned the same collector and dates.
           </DialogDescription>
         </DialogHeader>
+
+        {!canSchedule && selectedCount > 0 && (
+          <Alert variant="destructive">
+            <InfoIcon className="h-4 w-4" />
+            <AlertTitle>Cannot schedule across provinces</AlertTitle>
+            <AlertDescription>
+              All selected MFIDs must be in the same province to assign one collector.
+              Please narrow your selection.
+              {locations && locations.provinces.length > 1 && (
+                <p className="mt-1">Provinces selected: {locations.provinces.join(', ')}</p>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {canSchedule && locationWarning && (
+          <Alert variant="warning">
+            <InfoIcon className="h-4 w-4" />
+            <AlertTitle>Multiple municipalities selected</AlertTitle>
+            <AlertDescription>
+              You are scheduling the same collector for multiple municipalities. Ensure the
+              collector can travel between them within the given dates.
+              {locations && locations.municipalities.length > 1 && (
+                <p className="mt-1">Municipalities: {locations.municipalities.join(', ')}</p>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {scheduledMfids.length > 0 && (
           <Alert variant="warning">

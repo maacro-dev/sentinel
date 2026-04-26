@@ -210,6 +210,83 @@ left join field_activities fa on fa.collection_task_id = ct.id
 left join collection_tasks ct_original on ct.retake_of = ct_original.id
 left join field_activities fa_original on ct_original.id = fa_original.collection_task_id;
 
+create or replace function get_available_tasks_for_collector(
+  p_collector_id uuid,
+  p_today date default current_date
+)
+returns setof collection_details
+language sql
+security definer
+set search_path = 'public'
+as $$
+  with current_season as (
+    select id as season_id from latest_season
+  ),
+  all_tasks as (
+    select cd.*
+    from collection_details cd
+    cross join current_season cs
+    where cd.collector_id = p_collector_id
+      and cd.season_id = cs.season_id
+  ),
+  completed_tasks as (
+    select * from all_tasks where status = 'completed'
+  ),
+  pending_tasks as (
+    select *
+    from all_tasks
+    where status in ('pending', 'in_progress')
+      and start_date <= p_today
+  ),
+  prereq_met as (
+    select
+      t.id,
+      case
+        when t.activity_type = 'field-data' then true
+        when t.activity_type = 'cultural-management' then
+          exists (
+            select 1 from all_tasks p      -- ← now looks at ALL tasks
+            where p.mfid_id = t.mfid_id
+              and p.activity_type = 'field-data'
+              and p.status = 'completed'
+              and p.verification_status = 'approved'
+          )
+        when t.activity_type in ('nutrient-management', 'production') then
+          exists (
+            select 1 from all_tasks p
+            where p.mfid_id = t.mfid_id
+              and p.activity_type = 'cultural-management'
+              and p.status = 'completed'
+              and p.verification_status = 'approved'
+          )
+        else false
+      end as ok
+    from pending_tasks t
+  ),
+  eligible_pending as (
+    select t.*
+    from pending_tasks t
+    join prereq_met pm on pm.id = t.id
+    where pm.ok
+  ),
+  per_mfid_earliest_date as (
+    select mfid_id, min(start_date) as earliest_start
+    from eligible_pending
+    group by mfid_id
+  ),
+  filtered_pending as (
+    select et.*
+    from eligible_pending et
+    join per_mfid_earliest_date ed
+      on ed.mfid_id = et.mfid_id
+      and et.start_date = ed.earliest_start
+  )
+  select * from completed_tasks
+  union all
+  select * from filtered_pending
+  order by mfid, start_date;
+$$;
+
 
 create or replace function public.get_planting_season_for_harvest(p_field_id int, p_harvest_date date)
 returns int
@@ -279,4 +356,94 @@ begin
           and (p_updated_after is null or updated_at > p_updated_after)
     );
 end;
+$$;
+
+
+
+
+create or replace view public.mfid_details
+ as
+select
+    case
+        when m.used_at is null
+            then 'available'
+        else 'assigned'
+    end                 as status,
+    case
+        when fa.id is not null
+            then concat_ws(' ', fa.first_name, fa.last_name)
+        else null
+    end                 as farmer_name,
+    fa.gender           as farmer_gender,
+    fa.date_of_birth    as farmer_date_of_birth,
+    fa.cellphone_no     as farmer_cellphone_no,
+    m.mfid,
+    a.barangay,
+    a.city_municipality,
+    a.province,
+    spatial.ST_Y(f.location) || ',' || spatial.ST_X(f.location) as coordinates,
+    m.created_at,
+    m.used_at,
+    exists (
+        select 1
+        from collection_tasks ct
+        where ct.mfid_id = m.id
+    ) as has_scheduling
+from public.mfids m
+left join public.fields f on f.mfid_id = m.id
+left join public.addresses a on f.barangay_id = a.barangay_id
+left join public.farmers fa on f.farmer_id = fa.id
+order by m.mfid;
+
+
+create or replace function get_mfid_details(p_season_id int default null)
+returns table (
+  status text,
+  farmer_name text,
+  farmer_gender text,
+  farmer_date_of_birth date,
+  farmer_cellphone_no text,
+  mfid text,
+  barangay text,
+  city_municipality text,
+  province text,
+  coordinates text,
+  created_at timestamptz,
+  used_at timestamptz,
+  has_scheduling boolean
+)
+language sql
+security definer
+set search_path = 'public'
+as $$
+  select
+    case
+      when m.used_at is null then 'available'
+      else 'assigned'
+    end as status,
+    case
+      when fa.id is not null then concat_ws(' ', fa.first_name, fa.last_name)
+      else null
+    end as farmer_name,
+    fa.gender as farmer_gender,
+    fa.date_of_birth as farmer_date_of_birth,
+    fa.cellphone_no as farmer_cellphone_no,
+    m.mfid,
+    a.barangay,
+    a.city_municipality,
+    a.province,
+    spatial.ST_Y(f.location) || ',' || spatial.ST_X(f.location) as coordinates,
+    m.created_at,
+    m.used_at,
+    exists (
+      select 1
+      from collection_tasks ct
+      where ct.mfid_id = m.id
+        and (p_season_id is null or ct.season_id = p_season_id)
+    ) as has_scheduling
+  from public.mfids m
+  left join public.fields f on f.mfid_id = m.id
+  left join public.addresses a on f.barangay_id = a.barangay_id
+  left join public.farmers fa on f.farmer_id = fa.id
+  order by m.mfid;
 $$;

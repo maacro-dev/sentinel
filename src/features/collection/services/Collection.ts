@@ -11,7 +11,7 @@ export class Collection {
     let query = client
       .from("collection_details")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("start_date", { ascending: true });
 
     if (seasonId) {
       query = query.eq("season_id", seasonId);

@@ -6,6 +6,7 @@ import { useFormEntries } from "./useFormData"
 
 export const useFormEntriesTable = (formType: FormType, seasonId?: number) => {
   const { data: formData, isLoading } = useFormEntries({ formType, seasonId });
+
   const columns = useMemo(() => getTableColumns({ formType, config: formGroupConfig }), [formType]);
   const table = useDataTable({
     data: formData,

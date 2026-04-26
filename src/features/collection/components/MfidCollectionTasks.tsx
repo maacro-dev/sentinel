@@ -1,6 +1,5 @@
 import { AlertCircle, CalendarClock, CheckCircle2, ChevronRight, Circle, Clock, Edit, Eye, RotateCcw, Trash2, XCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/core/components/ui/table";
-
 import { Badge } from "@/core/components/ui/badge";
 import { format } from "date-fns";
 import { getActivityTypeLabel } from "@/features/forms/utils";
@@ -48,6 +47,12 @@ export const useBatchScheduleFieldData = () => {
     },
   });
 };
+
+const CORE_GROUPS: CoreMetadataType[][] = [
+  ['field-data'],
+  ['cultural-management'],
+  ['nutrient-management', 'production'],
+];
 
 interface MfidCollectionTasksProps {
   mfid: string;
@@ -245,55 +250,47 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
   }, [groupedTasks]);
 
   const dateConstraints = useMemo(() => {
-    const order = CORE_METADATA_TYPES;
     const result: Record<string, { minStart?: Date; maxEnd?: Date }> = {};
+    const excludeId = editingTask?.id;
 
-    for (let i = 0; i < order.length; i++) {
-      const formType = order[i];
+    for (let gIdx = 0; gIdx < CORE_GROUPS.length; gIdx++) {
+      const group = CORE_GROUPS[gIdx];
+
       let minStart: Date | undefined;
-      let maxEnd: Date | undefined;
-
-      // 1. Preceding type’s latest end date
-      if (i > 0) {
-        const prevType = order[i - 1];
+      if (gIdx > 0) {
+        const prevGroupTypes = CORE_GROUPS[gIdx - 1];
         const prevTasks = tasks.filter(
-          t => t.activity_type === prevType && t.id !== editingTask?.id
+          t => prevGroupTypes.includes(t.activity_type as CoreMetadataType) && t.id !== excludeId
         );
         if (prevTasks.length > 0) {
           const latestEnd = prevTasks.reduce((latest, t) => {
             const end = new Date(t.end_date + 'T00:00:00');
             return end > latest ? end : latest;
           }, new Date(0));
-          // minStart (after the loop)
           minStart = new Date(latestEnd);
           minStart.setDate(minStart.getDate() + 1);
         }
       }
 
-      // 2. Next upcoming task(s) – earliest start date among all following types
-      const excludeId = editingTask?.id;
-      let earliestStart: Date | undefined;
-      for (let j = i + 1; j < order.length; j++) {
-        const nextType = order[j];
+      let maxEnd: Date | undefined;
+      if (gIdx < CORE_GROUPS.length - 1) {
+        const nextGroupTypes = CORE_GROUPS[gIdx + 1];
         const nextTasks = tasks.filter(
-          t => t.activity_type === nextType && t.id !== excludeId
+          t => nextGroupTypes.includes(t.activity_type as CoreMetadataType) && t.id !== excludeId
         );
         if (nextTasks.length > 0) {
-          const minOfNext = nextTasks.reduce((earliest, t) => {
+          const earliestStart = nextTasks.reduce((earliest, t) => {
             const start = new Date(t.start_date + 'T00:00:00');
             return start < earliest ? start : earliest;
           }, new Date(8640000000000));
-          if (!earliestStart || minOfNext < earliestStart) {
-            earliestStart = minOfNext;
-          }
+          maxEnd = new Date(earliestStart);
+          maxEnd.setDate(maxEnd.getDate() - 1);
         }
       }
-      if (earliestStart) {
-        maxEnd = new Date(earliestStart);
-        maxEnd.setDate(maxEnd.getDate() - 1);  // must end before that start
-      }
 
-      result[formType] = { minStart, maxEnd };
+      group.forEach(formType => {
+        result[formType] = { minStart, maxEnd };
+      });
     }
 
     return result;
@@ -308,7 +305,6 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
     : {};
   const minStartDate = constraints.minStart;
   const maxEndDate = constraints.maxEnd;
-  // const maxStartDate = maxEndDate ?? undefined;
 
   const getStatusForFormType = (formType: CoreMetadataType): {
     icon: React.ReactNode;

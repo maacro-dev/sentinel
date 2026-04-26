@@ -25,19 +25,24 @@ import {
   CORE_METADATA_TYPES,
 } from '@/features/forms/schemas/forms';
 import { getActivityTypeLabel } from '@/features/forms/utils';
-import { useSeasons } from '@/features/fields/hooks/useSeasons';
+import { useSeasonsFilter } from '@/features/fields/hooks/useSeasons';
 import { SeasonRow } from '@/features/fields/schemas/seasons';
 import { getSeasonDisplayLabel } from '@/features/fields/util';
 import React from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
 import { cn } from '@/core/utils/style';
 import { FormDetailView } from '@/features/forms/components/FormDetailView';
+import { SentinelSelect } from '@/core/components/forms/FormSelect';
 
 export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
+
   const { data: allTasks, isLoading: tasksLoading } = useCollectionTasksByMfid(mfid);
-  const { data: seasons = [], isLoading: seasonsLoading } = useSeasons();
+  const { seasons = [], isLoading: seasonsLoading } = useSeasonsFilter();
 
   const [selectedTask, setSelectedTask] = useState<CollectionTask | null>(null);
+
+  const [startSeasonId, setStartSeasonId] = useState<number | undefined>();
+  const [endSeasonId, setEndSeasonId] = useState<number | undefined>();
 
   const handleViewForm = (task: CollectionTask) => setSelectedTask(task);
   const handleBackToSeasons = () => setSelectedTask(null);
@@ -79,6 +84,44 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
     );
   }, [uniqueAllTasks, seasonMap]);
 
+  const sortedSeasons = useMemo(() => {
+    return [...seasons].sort(
+      (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+    );
+  }, [seasons]);
+
+  const seasonOptions = useMemo(() => {
+    return sortedSeasons.map(s => ({
+      value: s.id,
+      label: `${getSeasonDisplayLabel(s, seasons)} (${formatSeasonLabel(s)})`,
+    }));
+  }, [sortedSeasons, seasons]);
+
+  const filteredSeasons = useMemo(() => {
+    const entries = Array.from(groupedBySeason.entries());
+    if (startSeasonId == null && endSeasonId == null) return entries;
+
+    const startSeason = startSeasonId != null ? seasonMap.get(startSeasonId) : null;
+    const endSeason = endSeasonId != null ? seasonMap.get(endSeasonId) : null;
+
+    return entries.filter(([seasonId]) => {
+      const season = seasonMap.get(seasonId);
+      if (!season) return false;
+
+      const seasonStart = new Date(season.start_date + 'T00:00:00');
+
+      if (startSeason) {
+        const startDate = new Date(startSeason.start_date + 'T00:00:00');
+        if (seasonStart < startDate) return false;
+      }
+      if (endSeason) {
+        const endDate = new Date(endSeason.end_date + 'T00:00:00');
+        if (seasonStart > endDate) return false;
+      }
+      return true;
+    });
+  }, [groupedBySeason, seasonMap, startSeasonId, endSeasonId]);
+
 
   const isLoading = tasksLoading || seasonsLoading;
 
@@ -95,7 +138,9 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
       <DialogContent className="max-w-none sm:max-w-none w-lvh h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>
-            {selectedTask ? `${getActivityTypeLabel(selectedTask.activity_type)} – ${mfid}` : `Other Seasons – ${mfid}`}
+            {selectedTask
+              ? `${getActivityTypeLabel(selectedTask.activity_type)} – ${mfid}`
+              : `Other Seasons – ${mfid}`}
           </DialogTitle>
           <DialogDescription>
             {selectedTask
@@ -105,6 +150,40 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
               })()
               : 'Collection task summary across all seasons'}
           </DialogDescription>
+
+          {!selectedTask && (
+            <div className="flex flex-wrap gap-2 items-end pt-2">
+              <SentinelSelect
+                name="startSeason"
+                label="Start Season"
+                value={startSeasonId?.toString() ?? ''}
+                onChange={(val) => setStartSeasonId(val ? Number(val) : undefined)}
+                placeholder="All"
+                options={seasonOptions.map(opt => ({ ...opt, value: String(opt.value) }))}
+              />
+              <SentinelSelect
+                name="endSeason"
+                label="End Season"
+                value={endSeasonId?.toString() ?? ''}
+                onChange={(val) => setEndSeasonId(val ? Number(val) : undefined)}
+                placeholder="All"
+                options={seasonOptions.map(opt => ({ ...opt, value: String(opt.value) }))}
+              />
+              {(startSeasonId != null || endSeasonId != null) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => {
+                    setStartSeasonId(undefined);
+                    setEndSeasonId(undefined);
+                  }}
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+          )}
         </DialogHeader>
 
         {isLoading ? (
@@ -125,7 +204,7 @@ export function MfidOtherSeasonsDialog({ mfid }: { mfid: string }) {
         ) : (
           <div className="flex-1 overflow-y-auto -mx-6 px-6">
             <div className="space-y-6">
-              {Array.from(groupedBySeason.entries()).map(([seasonId, tasks]) => {
+              {filteredSeasons.map(([seasonId, tasks]) => {
                 const season = seasonMap.get(seasonId);
                 return (
                   <SeasonSummaryCard

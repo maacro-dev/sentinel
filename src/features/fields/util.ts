@@ -37,7 +37,13 @@ export const getSeasonDisplayLabel = (
   season: SeasonRow,
   allSeasons: SeasonRow[]
 ): string => {
-  const baseLabel = `${capitalizeFirst(season.semester)} Semester`;
+  const getSeasonName = (semester: string) => {
+    if (semester.toLowerCase() === "first") return "Wet Season";
+    if (semester.toLowerCase() === "second") return "Dry Season";
+    return capitalizeFirst(semester);
+  };
+
+  const baseLabel = getSeasonName(season.semester);
 
   if (isCurrentSeason(season)) {
     return `${baseLabel} (Current)`;

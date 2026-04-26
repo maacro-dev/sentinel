@@ -1,6 +1,7 @@
 import {
   ColumnDef,
   ColumnFiltersState,
+  FilterFn,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
@@ -12,6 +13,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
+import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import { useState } from "react";
 
 interface UseDataTableOptions<T> {
@@ -52,7 +54,9 @@ export const useDataTable = <T>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    filterFns: {},
+    filterFns: {
+      dateRange: dateRangeFilter
+    },
     state: {
       globalFilter,
       pagination,
@@ -71,4 +75,18 @@ export const useDataTable = <T>({
   });
 
   return table;
+};
+
+
+const dateRangeFilter: FilterFn<any> = (row, columnId, filterValue) => {
+  const [from, to] = filterValue as [Date | null, Date | null];
+  if (!from && !to) return true;
+
+  const raw = row.getValue(columnId);
+  const date = raw instanceof Date ? raw : parseISO(String(raw));
+  if (isNaN(date.getTime())) return true;
+
+  if (from && !to) return date >= startOfDay(from);
+  if (!from && to) return date <= endOfDay(to);
+  return isWithinInterval(date, { start: startOfDay(from!), end: endOfDay(to!) });
 };

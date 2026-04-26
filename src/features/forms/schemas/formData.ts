@@ -61,7 +61,7 @@ const seasonSchema = z.object({
 const activitySchema = z.object({
   id: z.number(),
   type: z.string(),
-  verificationStatus: z.string(),
+  verificationStatus: z.enum(["approved", "pending", "rejected", "unknown"]),
   remarks: z.string(),
   is_retake: z.boolean().optional(),
   original_activity_id: z.number().nullable().optional(),

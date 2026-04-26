@@ -13,6 +13,8 @@ import { ArrowDown, ArrowUp, ChevronDown, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Label } from "./ui/label";
 import { Field, FieldContent, FieldLabel } from "./ui/field";
+import { startOfDay, endOfDay, subDays, startOfMonth, endOfMonth } from "date-fns";
+import { DatePicker } from "./DatePicker";
 
 export interface FilterOption {
   label: string;
@@ -208,6 +210,10 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
                   );
                 })}
               </div>
+            ) : filterVariant === 'date-range' ? (
+              <DateRangeFilter column={column} />
+            ) : filterVariant === 'date-preset' ? (
+              <DatePresetFilter column={column} />
             ) : null}
           </div>
         )}
@@ -215,6 +221,170 @@ export function ColumnHeader<T>({ column, title, className }: ColumnHeaderProps<
     </DropdownMenu>
   );
 }
+
+
+function DateRangeFilter<T>({ column }: { column: Column<T, unknown> }) {
+  const filterValue = column.getFilterValue() as [Date | null, Date | null] | undefined;
+  const [from, to] = filterValue ?? [null, null];
+
+  const setFrom = (date: Date) => {
+    const next: [Date | null, Date | null] = [date, to];
+    column.setFilterValue(next);
+  };
+
+  const setTo = (date: Date) => {
+    const next: [Date | null, Date | null] = [from, date];
+    column.setFilterValue(next);
+  };
+
+  const clearFrom = () => {
+    const next: [Date | null, Date | null] = [null, to];
+    column.setFilterValue(next[1] ? next : undefined);
+  };
+
+  const clearTo = () => {
+    const next: [Date | null, Date | null] = [from, null];
+    column.setFilterValue(next[0] ? next : undefined);
+  };
+
+  return (
+    <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <span className="text-3xs text-muted-foreground/70">From</span>
+          {from && (
+            <button
+              className="text-3xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={clearFrom}
+            >
+              <X className="size-2.5" />
+            </button>
+          )}
+        </div>
+        <DatePicker
+          value={from ?? ""}
+          onSelect={setFrom}
+          maxDate={to ?? undefined}
+        />
+      </div>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <span className="text-3xs text-muted-foreground/70">To</span>
+          {to && (
+            <button
+              className="text-3xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={clearTo}
+            >
+              <X className="size-2.5" />
+            </button>
+          )}
+        </div>
+        <DatePicker
+          value={to ?? ""}
+          onSelect={setTo}
+          minDate={from ?? undefined}
+        />
+      </div>
+    </div>
+  );
+}
+
+
+type Preset = { label: string; range: () => [Date, Date] };
+
+const DATE_PRESETS: Preset[] = [
+  {
+    label: 'Today',
+    range: () => [startOfDay(new Date()), endOfDay(new Date())],
+  },
+  {
+    label: 'Yesterday',
+    range: () => {
+      const d = subDays(new Date(), 1);
+      return [startOfDay(d), endOfDay(d)];
+    },
+  },
+  {
+    label: 'Last 7 days',
+    range: () => [startOfDay(subDays(new Date(), 6)), endOfDay(new Date())],
+  },
+  {
+    label: 'Last 30 days',
+    range: () => [startOfDay(subDays(new Date(), 29)), endOfDay(new Date())],
+  },
+  {
+    label: 'This month',
+    range: () => [startOfMonth(new Date()), endOfMonth(new Date())],
+  },
+];
+
+function DatePresetFilter<T>({ column }: { column: Column<T, unknown> }) {
+  const [showCustom, setShowCustom] = useState(false);
+  const filterValue = column.getFilterValue() as [Date | null, Date | null] | undefined;
+
+  const activePreset = filterValue
+    ? DATE_PRESETS.find((p) => {
+        const [pFrom, pTo] = p.range();
+        const [fFrom, fTo] = filterValue;
+        return (
+          fFrom instanceof Date &&
+          fTo instanceof Date &&
+          fFrom.getTime() === pFrom.getTime() &&
+          fTo.getTime() === pTo.getTime()
+        );
+      })
+    : undefined;
+
+  const selectPreset = (preset: Preset) => {
+    const isActive = activePreset?.label === preset.label;
+    column.setFilterValue(isActive ? undefined : preset.range());
+    setShowCustom(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
+      {DATE_PRESETS.map((preset) => {
+        const isActive = activePreset?.label === preset.label;
+        return (
+          <button
+            key={preset.label}
+            className={cn(
+              "text-left text-3xs px-2 py-1.5 rounded-sm transition-colors",
+              isActive
+                ? "bg-accent text-foreground"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            )}
+            onClick={() => selectPreset(preset)}
+          >
+            {preset.label}
+          </button>
+        );
+      })}
+
+      <button
+        className={cn(
+          "text-left text-3xs px-2 py-1.5 rounded transition-colors mt-0.5 border-t pt-2",
+          showCustom || (!activePreset && filterValue)
+            ? "text-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        )}
+        onClick={() => {
+          setShowCustom((v) => !v);
+          if (activePreset) column.setFilterValue(undefined);
+        }}
+      >
+        Custom range…
+      </button>
+
+      {(showCustom || (!activePreset && filterValue)) && (
+        <div className="mt-1 flex flex-col gap-2 pl-1">
+          <DateRangeFilter column={column} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function CheckboxOption<T>({
   column,

@@ -14,7 +14,7 @@ export const collectionTaskSchema = z.object({
   end_date: z.string(),
   retake_of: z.number().optional().nullable(),
   status: collectionTaskStatusSchema,
-  verification_status: z.string().nullable().optional(),
+  verification_status: z.enum(["approved", "pending", "rejected", "unknown"]).nullable().optional(),
   assigned_at: z.string().nullable().optional(),
   created_at: z.string(),
   updated_at: z.string(),

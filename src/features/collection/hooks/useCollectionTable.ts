@@ -18,7 +18,11 @@ export const useCollectionTable = (seasonId?: number) => {
   const table = useDataTable({
     data: tasks ?? [],
     columns: columns,
-    getRowId: (row) => row.id
+    getRowId: (row) => row.id,
+    initialColumnFilters: [
+      { id: 'verification_status', value: ['pending'] },
+      { id: 'status', value: ['pending'] }
+    ],
   })
 
   return { table, isLoading }

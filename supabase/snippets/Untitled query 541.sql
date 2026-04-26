@@ -1,77 +1,75 @@
-create or replace function batch_schedule_core_collection_tasks(
-  p_mfids text[],
-  p_season_id int,
-  p_collector_id uuid,
-  p_start_date date,
-  p_end_date date,
-  p_user_id uuid default auth.uid()
+create or replace function get_available_tasks_for_collector(
+  p_collector_id uuid
 )
-returns void
-language plpgsql
+returns setof collection_details
+language sql
 security definer
 set search_path = 'public'
 as $$
-declare
-  v_mfid      text;
-  v_mfid_id   int;
-  v_next_type text;
-  v_types     text[] := array[
-    'cultural-management',
-    'nutrient-management',
-    'production'
-  ];
-begin
-  perform set_config('app.current_user_id', p_user_id::text, true);
-
-  foreach v_mfid in array p_mfids loop
-    -- Resolve MFID id
-    select id into v_mfid_id from public.mfids where mfid = v_mfid;
-    if not found then
-      raise notice 'MFID "%" not found, skipping', v_mfid;
-      continue;
-    end if;
-
-    -- Skip if field-data already exists for this MFID/season
-    if exists (
-      select 1 from public.collection_tasks
-      where mfid_id = v_mfid_id
-        and season_id = p_season_id
-        and activity_type = 'field-data'
-    ) then
-      raise notice 'Field data already exists for mfid=%, season=%, skipping', v_mfid, p_season_id;
-      continue;
-    end if;
-
-    -- Insert field-data task
-    insert into public.collection_tasks (
-      mfid_id, season_id, activity_type,
-      collector_id, start_date, end_date, assigned_at
-    ) values (
-      v_mfid_id, p_season_id, 'field-data',
-      p_collector_id, p_start_date, p_end_date, now()
-    );
-
-    -- Insert the other core types (if not already present)
-    for i in 1..array_length(v_types, 1) loop
-      v_next_type := v_types[i];
-      if not exists (
-        select 1 from public.collection_tasks
-        where mfid_id = v_mfid_id
-          and season_id = p_season_id
-          and activity_type = v_next_type::public.activity_type
-      ) then
-        insert into public.collection_tasks (
-          mfid_id, season_id, activity_type,
-          collector_id, start_date, end_date, assigned_at
-        ) values (
-          v_mfid_id, p_season_id, v_next_type::public.activity_type,
-          p_collector_id,
-          p_start_date + (i * interval '1 month'),
-          p_end_date   + (i * interval '1 month'),
-          now()
-        );
-      end if;
-    end loop;
-  end loop;
-end;
+  with current_season as (
+    select id as season_id from latest_season
+  ),
+  all_tasks as (
+    select cd.*
+    from collection_details cd
+    cross join current_season cs
+    where cd.collector_id = p_collector_id
+      and cd.season_id = cs.season_id
+  ),
+  completed_tasks as (
+    select * from all_tasks where status = 'completed'
+  ),
+  pending_tasks as (
+    select *
+    from all_tasks
+    where status in ('pending', 'in_progress')
+    -- no date filter here
+  ),
+  prereq_met as (
+    select
+      t.id,
+      case
+        when t.activity_type = 'field-data' then true
+        when t.activity_type = 'cultural-management' then
+          exists (
+            select 1 from all_tasks p
+            where p.mfid_id = t.mfid_id
+              and p.activity_type = 'field-data'
+              and p.status = 'completed'
+              and p.verification_status = 'approved'
+          )
+        when t.activity_type in ('nutrient-management', 'production') then
+          exists (
+            select 1 from all_tasks p
+            where p.mfid_id = t.mfid_id
+              and p.activity_type = 'cultural-management'
+              and p.status = 'completed'
+              and p.verification_status = 'approved'
+          )
+        else false
+      end as ok
+    from pending_tasks t
+  ),
+  eligible_pending as (
+    select t.*
+    from pending_tasks t
+    join prereq_met pm on pm.id = t.id
+    where pm.ok
+  ),
+  per_mfid_earliest_date as (
+    select mfid_id, min(start_date) as earliest_start
+    from eligible_pending
+    group by mfid_id
+  ),
+  filtered_pending as (
+    select et.*
+    from eligible_pending et
+    join per_mfid_earliest_date ed
+      on ed.mfid_id = et.mfid_id
+      and et.start_date = ed.earliest_start
+  )
+  select * from completed_tasks
+  union all
+  select * from filtered_pending
+  order by mfid, start_date;
 $$;

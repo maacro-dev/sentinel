@@ -59,10 +59,16 @@ export const DataTable = <T,>({
                   <TableRow key={headerGroup.id}>
                     {selectable && (
                       <TableHead
-                        className="min-w-0 relative pl-6 pr-0 cursor-pointer"
+                        className="min-w-0 relative pl-6 pr-0"
                         style={{ width: '2.5%' }}
                       >
-                        <div onClick={(e) => e.stopPropagation()}>
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            table.toggleAllPageRowsSelected()
+                          }}
+                          className="cursor-pointer"
+                        >
                           <Checkbox
                             checked={table.getIsAllPageRowsSelected() ? true : table.getIsSomePageRowsSelected() ? "indeterminate" : false}
                             onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
@@ -122,7 +128,7 @@ export const DataTable = <T,>({
                       >
                         {selectable && (
                           <TableCell
-                            className="pl-6 pr-0"
+                            className="pl-6 pr-0 cursor-pointer"
                             style={{ width: '2.5%', minWidth: '2.5%', height: rowHeight }}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -133,7 +139,7 @@ export const DataTable = <T,>({
                               checked={row.getIsSelected()}
                               onClick={(e) => e.stopPropagation()}
                               onCheckedChange={(v) => row.toggleSelected(!!v)}
-                              className="cursor-pointer pointer-events-none"
+                              className="pointer-events-none"
                             />
                           </TableCell>
                         )}

@@ -15,7 +15,7 @@ export interface MfidTableProps<T> extends DataTableEvents<T> {
 
 export const MfidTable = <T extends { mfid: string }>({
   onRowClick,
-  seasonId
+  seasonId,
 }: MfidTableProps<T>) => {
   "use no memo";
 
@@ -28,7 +28,10 @@ export const MfidTable = <T extends { mfid: string }>({
 
   const selectedRows = table.getSelectedRowModel().rows;
 
-  const selectedMfids = selectedRows.map(row => row.original.mfid);
+  const selectedMfids = useMemo(
+    () => selectedRows.map(row => row.original.mfid),
+    [selectedRows]
+  );
 
   const scheduledSelectedMfids = useMemo(
     () =>
@@ -38,7 +41,24 @@ export const MfidTable = <T extends { mfid: string }>({
     [selectedRows]
   );
 
-  // const unscheduledCount = selectedMfids.length - scheduledSelectedMfids.length;
+  const unscheduledCount = selectedMfids.length - scheduledSelectedMfids.length;
+
+  const selectedLocations = useMemo(() => {
+    const provinces = new Set<string>();
+    const municipalities = new Set<string>();
+    selectedRows.forEach(row => {
+      const mfid = row.original as any;
+      if (mfid.province) provinces.add(mfid.province);
+      if (mfid.city_municipality) municipalities.add(mfid.city_municipality);
+    });
+    return {
+      provinces: Array.from(provinces),
+      municipalities: Array.from(municipalities),
+    };
+  }, [selectedRows]);
+
+  const locationWarning = selectedLocations.municipalities.length > 1;
+  const canSchedule = unscheduledCount > 0 && selectedLocations.provinces.length <= 1;
 
   const handleBatchSubmit = (input: BatchScheduleInput) => {
     batchSchedule(
@@ -58,12 +78,13 @@ export const MfidTable = <T extends { mfid: string }>({
     );
   };
 
-  const handleSubmit = useCallback(async (payload: MfidFormPayload) => {
-    setDialogOpen(false);
-    await createMfid(payload);
-  }, [createMfid]);
-
-
+  const handleSubmit = useCallback(
+    async (payload: MfidFormPayload) => {
+      setDialogOpen(false);
+      await createMfid(payload);
+    },
+    [createMfid]
+  );
 
   if (isLoading) {
     return <TableSkeleton />;
@@ -82,11 +103,14 @@ export const MfidTable = <T extends { mfid: string }>({
                 open={batchDialogOpen}
                 onOpenChange={setBatchDialogOpen}
                 onSubmit={handleBatchSubmit}
-                disabled={isBatchScheduling}
-                mfidCount={selectedMfids.length}
+                disabled={isBatchScheduling || !canSchedule}
+                mfidCount={unscheduledCount}
                 shouldShowTrigger={selectedMfids.length > 0}
                 selectedCount={selectedMfids.length}
                 scheduledMfids={scheduledSelectedMfids}
+                locationWarning={locationWarning}
+                locations={selectedLocations}
+                canSchedule={canSchedule}
               />
               <MfidFormDialog
                 open={dialogOpen}

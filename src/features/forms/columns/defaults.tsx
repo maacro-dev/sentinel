@@ -1,16 +1,24 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { FormDataEntry } from "../schemas/formData";
 import { StatusWithRetakeCell } from "@/core/components/cells/StatusWithRetakeCell";
+import { format } from "date-fns/format";
 
 
 export const defaultColumns: ColumnDef<FormDataEntry, any>[] = [
   {
     accessorKey: 'activity.verificationStatus',
     header: 'Status',
-    cell: ({ row }) => <StatusWithRetakeCell row={row} />,
+    cell: ({ row }) => (
+      <StatusWithRetakeCell
+        verificationStatus={row.original.activity.verificationStatus}
+        isRetake={row.original.activity.is_retake}
+        originalId={row.original.activity.original_activity_id}
+        formType={row.original.activity.type}
+      />
+    ),
     filterFn: 'arrIncludesSome',
     meta: {
-      size: '4xs',
+      size: '3xs',
       filterVariant: "options",
       filterOptions: [
         { label: 'Pending', value: 'pending' },
@@ -49,6 +57,16 @@ export const defaultColumns: ColumnDef<FormDataEntry, any>[] = [
     meta: {
       size: '2xs',
       filterVariant: 'options-search'
+    }
+  },
+  {
+    accessorKey: 'collection.collectedAt',
+    cell: ({ row }) => format(new Date(row.original.collection.collectedAt), "MMM d, yyyy"),
+    header: 'Collection Date',
+    filterFn: 'dateRange',
+    meta: {
+      size: '2xs',
+      filterVariant: 'date-preset',
     }
   },
   // {

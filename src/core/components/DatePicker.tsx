@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Button } from "@/core/components/ui/button";
-import { FormControl } from "@/core/components/ui/form";
 import {
   Popover,
   PopoverTrigger,
@@ -17,6 +16,7 @@ interface DatePickerProps {
   minDate?: Date;
   maxDate?: Date;
 }
+
 
 export function DatePicker({ value, onSelect, minDate, maxDate }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
@@ -39,18 +39,16 @@ export function DatePicker({ value, onSelect, minDate, maxDate }: DatePickerProp
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <FormControl>
-          <Button
-            variant="outline"
-            className={cn(
-              "h-8 text-left font-normal text-xs",
-              !dateValue && "text-muted-foreground"
-            )}
-          >
-            {dateValue ? formatDate(dateValue) : <span>Pick a date</span>}
-            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-          </Button>
-        </FormControl>
+        <Button
+          variant="outline"
+          className={cn(
+            "h-8 text-left font-normal text-xs",
+            !dateValue && "text-muted-foreground"
+          )}
+        >
+          {dateValue ? formatDate(dateValue) : <span>Pick a date</span>}
+          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar

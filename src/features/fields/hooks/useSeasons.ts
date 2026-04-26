@@ -133,6 +133,50 @@ export function useSeasonsForSelector(includeNextSeason: boolean = true) {
   return { options, isLoading };
 }
 
+export function useSeasonsFilter(includeNextSeason = true) {
+  const { data: seasonsWithData, isLoading: loadingData } = useQuery({
+    queryKey: ["seasons-with-data"],
+    queryFn: () => Seasons.getSeasonsWithData(),
+  });
+
+  const { data: currentSeason, isLoading: loadingCurrent } = useQuery({
+    queryKey: ["current-season"],
+    queryFn: async () => {
+      const id = await Seasons.getCurrent();
+      return id ? Seasons.getById(id) : null;
+    },
+  });
+
+  const {
+    data: nextSeason,
+    isLoading: loadingNext,
+  } = useQuery({
+    queryKey: ["next-season"],
+    queryFn: () => Seasons.getNextSeason(),
+    enabled: includeNextSeason,
+  });
+
+  const seasons = useMemo(() => {
+    const map = new Map<number, SeasonRow>();
+
+    seasonsWithData?.forEach(s => map.set(s.id, s));
+    if (currentSeason) map.set(currentSeason.id, currentSeason);
+    if (includeNextSeason && nextSeason) map.set(nextSeason.id, nextSeason);
+
+    const sorted = Array.from(map.values());
+    sorted.sort(
+      (a, b) =>
+        new Date(b.start_date).getTime() - new Date(a.start_date).getTime() // newest first
+    );
+    return sorted;
+  }, [seasonsWithData, currentSeason, nextSeason, includeNextSeason]);
+
+  return {
+    seasons,
+    isLoading: loadingData || loadingCurrent || (includeNextSeason && loadingNext),
+  };
+}
+
 
 export const useCurrentSeasonId = () => {
   return useQuery({

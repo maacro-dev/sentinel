@@ -2,9 +2,9 @@ import { getActivityTypeLabel } from "@/features/forms/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { CollectionTask } from "../../schemas/collection.schema";
 import { format } from "date-fns";
-import { Badge } from "@/core/components/ui/badge";
 import { capitalizeFirst } from "@/core/utils/string";
-import { CollectionStatusWithRetakeCell } from "@/core/components/cells/StatusWithRetakeCell";
+import { StatusWithRetakeCell } from "@/core/components/cells/StatusWithRetakeCell";
+import { CollectionStatusCell } from "@/core/components/cells/VerificationStatusCell";
 
 export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
   {
@@ -27,6 +27,51 @@ export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
     }
   },
   {
+    accessorKey: "status",
+    header: "Collection Status",
+    cell: ({ row }) => {
+      return row.original.is_overdue ? (
+        <CollectionStatusCell variant="overdue">Overdue</CollectionStatusCell>
+      ) : (
+        <CollectionStatusCell variant={row.original.status === "completed" ? "completed" : "pending"}>
+          {capitalizeFirst(row.original.status)}
+        </CollectionStatusCell>
+      )
+    },
+    filterFn: 'arrIncludesSome',
+    meta: {
+      size: 'sm',
+      filterVariant: "options",
+      filterOptions: [
+        { label: 'Completed', value: 'completed' },
+        { label: 'Pending', value: 'pending' },
+      ],
+    }
+  },
+  {
+    accessorKey: 'verification_status',
+    header: 'Verification Status',
+    cell: ({ row }) => (
+      <StatusWithRetakeCell
+        verificationStatus={row.original.verification_status}
+        isRetake={row.original.is_retake}
+        originalId={row.original.original_activity_id}
+        formType={row.original.activity_type}
+      />
+    ),
+    filterFn: 'arrIncludesSome',
+    meta: {
+      size: "sm",
+      filterVariant: "options",
+      filterOptions: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Approved', value: 'approved' },
+        { label: 'Rejected', value: 'rejected' },
+        { label: 'Imported', value: 'unknown' },
+      ],
+    }
+  },
+  {
     accessorKey: "mfid",
     header: "MFID",
     meta: { size: '2xs' }
@@ -34,36 +79,32 @@ export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
   {
     accessorKey: "farmer_name",
     header: "Farmer",
+    meta: { size: 'sm' }
   },
   {
     accessorKey: "collector_name",
     header: "Data Collector",
-    cell: ({ row }) => row.original.collector_name ?? "Unassigned"
+    cell: ({ row }) => row.original.collector_name ?? "Unassigned",
+    meta: { size: 'sm' }
   },
   {
     accessorKey: "start_date",
     header: "Start Date",
     cell: ({ row }) => format(new Date(row.original.start_date), "MMM d, yyyy"),
+    filterFn: 'dateRange',
+    meta: {
+      size: 'xs',
+      filterVariant: 'date-preset',
+    }
   },
   {
     accessorKey: "end_date",
     header: "End Date",
     cell: ({ row }) => format(new Date(row.original.end_date), "MMM d, yyyy"),
-  },
-  {
-    accessorKey: "status",
-    header: "Collection Status",
-    cell: ({ row }) => {
-      return row.original.is_overdue ? (<Badge variant="destructive">Overdue</Badge>) : (
-        <Badge variant={row.original.status === "completed" ? "default" : "warning"}>
-          {capitalizeFirst(row.original.status)}
-        </Badge>
-      )
-    },
-  },
-  {
-    accessorKey: 'verification_status',
-    header: 'Verification Status',
-    cell: ({ row }) => <CollectionStatusWithRetakeCell row={row} />,
+    filterFn: 'dateRange',
+    meta: {
+      size: 'xs',
+      filterVariant: 'date-preset',
+    }
   },
 ]
