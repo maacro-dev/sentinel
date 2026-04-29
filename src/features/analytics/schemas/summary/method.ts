@@ -1,5 +1,5 @@
 import { Validator } from "@/core/utils/validator";
-import * as z from "zod/v4"
+import * as z from "zod/v4";
 
 export const cropMethodSummarySchema = z.object({
   direct_seeded_count: z.number(),

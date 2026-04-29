@@ -2,6 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { formatSeasonLabel } from '@/features/fields/util';
 import { Seasons } from '../fields/services/Seasons';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { Analytics } from '../analytics/services/Analytics';
 
 const defaultFilters = {
   seasonId: 0,
@@ -20,6 +21,8 @@ export async function generateFullReport(
 ) {
   const season = await Seasons.getById(seasonId);
   const seasonLabel = season ? formatSeasonLabel(season) : `Season ${seasonId}`;
+
+  const fetchHierarchicalYields = Analytics.getHierarchicalYields(seasonId);
 
   const {
     dashboardDataOptions,
@@ -47,6 +50,7 @@ export async function generateFullReport(
     yieldVarietyData,
     damageLocationData,
     damageCauseData,
+    hierarchicalYieldsData,
   ] = await Promise.allSettled([
     queryClient.fetchQuery(dashboardDataOptions(seasonId)),
     queryClient.fetchQuery(dataCollectionTrendOptions(seasonId)),
@@ -58,6 +62,7 @@ export async function generateFullReport(
     queryClient.fetchQuery(yieldByVarietyOptions(filters)),
     queryClient.fetchQuery(damageByLocationOptions(filters)),
     queryClient.fetchQuery(damageByCauseOptions(filters)),
+    fetchHierarchicalYields,
   ]);
 
   const { loadLogoBase64 } = await import('./utils');
@@ -93,11 +98,13 @@ export async function generateFullReport(
     addedAnySection = true;
   }
 
-  if (descriptiveData.status === 'fulfilled') {
+  if (descriptiveData.status === 'fulfilled' || hierarchicalYieldsData?.status === 'fulfilled') {
     addPageBreakIfNeeded();
     builder.addSectionTitle('Descriptive Analytics');
+    const descriptiveValue = descriptiveData.status === 'fulfilled' ? descriptiveData.value : null;
+    const hierarchicalValue = hierarchicalYieldsData?.status === 'fulfilled' ? hierarchicalYieldsData.value : null;
     const { descriptiveReport } = await import('./section/report-descriptive');
-    descriptiveReport(builder, descriptiveData.value);
+    descriptiveReport(builder, descriptiveValue, hierarchicalValue);
     addedAnySection = true;
   }
 

@@ -1733,7 +1733,13 @@ export type Database = {
         Returns: undefined
       }
       crop_establishment_method_summary: {
-        Args: { p_season_id?: number }
+        Args: {
+          p_barangay_name?: string
+          p_municipality_name?: string
+          p_province_name?: string
+          p_season_id?: number
+          p_variety_name?: string
+        }
         Returns: Json
       }
       damage_by_cause: {
@@ -1916,6 +1922,15 @@ export type Database = {
         Args: { p_updated_after: string; p_user_id: string }
         Returns: boolean
       }
+      hierarchical_yields: {
+        Args: {
+          p_fertilizer_type?: string
+          p_method_name?: string
+          p_season_id?: number
+          p_variety_name?: string
+        }
+        Returns: Json
+      }
       import_crop_establishments: {
         Args: { p_auto_create_mfid?: boolean; p_data: Json }
         Returns: Json
@@ -1961,7 +1976,15 @@ export type Database = {
       province_yields: { Args: { p_season_id?: number }; Returns: Json }
       reset_sequence: { Args: { table_name: string }; Returns: undefined }
       restore_backup: { Args: { p_backup: Json }; Returns: Json }
-      rice_variety_summary: { Args: { p_season_id?: number }; Returns: Json }
+      rice_variety_summary: {
+        Args: {
+          p_barangay_name?: string
+          p_municipality_name?: string
+          p_province_name?: string
+          p_season_id?: number
+        }
+        Returns: Json
+      }
       schedule_core_collection_tasks: {
         Args: {
           p_activity_type: string

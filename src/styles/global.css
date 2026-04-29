@@ -42,6 +42,7 @@
   --font-jetbrains-mono: "JetBrains Mono", monospace;
 
   --color-humay:   oklch(62.7% 0.194 149.214);
+  --color-humay-active: oklch(0.2118 0.0321 149.21);
   --color-humay-2: oklch(70%   0.194 149.214);
   --color-humay-3: oklch(78%   0.194 149.214);
   --color-humay-4: oklch(82%   0.194 149.214);

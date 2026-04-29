@@ -1,4 +1,12 @@
-create or replace function public.crop_establishment_method_summary(p_season_id int default null)
+create or replace function public.crop_establishment_method_summary(
+    p_season_id int default null,
+    p_province_name text default null,
+    p_municipality_name text default null,
+    p_barangay_name text default null,
+    p_variety_name text default null,
+    p_method_name text default null,
+    p_fertilizer_type text default null
+)
     returns jsonb
     language plpgsql
     security definer
@@ -9,10 +17,9 @@ declare
     direct_count int := 0;
     transplant_count int := 0;
     total int := 0;
-    percent_diff numeric;
+    percent_diff numeric := 0;
     result jsonb;
 begin
-
     if p_season_id is null then
         select id into target_season_id
         from public.seasons
@@ -32,19 +39,48 @@ begin
     end if;
 
     select
-        count(*) filter (where ce.actual_crop_establishment_method ilike '%direct%seeded%') as direct,
-        count(*) filter (where ce.actual_crop_establishment_method ilike '%transplant%') as transplant
+        count(*) filter (where ce.actual_crop_establishment_method ilike '%direct%seed%'),
+        count(*) filter (where ce.actual_crop_establishment_method ilike '%transplant%')
     into direct_count, transplant_count
     from public.field_activities fa
     join public.crop_establishments ce on fa.id = ce.id
-    where fa.season_id = target_season_id;
+    join public.fields f on fa.field_id = f.id
+    join public.addresses a on f.barangay_id = a.barangay_id
+    where fa.season_id = target_season_id
+      and (p_province_name is null or a.province = p_province_name)
+      and (p_municipality_name is null or a.city_municipality = p_municipality_name)
+      and (p_barangay_name is null or a.barangay = p_barangay_name)
+      -- variety filter
+      and (p_variety_name is null or
+           case p_variety_name
+               when 'NSIC' then ce.rice_variety ilike '%nsic%'
+               when 'PSB' then ce.rice_variety ilike '%psb%'
+               when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
+               else true
+           end)
+      -- method filter (exact match)
+      and (p_method_name is null or ce.actual_crop_establishment_method = p_method_name)
+      -- fertiliser filter (field activity must have an application of that type)
+      and (p_fertilizer_type is null or exists (
+          select 1
+          from public.field_activities fa_nm
+          join public.fertilization_records fr on fr.id = fa_nm.id
+          join public.fertilizer_applications fapp on fapp.fertilization_record_id = fr.id
+          where fa_nm.field_id = fa.field_id   -- same field
+            and fa_nm.season_id = fa.season_id -- same season
+            and fapp.fertilizer_type = p_fertilizer_type
+      ));
 
     total := direct_count + transplant_count;
 
-    if transplant_count > 0 then
-        percent_diff := round(((direct_count - transplant_count)::numeric / transplant_count) * 100, 2);
-    elsif direct_count > 0 then
-        percent_diff := 100;
+    if total > 0 then
+        if direct_count > transplant_count then
+            percent_diff := round(((direct_count - transplant_count)::numeric / total) * 100, 2);
+        elsif transplant_count > direct_count then
+            percent_diff := round(((transplant_count - direct_count)::numeric / total) * 100, 2);
+        else
+            percent_diff := 0;
+        end if;
     else
         percent_diff := 0;
     end if;
@@ -60,7 +96,14 @@ begin
 end;
 $$;
 
-create or replace function public.rice_variety_summary(p_season_id int default null)
+create or replace function public.rice_variety_summary(
+    p_season_id int default null,
+    p_province_name text default null,
+    p_municipality_name text default null,
+    p_barangay_name text default null,
+    p_method_name text default null,
+    p_fertilizer_type text default null
+)
     returns jsonb
     language plpgsql
     security definer
@@ -99,14 +142,33 @@ begin
     select
         count(*) filter (where upper(ce.rice_variety) like '%NSIC%') as nsic,
         count(*) filter (where upper(ce.rice_variety) like '%PSB%') as psb,
-        count(*) filter (where upper(ce.rice_variety) not like '%NSIC%' and upper(ce.rice_variety) not like '%PSB%') as other
+        count(*) filter (where upper(ce.rice_variety) not like '%NSIC%'
+                     and upper(ce.rice_variety) not like '%PSB%') as other
     into nsic_count, psb_count, other_count
     from public.field_activities fa
     join public.crop_establishments ce on fa.id = ce.id
-    where fa.season_id = target_season_id;
+    join public.fields f on fa.field_id = f.id
+    join public.addresses a on f.barangay_id = a.barangay_id
+    where fa.season_id = target_season_id
+      and (p_province_name is null or a.province = p_province_name)
+      and (p_municipality_name is null or a.city_municipality = p_municipality_name)
+      and (p_barangay_name is null or a.barangay = p_barangay_name)
+      -- method filter (exact match)
+      and (p_method_name is null or ce.actual_crop_establishment_method = p_method_name)
+      -- fertiliser filter (field must have had an application of that type)
+      and (p_fertilizer_type is null or exists (
+          select 1
+          from public.field_activities fa_nm
+          join public.fertilization_records fr on fr.id = fa_nm.id
+          join public.fertilizer_applications fapp on fapp.fertilization_record_id = fr.id
+          where fa_nm.field_id = fa.field_id
+            and fa_nm.season_id = fa.season_id
+            and fapp.fertilizer_type = p_fertilizer_type
+      ));
 
     total := nsic_count + psb_count + other_count;
 
+    -- dominant calculation unchanged …
     if nsic_count >= psb_count and nsic_count >= other_count then
         dominant := 'NSIC';
         if nsic_count > 0 then
@@ -213,13 +275,19 @@ begin
                end)
     ),
     totals as (
-        select count(*) as total_apps
-        from base
+        select count(*) as total_apps from base
+    ),
+    all_types as (
+        select distinct fertilizer_type from public.fertilizer_applications
     ),
     type_counts as (
-        select fertilizer_type, count(*) as cnt
-        from base
-        group by fertilizer_type
+        select at.fertilizer_type, coalesce(cnt, 0) as cnt
+        from all_types at
+        left join (
+            select fertilizer_type, count(*) as cnt
+            from base
+            group by fertilizer_type
+        ) bc on at.fertilizer_type = bc.fertilizer_type
     ),
     brand_counts as (
         select brand, count(*) as cnt
@@ -229,12 +297,12 @@ begin
     select
         (select total_apps from totals),
         (select jsonb_build_object('type', fertilizer_type, 'count', cnt)
-         from type_counts order by cnt desc limit 1),
+         from type_counts order by cnt desc, fertilizer_type limit 1),
         (select jsonb_build_object('brand', brand, 'count', cnt)
          from brand_counts order by cnt desc limit 1),
         (select jsonb_agg(
             jsonb_build_object('type', fertilizer_type, 'count', cnt)
-            order by cnt desc
+            order by fertilizer_type   -- stable alphabetical order
          ) from type_counts)
     into v_total_apps, v_most_type, v_most_brand, v_ranking;
 
@@ -248,7 +316,6 @@ begin
     return result;
 end;
 $$;
-
 
 -- COMPARATIVE
 

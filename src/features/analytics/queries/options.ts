@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { Analytics } from "../services/Analytics";
 
 
@@ -34,9 +34,29 @@ export const formCountSummaryOptions = (seasonId?: number) => {
   });
 }
 
-export const descriptiveAnalyticsDataOptions = (seasonId?: number) => ({
-  queryKey: ['descriptive-analytics-data', seasonId] as const,
-  queryFn: () => Analytics.getDescriptiveAnalyticsData(seasonId),
+export const descriptiveAnalyticsDataOptions = (
+  seasonId?: number,
+  filter?: {
+    province?: string | null;
+    municipality?: string | null;
+    barangay?: string | null;
+    method?: string | null;
+    variety?: string | null;
+    fertilizer?: string | null;
+  }
+) => ({
+  queryKey: ["descriptive-analytics-data", seasonId, filter] as const,
+  queryFn: () =>
+    Analytics.getDescriptiveAnalyticsData(
+      seasonId,
+      filter?.province ?? undefined,
+      filter?.municipality ?? undefined,
+      filter?.barangay ?? undefined,
+      filter?.method ?? undefined,
+      filter?.variety ?? undefined,
+      filter?.fertilizer ?? undefined
+    ),
+  placeholderData: keepPreviousData,
   refetchOnWindowFocus: true,
 });
 

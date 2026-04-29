@@ -22,12 +22,6 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
 
   const dominant = direct_seeded_count > transplanted_count ? 'Direct‑seeded' : transplanted_count > direct_seeded_count ? 'Transplanted' : 'Equal';
   const dominantCount = dominant === 'Direct‑seeded' ? direct_seeded_count : dominant === 'Transplanted' ? transplanted_count : 0;
-  const dominantPercent = total > 0 ? ((dominantCount / total) * 100).toFixed(1) : '0';
-
-  const percentText =
-    dominant === 'Equal'
-      ? 'Both methods are equally used.'
-      : `${Math.abs(percent_difference).toFixed(1)}% more than the other.`;
 
   const centerLabel = ({ viewBox }: any) => {
     if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
@@ -38,20 +32,25 @@ export function MethodRadialChart({ summary }: MethodRadialChartProps) {
             y={(viewBox.cy || 0) - 16}
             className="fill-foreground text-xl font-semibold"
           >
-            {dominantPercent}%
+            {total}
           </tspan>
           <tspan
             x={viewBox.cx}
             y={(viewBox.cy || 0) + 4}
             className="fill-muted-foreground text-xs"
           >
-            of fields
+            fields
           </tspan>
         </text>
       );
     }
     return null;
   };
+
+  const percentText =
+    dominant === 'Equal'
+      ? 'Both methods are equally used.'
+      : `${Math.abs(percent_difference).toFixed(1)}% more than the other.`;
 
   const insightContent = (
     <div className="flex items-start gap-2">

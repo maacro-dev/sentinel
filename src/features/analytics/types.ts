@@ -3,7 +3,6 @@ import type { SeasonSummary } from "./schemas/seasonSummary";
 import type { OverallYieldTrend } from "./schemas/trends/overallYield";
 import type { XAxisProps, YAxisProps } from "recharts";
 import type { TickItem } from "recharts/types/util/types";
-import { ProvinceYield } from "./schemas/yieldByProvince";
 import { CropMethodSummary } from "./schemas/summary/method";
 import { RiceVarietySummary } from "./schemas/summary/variety";
 import React from "react";
@@ -45,7 +44,6 @@ export interface DashboardData {
 }
 
 export interface DescriptiveAnalyticsData {
-  provinceYields: Array<ProvinceYield>;
   cropMethodSummary: CropMethodSummary;
   riceVarietySummary: RiceVarietySummary;
   fertilizerTypeSummary: FertilizerTypeSummary

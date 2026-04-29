@@ -75,7 +75,6 @@ export function YieldByVarietyView({
     ? buildInsight(currentLabel, primaryStats.avg ?? avg, cmpLabels, compareStatsList)
     : null;
 
-  // Single-season insight computed without useMemo-in-JSX (move to top level)
   const singleSeasonInsight = useMemo(() => {
     if (hasComparison) return null;
     const withData = data.ranking.filter(v => v.yield > 0);

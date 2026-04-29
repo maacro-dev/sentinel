@@ -1,10 +1,10 @@
-import { DashboardData, DescriptiveAnalyticsData } from "../types";
+import { DashboardData } from "../types";
 import { getSupabase } from "@/core/supabase";
 import { parseDataCollectionTrend } from "../schemas/trends/dataCollectionTrend";
 import { parseBarangayYieldRanking } from "../schemas/barangayYield";
 import { parseSeasonSummary } from "../schemas/seasonSummary";
 import { parseOverallYieldTrend } from "../schemas/trends/overallYield";
-import { parseProvinceYields } from "../schemas/yieldByProvince";
+import { parseHierarchicalYields, ProvinceYieldNode } from "../schemas/yieldByProvince";
 import { parseFormCountSummary } from "../schemas/summary/formCount";
 import { parseCropMethodSummary } from "../schemas/summary/method";
 import { parseRiceVarietySummary } from "../schemas/summary/variety";
@@ -83,29 +83,78 @@ export class Analytics {
   }
 
 
-  public static async getDescriptiveAnalyticsData(seasonId?: number): Promise<DescriptiveAnalyticsData> {
+  public static async getDescriptiveAnalyticsData(
+    seasonId?: number,
+    provinceName?: string,
+    municipalityName?: string,
+    barangayName?: string,
+    methodName?: string,
+    varietyName?: string,
+    fertilizerType?: string
+  ) {
     const client = await this._client;
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data: provinceYieldsRaw, error: provinceYieldsError } = await client.rpc('province_yields', { p_season_id: sid });
+    const [
+      { data: methodSummaryRaw, error: methodSummaryError },
+      { data: riceVarietyRaw, error: riceVarietyError },
+      { data: fertilizerTypeRaw, error: fertilizerTypeError },
+    ] = await Promise.all([
+      client.rpc('crop_establishment_method_summary', {
+        p_season_id: sid,
+        p_province_name: provinceName,
+        p_municipality_name: municipalityName,
+        p_barangay_name: barangayName,
+        p_variety_name: varietyName,
+        p_fertilizer_type: fertilizerType
+      }),
+      client.rpc('rice_variety_summary', {
+        p_season_id: sid,
+        p_province_name: provinceName,
+        p_municipality_name: municipalityName,
+        p_barangay_name: barangayName,
+        p_method_name: methodName,
+        p_fertilizer_type: fertilizerType,
+      }),
+      client.rpc('fertilizer_type_summary', {
+        p_season_id: sid,
+        p_province: provinceName,
+        p_municipality: municipalityName,
+        p_barangay: barangayName,
+        p_method: methodName,
+        p_variety: varietyName,
+      }),
+    ]);
 
-    const { data: methodSummaryRaw, error: methodSummaryError } = await client.rpc('crop_establishment_method_summary', { p_season_id: sid });
 
-    const { data: riceVarietyRaw, error: riceVarietyError } = await client.rpc('rice_variety_summary', { p_season_id: sid });
-
-    const { data: fertilizerTypeRaw, error: fertilizerTypeError } = await client.rpc('fertilizer_type_summary', { p_season_id: sid });
-
-    if (provinceYieldsError || methodSummaryError || riceVarietyError || fertilizerTypeError) {
-      throw new Error("Error fetching descriptive analytics data.");
+    if (methodSummaryError || riceVarietyError || fertilizerTypeError) {
+      throw new Error(
+        `Failed to fetch descriptive analytics data: ${methodSummaryError?.message ||
+        riceVarietyError?.message ||
+        fertilizerTypeError?.message
+        }`
+      );
     }
 
     return {
-      provinceYields: parseProvinceYields(provinceYieldsRaw),
       cropMethodSummary: parseCropMethodSummary(methodSummaryRaw),
       riceVarietySummary: parseRiceVarietySummary(riceVarietyRaw),
       fertilizerTypeSummary: parseFertilizerTypeSummary(fertilizerTypeRaw),
     };
+  }
+
+  public static async getHierarchicalYields(seasonId?: number, variety?: string, fertilizer?: string, method?: string): Promise<ProvinceYieldNode[]> {
+    const client = await this._client;
+    const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId;
+    const { data, error } = await client.rpc('hierarchical_yields', {
+      p_season_id: sid,
+      p_variety_name: variety,
+      p_method_name: method,
+      p_fertilizer_type: fertilizer
+    });
+    if (error) throw error;
+    return parseHierarchicalYields(data);
   }
 
   public static async getYieldByMethod(

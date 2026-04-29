@@ -13,7 +13,6 @@ const dbKeyToConfigKey: Record<string, string> = {
   'cultural-management': 'crop_establishments',
   'nutrient-management': 'fertilization_records',
   'production': 'harvest_records',
-  // 'monitoring-visit': 'monitoring_visits',
   'damage-assessment': 'damage_assessments',
 };
 
@@ -22,7 +21,6 @@ const configKeyOrder = [
   'crop_establishments',
   'fertilization_records',
   'harvest_records',
-  // 'monitoring_visits',
   'damage_assessments',
 ];
 
@@ -31,7 +29,6 @@ const baseConfig = {
   crop_establishments: { label: getFormLabel("crop_establishments") },
   fertilization_records: { label: getFormLabel("fertilization_records") },
   harvest_records: { label: getFormLabel("harvest_records") },
-  // monitoring_visits: { label: getFormLabel("monitoring_visits") },
   damage_assessments: { label: getFormLabel("damage_assessments") },
   count: { label: "Form Count" },
 } satisfies ChartConfig;

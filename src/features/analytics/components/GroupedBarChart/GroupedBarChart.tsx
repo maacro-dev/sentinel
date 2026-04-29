@@ -1,7 +1,6 @@
-
 // @ts-nocheck
 import { JSX, memo } from "react";
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, LabelList } from "recharts";
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, LabelList, Cell } from "recharts";
 import { ChartCard, ChartCardProps } from "../ChartCard";
 import { ChartContainer, ChartTooltip } from "@/core/components/ui/chart";
 import { cn } from "@/core/utils/style";
@@ -9,24 +8,6 @@ import { Global } from "@/core/config";
 import { chartContainerDefaults } from "../../config";
 import { AxisOptions, ChartHeader } from "../../types";
 import { BarChartDefaults } from "../BarChart/Defaults";
-
-interface GroupedBarChartProps<T> {
-  data: T[];
-  header: ChartHeader;
-  categoryKey: keyof T;
-  barKeys: Array<{ key: keyof T; name: string; color: string }>;
-  isEmpty?: boolean;
-  containerClass?: string;
-  cardClass?: string;
-  layout?: "vertical" | "horizontal";
-  options?: ChartCardProps['options'];
-  axisOptions?: {
-    x?: AxisOptions;
-    y?: AxisOptions;
-  };
-  onBarClick?: (item: any) => void;
-  valueUnit?: string;
-}
 
 const renderLegend = (props: any) => {
   const { payload } = props;
@@ -50,6 +31,26 @@ const renderLegend = (props: any) => {
   );
 };
 
+interface GroupedBarChartProps<T> {
+  data: T[];
+  header: ChartHeader;
+  categoryKey: keyof T;
+  barKeys: Array<{ key: keyof T; name: string; color: string }>;
+  getBarSize?: () => number,
+  isEmpty?: boolean;
+  containerClass?: string;
+  cardClass?: string;
+  layout?: "vertical" | "horizontal";
+  options?: ChartCardProps['options'];
+  axisOptions?: AxisOptions;
+  onBarClick?: (item: any) => void;
+  onBarHover?: (item: T) => void;
+  activeBar?: string | null;
+  labelFormatter?: (value: any) => string;
+  valueUnit?: string;
+}
+
+
 export const GroupedBarChart = memo(<T extends object>({
   data,
   header,
@@ -60,8 +61,12 @@ export const GroupedBarChart = memo(<T extends object>({
   cardClass,
   layout = "vertical",
   options,
+  getBarSize = () => 24,
   axisOptions,
   onBarClick,
+  onBarHover,
+  activeBar,
+  labelFormatter,
   valueUnit = ""
 }: GroupedBarChartProps<T>) => {
   const isVertical = layout === "vertical";
@@ -73,7 +78,7 @@ export const GroupedBarChart = memo(<T extends object>({
 
   const margins = isVertical
     ? { ...BarChartDefaults.margins, left: 60, right: 80, bottom: 20, top: 20 }
-    : { ...BarChartDefaults.margins, bottom: 80, left: 40, top: 20, right: 20 };
+    : { ...BarChartDefaults.margins, bottom: 80, left: 40, top: 60, right: 40 };
 
   const xAxisType = isVertical ? "number" : "category";
   const yAxisType = isVertical ? "category" : "number";
@@ -99,6 +104,19 @@ export const GroupedBarChart = memo(<T extends object>({
     containerClass,
     'w-full',
   );
+
+  const defaultFormatter = (value: any) => {
+    if (value === 0 || value === "0") return "N/A";
+
+    const num = typeof value === "number" ? value : parseFloat(value);
+    if (isNaN(num)) return String(value);
+
+    const formattedNumber = labelFormatter ? labelFormatter(value) : num.toFixed(2);
+
+    if (formattedNumber === "N/A") return "N/A";
+
+    return `${formattedNumber}${valueUnit ? ` ${valueUnit}` : ""}`;
+  };
 
   return (
     <ChartCard
@@ -152,26 +170,37 @@ export const GroupedBarChart = memo(<T extends object>({
                 key={key as string}
                 dataKey={key as string}
                 name={name}
-                fill={color}
-                barSize={24}
+                barSize={getBarSize()}
                 radius={BarChartDefaults.bar.radius as [number, number, number, number]}
                 isAnimationActive={true}
                 animationDuration={BarChartDefaults.barChart.animationDuration}
                 onClick={onBarClick}
+                onMouseEnter={(item) => {
+                  onBarHover?.(item)
+                }}
                 cursor={onBarClick ? "pointer" : "default"}
               >
+                {data.map((entry, index) => {
+                  const hasActive = activeBar != null && activeBar !== '';
+                  const isActive = hasActive && (entry as any)[categoryKey] === activeBar;
+                  const fillColor = isActive ? color : hasActive ? 'var(--color-humay-5)' : color;
+
+                  return (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={fillColor}
+                      stroke={isActive ? 'var(--color-humay-active)' : 'none'}
+                      strokeWidth={isActive ? 3 : 0}
+                    />
+                  );
+                })}
                 <LabelList
                   dataKey={key as string}
                   position={labelPosition}
                   offset={16}
                   className="fill-foreground"
                   fontSize={14}
-                  formatter={(value: any) => {
-                    if (value === 0 || value === "0") return "N/A";
-                    const num = typeof value === "number" ? value : parseFloat(value);
-                    if (!isNaN(num) && num !== 0) return `${num.toFixed(2)} ${valueUnit}`;
-                    return value;
-                  }}
+                  formatter={defaultFormatter}
                 />
               </Bar>
             ))}

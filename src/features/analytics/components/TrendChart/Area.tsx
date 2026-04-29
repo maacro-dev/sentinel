@@ -11,6 +11,7 @@ export const Area = memo(({ axisKey }: { axisKey: string }) => {
           <stop offset="100%" stopColor="var(--color-humay-light)" stopOpacity={0.0} />
         </linearGradient>
       </defs>
+
       <PrimitiveArea
         {...TrendChartDefaults.area}
         dataKey={axisKey}
