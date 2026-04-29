@@ -9,14 +9,24 @@ import {
 import { ChangeBadge } from "./ChangeBadge";
 import { Stat } from "../types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
+import { INVERTED_METRIC_KEYS } from "../config";
+
 
 export interface StatCardProps extends Omit<Stat, "percent_change"> {
   percent_change?: number | undefined;
+  statKey?: string | undefined;
 }
 
 export const StatCard = memo(
-  ({ title, subtitle, current_value, unit, percent_change }: StatCardProps) => {
-    let displayPercent: number | undefined = percent_change;
+  ({
+    title,
+    subtitle,
+    current_value,
+    unit,
+    percent_change,
+    statKey,
+  }: StatCardProps) => {
+    let displayPercent = percent_change;
 
     if (Number(current_value) === 0) {
       displayPercent = 0;
@@ -26,6 +36,8 @@ export const StatCard = memo(
       typeof displayPercent === "number" &&
       isFinite(displayPercent) &&
       displayPercent !== 0;
+
+    const inverted = statKey ? INVERTED_METRIC_KEYS.has(statKey) : false;
 
     return (
       <Card className="flex-1 h-full flex flex-col gap-2.5 justify-between hover:cursor-pointer rounded-container hover:shadow-sm transition-all">
@@ -48,11 +60,13 @@ export const StatCard = memo(
             </span>
           </div>
 
-          {shouldShowBadge && <ChangeBadge percent={displayPercent} />}
+          {shouldShowBadge && (
+            <ChangeBadge percent={displayPercent} inverted={inverted} />
+          )}
         </CardContent>
       </Card>
     );
-  }
+  },
 );
 
 

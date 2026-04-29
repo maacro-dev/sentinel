@@ -5,7 +5,6 @@ import { StatCard } from "@/features/analytics/components/StatCard";
 import { DashboardSkeleton } from "@/features/dashboard/components/DashboardSkeleton";
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
-import { ExpandableStatCard } from "@/features/analytics/components/ExpandableStatCard";
 import { BarangayYieldBarChart } from "@/features/analytics/components/BarangayYieldRankChart";
 
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
@@ -30,14 +29,10 @@ function RouteComponent() {
   return (
     <PageContainer>
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-        {stats.map((stat) => (
-          <ExpandableStatCard
-            key={stat.title}
-            statCard={
-              <StatCard key={stat.title} {...stat} />
-            }
-          />
-        ))}
+        {stats.map((stat) => {
+          const { key: metricKey, ...rest } = stat;
+          return <StatCard key={metricKey} {...rest} statKey={metricKey} />;
+        })}
       </div>
       <div className="flex gap-4">
         <BarangayYieldBarChart

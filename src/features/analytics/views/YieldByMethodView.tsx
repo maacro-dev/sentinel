@@ -1,164 +1,195 @@
-// @ts-nocheck
 
-import { ChartConfig } from '@/core/components/ui/chart';
 import { StatCardComparison, StatCardMinimal } from '../components/StatCard';
 import { GroupedBarChart } from '../components/GroupedBarChart/GroupedBarChart';
 import { Lightbulb } from 'lucide-react';
 import { YieldByMethodData } from '../schemas/comparative/yield-method';
+import { buildBarKeys, normaliseCompareProps } from '../utils';
 
-export const yieldByMethodChartConfig = {
-  'direct-seeded': { label: 'Direct Seeded' },
-  transplanted: { label: 'Transplanted' },
-  yield: { label: 'Yield (t/ha)' },
-} satisfies ChartConfig;
+const FORMAT_METHOD = (m: string) =>
+  m === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted';
+
+function buildGroupedRows(
+  primaryRanking: YieldByMethodData['ranking'],
+  cmpDataItems: any[]
+): Record<string, any>[] {
+  const ALL_METHODS = ['direct-seeded', 'transplanted'];
+
+  const rowMap = new Map<string, Record<string, any>>();
+  for (const m of ALL_METHODS) {
+    const found = primaryRanking.find(r => r.method === m);
+    rowMap.set(m, { method: FORMAT_METHOD(m), current: found ? Number(found.yield.toFixed(2)) : 0 });
+  }
+
+  for (let i = 0; i < cmpDataItems.length; i++) {
+    const items = cmpDataItems[i];
+    if (!Array.isArray(items)) continue;
+    const key = `compare_${i}`;
+    for (const item of items) {
+      const rawMethod = item.method as string;
+      const displayMethod = FORMAT_METHOD(rawMethod);
+      if (!rowMap.has(rawMethod)) rowMap.set(rawMethod, { method: displayMethod, current: 0 });
+      rowMap.get(rawMethod)![key] = Number((item.compare ?? 0).toFixed(2));
+    }
+  }
+
+  return Array.from(rowMap.values());
+}
+
+function buildInsight(
+  currentLabel: string,
+  currentAvg: number,
+  cmpLabels: string[],
+  cmpStatsList: any[]
+): string {
+  const parts = cmpLabels.map((label, i) => {
+    const cmp = cmpStatsList[i]?.avg ?? 0;
+    const diff = ((currentAvg - cmp) / (cmp || 1)) * 100;
+    return `${Math.abs(diff).toFixed(1)}% ${diff >= 0 ? 'higher' : 'lower'} than ${label} (${cmp.toFixed(2)} t/ha)`;
+  });
+  return `${currentLabel}'s average yield (${currentAvg.toFixed(2)} t/ha) is ${parts.join(', and ')}.`;
+}
 
 export function YieldByMethodView({
   data,
   compareData,
-  compareRanking,
   currentSeasonLabel,
+  compareSeasonLabels,
   compareSeasonLabel,
   comparisonStats,
 }: {
   data: YieldByMethodData;
-  compareData?: any;
-  compareRanking?: YieldByMethodData['ranking'];
+  compareData?: any[];
   currentSeasonLabel?: string | null;
+  compareSeasonLabels?: string[];
   compareSeasonLabel?: string | null;
-  comparisonStats?: {
-    currentAvg: number;
-    compareAvg: number;
-    diffPercent: string;
-    higher: boolean;
-  };
+  comparisonStats?: any[];
 }) {
-  const hasComparison = !!compareData?.length && currentSeasonLabel && compareSeasonLabel;
+  const { cmpLabels, cmpDataItems, hasComparison, primaryStats, compareStatsList } =
+    normaliseCompareProps({ compareData, comparisonStats, compareSeasonLabels, compareSeasonLabel });
 
-  const barKeys = hasComparison
-    ? [
-      { key: "current", name: currentSeasonLabel!, color: "var(--color-humay)" },
-      { key: "compare", name: compareSeasonLabel!, color: "var(--color-humay-light)" },
-    ]
-    : [
-      { key: "current", name: currentSeasonLabel ?? "Yield (t/ha)", color: "var(--color-humay)" },
-    ];
+  const currentLabel = currentSeasonLabel ?? "Current Season";
 
-  const chartData = hasComparison
-    ? compareData
+  const groupedRows = hasComparison
+    ? buildGroupedRows(data.ranking, cmpDataItems)
     : data.ranking.map(item => ({
-      method: item.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted',
-      current: Number(item.yield.toFixed(2)),
-    }));
+        method: FORMAT_METHOD(item.method),
+        current: Number(item.yield.toFixed(2)),
+      }));
 
-  const highestCurrent = data.highest_method;
-  const directSeededCurrent = data.ranking.find(m => m.method === 'direct-seeded');
-  const transplantedCurrent = data.ranking.find(m => m.method === 'transplanted');
-  const dsCountCurrent = directSeededCurrent?.count ?? 0;
-  const tpCountCurrent = transplantedCurrent?.count ?? 0;
-  const gapCurrent = data.gap_percentage;
+  const barKeys = buildBarKeys(currentLabel, hasComparison ? cmpLabels : []);
 
-  let highestCompare = null;
-  let dsCountCompare = 0;
-  let tpCountCompare = 0;
-  if (hasComparison && compareRanking) {
-    const compareHighest = compareRanking.reduce(
-      (max, item) => (item.yield > max.yield ? item : max),
-      { yield: 0, method: '', count: 0 }
-    );
-    if (compareHighest.yield > 0) {
-      highestCompare = {
-        value: compareHighest.yield,
-        method: compareHighest.method === 'direct-seeded' ? 'direct-seeded' : 'transplanted',
-      };
-    }
-    const dsCompare = compareRanking.find(m => m.method === 'direct-seeded');
-    const tpCompare = compareRanking.find(m => m.method === 'transplanted');
-    dsCountCompare = dsCompare?.count ?? 0;
-    tpCountCompare = tpCompare?.count ?? 0;
-  }
+  // Primary season helpers
+  const directSeeded   = data.ranking.find(m => m.method === 'direct-seeded');
+  const transplanted   = data.ranking.find(m => m.method === 'transplanted');
+  const dsCount        = directSeeded?.count ?? 0;
+  const tpCount        = transplanted?.count ?? 0;
+  const highest        = data.highest_method;
+  const lowest         = data.lowest_method;
+  const gap            = data.gap_percentage;
 
-  const stats = hasComparison
-    ? comparisonStats || {
-      currentAvg: data.average_yield,
-      // @ts-ignore
-      compareAvg: compareData.reduce((sum, item) => sum + (item.compare || 0), 0) / compareData.length,
-      diffPercent: "0",
-      higher: true,
-    }
+  const insightText = hasComparison && primaryStats
+    ? buildInsight(currentLabel, primaryStats.avg ?? data.average_yield, cmpLabels, compareStatsList)
     : null;
+
+  // Stat metrics — comparison mode
+  const STAT_METRICS = [
+    {
+      key: "avg",
+      title: "Average Yield",
+      subtitle: "Across all methods",
+      unit: "t/ha",
+      meta: undefined,
+      compareMetas: undefined,
+    },
+    {
+      key: "highest",
+      title: "Best Method",
+      subtitle: "Highest yielding method",
+      unit: "t/ha",
+      meta: primaryStats?.highestMethod
+        ? FORMAT_METHOD(primaryStats.highestMethod)
+        : highest ? FORMAT_METHOD(highest.method) : undefined,
+      compareMetas: [
+        compareStatsList[0]?.highestMethod ? FORMAT_METHOD(compareStatsList[0].highestMethod) : undefined,
+        ...compareStatsList.slice(1).map((s: any) =>
+          s?.highestMethod ? FORMAT_METHOD(s.highestMethod) : undefined
+        ),
+      ],
+    },
+    {
+      key: "lowest",
+      title: "Weakest Method",
+      subtitle: "Lowest yielding method",
+      unit: "t/ha",
+      meta: primaryStats?.lowestMethod
+        ? FORMAT_METHOD(primaryStats.lowestMethod)
+        : lowest ? FORMAT_METHOD(lowest.method) : undefined,
+      compareMetas: [
+        compareStatsList[0]?.lowestMethod ? FORMAT_METHOD(compareStatsList[0].lowestMethod) : undefined,
+        ...compareStatsList.slice(1).map((s: any) =>
+          s?.lowestMethod ? FORMAT_METHOD(s.lowestMethod) : undefined
+        ),
+      ],
+    },
+    {
+      key: "gap",
+      title: "Method Yield Gap",
+      subtitle: "Best vs Weakest",
+      unit: "%",
+      meta: undefined,
+      compareMetas: undefined,
+    },
+  ] as const;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-        {hasComparison ? (
-          <>
+        {hasComparison && primaryStats ? (
+          STAT_METRICS.map(({ key, title, subtitle, unit, meta, compareMetas }) => (
             <StatCardComparison
-              title="Average Yield"
-              subtitle="Overall average"
-              currentValue={stats.currentAvg}
-              currentUnit="t/ha"
-              compareValue={stats.compareAvg}
-              compareUnit="t/ha"
-              currentLabel={currentSeasonLabel!}
-              compareLabel={compareSeasonLabel!}
+              key={key}
+              title={title}
+              subtitle={subtitle}
+              currentValue={primaryStats[key]}
+              currentUnit={unit}
+              currentMeta={meta}
+              compareValue={compareStatsList[0]?.[key]}
+              compareUnit={unit}
+              compareMeta={compareMetas?.[0]}
+              currentLabel={currentLabel}
+              compareLabel={cmpLabels[0] ?? "Comparison"}
+              extraCompares={compareStatsList.slice(1).map((s, i) => ({
+                value: s?.[key],
+                unit,
+                label: cmpLabels[i + 1] ?? `Season ${i + 2}`,
+                meta: compareMetas?.[i + 1],
+              }))}
             />
-            <StatCardComparison
-              title="Highest Yield"
-              subtitle="Method with highest yield"
-              currentValue={highestCurrent ? highestCurrent.value : 0}
-              currentUnit="t/ha"
-              currentMeta={highestCurrent?.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}
-              compareValue={highestCompare?.value ?? 0}
-              compareUnit="t/ha"
-              compareMeta={highestCompare?.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}
-              currentLabel={currentSeasonLabel!}
-              compareLabel={compareSeasonLabel!}
-            />
-            <StatCardComparison
-              title="Direct Seeded"
-              subtitle="Number of records"
-              currentValue={dsCountCurrent}
-              currentUnit=""
-              compareValue={dsCountCompare}
-              compareUnit=""
-              currentLabel={currentSeasonLabel!}
-              compareLabel={compareSeasonLabel!}
-            />
-            <StatCardComparison
-              title="Transplanted"
-              subtitle="Number of records"
-              currentValue={tpCountCurrent}
-              currentUnit=""
-              compareValue={tpCountCompare}
-              compareUnit=""
-              currentLabel={currentSeasonLabel!}
-              compareLabel={compareSeasonLabel!}
-            />
-          </>
+          ))
         ) : (
           <>
             <StatCardMinimal
               title="Highest Yield"
-              subtitle={highestCurrent ? (highestCurrent.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted') : 'N/A'}
-              current_value={highestCurrent ? Number(highestCurrent.value.toFixed(2)) : 0}
+              subtitle={highest ? FORMAT_METHOD(highest.method) : 'N/A'}
+              current_value={highest ? Number(highest.value.toFixed(2)) : 0}
               unit="t/ha"
             />
             <StatCardMinimal
               title="Direct Seeded"
-              subtitle={`${dsCountCurrent} record${dsCountCurrent !== 1 ? 's' : ''}`}
-              current_value={dsCountCurrent}
+              subtitle={`${dsCount} record${dsCount !== 1 ? 's' : ''}`}
+              current_value={dsCount}
               unit=""
             />
             <StatCardMinimal
               title="Transplanted"
-              subtitle={`${tpCountCurrent} record${tpCountCurrent !== 1 ? 's' : ''}`}
-              current_value={tpCountCurrent}
+              subtitle={`${tpCount} record${tpCount !== 1 ? 's' : ''}`}
+              current_value={tpCount}
               unit=""
             />
             <StatCardMinimal
               title="Yield Gap"
               subtitle="High vs Low difference"
-              current_value={Number(gapCurrent.toFixed(1))}
+              current_value={Number(gap.toFixed(1))}
               unit="%"
             />
           </>
@@ -166,10 +197,10 @@ export function YieldByMethodView({
       </div>
 
       <GroupedBarChart
-        data={chartData}
+        data={groupedRows}
         header={{
           title: "Yield by Method",
-          description: hasComparison ? `${currentSeasonLabel} vs ${compareSeasonLabel}` : "Current Season",
+          description: hasComparison ? `${currentLabel} vs ${cmpLabels.join(', ')}` : "Current Season",
         }}
         categoryKey="method"
         barKeys={barKeys}
@@ -180,62 +211,26 @@ export function YieldByMethodView({
         <div className="flex items-start gap-2 text-sm text-muted-foreground mt-2">
           <Lightbulb className="size-4 mt-0.5 shrink-0" />
           <p>
-            {hasComparison ? (
-              stats ? (
+            {insightText ?? (() => {
+              const methodsWithData = data.ranking.filter(m => m.yield > 0);
+              if (methodsWithData.length === 0) return <>No yield data available for any method.</>;
+              if (methodsWithData.length === 1) {
+                const m = methodsWithData[0];
+                return <>Only <span className="font-medium text-foreground">{FORMAT_METHOD(m.method)}</span> is used, with an average yield of <span className="font-medium text-foreground">{m.yield.toFixed(2)} t/ha</span>.</>;
+              }
+              if (!highest || !lowest || highest.value === lowest.value) {
+                return <>Both methods have equal average yields of <span className="font-medium text-foreground">{highest?.value.toFixed(2)} t/ha</span>.</>;
+              }
+              return (
                 <>
-                  {stats.higher
-                    ? `${currentSeasonLabel}'s average yield (${stats.currentAvg.toFixed(2)} t/ha) is ${stats.diffPercent}% higher than ${compareSeasonLabel}'s (${stats.compareAvg.toFixed(2)} t/ha).`
-                    : `${currentSeasonLabel}'s average yield (${stats.currentAvg.toFixed(2)} t/ha) is ${stats.diffPercent}% lower than ${compareSeasonLabel}'s (${stats.compareAvg.toFixed(2)} t/ha).`}
-                  {highestCurrent && highestCompare && (
-                    <> The highest yield in {currentSeasonLabel} is ${highestCurrent.value.toFixed(2)} t/ha (${highestCurrent.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}), while in {compareSeasonLabel} it is ${highestCompare.value.toFixed(2)} t/ha (${highestCompare.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}).</>
-                  )}
+                  <span className="font-medium text-foreground">{FORMAT_METHOD(highest.method)}</span> leads with{' '}
+                  <span className="font-medium text-foreground">{highest.value.toFixed(2)} t/ha</span>, outperforming{' '}
+                  <span className="font-medium text-foreground">{FORMAT_METHOD(lowest.method)}</span> by{' '}
+                  <span className="font-medium text-foreground">{gap.toFixed(1)}%</span>.{' '}
+                  The overall average yield is <span className="font-medium text-foreground">{data.average_yield.toFixed(2)} t/ha</span>.
                 </>
-              ) : null
-            ) : (
-              (() => {
-                const methodsWithData = data.ranking.filter(item => item.yield > 0);
-                if (methodsWithData.length === 0) return <>No yield data available for any method.</>;
-                if (methodsWithData.length === 1) {
-                  const method = methodsWithData[0];
-                  return (
-                    <>
-                      Only <span className="font-medium text-foreground">
-                        {method.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}
-                      </span>{' '}
-                      is used, with an average yield of{' '}
-                      <span className="font-medium text-foreground">{method.yield.toFixed(2)} t/ha</span>.
-                    </>
-                  );
-                }
-                const highest = data.highest_method!;
-                const lowest = data.lowest_method!;
-                const gap = data.gap_percentage;
-                if (highest.value === lowest.value) {
-                  return (
-                    <>
-                      Both methods have equal average yields of{' '}
-                      <span className="font-medium text-foreground">{highest.value.toFixed(2)} t/ha</span>.
-                    </>
-                  );
-                }
-                return (
-                  <>
-                    <span className="font-medium text-foreground">
-                      {highest.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}
-                    </span>{' '}
-                    leads with{' '}
-                    <span className="font-medium text-foreground">{highest.value.toFixed(2)} t/ha</span>{' '}
-                    average yield, outperforming{' '}
-                    <span className="font-medium text-foreground">
-                      {lowest.method === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted'}
-                    </span>{' '}
-                    by{' '}
-                    <span className="font-medium text-foreground">{gap.toFixed(1)}%</span>.
-                  </>
-                );
-              })()
-            )}
-            {!hasComparison && <> The overall average yield is <span className="font-medium text-foreground">{data.average_yield.toFixed(2)} t/ha</span>.</>}
+              );
+            })()}
           </p>
         </div>
       )}

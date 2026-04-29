@@ -53,9 +53,14 @@ export interface DescriptiveAnalyticsData {
 
 export type SummaryConfig = Record<string, StatMetadata>;
 
-export type Stat = Flatten<StatMetadata & { current_value: number | string; previous_value: number; percent_change: number; }>;
+export type Stat = Flatten<StatMetadata & {
+  current_value: number | string;
+  previous_value: number;
+  percent_change: number;
+}>;
 
 export interface StatMetadata {
+  key?: string;
   title: string;
   subtitle: string;
   unit: string;
@@ -70,21 +75,21 @@ export type ComparativeViewProps = { data?: any; isLoading: boolean }
 export type ComparativeViewComponent = React.ComponentType<ComparativeViewProps>
 
 export interface ComparativeDataParams {
-    seasonId: number | undefined,
-    province: string | undefined,
-    municipality: string | undefined,
-    barangay: string | undefined,
-    method: string | undefined,
-    variety: string | undefined,
+  seasonId: number | undefined,
+  province: string | undefined,
+  municipality: string | undefined,
+  barangay: string | undefined,
+  method: string | undefined,
+  variety: string | undefined,
 }
 
 export interface PredictiveDataParams {
-    seasonId: number | undefined,
-    province: string | undefined,
-    municipality: string | undefined,
-    barangay: string | undefined,
-    method: string | undefined,
-    variety: string | undefined,
+  seasonId: number | undefined,
+  province: string | undefined,
+  municipality: string | undefined,
+  barangay: string | undefined,
+  method: string | undefined,
+  variety: string | undefined,
 }
 
 

@@ -15,6 +15,7 @@ export interface MfidTableProps<T> extends DataTableEvents<T> {
 
 export const MfidTable = <T extends { mfid: string }>({
   onRowClick,
+  onRowIntent,
   seasonId,
 }: MfidTableProps<T>) => {
   "use no memo";
@@ -24,22 +25,22 @@ export const MfidTable = <T extends { mfid: string }>({
   const { createMfid, isLoading: isCreatingMfid } = useCreateMfid();
 
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
-  const { mutate: batchSchedule, isPending: isBatchScheduling } = useBatchScheduleFieldData();
+
 
   const selectedRows = table.getSelectedRowModel().rows;
-
   const selectedMfids = useMemo(
     () => selectedRows.map(row => row.original.mfid),
     [selectedRows]
   );
 
   const scheduledSelectedMfids = useMemo(
-    () =>
-      selectedRows
-        .filter(row => (row.original as any).has_scheduling)
-        .map(row => (row.original as any).mfid),
+    () => selectedRows
+      .filter(row => (row.original as any).has_scheduling)
+      .map(row => (row.original as any).mfid),
     [selectedRows]
   );
+
+  const { mutate: batchSchedule, isPending: isBatchScheduling } = useBatchScheduleFieldData(seasonId, selectedMfids);
 
   const unscheduledCount = selectedMfids.length - scheduledSelectedMfids.length;
 
@@ -123,6 +124,7 @@ export const MfidTable = <T extends { mfid: string }>({
         />
       }
       onRowClick={onRowClick}
+      onRowIntent={onRowIntent}
       pagination={<DefaultTablePagination table={table} />}
     />
   );

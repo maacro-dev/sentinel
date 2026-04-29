@@ -33,18 +33,21 @@ export const useScheduleFieldDataAndCore = () => {
     mutationFn: Collection.scheduleFieldDataAndCore,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collection-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["mfids"] });
     },
   });
 };
 
-export const useBatchScheduleFieldData = () => {
+export const useBatchScheduleFieldData = (seasonId: number, selectedMfids: Array<string>) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: Collection.batchScheduleFieldData,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collection-tasks"] });
+    onSettled: () => {
+      selectedMfids.map(mfid => {
+        queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid, seasonId] });
+      })
       queryClient.invalidateQueries({ queryKey: ["mfids"] });
-    },
+    }
   });
 };
 
@@ -61,6 +64,7 @@ interface MfidCollectionTasksProps {
 
 export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: allTasks, isLoading } = useCollectionTasksByMfid(mfid, seasonId);
 
@@ -68,15 +72,12 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
   const [selectedFormType, setSelectedFormType] = useState<ActivityType | undefined>();
   const [retakeOriginalTask, setRetakeOriginalTask] = useState<CollectionTask | undefined>();
   const [editingTask, setEditingTask] = useState<CollectionTask | undefined>();
-
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<CollectionTask | null>(null);
 
   const { mutate: createTask, isPending: isCreating } = useCreateCollectionTask();
 
   const { mutate: updateTask, isPending: isUpdating } = useUpdateCollectionTask();
-
-  const navigate = useNavigate();
 
   const { mutate: deleteTask } = useDeleteCollectionTask();
 

@@ -1,6 +1,5 @@
 import { cn } from "@/core/utils/style";
 import { Badge } from "@/core/components/ui/badge";
-import { TrendIcon } from "./TrendIcon";
 import { memo } from "react";
 import {
   Tooltip,
@@ -8,49 +7,59 @@ import {
   TooltipTrigger,
 } from "@/core/components/ui/tooltip";
 
-const getColor = (v: number) => {
-  if (v > 0) return "bg-green-100 text-green-600";
-  if (v < 0) return "bg-red-100 text-red-600";
-  return "";
-};
-
 interface ChangeBadgeProps {
   percent?: number;
+  inverted?: boolean;
 }
 
-export const ChangeBadge = memo(({ percent }: ChangeBadgeProps) => {
-  const baseClasses =
-    "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
+export const ChangeBadge = memo(
+  ({ percent, inverted = false }: ChangeBadgeProps) => {
+    const baseClasses =
+      "rounded-md align-middle py-0.5 px-1.5 text-5xs dt:text-4xs";
 
-  const hasChange = typeof percent === "number" && isFinite(percent);
-  const showTooltip = percent == null;
+    const hasChange = typeof percent === "number" && isFinite(percent);
 
-  const badge = (
-    <Badge
-      variant="secondary"
-      className={cn(baseClasses, hasChange ? getColor(percent) : undefined)}
-    >
-      {!hasChange ? (
-        "---"
-      ) : percent === 0 ? (
-        "No change"
-      ) : (
-        <>
-          <TrendIcon value={percent} />
-          {percent}%
-        </>
-      )}
-    </Badge>
-  );
+    let color: string;
+    let displayText: string;
+    let tooltipText: string;
 
-  if (!showTooltip) return badge;
+    if (!hasChange) {
+      color = "bg-gray-100 text-gray-500";
+      displayText = "---";
+      tooltipText = "No data from the previous season";
+    } else if (percent === 0) {
+      color = "bg-gray-100 text-gray-500";
+      displayText = "No change";
+      tooltipText = "No change compared to previous season";
+    } else {
+      const isGood = inverted ? percent < 0 : percent > 0;
+      color = isGood
+        ? "bg-green-100 text-green-600"
+        : "bg-red-100 text-red-600";
 
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{badge}</TooltipTrigger>
-      <TooltipContent side="bottom">
-        <p className="text-5xs">No data from the previous season</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-});
+      const arrow = percent < 0 ? "↓" : "↑";
+      const absValue = Math.abs(percent);
+      displayText = `${arrow} ${absValue}%`;
+
+      const direction = percent < 0 ? "Decreased" : "Increased";
+      const evaluation = isGood ? "Positive" : "Negative";
+      tooltipText = `${direction} by ${absValue}% — ${evaluation}`;
+    }
+
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge
+            variant="secondary"
+            className={cn(baseClasses, color)}
+          >
+            {displayText}
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p className="text-5xs">{tooltipText}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  },
+);

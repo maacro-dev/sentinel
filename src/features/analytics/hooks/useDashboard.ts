@@ -1,18 +1,16 @@
-import { useQuery } from "@tanstack/react-query"
-import { dashboardDataOptions } from "@/features/analytics/queries/options"
-import { mapSeasonSummary } from "../utils"
-import { Stat } from "../types"
-import { DASHBOARD_SUMMARY_CONFIG } from "../config"
+import { useQuery } from "@tanstack/react-query";
+import { dashboardDataOptions } from "@/features/analytics/queries/options";
+import { mapSeasonSummary } from "../utils";
+import type { Stat } from "../types";
+import { DASHBOARD_SUMMARY_CONFIG } from "../config";
 
 export const useAnalyticsDashboard = (seasonId?: number) => {
-
-  const { data, isLoading } = useQuery(dashboardDataOptions(seasonId))
+  const { data, isLoading } = useQuery(dashboardDataOptions(seasonId));
 
   const seasonalStats: Array<Stat> = mapSeasonSummary({
     config: DASHBOARD_SUMMARY_CONFIG,
-    stats: data?.seasonalStats
-  })
-
+    stats: data?.seasonalStats,
+  });
 
   const normalizedStats = seasonalStats.map((s) => {
     const current = Number(s.current_value);
@@ -29,9 +27,9 @@ export const useAnalyticsDashboard = (seasonId?: number) => {
   });
 
   return {
-    stats: normalizedStats || [],
+    stats: normalizedStats,
     trends: data?.overallYieldTrend.data,
     ranks: data?.barangayYieldRanking,
     isLoading,
-  }
-}
+  };
+};

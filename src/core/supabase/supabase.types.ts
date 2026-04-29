@@ -1813,6 +1813,53 @@ export type Database = {
         Args: { p_season_id?: number }
         Returns: Json
       }
+      get_available_tasks_for_collector: {
+        Args: { p_collector_id: string; p_today?: string }
+        Returns: {
+          activity_id: number | null
+          activity_type: Database["public"]["Enums"]["activity_type"] | null
+          assigned_at: string | null
+          barangay: string | null
+          can_retake: boolean | null
+          city_municipality: string | null
+          collected_at: string | null
+          collected_by: string | null
+          collector_id: string | null
+          collector_name: string | null
+          created_at: string | null
+          dependency_data: Json | null
+          end_date: string | null
+          farmer_name: string | null
+          full_address: string | null
+          id: number | null
+          image_urls: Json | null
+          is_overdue: boolean | null
+          is_retake: boolean | null
+          mfid: string | null
+          mfid_id: number | null
+          original_activity_id: number | null
+          province: string | null
+          remarks: string | null
+          retake_of: number | null
+          season_end_date: string | null
+          season_id: number | null
+          season_start_date: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verified_at: string | null
+          verified_by: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "collection_details"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_mfid_details: {
         Args: { p_season_id?: number }
         Returns: {

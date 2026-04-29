@@ -1,8 +1,7 @@
 import { PageContainer } from '@/core/components/layout'
 import { defaultPaginationSearchSchema } from '@/core/components/TablePagination'
-
 import { MfidTable } from '@/features/mfid/components/MfidTable/MfidTable'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { Info } from 'lucide-react'
 
@@ -13,14 +12,22 @@ export const Route = createFileRoute('/_manager/_data/mfid/')({
 })
 
 function RouteComponent() {
-  const navigate = useNavigate()
+  const { navigate, preloadRoute } = useRouter()
   const { seasonId } = Route.useSearch()
+
   const handleRowClick = useCallback((row: { mfid: string }) => {
     navigate({
       to: "/mfid/$mfid",
       params: { mfid: row.mfid }
     })
-  }, [])
+  }, [navigate])
+
+  const handleOnRowIntent = useCallback((row: { mfid: string }) => {
+    preloadRoute({
+      to: "/mfid/$mfid",
+      params: { mfid: row.mfid }
+    });
+  }, [preloadRoute]);
 
   if (seasonId == null) {
     throw new Error("season id should not be null in this case.")
@@ -36,7 +43,11 @@ function RouteComponent() {
           Use the status filter below to see available or used MFIDs.
         </span>
       </div>
-      <MfidTable seasonId={seasonId} onRowClick={handleRowClick} />
+      <MfidTable
+        seasonId={seasonId}
+        onRowClick={handleRowClick}
+        onRowIntent={handleOnRowIntent}
+      />
     </PageContainer>
   )
 }
