@@ -28,6 +28,7 @@ interface CollectionFormDialogProps {
   editingTask?: CollectionTask;
   hideTrigger?: boolean;
   minStartDate?: Date;
+  maxStartDateOverride?: Date | null;
   maxEndDate?: Date;
 }
 
@@ -43,6 +44,7 @@ export function CollectionFormDialog({
   editingTask,
   hideTrigger = false,
   minStartDate,
+  maxStartDateOverride,
   maxEndDate,
 }: CollectionFormDialogProps) {
   const { data: currentSeasonId } = useCurrentSeasonId();
@@ -132,12 +134,6 @@ export function CollectionFormDialog({
     }
   }, [users, form, isRetake, isEditing]);
 
-  const startDateValue = form.watch("start_date");
-
-  const minEndDate = useMemo(() => {
-    if (!startDateValue) return undefined;
-    return new Date(startDateValue + "T12:00:00");
-  }, [startDateValue]);
 
   const handleSubmit = (input: CollectionTaskInput) => {
     if (isEditing && editingTask) {
@@ -150,12 +146,27 @@ export function CollectionFormDialog({
     form.reset();
   };
 
+  const startDateValue = form.watch("start_date");
   const endDateValue = form.watch("end_date");
 
-  const maxStartDate = useMemo(() => {
+  const minEndDate = useMemo(() => {
+    if (!startDateValue) return undefined;
+    return new Date(startDateValue + "T12:00:00");
+  }, [startDateValue]);
+
+  const computedMaxStartDate = useMemo(() => {
     if (!endDateValue) return undefined;
     return new Date(endDateValue + "T12:00:00");
   }, [endDateValue]);
+
+  const effectiveMaxStartDate = maxStartDateOverride !== undefined
+    ? (maxStartDateOverride === null ? undefined : maxStartDateOverride)
+    : computedMaxStartDate;
+
+  // const maxStartDate = useMemo(() => {
+  //   if (!endDateValue) return undefined;
+  //   return new Date(endDateValue + "T12:00:00");
+  // }, [endDateValue]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && !canOpen) return;
@@ -297,7 +308,7 @@ export function CollectionFormDialog({
                   name="start_date"
                   label="Start Date"
                   minDate={minStartDate}
-                  maxDate={maxStartDate}
+                  maxDate={effectiveMaxStartDate}
                 />
                 <FormDatePicker
                   name="end_date"

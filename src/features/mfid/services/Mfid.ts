@@ -6,7 +6,7 @@ import { MfidFormPayload } from "../components/MfidFormDialog";
 export class Mfid {
   private constructor() { }
 
-  static async getAll(seasonId?: number): Promise<MfidTableRow[]> {
+  static async getAll(seasonId?: number | null): Promise<MfidTableRow[]> {
     const client = await getSupabase();
 
     if (seasonId != null) {

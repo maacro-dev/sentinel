@@ -1,12 +1,5 @@
 import { Pie, PieChart, Label, Cell, Sector, PieSectorShapeProps } from "recharts";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/core/components/ui/card";
-import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
@@ -18,6 +11,7 @@ import { RiceVarietySummary } from "../schemas/summary/variety";
 import { BarChartDefaults } from "./BarChart/Defaults";
 import { useMemo } from "react";
 import { cn } from "@/core/utils/style";
+import { ChartCard } from "./ChartCard";
 
 interface VarietyPieChartProps {
   summary: RiceVarietySummary;
@@ -30,9 +24,8 @@ export function VarietyPieChart({
   summary,
   activeVariety,
   onVarietyChange,
-  onSliceHover
+  onSliceHover,
 }: VarietyPieChartProps) {
-
   const {
     nsic_count,
     psb_count,
@@ -50,9 +43,9 @@ export function VarietyPieChart({
 
   const chartConfig = {
     count: { label: "Fields" },
-    "NSIC": { label: "NSIC", color: "var(--color-humay)" },
-    "PSB": { label: "PSB", color: "var(--color-humay-4)" },
-    "Others": { label: "Others", color: "var(--color-humay-light)" },
+    NSIC: { label: "NSIC", color: "var(--color-humay)" },
+    PSB: { label: "PSB", color: "var(--color-humay-4)" },
+    Others: { label: "Others", color: "var(--color-humay-light)" },
   } satisfies ChartConfig;
 
   const activeIndex = useMemo(() => {
@@ -73,9 +66,7 @@ export function VarietyPieChart({
   const renderSector = (props: PieSectorShapeProps) => {
     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, index, ...rest } = props;
     const isActive = index === activeIndex;
-
     const adjustedOuterRadius = isActive ? outerRadius + 10 : outerRadius;
-
     return (
       <Sector
         cx={cx}
@@ -141,97 +132,98 @@ export function VarietyPieChart({
     </div>
   );
 
-  if (total === 0) {
-    return (
-      <Card className="flex flex-col">
-        <CardHeader className="items-center pb-0">
-          <CardTitle className="font-medium">Rice Variety</CardTitle>
-          <CardDescription>Most used variety this season</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
-          No data
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle className="font-medium">Rice Variety</CardTitle>
-        <CardDescription>Most used variety this season</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-80 w-full" >
-          <PieChart>
-            <Pie
-              data={chartData}
-              dataKey="count"
-              nameKey="variety"
-              innerRadius={60}
-              outerRadius={80}
-              shape={renderSector}
-              onClick={handlePieClick}
-              cursor={'pointer'}
-              isAnimationActive={true}
-              animationDuration={500}
-              onMouseEnter={(data) => {
-                if (onSliceHover && data?.payload?.variety) {
-                  onSliceHover(data.payload.variety);
-                }
-              }}
-            >
-              {chartData.map((entry, index) => {
-                const isActive = index === activeIndex;
-                return (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.fill}
-                    className={cn(
-                      "origin-center transition-transform duration-150 ease-out",
-                      isActive ? "" : "hover:scale-105"
-                    )}
-                  />
-                );
-              })}
-              <Label
-                position="center"
-                content={({ viewBox }: any) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) - 12}
-                          className="fill-foreground text-2xl font-semibold"
-                        >
-                          {dominantPercent}%
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 12}
-                          className="fill-muted-foreground text-xs"
-                        >
-                          of fields
-                        </tspan>
-                      </text>
-                    );
+    <ChartCard
+      header={{ title: "Rice Variety", description: "Most used variety this season", }}
+      config={chartConfig}
+      className="flex flex-col min-h-80 [&>div:nth-child(2)]:justify-start"
+    >
+      {total === 0 ? (
+        <span className="text-muted-foreground text-sm">No data</span>
+      ) : (
+        <>
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-60 w-full"
+          >
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="count"
+                nameKey="variety"
+                innerRadius={60}
+                outerRadius={80}
+                shape={renderSector}
+                onClick={handlePieClick}
+                cursor="pointer"
+                isAnimationActive
+                animationDuration={500}
+                onMouseEnter={(data) => {
+                  if (onSliceHover && data?.payload?.variety) {
+                    onSliceHover(data.payload.variety);
                   }
-                  return null;
                 }}
+              >
+                {chartData.map((entry, index) => {
+                  const isActive = index === activeIndex;
+                  return (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.fill}
+                      className={cn(
+                        "origin-center transition-transform duration-150 ease-out",
+                        isActive ? "" : "hover:scale-105"
+                      )}
+                    />
+                  );
+                })}
+                <Label
+                  position="center"
+                  content={({ viewBox }: any) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) - 12}
+                            className="fill-foreground text-2xl font-semibold"
+                          >
+                            {dominantPercent}%
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 12}
+                            className="fill-muted-foreground text-xs"
+                          >
+                            of fields
+                          </tspan>
+                        </text>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              </Pie>
+              <ChartTooltip {...BarChartDefaults.tooltip} />
+              <ChartLegend
+                content={({ payload }) => (
+                  <ChartLegendContent
+                    nameKey="variety"
+                    payload={payload}
+                    className="text-sm"
+                  />
+                )}
               />
-            </Pie>
-            <ChartTooltip {...BarChartDefaults.tooltip} />
-            <ChartLegend content={({ payload }) => <ChartLegendContent nameKey="variety" payload={payload} className="text-sm" />} />
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
-      {insightContent}
-    </Card>
+            </PieChart>
+          </ChartContainer>
+          {insightContent}
+        </>
+      )}
+    </ChartCard>
   );
 }

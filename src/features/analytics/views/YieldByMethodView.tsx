@@ -1,52 +1,20 @@
-
-import { StatCardComparison, StatCardMinimal } from '../components/StatCard';
-import { GroupedBarChart } from '../components/GroupedBarChart/GroupedBarChart';
-import { Lightbulb } from 'lucide-react';
+import { StatCardSparkline } from '../components/StatCard';
+import { MultiLineChart } from '../components/MultiLineChart';
+import { ComparisonPieChart } from '../components/ComparisonPieChart';
 import { YieldByMethodData } from '../schemas/comparative/yield-method';
-import { buildBarKeys, normaliseCompareProps } from '../utils';
+import { buildLineRows, generateShades, HUMAY_BASE, normaliseCompareProps } from '../utils';
+import { useMemo } from 'react';
+import { useTrendData } from '../hooks/useTrendData';
 
-const FORMAT_METHOD = (m: string) =>
-  m === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted';
 
-function buildGroupedRows(
-  primaryRanking: YieldByMethodData['ranking'],
-  cmpDataItems: any[]
-): Record<string, any>[] {
-  const ALL_METHODS = ['direct-seeded', 'transplanted'];
-
-  const rowMap = new Map<string, Record<string, any>>();
-  for (const m of ALL_METHODS) {
-    const found = primaryRanking.find(r => r.method === m);
-    rowMap.set(m, { method: FORMAT_METHOD(m), current: found ? Number(found.yield.toFixed(2)) : 0 });
-  }
-
-  for (let i = 0; i < cmpDataItems.length; i++) {
-    const items = cmpDataItems[i];
-    if (!Array.isArray(items)) continue;
-    const key = `compare_${i}`;
-    for (const item of items) {
-      const rawMethod = item.method as string;
-      const displayMethod = FORMAT_METHOD(rawMethod);
-      if (!rowMap.has(rawMethod)) rowMap.set(rawMethod, { method: displayMethod, current: 0 });
-      rowMap.get(rawMethod)![key] = Number((item.compare ?? 0).toFixed(2));
-    }
-  }
-
-  return Array.from(rowMap.values());
-}
-
-function buildInsight(
-  currentLabel: string,
-  currentAvg: number,
-  cmpLabels: string[],
-  cmpStatsList: any[]
-): string {
-  const parts = cmpLabels.map((label, i) => {
-    const cmp = cmpStatsList[i]?.avg ?? 0;
-    const diff = ((currentAvg - cmp) / (cmp || 1)) * 100;
-    return `${Math.abs(diff).toFixed(1)}% ${diff >= 0 ? 'higher' : 'lower'} than ${label} (${cmp.toFixed(2)} t/ha)`;
-  });
-  return `${currentLabel}'s average yield (${currentAvg.toFixed(2)} t/ha) is ${parts.join(', and ')}.`;
+interface YieldByMethodViewProps {
+  data: YieldByMethodData;
+  compareData?: any[];
+  currentSeasonLabel?: string | null;
+  compareSeasonLabels?: string[];
+  compareSeasonLabel?: string | null;
+  comparisonStats?: any[];
+  isLoading?: boolean;
 }
 
 export function YieldByMethodView({
@@ -56,184 +24,335 @@ export function YieldByMethodView({
   compareSeasonLabels,
   compareSeasonLabel,
   comparisonStats,
-}: {
-  data: YieldByMethodData;
-  compareData?: any[];
-  currentSeasonLabel?: string | null;
-  compareSeasonLabels?: string[];
-  compareSeasonLabel?: string | null;
-  comparisonStats?: any[];
-}) {
+  isLoading = false,
+}: YieldByMethodViewProps) {
   const { cmpLabels, cmpDataItems, hasComparison, primaryStats, compareStatsList } =
     normaliseCompareProps({ compareData, comparisonStats, compareSeasonLabels, compareSeasonLabel });
 
-  const currentLabel = currentSeasonLabel ?? "Current Season";
+  const currentLabel = currentSeasonLabel ?? 'Current Season';
+  const isAllSeasons = currentLabel === 'All Seasons';
 
-  const groupedRows = hasComparison
-    ? buildGroupedRows(data.ranking, cmpDataItems)
-    : data.ranking.map(item => ({
-        method: FORMAT_METHOD(item.method),
-        current: Number(item.yield.toFixed(2)),
-      }));
+  const { highest_method: highest, lowest_method: lowest, average_yield: avg } = data;
 
-  const barKeys = buildBarKeys(currentLabel, hasComparison ? cmpLabels : []);
+  const { dominantAdoptionEntry, mostUsed, leastUsed } = useMemo(() => {
+    const ranking = data.ranking;
+    if (!ranking.length) return { dominantAdoptionEntry: null, mostUsed: null, leastUsed: null };
+    return {
+      dominantAdoptionEntry: ranking.reduce((a, b) => a.adoption_rate >= b.adoption_rate ? a : b),
+      mostUsed: ranking.reduce((a, b) => a.count >= b.count ? a : b),
+      leastUsed: ranking.reduce((a, b) => a.count <= b.count ? a : b),
+    };
+  }, [data.ranking]);
 
-  // Primary season helpers
-  const directSeeded   = data.ranking.find(m => m.method === 'direct-seeded');
-  const transplanted   = data.ranking.find(m => m.method === 'transplanted');
-  const dsCount        = directSeeded?.count ?? 0;
-  const tpCount        = transplanted?.count ?? 0;
-  const highest        = data.highest_method;
-  const lowest         = data.lowest_method;
-  const gap            = data.gap_percentage;
+  const dominantAdoption = dominantAdoptionEntry?.adoption_rate ?? 0;
+  const dominantMethod = dominantAdoptionEntry?.method ?? null;
 
-  const insightText = hasComparison && primaryStats
-    ? buildInsight(currentLabel, primaryStats.avg ?? data.average_yield, cmpLabels, compareStatsList)
-    : null;
+  const normalizedCmpDataItems = useMemo(() => {
+    if (!hasComparison) return [];
+    return cmpDataItems.map(items =>
+      Array.isArray(items)
+        ? items.map((item: any) => ({ ...item, location: FORMAT_METHOD(item.method ?? '') }))
+        : items,
+    );
+  }, [hasComparison, cmpDataItems]);
 
-  // Stat metrics — comparison mode
-  const STAT_METRICS = [
-    {
-      key: "avg",
-      title: "Average Yield",
-      subtitle: "Across all methods",
-      unit: "t/ha",
-      meta: undefined,
-      compareMetas: undefined,
-    },
-    {
-      key: "highest",
-      title: "Best Method",
-      subtitle: "Highest yielding method",
-      unit: "t/ha",
-      meta: primaryStats?.highestMethod
-        ? FORMAT_METHOD(primaryStats.highestMethod)
-        : highest ? FORMAT_METHOD(highest.method) : undefined,
-      compareMetas: [
-        compareStatsList[0]?.highestMethod ? FORMAT_METHOD(compareStatsList[0].highestMethod) : undefined,
-        ...compareStatsList.slice(1).map((s: any) =>
-          s?.highestMethod ? FORMAT_METHOD(s.highestMethod) : undefined
-        ),
-      ],
-    },
-    {
-      key: "lowest",
-      title: "Weakest Method",
-      subtitle: "Lowest yielding method",
-      unit: "t/ha",
-      meta: primaryStats?.lowestMethod
-        ? FORMAT_METHOD(primaryStats.lowestMethod)
-        : lowest ? FORMAT_METHOD(lowest.method) : undefined,
-      compareMetas: [
-        compareStatsList[0]?.lowestMethod ? FORMAT_METHOD(compareStatsList[0].lowestMethod) : undefined,
-        ...compareStatsList.slice(1).map((s: any) =>
-          s?.lowestMethod ? FORMAT_METHOD(s.lowestMethod) : undefined
-        ),
-      ],
-    },
-    {
-      key: "gap",
-      title: "Method Yield Gap",
-      subtitle: "Best vs Weakest",
-      unit: "%",
-      meta: undefined,
-      compareMetas: undefined,
-    },
-  ] as const;
+  const formattedRanking = useMemo(
+    () => data.ranking.map(r => ({ ...r, location: FORMAT_METHOD(r.method) })),
+    [data.ranking],
+  );
+
+  const { rows: lineRows, locationKeys } = useMemo(
+    () => buildLineRows(formattedRanking, currentLabel, normalizedCmpDataItems, hasComparison ? cmpLabels : [], !isAllSeasons),
+    [formattedRanking, currentLabel, normalizedCmpDataItems, hasComparison, cmpLabels, isAllSeasons],
+  );
+
+  const locationShades = useMemo(
+    () => generateShades('oklch(62.7% 0.194 149.214)', locationKeys.length),
+    [locationKeys.length],
+  );
+
+  const seasonColorMap = useMemo<Record<string, string>>(() => {
+    const list: string[] = [];
+    if (!isAllSeasons) list.push(currentLabel);
+    list.push(...cmpLabels);
+    const shades = generateShades(HUMAY_BASE, list.length);
+    const map: Record<string, string> = {};
+    list.forEach((s, i) => { map[s] = shades[i % shades.length]; });
+    return map;
+  }, [isAllSeasons, currentLabel, cmpLabels]);
+
+  const pieDataByMetric = useMemo(() => Object.fromEntries(
+    STAT_METRICS.map(({ key, unit }) => {
+      let entries: { name: string; value: number; fill: string }[];
+
+      if (key === 'adoptionRate') {
+        entries = buildAdoptionPieData(data.ranking, cmpDataItems, isAllSeasons);
+      } else {
+        entries = [];
+        if (!isAllSeasons) {
+          const entry = buildPieEntry(currentLabel, primaryStats, key, seasonColorMap[currentLabel]);
+          if (entry) entries.push(entry);
+        }
+        compareStatsList.forEach((stats: any, i: number) => {
+          const entry = buildPieEntry(cmpLabels[i], stats, key, seasonColorMap[cmpLabels[i]]);
+          if (entry) entries.push(entry);
+        });
+      }
+
+      return [key, { data: entries, insight: buildInsight(entries, key, unit) }];
+    }),
+  ), [isAllSeasons, currentLabel, primaryStats, compareStatsList, cmpLabels, seasonColorMap, data.ranking, cmpDataItems],);
+
+  const trends = useTrendData(
+    compareStatsList, cmpLabels, primaryStats, currentLabel, isAllSeasons,
+    ['avg', 'highest', 'lowest'],
+  );
+
+  const chartKey = `method-${data.ranking.length}`;
+
+  const sameMethod = highest?.method === lowest?.method;
+
+  const allSeasonsCards = isAllSeasons && (
+    <div className="grid auto-rows-min gap-4 md:grid-cols-4">
+      <StatCardSparkline
+        title="Overall Average Yield" subtitle="Across all methods and seasons"
+        value={Number(avg.toFixed(2))} unit="t/ha" trend={trends.avg}
+      />
+      {sameMethod ? (
+        <>
+          <StatCardSparkline
+            title="Overall Best Yield" subtitle="Highest recorded method yield"
+            value={highest ? highest.value : 0} unit="t/ha"
+            tooltip={highest ? FORMAT_METHOD(highest.method) : null}
+            trend={trends.highest}
+          />
+          <StatCardSparkline
+            title="Overall Lowest Yield" subtitle="Lowest recorded method yield"
+            value={lowest ? lowest.value : 0} unit="t/ha"
+            tooltip={lowest ? FORMAT_METHOD(lowest.method) : null}
+            trend={trends.lowest}
+          />
+        </>
+      ) : (
+        <>
+          <StatCardSparkline
+            title="Overall Best Method" subtitle="Highest average yield among methods"
+            display={highest ? FORMAT_METHOD(highest.method) : 'N/A'}
+            value={highest ? highest.value : 0}
+            tooltip={highest ? `${Number(highest.value).toFixed(2)} t/ha` : null}
+            trend={trends.highest}
+          />
+          <StatCardSparkline
+            title="Overall Weakest Method" subtitle="Lowest average yield among methods"
+            display={lowest ? FORMAT_METHOD(lowest.method) : 'N/A'}
+            value={lowest ? lowest.value : 0}
+            tooltip={lowest ? `${Number(lowest.value).toFixed(2)} t/ha` : null}
+            trend={trends.lowest}
+          />
+        </>
+      )}
+      <StatCardSparkline
+        title="Overall Adoption"
+        subtitle={dominantMethod ? FORMAT_METHOD(dominantMethod) : 'N/A'}
+        value={dominantAdoption} unit="%"
+      />
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid auto-rows-min gap-4 md:grid-cols-4">
-        {hasComparison && primaryStats ? (
-          STAT_METRICS.map(({ key, title, subtitle, unit, meta, compareMetas }) => (
-            <StatCardComparison
-              key={key}
-              title={title}
-              subtitle={subtitle}
-              currentValue={primaryStats[key]}
-              currentUnit={unit}
-              currentMeta={meta}
-              compareValue={compareStatsList[0]?.[key]}
-              compareUnit={unit}
-              compareMeta={compareMetas?.[0]}
-              currentLabel={currentLabel}
-              compareLabel={cmpLabels[0] ?? "Comparison"}
-              extraCompares={compareStatsList.slice(1).map((s, i) => ({
-                value: s?.[key],
-                unit,
-                label: cmpLabels[i + 1] ?? `Season ${i + 2}`,
-                meta: compareMetas?.[i + 1],
-              }))}
-            />
-          ))
-        ) : (
-          <>
-            <StatCardMinimal
-              title="Highest Yield"
-              subtitle={highest ? FORMAT_METHOD(highest.method) : 'N/A'}
-              current_value={highest ? Number(highest.value.toFixed(2)) : 0}
-              unit="t/ha"
-            />
-            <StatCardMinimal
-              title="Direct Seeded"
-              subtitle={`${dsCount} record${dsCount !== 1 ? 's' : ''}`}
-              current_value={dsCount}
-              unit=""
-            />
-            <StatCardMinimal
-              title="Transplanted"
-              subtitle={`${tpCount} record${tpCount !== 1 ? 's' : ''}`}
-              current_value={tpCount}
-              unit=""
-            />
-            <StatCardMinimal
-              title="Yield Gap"
-              subtitle="High vs Low difference"
-              current_value={Number(gap.toFixed(1))}
-              unit="%"
-            />
-          </>
-        )}
-      </div>
+      {allSeasonsCards}
 
-      <GroupedBarChart
-        data={groupedRows}
-        header={{
-          title: "Yield by Method",
-          description: hasComparison ? `${currentLabel} vs ${cmpLabels.join(', ')}` : "Current Season",
-        }}
-        categoryKey="method"
-        barKeys={barKeys}
-        valueUnit="t/ha"
-      />
-
-      {data.ranking.length > 0 && (
-        <div className="flex items-start gap-2 text-sm text-muted-foreground mt-2">
-          <Lightbulb className="size-4 mt-0.5 shrink-0" />
-          <p>
-            {insightText ?? (() => {
-              const methodsWithData = data.ranking.filter(m => m.yield > 0);
-              if (methodsWithData.length === 0) return <>No yield data available for any method.</>;
-              if (methodsWithData.length === 1) {
-                const m = methodsWithData[0];
-                return <>Only <span className="font-medium text-foreground">{FORMAT_METHOD(m.method)}</span> is used, with an average yield of <span className="font-medium text-foreground">{m.yield.toFixed(2)} t/ha</span>.</>;
-              }
-              if (!highest || !lowest || highest.value === lowest.value) {
-                return <>Both methods have equal average yields of <span className="font-medium text-foreground">{highest?.value.toFixed(2)} t/ha</span>.</>;
-              }
-              return (
-                <>
-                  <span className="font-medium text-foreground">{FORMAT_METHOD(highest.method)}</span> leads with{' '}
-                  <span className="font-medium text-foreground">{highest.value.toFixed(2)} t/ha</span>, outperforming{' '}
-                  <span className="font-medium text-foreground">{FORMAT_METHOD(lowest.method)}</span> by{' '}
-                  <span className="font-medium text-foreground">{gap.toFixed(1)}%</span>.{' '}
-                  The overall average yield is <span className="font-medium text-foreground">{data.average_yield.toFixed(2)} t/ha</span>.
-                </>
-              );
-            })()}
-          </p>
+      {!isAllSeasons && !hasComparison && (
+        <div className="grid auto-rows-min gap-4 md:grid-cols-4">
+          <StatCardSparkline
+            title="Average Yield" subtitle="Across all methods"
+            value={Number(avg.toFixed(2))} unit="t/ha" trend={trends.avg}
+          />
+          <StatCardSparkline
+            title="Best Method" subtitle={highest ? FORMAT_METHOD(highest.method) : 'N/A'}
+            value={highest ? Number(highest.value.toFixed(2)) : 0} unit="t/ha" trend={trends.highest}
+          />
+          <StatCardSparkline
+            title="Most Used Method"
+            subtitle={mostUsed ? FORMAT_METHOD(mostUsed.method) : 'N/A'}
+            value={mostUsed ? mostUsed.count : 0} unit="records"
+          />
+          <StatCardSparkline
+            title="Least Used Method"
+            subtitle={leastUsed ? FORMAT_METHOD(leastUsed.method) : 'N/A'}
+            value={leastUsed ? leastUsed.count : 0} unit="records"
+          />
         </div>
+      )}
+
+      {hasComparison && (
+        <div className="grid auto-rows-min gap-4 grid-cols-4">
+          {STAT_METRICS.map(({ key, title, subtitle, unit }) => {
+            const { data: pieData, insight } = pieDataByMetric[key];
+            return (
+              <ComparisonPieChart
+                key={key}
+                data={pieData}
+                title={title}
+                description={subtitle}
+                valueUnit={unit}
+                insight={insight}
+                isLoading={isLoading}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {!hasComparison ? (
+        <div className="flex items-center justify-center h-40 text-sm text-muted-foreground border rounded-md">
+          Select seasons to compare to see the trend line
+        </div>
+      ) : (
+        <MultiLineChart
+          key={chartKey}
+          data={lineRows}
+          categoryKey="season"
+          containerClass="h-120"
+          lineKeys={locationKeys}
+          colors={locationShades}
+          valueUnit="t/ha"
+          isLoading={isLoading}
+          header={{
+            title: 'Yield by Method',
+            description: `${currentLabel} vs ${cmpLabels.join(', ')}`,
+          }}
+        />
       )}
     </div>
   );
+}
+
+
+const FORMAT_METHOD = (m: string) => m === 'direct-seeded' ? 'Direct Seeded' : 'Transplanted';
+
+const STAT_METRICS = [
+  { key: 'avg', title: 'Average Yield', subtitle: 'Mean across all methods per season', unit: 't/ha' },
+  { key: 'highest', title: 'Best Method Yield', subtitle: 'Highest yielding method per season', unit: 't/ha' },
+  { key: 'lowest', title: 'Weakest Method Yield', subtitle: 'Lowest yielding method per season', unit: 't/ha' },
+  { key: 'adoptionRate', title: 'Method Adoption', subtitle: 'Direct-seeded vs transplanted share per season', unit: '%' },
+] as const;
+
+const ADOPTION_PIE_SHADES = generateShades(HUMAY_BASE, 2);
+const ADOPTION_METHOD_COLORS: Record<string, string> = {
+  'direct-seeded': ADOPTION_PIE_SHADES[0],
+  'transplanted': ADOPTION_PIE_SHADES[1],
+};
+const ADOPTION_METHODS = ['direct-seeded', 'transplanted'] as const;
+
+function buildAdoptionPieData(
+  ranking: YieldByMethodData['ranking'],
+  cmpDataItems: any[],
+  isAllSeasons: boolean,
+): { name: string; value: number; fill: string }[] {
+  const rates: Record<string, number[]> = { 'direct-seeded': [], 'transplanted': [] };
+
+  if (!isAllSeasons) {
+    ranking.forEach((r) => {
+      if (rates[r.method]) rates[r.method].push(r.adoption_rate);
+    });
+  }
+
+  cmpDataItems.forEach((items) => {
+    if (!Array.isArray(items)) return;
+    items.forEach((item: any) => {
+      if (item.method && rates[item.method]) {
+        rates[item.method].push(item.adoption_rate_compare ?? 0);
+      }
+    });
+  });
+
+  const result: { name: string; value: number; fill: string }[] = [];
+  for (const method of ADOPTION_METHODS) {
+    const methodRates = rates[method];
+    if (!methodRates.length) continue;
+    const avgRate = methodRates.reduce((a, b) => a + b, 0) / methodRates.length;
+    if (avgRate > 0) {
+      result.push({
+        name: FORMAT_METHOD(method),
+        value: Number(avgRate.toFixed(1)),
+        fill: ADOPTION_METHOD_COLORS[method],
+      });
+    }
+  }
+  return result;
+}
+
+function buildPieEntry(
+  label: string,
+  stats: any,
+  metric: string,
+  fill: string,
+): { name: string; value: number; fill: string } | null {
+  const val = stats?.[metric];
+  if (val == null) return null;
+  const method =
+    metric === 'highest' ? stats?.highestMethod :
+      metric === 'lowest' ? stats?.lowestMethod : null;
+  return {
+    name: method ? `${label} (${FORMAT_METHOD(method)})` : label,
+    value: val,
+    fill,
+  };
+}
+
+function buildInsight(
+  data: { name: string; value: number }[],
+  metric: string,
+  unit: string,
+): string {
+  if (data.length === 0) return '';
+
+  const sorted = [...data].sort((a, b) => b.value - a.value);
+  const max = sorted[0];
+  const min = sorted[sorted.length - 1];
+  const single = data.length === 1 ? data[0] : null;
+  const fmt = (v: number, isPercent = false) => isPercent ? v.toFixed(1) : v.toFixed(2);
+
+  switch (metric) {
+    case 'avg':
+      return single
+        ? `${single.name} recorded an average yield of ${fmt(single.value)} ${unit}.`
+        : `${max.name} has the highest seasonal average at ${fmt(max.value)} ${unit}, while ${min.name} is lowest at ${fmt(min.value)} ${unit}.`;
+
+    case 'highest': {
+      if (single) return `${single.name} yielded best at ${fmt(single.value)} ${unit}.`;
+      const methods = sorted.map(item => item.name.split('(').pop()?.replace(')', '').trim() ?? '');
+      const allSame = methods.every(m => m === methods[0]);
+      return allSame
+        ? `${methods[0]} yields ranged from ${fmt(min.value)} to ${fmt(max.value)} ${unit} across seasons.`
+        : `${max.name} gave the best method yield at ${fmt(max.value)} ${unit}. ${min.name} showed the lowest best-method value at ${fmt(min.value)} ${unit}.`;
+    }
+
+    case 'lowest': {
+      if (single) return `Weakest method yield was ${fmt(single.value)} ${unit} in ${single.name}.`;
+      const methods = sorted.map(item => item.name.split('(').pop()?.replace(')', '').trim() ?? '');
+      const allSame = methods.every(m => m === methods[0]);
+      return allSame
+        ? `${methods[0]} weakest yields ranged from ${fmt(min.value)} to ${fmt(max.value)} ${unit} across seasons.`
+        : `Weakest method yield occurred in ${min.name} at ${fmt(min.value)} ${unit}. The strongest weakest case was in ${max.name} at ${fmt(max.value)} ${unit}.`;
+    }
+
+    case 'adoptionRate': {
+      if (single) return `${single.name} accounted for ${fmt(single.value, true)}% of the adoption.`;
+      const domMethod = max.name.split(' — ').pop() ?? max.name;
+      const leastMethod = min.name.split(' — ').pop() ?? min.name;
+      if (max.value === min.value && domMethod === leastMethod) {
+        return `${domMethod} consistently had ${fmt(max.value, true)}% adoption across all selected seasons.`;
+      }
+      if (domMethod === leastMethod) {
+        return `${domMethod} adoption ranged from ${fmt(min.value, true)}% to ${fmt(max.value, true)}% across seasons.`;
+      }
+      return `${domMethod} dominated adoption at ${fmt(max.value, true)}% (${max.name}), while ${leastMethod} was adopted least at ${fmt(min.value, true)}% (${min.name}).`;
+    }
+
+    default:
+      return '';
+  }
 }

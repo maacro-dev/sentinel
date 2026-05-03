@@ -1,15 +1,13 @@
 import { DescriptiveAnalyticsData } from "@/features/analytics/types";
 import { ReportBuilder } from "../builder";
 import { safeNumber, addKeyValueTable } from "../utils";
-import { ProvinceYieldNode } from "@/features/analytics/schemas/yieldByProvince";
 
 export function descriptiveReport(
   builder: ReportBuilder,
-  data: DescriptiveAnalyticsData | null,
-  hierarchicalYields?: ProvinceYieldNode[] | null
+  data: DescriptiveAnalyticsData | null
 ) {
-  if (hierarchicalYields && hierarchicalYields.length > 0) {
-    const provinceRows = hierarchicalYields.map((p) => [
+  if (data?.provinceYieldsHierarchy && data.provinceYieldsHierarchy.length > 0) {
+    const provinceRows = data.provinceYieldsHierarchy.map((p) => [
       p.province ?? '-',
       p.avg_yield_t_per_ha.toFixed(2),
     ]);
@@ -20,7 +18,7 @@ export function descriptiveReport(
     );
   }
 
-
+  // Rest unchanged
   if (data?.cropMethodSummary) {
     const method = data.cropMethodSummary;
     addKeyValueTable(builder, 'Crop Establishment Method', [

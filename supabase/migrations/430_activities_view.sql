@@ -447,3 +447,54 @@ as $$
   left join public.farmers fa on f.farmer_id = fa.id
   order by m.mfid;
 $$;
+
+
+create or replace function get_unscheduled_mfids_by_location(
+  p_season_id int,
+  p_province text,
+  p_city_municipality text,
+  p_barangay text
+)
+returns setof text
+language sql
+security definer
+set search_path = 'public'
+as $$
+  select m.mfid
+  from mfids m
+  join fields f on f.mfid_id = m.id
+  join addresses a on f.barangay_id = a.barangay_id
+  where a.province = p_province
+    and a.city_municipality = p_city_municipality
+    and a.barangay = p_barangay
+    and not exists (
+      select 1
+      from collection_tasks ct
+      where ct.mfid_id = m.id
+        and ct.season_id = p_season_id
+    );
+$$;
+
+create or replace function get_unscheduled_mfid_locations(p_season_id int)
+returns table (
+  province text,
+  city_municipality text,
+  barangay text
+)
+language sql
+security definer
+set search_path = 'public'
+as $$
+  select distinct a.province, a.city_municipality, a.barangay
+  from mfids m
+  join fields f on f.mfid_id = m.id
+  join addresses a on f.barangay_id = a.barangay_id
+  where not exists (
+    select 1
+    from collection_tasks ct
+    where ct.mfid_id = m.id
+      and ct.season_id = p_season_id
+  )
+  and a.barangay is not null
+  order by a.province, a.city_municipality, a.barangay;
+$$;

@@ -1,15 +1,14 @@
 
-// @ts-nocheck
 // review soon
+// @ts-nocheck
 
-
-import { SeasonSummary } from "./schemas/seasonSummary";
-import { Stat, StatMetadata } from "./types";
+import { sanitize } from "@/core/utils/string";
+import { Stat } from "./types";
 
 export function mapSeasonSummary({ config, stats }): Stat[] {
   if (!stats) return [];
 
-  return stats.data
+  return stats
     .filter(({ name }) => name in config)
     .map(({ name, current_value, percent_change }) => {
       const { title, subtitle, unit } = config[name];
@@ -80,11 +79,82 @@ export function normaliseCompareProps(props: {
   const cmpDataItems: any[] = Array.isArray(props.compareData) ? props.compareData : [];
   const cmpStats: any[] = Array.isArray(props.comparisonStats) ? props.comparisonStats : [];
 
-  const hasComparison =
-    cmpLabels.length > 0 && cmpDataItems.some(d => Array.isArray(d) && d.length > 0);
+  const hasComparison = cmpLabels.length > 0;
 
   const primaryStats = cmpStats[0]?.primary ?? null;
   const compareStatsList: any[] = cmpStats.map(s => s?.compare).filter(Boolean);
 
   return { cmpLabels, cmpDataItems, cmpStats, hasComparison, primaryStats, compareStatsList };
+}
+
+
+export const HUMAY_BASE = 'oklch(62.7% 0.194 149.214)';
+export const DAMAGE_BASE = 'oklch(50% 0.15 25)';
+
+export function generateShades(base: string, count: number): string[] {
+  const match = base.match(/oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)\s*\)/);
+  if (!match) return Array(count).fill(base);
+
+  const [, , C, H] = match.map(Number);
+  const shades: string[] = [];
+
+  const startL = 40;
+  const endL = 75;
+  const step = (endL - startL) / (count - 1 || 1);
+
+  for (let i = 0; i < count; i++) {
+    const L = startL + step * i;
+    shades.push(`oklch(${L.toFixed(1)}% ${C} ${H})`);
+  }
+  return shades;
+}
+
+
+
+export function buildLineRows(
+  primaryRanking: { location: string; yield: number }[],
+  currentLabel: string,
+  cmpDataItems: any[],
+  cmpLabels: string[],
+  includePrimary: boolean = true
+) {
+  const allLocations = new Set<string>();
+  primaryRanking.forEach(r => allLocations.add(r.location));
+  cmpDataItems.forEach(items => {
+    if (!Array.isArray(items)) return;
+    items.forEach((item: any) => allLocations.add(item.location as string));
+  });
+
+  const originalLocations = Array.from(allLocations);
+  const locationKeys = originalLocations.map(sanitize);
+
+  const locationMap: Record<string, string> = {};
+  originalLocations.forEach((loc, idx) => {
+    locationMap[locationKeys[idx]] = loc;
+  });
+
+  const rows: Record<string, any>[] = [];
+
+  cmpDataItems.forEach((items, i) => {
+    const row: Record<string, any> = { season: cmpLabels[i] ?? `Season ${i + 1}` };
+    originalLocations.forEach((loc, j) => {
+      const sk = locationKeys[j];
+      if (!Array.isArray(items)) { row[sk] = null; return; }
+      const found = items.find((item: any) => item.location === loc);
+      row[sk] = found ? Number((found.compare ?? found.yield ?? 0).toFixed(2)) : null;
+    });
+    rows.push(row);
+  });
+
+  if (includePrimary) {
+    const currentRow: Record<string, any> = { season: currentLabel };
+    originalLocations.forEach((loc, j) => {
+      const sk = locationKeys[j];
+      const found = primaryRanking.find(r => r.location === loc);
+      currentRow[sk] = found ? Number(found.yield.toFixed(2)) : null;
+    });
+    rows.push(currentRow);
+  }
+
+  return { rows: rows, locationKeys, locationMap };
 }

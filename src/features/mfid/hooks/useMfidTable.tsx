@@ -5,7 +5,7 @@ import { getTableColumnsByPath } from "@/core/tanstack/table/utils"
 import { useMfids } from "./useMfids"
 import { dataGroupConfig } from "@/routes/_manager/_data/-config"
 
-export const useMfidTable = (seasonId: number) => {
+export const useMfidTable = (seasonId?: number | null) => {
   const { data: mfids, isLoading } = useMfids(seasonId)
 
   const columns = useMemo(() => {

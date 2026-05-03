@@ -126,6 +126,69 @@ begin
 end;
 $$;
 
+create or replace function update_field_data_with_cascade(
+  p_task_id int,
+  p_collector_id uuid default null,
+  p_start_date date default null,
+  p_end_date date default null,
+  p_user_id uuid default auth.uid()
+)
+returns void
+language plpgsql
+security definer
+set search_path = 'public'
+as $$
+declare
+  v_old_start date;
+  v_old_end   date;
+  v_delta_start int;
+  v_delta_end   int;
+  v_mfid_id    int;
+  v_season_id  int;
+  v_order text[] := array['cultural-management', 'nutrient-management', 'production'];
+  v_next_type text;
+begin
+  perform set_config('app.current_user_id', p_user_id::text, true);
+
+  -- Lock the parent row and fetch current dates
+  select mfid_id, season_id, start_date, end_date
+    into v_mfid_id, v_season_id, v_old_start, v_old_end
+    from collection_tasks
+    where id = p_task_id
+      and activity_type = 'field-data';
+
+  if not found then
+    raise exception 'Task not found or is not field-data';
+  end if;
+
+  -- Calculate day differences (default to 0 if no new value provided)
+  v_delta_start := coalesce(p_start_date - v_old_start, 0);
+  v_delta_end   := coalesce(p_end_date   - v_old_end,   0);
+
+  -- Update the field-data task itself
+  update collection_tasks
+     set collector_id = coalesce(p_collector_id, collector_id),
+         start_date   = coalesce(p_start_date, start_date),
+         end_date     = coalesce(p_end_date, end_date),
+         updated_at   = now()
+   where id = p_task_id;
+
+  -- Shift subsequent tasks only when dates actually changed
+  if v_delta_start != 0 or v_delta_end != 0 then
+    foreach v_next_type in array v_order loop
+      update collection_tasks
+         set start_date = start_date + v_delta_start,
+             end_date   = end_date   + v_delta_end,
+             updated_at = now()
+       where mfid_id     = v_mfid_id
+         and season_id   = v_season_id
+         and activity_type = v_next_type::public.activity_type
+         and status      = 'pending';   -- only move tasks that haven't started
+    end loop;
+  end if;
+end;
+$$;
+
 create or replace function schedule_core_collection_tasks(
   p_mfid text,
   p_season_id int,
@@ -326,3 +389,4 @@ BEGIN
     END IF;
 END;
 $$;
+

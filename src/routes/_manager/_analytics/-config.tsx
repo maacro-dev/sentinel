@@ -1,5 +1,5 @@
 import { createRouteConfig } from "@/core/tanstack/router/utils";
-import { ChartArea, GitCompare, Library, TrendingUpDown } from "lucide-react";
+import { ChartArea, GitCompare, Library } from "lucide-react";
 
 export const analyticsGroupConfig = createRouteConfig("analytics", {
   role: "data_manager",
@@ -23,11 +23,12 @@ export const analyticsGroupConfig = createRouteConfig("analytics", {
       path: "/comparative",
       icon: GitCompare,
     }),
-    createRouteConfig("predictive", {
-      role: "data_manager",
-      label: "Predictive",
-      path: "/predictive",
-      icon: TrendingUpDown,
-    }),
+    // wahahahahhahah kakas
+    // createRouteConfig("predictive", {
+    //   role: "data_manager",
+    //   label: "Predictive",
+    //   path: "/predictive",
+    //   icon: TrendingUpDown,
+    // }),
   ]
 });

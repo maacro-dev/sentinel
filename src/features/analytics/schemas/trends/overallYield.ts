@@ -1,6 +1,5 @@
-import * as z from "zod/v4"
+import * as z from "zod/v4";
 import { Validator } from "@/core/utils/validator";
-import { withSeasonTrend } from "../utils";
 
 export const overallYieldPointSchema = z.object({
   date: z.coerce.date(),
@@ -8,7 +7,10 @@ export const overallYieldPointSchema = z.object({
 });
 export type OverallYieldPoint = z.infer<typeof overallYieldPointSchema>;
 
-const overallYieldTrendSchema = withSeasonTrend(overallYieldPointSchema);
+export const overallYieldTrendSchema = z.array(overallYieldPointSchema);
 export type OverallYieldTrend = z.infer<typeof overallYieldTrendSchema>;
 
-export const parseOverallYieldTrend = Validator.create<OverallYieldTrend>(overallYieldTrendSchema, "OverallYieldTrend");
+export const parseOverallYieldTrend = Validator.create<OverallYieldTrend>(
+  overallYieldTrendSchema,
+  "OverallYieldTrend"
+);

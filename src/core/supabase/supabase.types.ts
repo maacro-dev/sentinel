@@ -1735,6 +1735,8 @@ export type Database = {
       crop_establishment_method_summary: {
         Args: {
           p_barangay_name?: string
+          p_fertilizer_type?: string
+          p_method_name?: string
           p_municipality_name?: string
           p_province_name?: string
           p_season_id?: number
@@ -1904,6 +1906,23 @@ export type Database = {
         }
         Returns: Json
       }
+      get_unscheduled_mfid_locations: {
+        Args: { p_season_id: number }
+        Returns: {
+          barangay: string
+          city_municipality: string
+          province: string
+        }[]
+      }
+      get_unscheduled_mfids_by_location: {
+        Args: {
+          p_barangay: string
+          p_city_municipality: string
+          p_province: string
+          p_season_id: number
+        }
+        Returns: string[]
+      }
       handle_mfid: {
         Args: {
           p_auto_create_mfid?: boolean
@@ -1973,12 +1992,13 @@ export type Database = {
         }
         Returns: Json
       }
-      province_yields: { Args: { p_season_id?: number }; Returns: Json }
       reset_sequence: { Args: { table_name: string }; Returns: undefined }
       restore_backup: { Args: { p_backup: Json }; Returns: Json }
       rice_variety_summary: {
         Args: {
           p_barangay_name?: string
+          p_fertilizer_type?: string
+          p_method_name?: string
           p_municipality_name?: string
           p_province_name?: string
           p_season_id?: number
@@ -2005,6 +2025,16 @@ export type Database = {
       trend_data_collection: { Args: { p_season_id?: number }; Returns: Json }
       trend_overall_yield: { Args: { p_season_id?: number }; Returns: Json }
       update_collection_task: {
+        Args: {
+          p_collector_id?: string
+          p_end_date?: string
+          p_start_date?: string
+          p_task_id: number
+          p_user_id?: string
+        }
+        Returns: undefined
+      }
+      update_field_data_with_cascade: {
         Args: {
           p_collector_id?: string
           p_end_date?: string

@@ -41,7 +41,7 @@ export class Forms {
     return parseFormDataEntry(data);
   }
 
-  public static async getFormDataById(formType: FormType, id: number, seasonId?: number): Promise<FormDataEntry> {
+  public static async getFormDataById(formType: FormType, id: number): Promise<FormDataEntry> {
     const client = await this._client;
     let query = client
       .from("field_activity_details")
@@ -49,9 +49,9 @@ export class Forms {
       .eq("id", id)
       .eq("activity_type", formType)
 
-    if (seasonId) {
-      query = query.eq("season_id", seasonId);
-    }
+    // if (seasonId) {
+    //   query = query.eq("season_id", seasonId);
+    // }
 
     const { data, error } = await query.single();
 
@@ -78,14 +78,14 @@ export class Forms {
   }
 
 
-  public static async getFormData(formType: FormType, seasonId?: number): Promise<FormDataEntry[]> {
+  public static async getFormData(formType: FormType, seasonId: number | undefined | null): Promise<FormDataEntry[]> {
     const client = await this._client;
     let query = client
       .from("field_activity_details")
       .select("*")
       .eq("activity_type", formType);
 
-    if (seasonId) {
+    if (seasonId != null) {
       query = query.eq("season_id", seasonId);
     }
 

@@ -1,4 +1,4 @@
-create or replace function public.fertilizer_type_summary(
+create or replace function public.yield_by_method(
     p_season_id int default null,
     p_province text default null,
     p_municipality text default null,
@@ -6,35 +6,30 @@ create or replace function public.fertilizer_type_summary(
     p_method text default null,
     p_variety text default null
 )
-    returns jsonb
-    language plpgsql
-    security definer
-    set search_path = ''
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
 as $$
 declare
-    v_total_apps int;
-    v_most_type jsonb;
-    v_most_brand jsonb;
-    v_ranking jsonb;
-    result jsonb;
+    avg_yield numeric;
+    highest   jsonb;
+    lowest    jsonb;
+    ranking   jsonb;
+    result    jsonb;
 begin
     with base as (
         select
-            fa.id as field_activity_id,
-            fr.id as fertilization_record_id,
-            fa.season_id,
-            a.province,
-            a.city_municipality as municipality,
-            a.barangay,
-            ce.actual_crop_establishment_method as method,
-            ce.rice_variety as variety,
-            fapp.fertilizer_type,
-            fapp.brand
-        from public.fertilizer_applications fapp
-        join public.fertilization_records fr on fapp.fertilization_record_id = fr.id
-        join public.field_activities fa on fr.id = fa.id
+            hr.area_harvested_ha,
+            (hr.bags_harvested * hr.avg_bag_weight_kg) / 1000.0 as yield_t,
+            ce.actual_crop_establishment_method as method
+        from public.harvest_records hr
+        join public.field_activities fa on hr.id = fa.id
         join public.fields f on fa.field_id = f.id
         join public.addresses a on f.barangay_id = a.barangay_id
+        join public.provinces p on a.province_id = p.id
+        join public.cities_municipalities cm on a.city_municipality_id = cm.id
+        join public.barangays b on a.barangay_id = b.id
         left join public.crop_establishments ce on ce.id = (
             select id from public.field_activities
             where field_id = fa.field_id
@@ -43,9 +38,9 @@ begin
             limit 1
         )
         where (p_season_id is null or fa.season_id = p_season_id)
-          and (p_province is null or a.province = p_province)
-          and (p_municipality is null or a.city_municipality = p_municipality)
-          and (p_barangay is null or a.barangay = p_barangay)
+          and (p_province is null or p.name = p_province)
+          and (p_municipality is null or cm.name = p_municipality)
+          and (p_barangay is null or b.name = p_barangay)
           and (p_method is null or ce.actual_crop_establishment_method ilike '%' || p_method || '%')
           and (p_variety is null or
                case p_variety
@@ -54,44 +49,60 @@ begin
                    when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
                    else true
                end)
+          and hr.area_harvested_ha > 0
+          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0
+    ),
+    overall as (
+        select avg(yield_t / area_harvested_ha) as overall_avg
+        from base
+    ),
+    all_methods as (
+        select unnest(array['direct-seeded', 'transplanted']) as method
+    ),
+    method_agg as (
+        select
+            am.method,
+            avg(b.yield_t / b.area_harvested_ha) as avg_yield_t_ha,
+            count(b.area_harvested_ha)            as record_count
+        from all_methods am
+        left join base b on b.method = am.method
+        group by am.method
     ),
     totals as (
-        select count(*) as total_apps from base
-    ),
-    all_types as (
-        select distinct fertilizer_type from public.fertilizer_applications
-    ),
-    type_counts as (
-        select at.fertilizer_type, coalesce(cnt, 0) as cnt
-        from all_types at
-        left join (
-            select fertilizer_type, count(*) as cnt
-            from base
-            group by fertilizer_type
-        ) bc on at.fertilizer_type = bc.fertilizer_type
-    ),
-    brand_counts as (
-        select brand, count(*) as cnt
-        from base
-        group by brand
+        select sum(record_count) as total from method_agg
     )
     select
-        (select total_apps from totals),
-        (select jsonb_build_object('type', fertilizer_type, 'count', cnt)
-         from type_counts order by cnt desc, fertilizer_type limit 1),
-        (select jsonb_build_object('brand', brand, 'count', cnt)
-         from brand_counts order by cnt desc limit 1),
+        (select coalesce(overall_avg, 0) from overall),
+        (select jsonb_build_object('value', avg_yield_t_ha, 'method', method)
+         from method_agg
+         where avg_yield_t_ha > 0
+         order by avg_yield_t_ha desc
+         limit 1),
+        (select jsonb_build_object('value', avg_yield_t_ha, 'method', method)
+         from method_agg
+         where avg_yield_t_ha > 0
+         order by avg_yield_t_ha asc
+         limit 1),
         (select jsonb_agg(
-            jsonb_build_object('type', fertilizer_type, 'count', cnt)
-            order by fertilizer_type   -- stable alphabetical order
-         ) from type_counts)
-    into v_total_apps, v_most_type, v_most_brand, v_ranking;
+            jsonb_build_object(
+                'method',         m.method,
+                'yield',          coalesce(m.avg_yield_t_ha, 0),
+                'count',          coalesce(m.record_count, 0),
+                'adoption_rate',  case
+                                    when t.total > 0
+                                    then round((coalesce(m.record_count, 0)::numeric / t.total) * 100, 1)
+                                    else 0
+                                  end
+            )
+            order by m.record_count desc)
+         from method_agg m, totals t)
+    into avg_yield, highest, lowest, ranking;
 
     result := jsonb_build_object(
-        'total_applications', v_total_apps,
-        'most_common_type', v_most_type,
-        'most_common_brand', v_most_brand,
-        'ranking', coalesce(v_ranking, '[]'::jsonb)
+        'average_yield',  avg_yield,
+        'highest_method', coalesce(highest, 'null'::jsonb),
+        'lowest_method',  coalesce(lowest, 'null'::jsonb),
+        'ranking',        coalesce(ranking, '[]'::jsonb)
     );
 
     return result;

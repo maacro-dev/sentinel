@@ -1,16 +1,10 @@
 import * as z from "zod/v4"
 
 import { Validator } from "@/core/utils/validator";
-import { withSeasonTrend } from "../utils";
 
-export const dataCollectionPointSchema = z.object({
+export const collectionDataPointSchema = z.object({
   date: z.coerce.date(),
   data_collected: z.number(),
 });
-export type DataCollectionPoint = z.infer<typeof dataCollectionPointSchema>;
-
-const dataCollectionTrendSchema = withSeasonTrend(dataCollectionPointSchema);
-export type DataCollectionTrend = z.infer<typeof dataCollectionTrendSchema>;
-
-export const parseDataCollectionTrend =
-  Validator.create<DataCollectionTrend>(dataCollectionTrendSchema);
+export type CollectionDataPoint = z.infer<typeof collectionDataPointSchema>;
+export const parseDataCollectionTrend = Validator.create<CollectionDataPoint[]>(z.array(collectionDataPointSchema), 'DataCollectionTrend');

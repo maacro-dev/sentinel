@@ -24,17 +24,12 @@ export const FertilizerTypeBarChart = memo(
     const nonZeroCount = chartData.filter((d) => d.count > 0).length;
     const chartKey = nonZeroCount > 0 ? `fertilizer-bars-${nonZeroCount}` : 'empty';
 
-    const maxCount = Math.max(...chartData.map((d) => d.count), 0);
-    const yMax = Math.max(maxCount, 1);
-
     const handleBarClick = (item: any) => {
       if (!onFertilizerChange) return;
+
       const type = item?.type ?? item?.payload?.type;
-      if (type === activeFertilizer) {
-        onFertilizerChange(undefined);
-      } else {
-        onFertilizerChange(type);
-      }
+
+      if (type === activeFertilizer) onFertilizerChange(undefined); else onFertilizerChange(type);
     };
 
     const floatingLabel = activeFertilizer ? "Clear Fertilizer Filter" : null;
@@ -93,8 +88,7 @@ export const FertilizerTypeBarChart = memo(
               ),
             },
             Y: {
-              domain: [0, yMax],
-              tickCount: yMax + 1,
+              domain: [0, (dataMax: number) => Math.max(dataMax, 5)],
               allowDecimals: false,
               tickFormatter: (value: number) => Math.round(value).toString(),
             },

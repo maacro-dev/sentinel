@@ -155,7 +155,7 @@ export function MfidFormDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="default" disabled={disabled} className="min-w-32 text-xs">
-          <Plus /> Create MFID
+          <Plus className="size-3.5" /> Create MFID
         </Button>
       </DialogTrigger>
 
@@ -228,8 +228,8 @@ export function MfidFormDialog({
               {!isOpen && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
-                    <FormTextField name="farmer_first_name" label="First Name" placeholder="Enter farmer first name"/>
-                    <FormTextField name="farmer_last_name" label="Last Name" placeholder="Enter farmer last name"/>
+                    <FormTextField name="farmer_first_name" label="First Name" placeholder="Enter farmer first name" />
+                    <FormTextField name="farmer_last_name" label="Last Name" placeholder="Enter farmer last name" />
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">

@@ -26,7 +26,7 @@ export function dataCollectionReport(
   }
 
   if (countData) {
-    const forms = countData.data;
+    const forms = countData;
     const statuses = ['approved', 'rejected', 'pending', 'unknown'] as const;
 
     const headers = ['Form Type', ...statuses.map(s => statusDisplayLabels[s])];

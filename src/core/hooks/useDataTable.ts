@@ -14,7 +14,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface UseDataTableOptions<T> {
   data: T[];
@@ -37,8 +37,14 @@ export const useDataTable = <T>({
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>(initialSorting ?? []);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialColumnFilters ?? []);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialColumnFilters ?? []);
+  const filtersKey = JSON.stringify(initialColumnFilters);
+
+  useEffect(() => {
+    setColumnFilters(initialColumnFilters ?? []);
+  }, [filtersKey]);
 
   const table = useReactTable({
     data,

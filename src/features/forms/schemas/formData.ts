@@ -10,7 +10,6 @@ export const formDataEntryResponseSchema = z.object({
   field_id: z.number(),
   season_id: z.number(),
 
-  // just retain it to the original
   activity_type: z.enum([
     "field-data",
     "cultural-management",
@@ -52,6 +51,7 @@ const fieldSchema = z.object({
 });
 
 const seasonSchema = z.object({
+  id: z.number(),
   semester: z.string(),
   year: z.string(),
   verifiedAt: z.string().nullable(),
@@ -83,6 +83,7 @@ export const formDataEntrySchema = formDataEntryResponseSchema.transform((data) 
     province: data.province
   } as Field,
   season: {
+    id: data.season_id,
     semester: data.semester,
     year: data.season_year,
     verifiedAt: data.verified_at,

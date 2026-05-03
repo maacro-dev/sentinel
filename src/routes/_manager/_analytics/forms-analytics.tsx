@@ -8,17 +8,21 @@ import { FormCountBarChart } from "@/features/analytics/components/FormCountBarC
 import { PageContainer } from "@/core/components/layout";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
 import PlaceholderBody from "@/core/components/PlaceholderBody";
-import { useSeason } from "@/features/fields/hooks/useSeasons";
 
 export const Route = createFileRoute('/_manager/_analytics/forms-analytics')({
   component: RouteComponent,
   head: () => ({ meta: [{ title: "Forms | Humay" }] }),
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: ({ context: { queryClient }, deps: { seasonId } }) => {
+    const sid = seasonId === "all" ? null : seasonId;
 
-    queryClient.ensureQueryData(dataCollectionTrendOptions(seasonId))
-    queryClient.ensureQueryData(formCountSummaryOptions(seasonId))
-    queryClient.ensureQueryData(formProgressSummaryOptions(seasonId))
+    if (sid === undefined) {
+      return { breadcrumb: createCrumbLoader({ label: "Forms" }) }
+    }
+
+    queryClient.ensureQueryData(dataCollectionTrendOptions(sid))
+    queryClient.ensureQueryData(formCountSummaryOptions(sid))
+    queryClient.ensureQueryData(formProgressSummaryOptions(sid))
 
     return { breadcrumb: createCrumbLoader({ label: "Forms" }) }
   },
@@ -28,10 +32,11 @@ export const Route = createFileRoute('/_manager/_analytics/forms-analytics')({
 function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
-  const { data: season, isLoading: seasonLoading } = useSeason(seasonId)
-  const { formCount, formProgress, collectionTrend, isLoading } = useFormOverview(seasonId);
+  const effectiveSeasonId = seasonId === "all" ? null : seasonId;
 
-  if (isLoading || !formCount || !formProgress || !collectionTrend || seasonLoading || !season) {
+  const { formCount, formProgress, collectionTrend, isLoading } = useFormOverview(effectiveSeasonId);
+
+  if (isLoading || !formCount || !formProgress || !collectionTrend) {
     return (
       <PageContainer>
         <PlaceholderBody />

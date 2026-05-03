@@ -98,3 +98,6 @@ export const FORM_PROGRESS_CONFIG: SummaryConfig = {
     unit: "forms"
   },
 } as const
+
+
+export const VARIETY_LIMIT_OPTIONS = [5, 8, 12, 20] as const;

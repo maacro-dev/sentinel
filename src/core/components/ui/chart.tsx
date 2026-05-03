@@ -113,7 +113,8 @@ interface IChartTooltipProps
   hideIndicator?: boolean
   indicator?: "line" | "dot" | "dashed"
   nameKey?: string
-  labelKey?: string
+  labelKey?: string,
+  filter?: (item: any) => boolean;
 }
 
 function ChartTooltipContent({
@@ -130,15 +131,18 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
+  filter,
 }: IChartTooltipProps) {
   const { config } = useChart()
 
+  const filteredPayload = filter ? payload?.filter(filter) : payload;
+
   const tooltipLabel = React.useMemo(() => {
-    if (hideLabel || !payload?.length) {
+    if (hideLabel || !filteredPayload?.length) {
       return null
     }
 
-    const [item] = payload
+    const [item] = filteredPayload
     const key = `${labelKey || item?.dataKey || item?.name || "value"}`
     const itemConfig = getPayloadConfigFromPayload(config, item, key)
     const value =
@@ -149,6 +153,7 @@ function ChartTooltipContent({
     if (labelFormatter) {
       return (
         <div className={cn("font-medium", labelClassName)}>
+          {/* @ts-ignore - todo */}
           {labelFormatter(value, payload)}
         </div>
       )
@@ -162,18 +167,19 @@ function ChartTooltipContent({
   }, [
     label,
     labelFormatter,
-    payload,
+    filteredPayload,
     hideLabel,
     labelClassName,
     config,
     labelKey,
   ])
 
-  if (!active || !payload?.length) {
+
+  if (!active || !filteredPayload?.length) {
     return null
   }
 
-  const nestLabel = payload.length === 1 && indicator !== "dot"
+  const nestLabel = filteredPayload.length === 1 && indicator !== "dot"
 
   return (
     <div
@@ -184,7 +190,7 @@ function ChartTooltipContent({
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload.map((item: any, index: any) => {
+        {filteredPayload.map((item: any, index: any) => {
           const key = `${nameKey || item.name || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
           const indicatorColor = color || item.payload.fill || item.color

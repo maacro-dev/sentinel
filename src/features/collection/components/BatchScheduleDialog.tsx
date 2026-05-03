@@ -33,6 +33,7 @@ interface BatchScheduleDialogProps {
     provinces: string[];
     municipalities: string[];
   };
+  provinceWarning?: boolean;
   canSchedule?: boolean;
 }
 
@@ -45,6 +46,7 @@ export function BatchScheduleDialog({
   shouldShowTrigger,
   selectedCount,
   scheduledMfids = [],
+  provinceWarning,
   locationWarning,
   locations,
   canSchedule
@@ -83,7 +85,7 @@ export function BatchScheduleDialog({
             className="min-w-32 text-xs"
             variant='outline'
           >
-            Schedule Field Data ({selectedCount})
+            Schedule Selected MFIDs ({selectedCount})
           </Button>
         </DialogTrigger>
       )}
@@ -96,16 +98,14 @@ export function BatchScheduleDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {!canSchedule && selectedCount > 0 && (
-          <Alert variant="destructive">
+        {provinceWarning && locations && locations.provinces.length > 1 && (
+          <Alert variant="warning">
             <InfoIcon className="h-4 w-4" />
-            <AlertTitle>Cannot schedule across provinces</AlertTitle>
+            <AlertTitle>Multiple provinces selected</AlertTitle>
             <AlertDescription>
-              All selected MFIDs must be in the same province to assign one collector.
-              Please narrow your selection.
-              {locations && locations.provinces.length > 1 && (
-                <p className="mt-1">Provinces selected: {locations.provinces.join(', ')}</p>
-              )}
+              You are scheduling the same collector across multiple provinces.
+              Ensure the collector can travel between them within the given dates.
+              <p className="mt-1">Provinces: {locations.provinces.join(', ')}</p>
             </AlertDescription>
           </Alert>
         )}

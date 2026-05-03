@@ -17,9 +17,9 @@ export const yieldVarietyDataSchema = z.object({
   ranking: z.array(yieldVarietyRankingItemSchema),
 });
 
-export type YieldVarietyData = z.infer<typeof yieldVarietyDataSchema>;
+export type YieldByVarietyData = z.infer<typeof yieldVarietyDataSchema>;
 
-export const parseYieldVarietyData = Validator.create<YieldVarietyData>(
+export const parseYieldVarietyData = Validator.create<YieldByVarietyData>(
   yieldVarietyDataSchema,
-  'YieldVarietyData'
+  'YieldByVarietyData'
 );

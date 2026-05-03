@@ -6,15 +6,14 @@ import { useCollectionTable } from "../../hooks/useCollectionTable";
 import { TableToolbar } from "@/core/components/DataTableToolbar";
 
 interface CollectionTableProps extends DataTableEvents<CollectionTask> {
-  seasonId?: number;
+  seasonId: number | undefined | null;
+  showSeasonColumn: boolean;
 }
 
-export function CollectionTable({ seasonId, onRowClick }: CollectionTableProps) {
+export function CollectionTable({ seasonId, showSeasonColumn, onRowClick }: CollectionTableProps) {
   "use no memo";
 
-  const { table, isLoading } = useCollectionTable(seasonId)
-  // const [dialogOpen, setDialogOpen] = useState(false);
-  // const { mutate: createTask, isPending: isCreating } = useCreateCollectionTask();
+  const { table, isLoading } = useCollectionTable(seasonId, showSeasonColumn)
 
   if (isLoading) return <TableSkeleton />;
 

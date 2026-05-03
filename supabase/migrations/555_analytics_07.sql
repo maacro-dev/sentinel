@@ -13,31 +13,12 @@ create or replace function public.crop_establishment_method_summary(
     set search_path = ''
 as $$
 declare
-    target_season_id int;
     direct_count int := 0;
     transplant_count int := 0;
     total int := 0;
     percent_diff numeric := 0;
     result jsonb;
 begin
-    if p_season_id is null then
-        select id into target_season_id
-        from public.seasons
-        order by start_date desc
-        limit 1;
-    else
-        target_season_id := p_season_id;
-    end if;
-
-    if target_season_id is null then
-        return jsonb_build_object(
-            'direct_seeded_count', 0,
-            'transplanted_count', 0,
-            'total', 0,
-            'percent_difference', 0
-        );
-    end if;
-
     select
         count(*) filter (where ce.actual_crop_establishment_method ilike '%direct%seed%'),
         count(*) filter (where ce.actual_crop_establishment_method ilike '%transplant%')
@@ -46,11 +27,10 @@ begin
     join public.crop_establishments ce on fa.id = ce.id
     join public.fields f on fa.field_id = f.id
     join public.addresses a on f.barangay_id = a.barangay_id
-    where fa.season_id = target_season_id
+    where (p_season_id is null or fa.season_id = p_season_id)
       and (p_province_name is null or a.province = p_province_name)
       and (p_municipality_name is null or a.city_municipality = p_municipality_name)
       and (p_barangay_name is null or a.barangay = p_barangay_name)
-      -- variety filter
       and (p_variety_name is null or
            case p_variety_name
                when 'NSIC' then ce.rice_variety ilike '%nsic%'
@@ -58,16 +38,14 @@ begin
                when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
                else true
            end)
-      -- method filter (exact match)
       and (p_method_name is null or ce.actual_crop_establishment_method = p_method_name)
-      -- fertiliser filter (field activity must have an application of that type)
       and (p_fertilizer_type is null or exists (
           select 1
           from public.field_activities fa_nm
           join public.fertilization_records fr on fr.id = fa_nm.id
           join public.fertilizer_applications fapp on fapp.fertilization_record_id = fr.id
-          where fa_nm.field_id = fa.field_id   -- same field
-            and fa_nm.season_id = fa.season_id -- same season
+          where fa_nm.field_id = fa.field_id
+            and fa_nm.season_id = fa.season_id
             and fapp.fertilizer_type = p_fertilizer_type
       ));
 
@@ -110,7 +88,6 @@ create or replace function public.rice_variety_summary(
     set search_path = ''
 as $$
 declare
-    target_season_id int;
     nsic_count int := 0;
     psb_count int := 0;
     other_count int := 0;
@@ -119,26 +96,6 @@ declare
     percent_diff numeric;
     result jsonb;
 begin
-    if p_season_id is null then
-        select id into target_season_id
-        from public.seasons
-        order by start_date desc
-        limit 1;
-    else
-        target_season_id := p_season_id;
-    end if;
-
-    if target_season_id is null then
-        return jsonb_build_object(
-            'nsic_count', 0,
-            'psb_count', 0,
-            'other_count', 0,
-            'total', 0,
-            'dominant', 'None',
-            'percent_difference', 0
-        );
-    end if;
-
     select
         count(*) filter (where upper(ce.rice_variety) like '%NSIC%') as nsic,
         count(*) filter (where upper(ce.rice_variety) like '%PSB%') as psb,
@@ -149,13 +106,13 @@ begin
     join public.crop_establishments ce on fa.id = ce.id
     join public.fields f on fa.field_id = f.id
     join public.addresses a on f.barangay_id = a.barangay_id
-    where fa.season_id = target_season_id
+    where (p_season_id is null or fa.season_id = p_season_id)
       and (p_province_name is null or a.province = p_province_name)
       and (p_municipality_name is null or a.city_municipality = p_municipality_name)
       and (p_barangay_name is null or a.barangay = p_barangay_name)
-      -- method filter (exact match)
-      and (p_method_name is null or ce.actual_crop_establishment_method = p_method_name)
-      -- fertiliser filter (field must have had an application of that type)
+      and (p_method_name is null or
+          (p_method_name = 'Direct-seeded' and ce.actual_crop_establishment_method ilike '%direct%seed%') or
+          (p_method_name = 'Transplanted' and ce.actual_crop_establishment_method ilike '%transplant%'))
       and (p_fertilizer_type is null or exists (
           select 1
           from public.field_activities fa_nm
@@ -469,21 +426,16 @@ set search_path = ''
 as $$
 declare
     avg_yield numeric;
-    highest jsonb;
-    lowest  jsonb;
-    gap_percentage numeric;
-    ranking jsonb;
-    result jsonb;
+    highest   jsonb;
+    lowest    jsonb;
+    ranking   jsonb;
+    result    jsonb;
 begin
     with base as (
         select
             hr.area_harvested_ha,
             (hr.bags_harvested * hr.avg_bag_weight_kg) / 1000.0 as yield_t,
-            p.name as province,
-            cm.name as municipality,
-            b.name as barangay,
-            ce.actual_crop_establishment_method as method,
-            ce.rice_variety
+            ce.actual_crop_establishment_method as method
         from public.harvest_records hr
         join public.field_activities fa on hr.id = fa.id
         join public.fields f on fa.field_id = f.id
@@ -511,7 +463,7 @@ begin
                    else true
                end)
           and hr.area_harvested_ha > 0
-          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0   -- exclude zero yield
+          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0
     ),
     overall as (
         select avg(yield_t / area_harvested_ha) as overall_avg
@@ -524,10 +476,13 @@ begin
         select
             am.method,
             avg(b.yield_t / b.area_harvested_ha) as avg_yield_t_ha,
-            count(b.area_harvested_ha) as record_count
+            count(b.area_harvested_ha)            as record_count
         from all_methods am
         left join base b on b.method = am.method
         group by am.method
+    ),
+    totals as (
+        select sum(record_count) as total from method_agg
     )
     select
         (select coalesce(overall_avg, 0) from overall),
@@ -542,27 +497,25 @@ begin
          order by avg_yield_t_ha asc
          limit 1),
         (select jsonb_agg(
-            jsonb_build_object('method', method, 'yield', avg_yield_t_ha, 'count', record_count)
-            order by avg_yield_t_ha desc)
-         from method_agg
-         where avg_yield_t_ha > 0)
+            jsonb_build_object(
+                'method',         m.method,
+                'yield',          coalesce(m.avg_yield_t_ha, 0),
+                'count',          coalesce(m.record_count, 0),
+                'adoption_rate',  case
+                                    when t.total > 0
+                                    then round((coalesce(m.record_count, 0)::numeric / t.total) * 100, 1)
+                                    else 0
+                                  end
+            )
+            order by m.record_count desc)
+         from method_agg m, totals t)
     into avg_yield, highest, lowest, ranking;
 
-    gap_percentage := case
-        when highest is not null
-         and lowest is not null
-         and (highest->>'value')::numeric > 0
-        then (((highest->>'value')::numeric - (lowest->>'value')::numeric)
-              / (highest->>'value')::numeric) * 100
-        else 0
-    end;
-
     result := jsonb_build_object(
-        'average_yield', avg_yield,
+        'average_yield',  avg_yield,
         'highest_method', coalesce(highest, 'null'::jsonb),
-        'lowest_method', coalesce(lowest, 'null'::jsonb),
-        'gap_percentage', gap_percentage,
-        'ranking', coalesce(ranking, '[]'::jsonb)
+        'lowest_method',  coalesce(lowest, 'null'::jsonb),
+        'ranking',        coalesce(ranking, '[]'::jsonb)
     );
 
     return result;
@@ -880,25 +833,15 @@ security definer
 set search_path = ''
 as $$
 declare
-    target_season_id int;
     result jsonb;
 begin
-    if p_season_id is null then
-        select id into target_season_id
-        from public.seasons
-        order by start_date desc
-        limit 1;
-    else
-        target_season_id := p_season_id;
-    end if;
-
     with province_list as (
         select distinct p.name
         from public.field_activities fa
         join public.fields f on fa.field_id = f.id
         join public.addresses a on f.barangay_id = a.barangay_id
         join public.provinces p on a.province_id = p.id
-        where fa.season_id = target_season_id
+        where (p_season_id is null or fa.season_id = p_season_id)
     ),
     municipality_list as (
         select distinct cm.name, p.name as province_name
@@ -907,7 +850,7 @@ begin
         join public.addresses a on f.barangay_id = a.barangay_id
         join public.cities_municipalities cm on a.city_municipality_id = cm.id
         join public.provinces p on a.province_id = p.id
-        where fa.season_id = target_season_id
+        where (p_season_id is null or fa.season_id = p_season_id)
     ),
     barangay_list as (
         select distinct b.name, cm.name as municipality_name
@@ -916,7 +859,7 @@ begin
         join public.addresses a on f.barangay_id = a.barangay_id
         join public.barangays b on a.barangay_id = b.id
         join public.cities_municipalities cm on a.city_municipality_id = cm.id
-        where fa.season_id = target_season_id
+        where (p_season_id is null or fa.season_id = p_season_id)
     )
     select jsonb_build_object(
         'provinces', coalesce((select jsonb_agg(name order by name) from province_list), '[]'::jsonb),

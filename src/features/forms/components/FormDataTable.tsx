@@ -1,25 +1,29 @@
 import { TableSkeleton } from "@/core/components/TableSkeleton";
-import { DataTable, DataTableEvents } from "@/core/components/DataTable";
+import { DataTable } from "@/core/components/DataTable";
 import { DefaultTablePagination } from "@/core/components/TablePagination";
 import { FormType } from "@/routes/_manager/forms/-config";
 import { useFormEntriesTable } from "../hooks/useFormDataTable";
 import { useTableStore } from "../store";
 import { TableToolbar } from "@/core/components/DataTableToolbar";
+import type { DataTableEvents } from "@/core/components/DataTable";
+import { FormDataEntry } from "../schemas/formData";
 
-interface FormDataTableProps<T> extends DataTableEvents<T> {
+interface FormDataTableProps extends DataTableEvents<FormDataEntry> {
   formType: FormType;
-  seasonId?: number;
+  seasonId: number | undefined | null;
+  showSeasonColumn?: boolean;
 }
 
-export const FormDataTable = <T extends { activity: { id: number } }>({
+export const FormDataTable = ({
   formType,
   seasonId,
   onRowClick,
   onRowIntent,
-}: FormDataTableProps<T>) => {
+  showSeasonColumn = false,
+}: FormDataTableProps) => {
   "use no memo";
 
-  const { table, isLoading } = useFormEntriesTable(formType, seasonId);
+  const { table, isLoading } = useFormEntriesTable(formType, seasonId, showSeasonColumn);
   const setIds = useTableStore((s) => s.setIds);
   const setCurrentIndex = useTableStore((s) => s.setCurrentIndex);
 

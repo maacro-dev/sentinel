@@ -5,16 +5,12 @@ import { topAndBottom, safeNumber } from "../utils";
 export function dashboardReport(builder: ReportBuilder, data: DashboardData) {
   const seasonalStats = data?.seasonalStats;
   if (seasonalStats) {
-    const hasPrevious = !!seasonalStats.seasons?.previous;
     let hasAnyPreviousData = false;
-    if (hasPrevious) {
-      hasAnyPreviousData = seasonalStats.data.some((s: any) => {
-        const prev = s.previous_value;
-        return prev != null && prev !== 0;
-      });
-    }
-    const previousColumnLabel =
-      hasPrevious && hasAnyPreviousData ? 'Previous Season' : 'Previous Season (No Data)';
+    hasAnyPreviousData = seasonalStats.some((s: any) => {
+      const prev = s.previous_value;
+      return prev != null && prev !== 0;
+    });
+    const previousColumnLabel = hasAnyPreviousData ? 'Previous Season' : 'Previous Season (No Data)';
 
     const metricMap: Record<string, { label: string; unit: string }> = {
       field_count: { label: 'Field Count', unit: '' },
@@ -28,13 +24,13 @@ export function dashboardReport(builder: ReportBuilder, data: DashboardData) {
     };
 
     const comparisonRows: [string, string, string][] = [];
-    seasonalStats.data.forEach((s: any) => {
+    seasonalStats.forEach((s: any) => {
       const key = s.name;
       if (metricMap[key]) {
         const current = s.current_value ?? 0;
         const currentStr = `${current}${metricMap[key].unit ? ` ${metricMap[key].unit}` : ''}`;
         let previousStr: string;
-        if (!hasPrevious || !hasAnyPreviousData) {
+        if (!hasAnyPreviousData) {
           previousStr = 'No Data';
         } else {
           const prev = s.previous_value ?? 0;
@@ -84,6 +80,6 @@ export function dashboardReport(builder: ReportBuilder, data: DashboardData) {
     }
   } else {
     builder.addSubheading("Barangay Yield Ranking", 8)
-    builder.addParagraph("Insufficient data.")
+    builder.addParagraph("Insufficient ")
   }
 }

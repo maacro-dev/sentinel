@@ -2,9 +2,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { FormDataEntry } from "../schemas/formData";
 import { StatusWithRetakeCell } from "@/core/components/cells/StatusWithRetakeCell";
 import { format } from "date-fns/format";
+import { SeasonCell } from "@/core/components/cells/SeasonCell";
 
+export type FormColumnDef = ColumnDef<FormDataEntry, any> & { seasonal?: boolean };
 
-export const defaultColumns: ColumnDef<FormDataEntry, any>[] = [
+export const defaultColumns: FormColumnDef[] = [
   {
     accessorKey: 'activity.verificationStatus',
     header: 'Status',
@@ -28,7 +30,13 @@ export const defaultColumns: ColumnDef<FormDataEntry, any>[] = [
       ],
     },
   },
-  // { accessorKey: 'season.year', header: 'Year', filterFn: 'equals', meta: { size: '4xs' } },
+  {
+    accessorKey: 'activity.season_id',
+    header: 'Season',
+    cell: ({ row }) => <SeasonCell seasonId={row.original.season.id} />,
+    meta: { size: '2xs' },
+    seasonal: true,
+  },
   {
     accessorKey: 'field.mfid',
     header: 'MFID',
@@ -69,10 +77,4 @@ export const defaultColumns: ColumnDef<FormDataEntry, any>[] = [
       filterVariant: 'date-preset',
     }
   },
-  // {
-  //   accessorKey: 'season.syncedAt',
-  //   header: 'Synced At',
-  //   cell: (info) => Sanitizer.value(info.getValue()),
-  //   meta: { size: '3xs' }
-  // },
 ]

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { mfidQueryOptions, mfidsQueryOptions } from "../queries/options"
 
 
-export const useMfids = (seasonId: number) => {
+export const useMfids = (seasonId?: number | null) => {
   const { data, isLoading, error } = useQuery(mfidsQueryOptions(seasonId))
   return { data: data ?? [], isLoading, error }
 }

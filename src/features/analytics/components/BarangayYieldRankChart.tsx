@@ -11,9 +11,10 @@ interface BarangayYieldBarChartProps {
   data: BarangayYieldRankingResponse;
   title: string;
   description: string;
+  itemCount?: number
 }
 
-export const BarangayYieldBarChart = memo<BarangayYieldBarChartProps>(({ data, title, description }) => {
+export const BarangayYieldBarChart = memo<BarangayYieldBarChartProps>(({ data, title, description, itemCount = 5 }) => {
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
   const { ranking, overallAverage } = data;
@@ -26,7 +27,7 @@ export const BarangayYieldBarChart = memo<BarangayYieldBarChartProps>(({ data, t
         return a.avg_yield_t_per_ha - b.avg_yield_t_per_ha;
       }
     });
-    return sorted.slice(0, 5).map(item => ({
+    return sorted.slice(0, itemCount).map(item => ({
       location: `${item.barangay}, ${item.municipality} ${item.province}`,
       current: item.avg_yield_t_per_ha,
     }));

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { PageContainer } from "@/core/components/layout";
 import { descriptiveAnalyticsDataOptions } from "@/features/analytics/queries/options";
 import { createCrumbLoader } from "@/core/utils/breadcrumb";
@@ -9,14 +9,18 @@ import { Spinner } from "@/core/components/ui/spinner";
 import { FertilizerTypeBarChart } from "@/features/analytics/components/FertilizerTypeBarChart";
 import { MethodPieChart } from "@/features/analytics/components/MethodPieChart";
 import { VarietyPieChart } from "@/features/analytics/components/VarietyPieChart";
-import { useQueryClient } from "@tanstack/react-query";
-import { Analytics } from "@/features/analytics/services/Analytics";
+import { DescriptiveFilters } from "@/features/analytics/types";
+import { ActiveDescriptiveFiltersBar } from "@/features/analytics/components/ActiveDescriptiveFiltersBar";
 
 export const Route = createFileRoute("/_manager/_analytics/descriptive")({
   component: RouteComponent,
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
-    queryClient.ensureQueryData(descriptiveAnalyticsDataOptions(seasonId));
+    const sid = seasonId === "all" ? null : seasonId;
+    if (sid === undefined) {
+      return { breadcrumb: createCrumbLoader({ label: "Descriptive Analytics" }) };
+    }
+    queryClient.ensureQueryData(descriptiveAnalyticsDataOptions(sid));
     return { breadcrumb: createCrumbLoader({ label: "Descriptive Analytics" }) };
   },
   head: () => ({ meta: [{ title: "Descriptive Analytics | Humay" }] }),
@@ -24,90 +28,52 @@ export const Route = createFileRoute("/_manager/_analytics/descriptive")({
 
 function RouteComponent() {
   const { seasonId } = Route.useSearch();
-  const queryClient = useQueryClient();
+  const effectiveSeasonId = seasonId === "all" ? null : seasonId;
 
-  const [filter, setFilter] = useState<{
-    province: string | null;
-    municipality: string | null;
-    barangay: string | null;
-    method: string | undefined;
-    variety: string | undefined;
-    fertilizer: string | undefined;
-  }>({
-    province: null,
-    municipality: null,
-    barangay: null,
-    method: undefined,
-    variety: undefined,
-    fertilizer: undefined
-  });
+  const [filter, setFilter] = useState<DescriptiveFilters>({});
 
-  const prefetchForFertiliser = useCallback(
-    (fertiliser: string) => {
-      const targetFilter = { ...filter, fertilizer: fertiliser };
-      queryClient.prefetchQuery(
-        descriptiveAnalyticsDataOptions(seasonId, targetFilter)
-      );
-      queryClient.prefetchQuery({
-        queryKey: ["hierarchical-yields", seasonId, filter.variety, fertiliser],
-        queryFn: () =>
-          Analytics.getHierarchicalYields(seasonId, filter.variety, fertiliser, filter.method),
-      });
-    },
-    [queryClient, filter, seasonId]
-  );
+  const {
+    methodSummary,
+    riceVarietySummary,
+    fertilizerTypeSummary,
+    provinceYieldsHierarchy,
+    isLoading,
+    prefetch
+  } = useDescriptiveAnalytics(effectiveSeasonId, filter);
 
-  const prefetchForVariety = useCallback(
-    (variety: string) => {
-      const targetFilter = { ...filter, variety };
-      queryClient.prefetchQuery(descriptiveAnalyticsDataOptions(seasonId, targetFilter));
-      queryClient.prefetchQuery({
-        queryKey: ["hierarchical-yields", seasonId, variety, filter.fertilizer],
-        queryFn: () =>
-          Analytics.getHierarchicalYields(seasonId, variety, filter.fertilizer, filter.method),
-      });
-    },
-    [queryClient, filter, seasonId]
-  );
+  const clearFilter = (key: keyof DescriptiveFilters) => {
+    setFilter(prev => ({ ...prev, [key]: undefined }));
+  };
 
-  const prefetchForMethod = useCallback(
-    (method: string) => {
-      const targetFilter = { ...filter, method };
-      queryClient.prefetchQuery(descriptiveAnalyticsDataOptions(seasonId, targetFilter));
-      queryClient.prefetchQuery({
-        queryKey: ["hierarchical-yields", seasonId, filter.variety, filter.fertilizer, method],
-        queryFn: () =>
-          Analytics.getHierarchicalYields(seasonId, filter.variety, filter.fertilizer, method),
-      });
-    },
-    [queryClient, filter, seasonId]
-  );
+  const clearAllFilters = () => {
+    setFilter({});
+  };
 
-  const { methodSummary, riceVarietySummary, fertilizerTypeSummary, isLoading, } = useDescriptiveAnalytics(seasonId, filter);
 
-  if (isLoading || !methodSummary || !riceVarietySummary || !fertilizerTypeSummary) {
+  if (isLoading || !methodSummary || !riceVarietySummary || !fertilizerTypeSummary || !provinceYieldsHierarchy) {
     return <PendingComponent />;
   }
 
   return (
     <PageContainer>
+      <ActiveDescriptiveFiltersBar filters={filter} onClear={clearFilter} onClearAll={clearAllFilters} />
       <ProvinceYieldsBarChart
-        seasonId={seasonId}
-        variety={filter.variety}
-        fertilizer={filter.fertilizer}
-        onFilterChange={(geo) => setFilter(prev => ({ ...prev, ...geo }))}
+        hierarchy={provinceYieldsHierarchy}
+        locationFilter={{
+          province: filter.province,
+          municipality: filter.municipality,
+          barangay: filter.barangay,
+        }}
+        onLocationFilterChange={(geo) => setFilter(prev => ({ ...prev, ...geo }))}
+        onBarHover={(locFilter) => prefetch(locFilter)}
       />
       <div className="flex h-full gap-4">
         <div className="h-full w-[60%]">
           <FertilizerTypeBarChart
             data={fertilizerTypeSummary}
             activeFertilizer={filter.fertilizer}
-            onFertilizerChange={(f) =>
-              setFilter(prev => ({ ...prev, fertilizer: f }))
-            }
-            onBarHover={(item) => {
-              if (item?.type) prefetchForFertiliser(item.type);
-            }}
+            onFertilizerChange={(f) => setFilter(prev => ({ ...prev, fertilizer: f }))}
+            onBarHover={(item) => { if (item?.type) prefetch({ fertilizer: item.type }); }}
           />
         </div>
         <div className="flex flex-col gap-4 w-full">
@@ -115,13 +81,13 @@ function RouteComponent() {
             summary={methodSummary}
             activeMethod={filter.method}
             onMethodChange={(m) => setFilter(prev => ({ ...prev, method: m }))}
-            onSliceHover={(method) => prefetchForMethod(method)}
+            onSliceHover={(method) => prefetch({ method })}
           />
           <VarietyPieChart
             summary={riceVarietySummary}
             activeVariety={filter.variety}
             onVarietyChange={(v) => setFilter(prev => ({ ...prev, variety: v }))}
-            onSliceHover={(variety) => prefetchForVariety(variety)}
+            onSliceHover={(variety) => prefetch({ variety })}
           />
         </div>
       </div>

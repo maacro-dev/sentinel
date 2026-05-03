@@ -1,24 +1,17 @@
 import { useDataTable } from "@/core/hooks";
-import { getTableColumnsByPath } from "@/core/tanstack/table/utils";
-import { useMemo } from "react";
 import { useCollectionTasks } from "./useCollectionTasks";
-import { overviewGroupConfig } from "@/routes/_manager/_overview/-config";
+import { getCollectionTableColumns } from "../components/CollectionTable/CollectionTableColumns";
 
-export const useCollectionTable = (seasonId?: number) => {
+export const useCollectionTable = (seasonId: number | undefined | null, showSeasonColumn: boolean) => {
 
   const { data: tasks, isLoading } = useCollectionTasks(seasonId);
 
-  const columns = useMemo(() => {
-    return getTableColumnsByPath({
-      path: "/collection",
-      config: overviewGroupConfig
-    })
-  }, [])
+  const columns = getCollectionTableColumns(showSeasonColumn)
 
   const table = useDataTable({
     data: tasks ?? [],
     columns: columns,
-    getRowId: (row) => row.id,
+    getRowId: (row) => String(row.id),
     initialColumnFilters: [
       { id: 'verification_status', value: ['pending'] },
       { id: 'status', value: ['pending'] }

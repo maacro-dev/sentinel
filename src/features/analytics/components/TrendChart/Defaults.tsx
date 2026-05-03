@@ -10,7 +10,7 @@ export const TrendChartDefaults = {
   area: {
     type: "monotone" as const,
     stroke: "var(--color-humay)",
-    fill: "url(#fillColor)",
+    fill: "#00000000",
     animationDuration: 800,
     activeDot: { r: 6 },
   },

@@ -6,7 +6,7 @@ import { CollectionTask, collectionTaskSchema, CollectionTaskInput, parseCollect
 export class Collection {
   private constructor() { }
 
-  static async getAll(seasonId?: number): Promise<CollectionTask[]> {
+  static async getAll(seasonId: number | undefined | null): Promise<CollectionTask[]> {
     const client = await getSupabase();
     let query = client
       .from("collection_details")
@@ -60,6 +60,34 @@ export class Collection {
     if (error) throw error;
   }
 
+  static async getUnscheduledByLocation(
+    seasonId: number,
+    province: string,
+    municipality: string,
+    barangay: string
+  ): Promise<string[]> {
+    const client = await getSupabase();
+    const { data, error } = await client.rpc('get_unscheduled_mfids_by_location', {
+      p_season_id: seasonId,
+      p_province: province,
+      p_city_municipality: municipality,
+      p_barangay: barangay,
+    });
+    if (error) throw error;
+    return data as string[];
+  }
+
+  static async getUnscheduledLocations(seasonId: number): Promise<
+    { province: string; city_municipality: string; barangay: string }[]
+  > {
+    const client = await getSupabase();
+    const { data, error } = await client.rpc('get_unscheduled_mfid_locations', {
+      p_season_id: seasonId,
+    });
+    if (error) throw error;
+    return data;
+  }
+
   static async create(input: CollectionTaskInput): Promise<number> {
     const client = await getSupabase();
 
@@ -78,7 +106,7 @@ export class Collection {
     return taskId;
   }
 
-  static async getByMfid(mfid: string, seasonId?: number): Promise<CollectionTask[]> {
+  static async getByMfid(mfid: string, seasonId?: number | null): Promise<CollectionTask[]> {
     const client = await getSupabase();
     let query = client
       .from("collection_details")
@@ -86,7 +114,7 @@ export class Collection {
       .eq("mfid", mfid)
       .order("created_at", { ascending: false });
 
-    if (seasonId) {
+    if (seasonId != null) {
       query = query.eq("season_id", seasonId);
     }
 
@@ -105,6 +133,20 @@ export class Collection {
       p_end_date: input.end_date,
     });
 
+    if (error) throw error;
+  }
+
+  static async updateFieldDataWithCascade(
+    taskId: number,
+    input: { collector_id?: string; start_date?: string; end_date?: string }
+  ): Promise<void> {
+    const client = await getSupabase();
+    const { error } = await client.rpc('update_field_data_with_cascade', {
+      p_task_id: taskId,
+      p_collector_id: input.collector_id,
+      p_start_date: input.start_date,
+      p_end_date: input.end_date,
+    });
     if (error) throw error;
   }
 

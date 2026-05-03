@@ -131,12 +131,11 @@ export function PredictiveFilters({
         </Select>
       </div>
 
-      {/* Rice Variety (exact) */}
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Rice Variety</Label>
         <Select
-          value={moreFilters.riceVarietyName[0] || ''}
-          onValueChange={(val) => onMoreFiltersChange('riceVarietyName', val === 'all' ? [] : [val])}
+          value={moreFilters.variety[0] || ''}
+          onValueChange={(val) => onMoreFiltersChange('variety', val === 'all' ? [] : [val])}
         >
           <SelectTrigger className="w-full h-8 text-2xs">
             <SelectValue placeholder="All Varieties" />
@@ -152,7 +151,6 @@ export function PredictiveFilters({
         </Select>
       </div>
 
-      {/* Soil Type */}
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Soil Type</Label>
         <Select

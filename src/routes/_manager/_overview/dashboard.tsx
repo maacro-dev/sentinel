@@ -10,7 +10,13 @@ import { BarangayYieldBarChart } from "@/features/analytics/components/BarangayY
 export const Route = createFileRoute("/_manager/_overview/dashboard")({
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: async ({ context: { queryClient }, deps: { seasonId } }) => {
-    queryClient.ensureQueryData(dashboardDataOptions(seasonId));
+    const sid = seasonId === "all" ? null : seasonId;
+
+    if (sid === undefined) {
+      return { breadcrumb: createCrumbLoader({ label: "Dashboard" }) };
+    }
+
+    queryClient.ensureQueryData(dashboardDataOptions(sid));
     return { breadcrumb: createCrumbLoader({ label: "Dashboard" }) }
   },
   head: () => ({ meta: [{ title: "Dashboard | Humay" }] }),
@@ -20,7 +26,9 @@ export const Route = createFileRoute("/_manager/_overview/dashboard")({
 function RouteComponent() {
 
   const { seasonId } = Route.useSearch()
-  const { stats, trends, ranks, isLoading } = useAnalyticsDashboard(seasonId);
+  const effectiveSeasonId = seasonId === "all" ? null : seasonId;
+
+  const { stats, trends, ranks, isLoading } = useAnalyticsDashboard(effectiveSeasonId);
 
   if (isLoading || !stats || !trends || !ranks) {
     return <PendingComponent />
@@ -39,6 +47,7 @@ function RouteComponent() {
           data={ranks}
           title="Barangay Yield Summary"
           description="Average yield per barangay"
+          itemCount={7}
         />
       </div>
     </PageContainer>

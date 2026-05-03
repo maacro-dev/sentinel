@@ -3,13 +3,6 @@ import { CollectionTask } from "../schemas/collection.schema";
 import type { CoreMetadataType } from "@/features/forms/schemas/forms";
 
 
-export const PREREQUISITE_ORDER: CoreMetadataType[] = [
-  "field-data",
-  "cultural-management",
-  "nutrient-management",
-  "production",
-];
-
 interface PrerequisiteTrackerProps {
   tasksMap: Map<CoreMetadataType, CollectionTask>;
   retakeMap: Map<number, CollectionTask>;
@@ -45,7 +38,6 @@ export function PrerequisiteTracker({ tasksMap, retakeMap }: PrerequisiteTracker
 
   return (
     <div className="rounded-container p-4 mb-6 bg-muted/5">
-      {/* <h4 className="text-sm font-medium mb-3">Collection Status</h4> */}
       <div className="flex items-start gap-x-2 gap-y-3 flex-wrap justify-center">
         {stepStatuses.map((step, idx) => (
           <div key={step.type} className="flex items-center">
@@ -92,7 +84,7 @@ export function PrerequisiteTracker({ tasksMap, retakeMap }: PrerequisiteTracker
             )}
           </div>
         ))}
-        {/* Damage assessment – always optional */}
+
         <div className="ml-4 pl-4 border-l border-dashed flex items-center gap-1">
           {damageApproved ? (
             <CheckCircle2 className="size-4 text-green-600" />

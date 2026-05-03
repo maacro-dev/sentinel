@@ -13,7 +13,8 @@ export const Route = createFileRoute("/_manager/_overview/collection")({
   head: () => ({ meta: [{ title: "Data Collection | Humay" }] }),
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
   loader: ({ context: { queryClient }, deps: { seasonId } }) => {
-    queryClient.ensureQueryData(collectionTasksOptions(seasonId))
+    const sid = seasonId === "all" ? null : seasonId;
+    queryClient.ensureQueryData(collectionTasksOptions(sid));
     return { breadcrumb: createCrumbLoader({ label: "Data Collection" }) };
   },
   validateSearch: defaultPaginationSearchSchema,
@@ -21,25 +22,19 @@ export const Route = createFileRoute("/_manager/_overview/collection")({
 
 function RouteComponent() {
   const { seasonId } = Route.useSearch();
+
   const { data: currentSeasonId } = useCurrentSeasonId();
-  const { navigate, preloadRoute } = useRouter()
+  const effectiveSeasonId = seasonId === "all" ? null : seasonId ?? currentSeasonId;
+
+  const { navigate, preloadRoute } = useRouter();
 
   const handleRowClick = useCallback((row: CollectionTask) => {
-    console.log("Clicked a collection task row:", row)
-    navigate({
-      to: "/mfid/$mfid",
-      params: { mfid: row.mfid }
-    })
+    navigate({ to: "/mfid/$mfid", params: { mfid: row.mfid } });
   }, [navigate]);
 
   const handleOnRowIntent = useCallback((row: CollectionTask) => {
-    preloadRoute({
-      to: "/mfid/$mfid",
-      params: { mfid: row.mfid }
-    })
-  }, [preloadRoute])
-
-  const effectiveSeasonId = seasonId ?? currentSeasonId;
+    preloadRoute({ to: "/mfid/$mfid", params: { mfid: row.mfid } });
+  }, [preloadRoute]);
 
   return (
     <PageContainer className="flex-col">
@@ -47,6 +42,7 @@ function RouteComponent() {
         seasonId={effectiveSeasonId}
         onRowClick={handleRowClick}
         onRowIntent={handleOnRowIntent}
+        showSeasonColumn={seasonId === "all"}
       />
     </PageContainer>
   );

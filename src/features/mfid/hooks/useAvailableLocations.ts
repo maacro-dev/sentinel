@@ -26,16 +26,15 @@ export const parseAvailableLocations = Validator.create<AvailableLocations>(
   'AvailableLocations'
 );
 
-export const useAvailableLocations = (seasonId?: number) => {
+export const useAvailableLocations = (seasonId?: number | null) => {
   return useQuery({
     queryKey: ['available-locations', seasonId],
     queryFn: async () => {
       const supabase = await getSupabase();
       const { data, error } = await supabase.rpc('get_available_locations', {
-        p_season_id: seasonId,
+        p_season_id: seasonId ?? undefined,
       });
       if (error) throw error;
-
       return parseAvailableLocations(data);
     },
     staleTime: 1000 * 60 * 10,

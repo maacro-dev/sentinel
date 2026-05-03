@@ -12,8 +12,6 @@ export const crop_establishments_schema = baseFields.extend({
     .refine(val => !isNaN(parseFloat(val)), "Must be a number")
     .transform(Number),
 
-  // actual_land_preparation_method: z.string().transform(strclean), // missing from provided schema, add
-
   actual_crop_establishment_date: z.string().transform(strclean).transform(toIso),
 
   actual_crop_establishment_method: z.string().transform(strclean).transform(val => val.toLowerCase()),
@@ -65,7 +63,7 @@ export const crop_establishments_schema = baseFields.extend({
 
   direct_seeding_method: z.string().optional()
     .transform(val => val === "N/A" ? undefined : val)
-    .transform(strcleanOpt),
+    .transform(val => val === undefined ? undefined : strcleanOpt(val)),
 
   num_plants_1: z.string().optional()
     .transform(val => val === "N/A" ? undefined : val)
@@ -118,7 +116,7 @@ export const crop_establishments_schema = baseFields.extend({
 }).superRefine((data, ctx) => {
   const method = data.actual_crop_establishment_method;
   const isTransplanted = method.includes('transplant');
-  const isDirectSeeded = method.includes('direct') && method.includes('seeded'); // adjust as needed
+  const isDirectSeeded = method.includes('direct') && method.includes('seeded');
 
   if (isTransplanted) {
     if (data.sowing_date === undefined) {
@@ -136,7 +134,6 @@ export const crop_establishments_schema = baseFields.extend({
     if (data.distance_between_plant_row_3 === undefined) {
       ctx.addIssue({ path: ['distance_between_plant_row_3'], message: 'Required for transplanted' });
     }
-
     if (data.distance_within_plant_row_1 === undefined) {
       ctx.addIssue({ path: ['distance_within_plant_row_1'], message: 'Required for transplanted' });
     }
@@ -147,7 +144,6 @@ export const crop_establishments_schema = baseFields.extend({
       ctx.addIssue({ path: ['distance_within_plant_row_3'], message: 'Required for transplanted' });
     }
 
-
     if (data.seeding_rate_kg_ha !== undefined) {
       ctx.addIssue({ path: ['seeding_rate_kg_ha'], message: 'Should be N/A for transplanted method' });
     }
@@ -157,8 +153,14 @@ export const crop_establishments_schema = baseFields.extend({
     if (data.num_plants_1 !== undefined) {
       ctx.addIssue({ path: ['num_plants_1'], message: 'Should be N/A for transplanted method' });
     }
-  } else if (isDirectSeeded) {
+    if (data.num_plants_2 !== undefined) {
+      ctx.addIssue({ path: ['num_plants_2'], message: 'Should be N/A for transplanted method' });
+    }
+    if (data.num_plants_3 !== undefined) {
+      ctx.addIssue({ path: ['num_plants_3'], message: 'Should be N/A for transplanted method' });
+    }
 
+  } else if (isDirectSeeded) {
     if (data.seeding_rate_kg_ha === undefined) {
       ctx.addIssue({ path: ['seeding_rate_kg_ha'], message: 'Seeding rate required for direct-seeded method' });
     }
@@ -167,6 +169,12 @@ export const crop_establishments_schema = baseFields.extend({
     }
     if (data.num_plants_1 === undefined) {
       ctx.addIssue({ path: ['num_plants_1'], message: 'Number of plants required for direct-seeded' });
+    }
+    if (data.num_plants_2 === undefined) {
+      ctx.addIssue({ path: ['num_plants_2'], message: 'Number of plants required for direct-seeded' });
+    }
+    if (data.num_plants_3 === undefined) {
+      ctx.addIssue({ path: ['num_plants_3'], message: 'Number of plants required for direct-seeded' });
     }
 
     if (data.sowing_date !== undefined) {
@@ -177,6 +185,21 @@ export const crop_establishments_schema = baseFields.extend({
     }
     if (data.distance_between_plant_row_1 !== undefined) {
       ctx.addIssue({ path: ['distance_between_plant_row_1'], message: 'Should be N/A for direct-seeded method' });
+    }
+    if (data.distance_between_plant_row_2 !== undefined) {
+      ctx.addIssue({ path: ['distance_between_plant_row_2'], message: 'Should be N/A for direct-seeded method' });
+    }
+    if (data.distance_between_plant_row_3 !== undefined) {
+      ctx.addIssue({ path: ['distance_between_plant_row_3'], message: 'Should be N/A for direct-seeded method' });
+    }
+    if (data.distance_within_plant_row_1 !== undefined) {
+      ctx.addIssue({ path: ['distance_within_plant_row_1'], message: 'Should be N/A for direct-seeded method' });
+    }
+    if (data.distance_within_plant_row_2 !== undefined) {
+      ctx.addIssue({ path: ['distance_within_plant_row_2'], message: 'Should be N/A for direct-seeded method' });
+    }
+    if (data.distance_within_plant_row_3 !== undefined) {
+      ctx.addIssue({ path: ['distance_within_plant_row_3'], message: 'Should be N/A for direct-seeded method' });
     }
   } else {
     ctx.addIssue({ path: ['actual_crop_establishment_method'], message: 'Method must be either transplanted or direct-seeded' });

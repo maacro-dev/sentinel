@@ -18,22 +18,31 @@ export const Route = createFileRoute('/_manager/_data/mfid/$mfid')({
 })
 
 function RouteComponent() {
+
   const { mfid } = Route.useParams()
   const { seasonId } = Route.useSearch()
+  const effectiveSeasonId = seasonId === "all" ? null : (seasonId ?? undefined);
+  const isAllSeasons = seasonId === "all";
+
   const { data: raw, isLoading } = useMfid({ mfid: mfid })
+
 
   if (!raw || isLoading) {
     return <PageContainer>Loading...</PageContainer>
   }
-
   const { status, ...data } = raw
 
   return (
     <PageContainer>
       <NavBackButton label='Back' />
       <div className='flex flex-col gap-2'>
-        <MfidCard data={data} status={status} mfid={mfid} />
-        <MfidCollectionTasks mfid={mfid} seasonId={seasonId} />
+        <MfidCard
+          data={data}
+          status={status}
+          mfid={mfid}
+          showOtherSeasons={!isAllSeasons}
+        />
+        <MfidCollectionTasks mfid={mfid} seasonId={effectiveSeasonId} />
       </div>
     </PageContainer>
   );
@@ -42,15 +51,16 @@ function RouteComponent() {
 interface MfidCardProps {
   data: MfidDetail,
   status: MfidStatus,
-  mfid: string
+  mfid: string,
+  showOtherSeasons: boolean;
 }
 
-function MfidCard({ data, status, mfid }: MfidCardProps) {
+function MfidCard({ data, status, mfid, showOtherSeasons }: MfidCardProps) {
   const isAssigned = status === "assigned";
 
   return (
     <div className="flex flex-col gap-4 max-h-80 w-full border border-input p-6 rounded-container">
-      <MfidCardHeader status={status} mfid={mfid} />
+      <MfidCardHeader status={status} mfid={mfid} showOtherSeasons={showOtherSeasons} />
       <div className='flex flex-col gap-4'>
         <div className='flex flex-row gap-16 flex-wrap'>
           <KVItem pair={{ key: "Barangay", value: data.barangay ?? "N/A" }} />
@@ -75,7 +85,7 @@ function MfidCard({ data, status, mfid }: MfidCardProps) {
   );
 }
 
-function MfidCardHeader({ mfid, status, }: Omit<MfidCardProps, "data">) {
+function MfidCardHeader({ mfid, status, showOtherSeasons }: Omit<MfidCardProps, "data">) {
   return (
     <div className='w-full flex justify-between'>
       <div className="flex items-start gap-4">
@@ -83,7 +93,7 @@ function MfidCardHeader({ mfid, status, }: Omit<MfidCardProps, "data">) {
         <MfidStatusBadge status={status} />
       </div>
 
-      <MfidOtherSeasonsDialog mfid={mfid} />
+      {showOtherSeasons && <MfidOtherSeasonsDialog mfid={mfid} />}
     </div>
   )
 }

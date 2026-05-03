@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { FormField, FormItem, FormControl } from "../ui/form";
 import { FieldError, FormFieldError } from "./FormFieldError";
 import { Label } from "../ui/label";
+import { cn } from "@/core/utils/style";
 
 interface Option {
   label: string;
@@ -84,6 +85,7 @@ interface SelectProps {
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  triggerClass?: string;
   error?: string;
 }
 
@@ -94,13 +96,14 @@ export const SentinelSelect = ({
   value,
   onChange,
   placeholder = "Select option",
+  triggerClass,
   disabled = false,
   error,
 }: SelectProps) => {
   console.log({ Select, SelectTrigger, SelectContent, SelectItem });
 
   return (
-    <div className="flex flex-col gap-2 flex-1">
+    <div className="flex flex-col gap-2">
       <Label id={name} className="text-xs font-normal text-muted-foreground group-focus-within:text-primary group-focus-within:font-medium transition-colors" >
         {label}
       </Label>
@@ -110,7 +113,7 @@ export const SentinelSelect = ({
         value={value}
         disabled={disabled}
       >
-        <SelectTrigger className="w-full text-xs">
+        <SelectTrigger className={cn("w-full text-xs", triggerClass)}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
 

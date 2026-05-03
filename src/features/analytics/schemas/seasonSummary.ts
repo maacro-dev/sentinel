@@ -1,16 +1,14 @@
-import * as z from "zod/v4"
-import { withSeasonComparison } from "./utils"
-import { Validator } from "@/core/utils/validator"
+import * as z from "zod/v4";
+import { Validator } from "@/core/utils/validator";
 
 export const seasonSummaryEntry = z.object({
   name: z.string(),
   current_value: z.number(),
-  percent_change: z.number(),
   previous_value: z.number(),
-})
+  percent_change: z.number(),
+});
 
-export type SeasonSummary = z.infer<typeof seasonSummarySchema>
-export const seasonSummarySchema = withSeasonComparison(seasonSummaryEntry)
+export type DashboardStats = z.infer<typeof dashboardStatsSchema>;
+export const dashboardStatsSchema = z.array(seasonSummaryEntry);
 
-export const parseSeasonSummary = Validator.create<SeasonSummary>(seasonSummarySchema, "SeasonSummary")
-
+export const parseDashboardStats = Validator.create<DashboardStats>(dashboardStatsSchema, "DashboardStats");

@@ -5,7 +5,7 @@ import { FormDataEntry } from "../schemas/formData";
 
 interface useFormEntriesOptions {
   formType: FormType;
-  seasonId?: number;
+  seasonId: number | undefined | null;
   hideRejected?: boolean;
   enabled?: boolean;
 }
@@ -26,12 +26,11 @@ export function useFormEntries({
 interface useFormEntryOptions {
   formType: FormType;
   id: number;
-  seasonId?: number;
   enabled?: boolean;
 }
 
-export function useFormEntry({ formType, id, seasonId, enabled, }: useFormEntryOptions) {
-  const { data, isLoading } = useQuery(formDataByIdOptions({ formType, id, seasonId, enabled: enabled ?? true, }));
+export function useFormEntry({ formType, id, enabled, }: useFormEntryOptions) {
+  const { data, isLoading } = useQuery(formDataByIdOptions({ formType, id, enabled: enabled ?? true, }));
   return {
     data: data as FormDataEntry,
     isLoading: isLoading,

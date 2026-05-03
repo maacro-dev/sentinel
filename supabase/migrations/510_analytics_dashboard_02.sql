@@ -7,23 +7,9 @@ create or replace function public.dashboard_barangay_yield_rankings(p_season_id 
     set search_path = ''
 as $$
 declare
-    target_season_id int;
     result jsonb;
     overall_avg numeric;
 begin
-    if p_season_id is null then
-        select id into target_season_id
-        from public.seasons
-        order by start_date desc
-        limit 1;
-    else
-        target_season_id := p_season_id;
-    end if;
-
-    if target_season_id is null then
-        return jsonb_build_object('ranking', '[]'::jsonb, 'overallAverage', 0);
-    end if;
-
     with harvest_agg as (
         select f.barangay_id,
                sum(hr.bags_harvested * hr.avg_bag_weight_kg) as total_kg,
@@ -31,7 +17,7 @@ begin
         from public.field_activities fa
         join public.harvest_records hr on hr.id = fa.id
         join public.fields f on fa.field_id = f.id
-        where fa.season_id = target_season_id
+        where (p_season_id is null or fa.season_id = p_season_id)
         group by f.barangay_id
         having sum(hr.area_harvested_ha) > 0
     ),

@@ -1,8 +1,8 @@
-import { DashboardData } from "../types";
+import { DashboardData, DescriptiveFilters } from "../types";
 import { getSupabase } from "@/core/supabase";
 import { parseDataCollectionTrend } from "../schemas/trends/dataCollectionTrend";
 import { parseBarangayYieldRanking } from "../schemas/barangayYield";
-import { parseSeasonSummary } from "../schemas/seasonSummary";
+import { parseDashboardStats } from "../schemas/seasonSummary";
 import { parseOverallYieldTrend } from "../schemas/trends/overallYield";
 import { parseHierarchicalYields, ProvinceYieldNode } from "../schemas/yieldByProvince";
 import { parseFormCountSummary } from "../schemas/summary/formCount";
@@ -10,7 +10,7 @@ import { parseCropMethodSummary } from "../schemas/summary/method";
 import { parseRiceVarietySummary } from "../schemas/summary/variety";
 import { parseYieldByLocationData, YieldByLocationData } from "../schemas/comparative/yield-location";
 import { parseYieldByMethodData, YieldByMethodData } from "../schemas/comparative/yield-method";
-import { parseYieldVarietyData, YieldVarietyData } from "../schemas/comparative/yield-variety";
+import { parseYieldVarietyData, YieldByVarietyData } from "../schemas/comparative/yield-variety";
 import { DamageByLocationData, parseDamageByLocationData } from "../schemas/comparative/damage-location";
 import { DamageByCauseData, parseDamageByCauseData } from "../schemas/comparative/damage-cause";
 import { parseFertilizerTypeSummary } from "../schemas/summary/fertilizer-type";
@@ -22,58 +22,65 @@ import { PredictionResponse } from "../schemas/predictive/prediction";
 export class Analytics {
 
 
-  public static async getDashboardData(seasonId?: number): Promise<DashboardData> {
+  public static async getDashboardData(seasonId: number | undefined | null): Promise<DashboardData> {
     const client = await this._client;
 
-    const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
+    const effectiveSeasonId = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data: stats, error: seasonalError } = await client.rpc('dashboard_summary', { p_season_id: sid });
+    const { data: stats, error: seasonalError } = await client.rpc('dashboard_summary', {
+      p_season_id: effectiveSeasonId ?? undefined
+    });
 
-    const { data: overallYield, error: yieldError } = await client.rpc('trend_overall_yield', { p_season_id: sid });
+    const { data: overallYield, error: yieldError } = await client.rpc('trend_overall_yield', {
+      p_season_id: effectiveSeasonId ?? undefined
+    });
 
-    const { data: barangayYield, error: barangayError } = await client.rpc('dashboard_barangay_yield_rankings', { p_season_id: sid });
+    const { data: barangayYield, error: barangayError } = await client.rpc('dashboard_barangay_yield_rankings', {
+      p_season_id: effectiveSeasonId ?? undefined
+    });
+
+    console.log("Stats", stats)
 
     if (seasonalError || yieldError || barangayError) {
       throw new Error("Error fetching dashboard data");
     }
 
-    const seasonalStats = parseSeasonSummary(stats);
+    const seasonalStats = parseDashboardStats(stats);
     const overallYieldTrend = parseOverallYieldTrend(overallYield);
     const barangayYieldRanking = parseBarangayYieldRanking(barangayYield);
 
     return { seasonalStats, overallYieldTrend, barangayYieldRanking };
   }
 
-  public static async getFormProgressSummary(seasonId?: number) {
+  public static async getFormProgressSummary(seasonId: number | undefined | null) {
     const client = await this._client;
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data, error } = await client.rpc('summary_form_progress', { p_season_id: sid });
+    const { data, error } = await client.rpc('summary_form_progress', { p_season_id: sid ?? undefined });
 
     if (error) throw error;
-    return parseSeasonSummary(data);
+
+    return parseDashboardStats(data);
   }
 
-  public static async getFormCountSummary(seasonId?: number) {
+  public static async getFormCountSummary(seasonId: number | undefined | null) {
     const client = await this._client;
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId;
 
-    const { data, error } = await client.rpc('summary_form_count', { p_season_id: sid });
+    const { data, error } = await client.rpc('summary_form_count', { p_season_id: sid ?? undefined });
 
     if (error) throw error;
-
-    console.log(data)
 
     return parseFormCountSummary(data);
   }
 
-  public static async getDataCollectionTrend(seasonId?: number) {
+  public static async getDataCollectionTrend(seasonId: number | undefined | null) {
     const client = await this._client;
 
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
-    const { data, error } = await client.rpc('trend_data_collection', { p_season_id: sid });
+    const { data, error } = await client.rpc('trend_data_collection', { p_season_id: sid ?? undefined });
 
     if (error) {
       throw error
@@ -84,63 +91,64 @@ export class Analytics {
 
 
   public static async getDescriptiveAnalyticsData(
-    seasonId?: number,
-    provinceName?: string,
-    municipalityName?: string,
-    barangayName?: string,
-    methodName?: string,
-    varietyName?: string,
-    fertilizerType?: string
+    seasonId: number | undefined | null,
+    filters: DescriptiveFilters
   ) {
-    const client = await this._client;
 
+    const client = await this._client;
     const sid = seasonId === undefined ? await Seasons.getCurrent() : seasonId
 
     const [
       { data: methodSummaryRaw, error: methodSummaryError },
       { data: riceVarietyRaw, error: riceVarietyError },
       { data: fertilizerTypeRaw, error: fertilizerTypeError },
+      { data: hierarchicalYieldsRaw, error: hierarchicalYieldsError }
     ] = await Promise.all([
       client.rpc('crop_establishment_method_summary', {
-        p_season_id: sid,
-        p_province_name: provinceName,
-        p_municipality_name: municipalityName,
-        p_barangay_name: barangayName,
-        p_variety_name: varietyName,
-        p_fertilizer_type: fertilizerType
+        p_season_id: sid ?? undefined,
+        p_province_name: filters.province,
+        p_municipality_name: filters.municipality,
+        p_barangay_name: filters.barangay,
+        p_variety_name: filters.variety,
+        p_fertilizer_type: filters.fertilizer
       }),
+
       client.rpc('rice_variety_summary', {
-        p_season_id: sid,
-        p_province_name: provinceName,
-        p_municipality_name: municipalityName,
-        p_barangay_name: barangayName,
-        p_method_name: methodName,
-        p_fertilizer_type: fertilizerType,
+        p_season_id: sid ?? undefined,
+        p_province_name: filters.province,
+        p_municipality_name: filters.municipality,
+        p_barangay_name: filters.barangay,
+        p_method_name: filters.method,
+        p_fertilizer_type: filters.fertilizer,
       }),
+
       client.rpc('fertilizer_type_summary', {
-        p_season_id: sid,
-        p_province: provinceName,
-        p_municipality: municipalityName,
-        p_barangay: barangayName,
-        p_method: methodName,
-        p_variety: varietyName,
+        p_season_id: sid ?? undefined,
+        p_province: filters.province,
+        p_municipality: filters.municipality,
+        p_barangay: filters.barangay,
+        p_method: filters.method,
+        p_variety: filters.variety,
+      }),
+
+      client.rpc('hierarchical_yields', {
+        p_season_id: sid ?? undefined,
+        p_variety_name: filters.variety,
+        p_method_name: filters.method,
+        p_fertilizer_type: filters.fertilizer,
       }),
     ]);
 
 
-    if (methodSummaryError || riceVarietyError || fertilizerTypeError) {
-      throw new Error(
-        `Failed to fetch descriptive analytics data: ${methodSummaryError?.message ||
-        riceVarietyError?.message ||
-        fertilizerTypeError?.message
-        }`
-      );
+    if (methodSummaryError || riceVarietyError || fertilizerTypeError || hierarchicalYieldsError) {
+      throw new Error(`Failed to fetch descriptive analytics data: ${methodSummaryError?.message || riceVarietyError?.message || fertilizerTypeError?.message || hierarchicalYieldsError?.message}`);
     }
 
     return {
       cropMethodSummary: parseCropMethodSummary(methodSummaryRaw),
       riceVarietySummary: parseRiceVarietySummary(riceVarietyRaw),
       fertilizerTypeSummary: parseFertilizerTypeSummary(fertilizerTypeRaw),
+      provinceYieldsHierarchy: parseHierarchicalYields(hierarchicalYieldsRaw)
     };
   }
 
@@ -157,9 +165,33 @@ export class Analytics {
     return parseHierarchicalYields(data);
   }
 
+  public static async getYieldByLocation(
+    filters: {
+      seasonId?: number | null;   // changed
+      province?: string;
+      municipality?: string;
+      barangay?: string;
+      method?: string;
+      variety?: string;
+    }
+  ): Promise<YieldByLocationData> {
+    const client = await this._client;
+    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
+    const { data, error } = await client.rpc('yield_by_location', {
+      p_season_id: sid ?? undefined,
+      p_province: filters.province,
+      p_municipality: filters.municipality,
+      p_barangay: filters.barangay,
+      p_method: filters.method,
+      p_variety: filters.variety,
+    });
+    if (error) throw new Error(`Failed to fetch yield analytics: ${error.message}`);
+    return parseYieldByLocationData(data);
+  }
+
   public static async getYieldByMethod(
     filters: {
-      seasonId?: number;
+      seasonId?: number | null;
       province?: string;
       municipality?: string;
       barangay?: string;
@@ -168,11 +200,9 @@ export class Analytics {
     }
   ): Promise<YieldByMethodData> {
     const client = await this._client;
-
-    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
-
+    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('yield_by_method', {
-      p_season_id: sid,
+      p_season_id: sid ?? undefined,
       p_province: filters.province,
       p_municipality: filters.municipality,
       p_barangay: filters.barangay,
@@ -183,49 +213,20 @@ export class Analytics {
     return parseYieldByMethodData(data);
   }
 
-  public static async getYieldByLocation(
-    filters: {
-      seasonId?: number;
-      province?: string;
-      municipality?: string;
-      barangay?: string;
-      method?: string;
-      variety?: string;
-    }
-  ): Promise<YieldByLocationData> {
-    const client = await this._client;
-
-    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
-
-    const { data, error } = await client.rpc('yield_by_location', {
-      p_season_id: sid,
-      p_province: filters.province,
-      p_municipality: filters.municipality,
-      p_barangay: filters.barangay,
-      p_method: filters.method,
-      p_variety: filters.variety,
-    });
-
-    if (error) throw new Error(`Failed to fetch yield analytics: ${error.message}`);
-    return parseYieldByLocationData(data);
-  }
-
   public static async getYieldByVariety(
     filters: {
-      seasonId?: number;
+      seasonId?: number | null;   // changed
       province?: string;
       municipality?: string;
       barangay?: string;
       method?: string;
       variety?: string;
     }
-  ): Promise<YieldVarietyData> {
+  ): Promise<YieldByVarietyData> {
     const client = await this._client;
-
-    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
-
+    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('yield_by_variety', {
-      p_season_id: sid,
+      p_season_id: sid ?? undefined,
       p_province: filters.province,
       p_municipality: filters.municipality,
       p_barangay: filters.barangay,
@@ -238,7 +239,7 @@ export class Analytics {
 
   public static async getDamageByLocation(
     filters: {
-      seasonId?: number;
+      seasonId?: number | null;   // changed
       province?: string;
       municipality?: string;
       barangay?: string;
@@ -246,11 +247,9 @@ export class Analytics {
     }
   ): Promise<DamageByLocationData> {
     const client = await this._client;
-
-    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
-
+    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('damage_by_location', {
-      p_season_id: sid,
+      p_season_id: sid ?? undefined,
       p_province: filters.province,
       p_municipality: filters.municipality,
       p_barangay: filters.barangay,
@@ -262,7 +261,7 @@ export class Analytics {
 
   public static async getDamageByCause(
     filters: {
-      seasonId?: number;
+      seasonId?: number | null;   // changed
       province?: string;
       municipality?: string;
       barangay?: string;
@@ -271,11 +270,9 @@ export class Analytics {
     }
   ): Promise<DamageByCauseData> {
     const client = await this._client;
-
-    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId
-
+    const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('damage_by_cause', {
-      p_season_id: sid,
+      p_season_id: sid ?? undefined,
       p_province: filters.province,
       p_municipality: filters.municipality,
       p_barangay: filters.barangay,

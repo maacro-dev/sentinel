@@ -5,13 +5,27 @@ import { formatSeasonLabel, getSeasonDisplayLabel, isCurrentSeason } from "../ut
 import { useSearch } from "@tanstack/react-router"
 import { SeasonRow } from "../schemas/seasons"
 
-export function useSeasonLabel(seasonId?: number) {
+export function useSeasonLabel(seasonId?: number | null): string | null;
+export function useSeasonLabel(seasonIds: number[]): string[];
+
+export function useSeasonLabel(input?: number | number[] | null): string | string[] | null {
   const { data: seasons = [] } = useSeasons();
-  const season = useMemo(() => {
-    if (!seasonId || !seasons) return null;
-    return seasons.find(s => s.id === seasonId);
-  }, [seasonId, seasons]);
-  return season ? formatSeasonLabel(season) : null;
+  const { options } = useSeasonsForSelector();
+
+  return useMemo(() => {
+    if (input == null) return null;
+
+    if (Array.isArray(input)) {
+      return input.map(
+        id =>
+          options?.find(o => Number(o.value) === id)?.label ??
+          String(id)
+      );
+    }
+
+    const season = seasons.find(s => s.id === input);
+    return season ? formatSeasonLabel(season) : null;
+  }, [input, seasons, options]);
 }
 
 export const useSeason = (id?: number) => {
@@ -54,6 +68,7 @@ export function useSeasonOptions() {
 }
 
 
+// currently selected season (also in url seasonId=?)
 export function useCurrentSeason() {
   const { seasonId } = useSearch({ strict: false });
   const { data: season = [], isLoading } = useSeasons();

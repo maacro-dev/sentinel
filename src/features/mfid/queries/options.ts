@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { Mfid } from "../services/Mfid";
 import { Lgu } from "../services/Lgu";
 
-export const mfidsQueryOptions = (seasonId?: number) => {
+export const mfidsQueryOptions = (seasonId?: number | null) => {
   return queryOptions({
     queryKey: ["mfids", seasonId] as const,
     queryFn: () => Mfid.getAll(seasonId),

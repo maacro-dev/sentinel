@@ -1,9 +1,9 @@
 import { memo } from "react"
 import { TrendChart } from "./TrendChart"
-import { DataCollectionPoint } from "../schemas/trends/dataCollectionTrend"
+import { CollectionDataPoint } from "../schemas/trends/dataCollectionTrend";
 
 interface DataCollectionTrendChartProps {
-  data: Array<DataCollectionPoint>;
+  data: Array<CollectionDataPoint>;
 }
 
 export const DataCollectionTrendChart = memo(({ data }: DataCollectionTrendChartProps) => {

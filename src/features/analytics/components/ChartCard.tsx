@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/cor
 import { ChartConfig } from "@/core/components/ui/chart";
 import { memo, ReactNode } from "react";
 import { ChartHeader } from "../types";
+import { cn } from "@/core/utils/style";
 
 export interface ChartCardProps extends React.ComponentProps<typeof Card> {
   header: ChartHeader;
@@ -10,6 +11,7 @@ export interface ChartCardProps extends React.ComponentProps<typeof Card> {
     component: ReactNode
   };
   config?: ChartConfig;
+  contentClass?: string
 }
 
 export const ChartCard = memo(({
@@ -18,6 +20,7 @@ export const ChartCard = memo(({
   children,
   config = {},
   className,
+  contentClass = "",
   ...rest
 }: ChartCardProps) => {
   return (
@@ -35,7 +38,7 @@ export const ChartCard = memo(({
         </div>
         {options && options.enabled && options.component}
       </CardHeader>
-      <CardContent className="h-full justify-center items-center">
+      <CardContent className={cn("h-full", contentClass)}>
         {children}
       </CardContent>
     </Card>

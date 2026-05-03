@@ -1,205 +1,132 @@
-import { memo, useState, useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { memo, useCallback, useMemo } from "react";
 import { cn } from "@/core/utils/style";
-import { TickProps } from "../types";
+import { OptionalLocationFilters, TickProps } from "../types";
 import { DefaultTicks } from "./DefaultTicks";
-import { Analytics } from "../services/Analytics";
-import { Spinner } from "@/core/components/ui/spinner";
 import { GroupedBarChart } from "./GroupedBarChart/GroupedBarChart";
-import { descriptiveAnalyticsDataOptions } from "../queries/options";
+import { ProvinceYieldNode } from "../schemas/yieldByProvince";
 
 interface ProvinceYieldsBarChartProps {
-  seasonId: number | undefined;
-  variety?: string | undefined;
-  fertilizer?: string | undefined;
-  onFilterChange?: (filter: {
-    province: string | null;
-    municipality: string | null;
-    barangay: string | null;
-  }) => void;
+  hierarchy: ProvinceYieldNode[];
+  locationFilter: OptionalLocationFilters;
+  onLocationFilterChange?: (filter: OptionalLocationFilters) => void;
+  onBarHover?: (filter: OptionalLocationFilters) => void;
 }
 
-export const ProvinceYieldsBarChart = memo(({ seasonId, variety, fertilizer, onFilterChange }: ProvinceYieldsBarChartProps) => {
+export const ProvinceYieldsBarChart = memo(({ hierarchy, locationFilter, onLocationFilterChange, onBarHover }: ProvinceYieldsBarChartProps) => {
 
-  const queryClient = useQueryClient()
-
-  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
-  const [selectedMunicipality, setSelectedMunicipality] = useState<string | null>(null);
-  const [selectedBarangay, setSelectedBarangay] = useState<string | null>(null);
-
-  const { data: hierarchy, isLoading, isError } = useQuery({
-    queryKey: ["hierarchical-yields", seasonId, variety, fertilizer] as const,
-    queryFn: () => Analytics.getHierarchicalYields(seasonId, variety, fertilizer),
-  });
-
-  const updateFilter = useCallback(
-    (province: string | null, municipality: string | null, barangay: string | null) => {
-      onFilterChange?.({ province, municipality, barangay });
+  const updateLocationFilter = useCallback(
+    (partial: Partial<OptionalLocationFilters>) => {
+      onLocationFilterChange?.(partial);
     },
-    [onFilterChange]
-  );
-
-  const handleSetProvince = useCallback(
-    (name: string) => {
-      setSelectedProvince(name);
-      setSelectedMunicipality(null);
-      setSelectedBarangay(null);
-      updateFilter(name, null, null);
-    },
-    [updateFilter]
-  );
-
-  const handleSetMunicipality = useCallback(
-    (name: string) => {
-      setSelectedMunicipality(name);
-      setSelectedBarangay(null);
-      updateFilter(selectedProvince!, name, null);
-    },
-    [selectedProvince, updateFilter]
+    [onLocationFilterChange],
   );
 
   const provinceChartData = useMemo(() => {
     if (!hierarchy) return [];
-    return hierarchy.map((p) => ({
-      name: p.province,
-      avg_yield_t_per_ha: p.avg_yield_t_per_ha,
-    }));
+    return hierarchy.map(p => ({ name: p.province, avg_yield_t_per_ha: p.avg_yield_t_per_ha }));
   }, [hierarchy]);
 
   const municipalityChartData = useMemo(() => {
-    if (!selectedProvince || !hierarchy) return [];
-    const province = hierarchy.find((p) => p.province === selectedProvince);
-    if (!province) return [];
-    return province.municipalities.map((m) => ({
-      name: m.municipality,
-      avg_yield_t_per_ha: m.avg_yield_t_per_ha,
-    }));
-  }, [selectedProvince, hierarchy]);
+    if (!locationFilter.province || !hierarchy) return [];
+    const province = hierarchy.find(p => p.province === locationFilter.province);
+    return province
+      ? province.municipalities.map(m => ({
+        name: m.municipality,
+        avg_yield_t_per_ha: m.avg_yield_t_per_ha,
+      }))
+      : [];
+  }, [locationFilter.province, hierarchy]);
 
   const barangayChartData = useMemo(() => {
-    if (!selectedProvince || !selectedMunicipality || !hierarchy) return [];
-    const province = hierarchy.find((p) => p.province === selectedProvince);
+    if (!locationFilter.province || !locationFilter.municipality || !hierarchy) return [];
+    const province = hierarchy.find(p => p.province === locationFilter.province);
     if (!province) return [];
     const municipality = province.municipalities.find(
-      (m) => m.municipality === selectedMunicipality
+      m => m.municipality === locationFilter.municipality,
     );
-    if (!municipality) return [];
-    return municipality.barangays.map((b) => ({
-      name: b.barangay,
-      avg_yield_t_per_ha: b.avg_yield_t_per_ha,
-    }));
-  }, [selectedProvince, selectedMunicipality, hierarchy]);
+    return municipality
+      ? municipality.barangays.map(b => ({
+        name: b.barangay,
+        avg_yield_t_per_ha: b.avg_yield_t_per_ha,
+      }))
+      : [];
+  }, [locationFilter.province, locationFilter.municipality, hierarchy]);
 
-  const chartData = selectedMunicipality ? barangayChartData : selectedProvince ? municipalityChartData : provinceChartData;
+  const chartData = locationFilter.municipality
+    ? barangayChartData
+    : locationFilter.province
+      ? municipalityChartData
+      : provinceChartData;
 
   const handleBarClick = useCallback(
     (item: any) => {
       const name = item?.name;
       if (!name) return;
 
-      if (selectedMunicipality) {
-        if (selectedBarangay === name) {
-          setSelectedBarangay(null);
-          updateFilter(selectedProvince!, selectedMunicipality, null);
-        } else {
-          setSelectedBarangay(name);
-          updateFilter(selectedProvince!, selectedMunicipality, name);
-        }
-      } else if (selectedProvince) {
-        handleSetMunicipality(name);
+      if (locationFilter.municipality) {
+        const barangay = name === locationFilter.barangay ? undefined : name;
+        updateLocationFilter({ barangay });
+      } else if (locationFilter.province) {
+        updateLocationFilter({ municipality: name, barangay: undefined });
       } else {
-        handleSetProvince(name);
+        updateLocationFilter({ province: name, municipality: undefined, barangay: undefined });
       }
     },
-    [selectedProvince, selectedMunicipality, selectedBarangay, handleSetProvince, handleSetMunicipality, updateFilter]
+    [locationFilter, updateLocationFilter],
   );
 
-  const handleBarHover = useCallback((item: any) => {
-    const name = item?.name;
+  const handleBarHover = useCallback(
+    (item: any) => {
+      const name = item?.name;
+      if (!name) return;
 
-    if (!name) return;
+      let filter: OptionalLocationFilters = {};
 
-    let filter = {
-      province: null as string | null,
-      municipality: null as string | null,
-      barangay: null as string | null,
-    };
-
-    if (!selectedProvince) {
-      filter.province = name;
-    } else if (!selectedMunicipality) {
-      filter.province = selectedProvince;
-      filter.municipality = name;
-    } else {
-      filter.province = selectedProvince;
-      filter.municipality = selectedMunicipality;
-      filter.barangay = name;
-    }
-
-    queryClient.prefetchQuery(descriptiveAnalyticsDataOptions(seasonId, { ...filter, variety, fertilizer }));
-  },
-    [queryClient, seasonId, selectedProvince, selectedMunicipality]
+      if (!locationFilter.province) {
+        filter = { province: name };
+      } else if (!locationFilter.municipality) {
+        filter = { province: locationFilter.province, municipality: name };
+      } else {
+        filter = {
+          province: locationFilter.province,
+          municipality: locationFilter.municipality,
+          barangay: name,
+        };
+      }
+      onBarHover?.(filter);
+    },
+    [locationFilter.province, locationFilter.municipality, onBarHover],
   );
 
   const goBack = useCallback(() => {
-    if (selectedBarangay) {
-      setSelectedBarangay(null);
-      updateFilter(selectedProvince!, selectedMunicipality, null);
-    } else if (selectedMunicipality) {
-      setSelectedMunicipality(null);
-      setSelectedBarangay(null);
-      updateFilter(selectedProvince!, null, null);
+    if (locationFilter.barangay) {
+      updateLocationFilter({ barangay: undefined });
+    } else if (locationFilter.municipality) {
+      updateLocationFilter({ municipality: undefined, barangay: undefined });
     } else {
-      setSelectedProvince(null);
-      setSelectedMunicipality(null);
-      setSelectedBarangay(null);
-      updateFilter(null, null, null);
+      updateLocationFilter({ province: undefined, municipality: undefined, barangay: undefined });
     }
-  }, [selectedBarangay, selectedMunicipality, selectedProvince, updateFilter]);
+  }, [locationFilter, updateLocationFilter]);
 
-  const isEmpty =
-    chartData.length === 0 ||
-    chartData.every((d) => d.avg_yield_t_per_ha === 0);
+  const floatingLabel = locationFilter.barangay
+    ? "Clear Barangay Filter"
+    : locationFilter.municipality
+      ? "Back to Municipalities"
+      : locationFilter.province
+        ? "Back to Provinces"
+        : null;
+
+  const isEmpty = chartData.length === 0 || chartData.every(d => d.avg_yield_t_per_ha === 0);
 
   let domain: [number, number] | undefined;
-  if (!selectedProvince) {
-    const yields = chartData
-      .map((d) => d.avg_yield_t_per_ha)
-      .filter((y) => y > 0);
+  if (!locationFilter.province) {
+    const yields = chartData.map(d => d.avg_yield_t_per_ha).filter(y => y > 0);
     if (yields.length > 0) {
       const minVal = Math.min(...yields);
       const maxVal = Math.max(...yields);
       const padding = (maxVal - minVal) * 0.1;
       domain = [Math.max(0, minVal - padding), maxVal + padding];
     }
-  }
-
-  const floatingLabel = selectedBarangay
-    ? "Clear Barangay Filter"
-    : selectedMunicipality
-      ? "Back to Municipalities"
-      : selectedProvince
-        ? "Back to Provinces"
-        : null;
-
-
-  const chartKey = `yields-${seasonId}-${variety ?? 'all'}`;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-96">
-        <Spinner className="size-10" />
-        <p className="text-muted-foreground text-sm ml-2">Loading data…</p>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="flex items-center justify-center min-h-96">
-        <p className="text-sm text-destructive">Failed to load chart data.</p>
-      </div>
-    );
   }
 
   return (
@@ -209,7 +136,7 @@ export const ProvinceYieldsBarChart = memo(({ seasonId, variety, fertilizer, onF
           "absolute left-1/2 transform -translate-x-1/2 top-8 z-10 transition-all duration-300 ease-in-out",
           floatingLabel
             ? "opacity-100 translate-y-0"
-            : "opacity-0 -translate-y-2 pointer-events-none"
+            : "opacity-0 -translate-y-2 pointer-events-none",
         )}
       >
         <button
@@ -221,23 +148,24 @@ export const ProvinceYieldsBarChart = memo(({ seasonId, variety, fertilizer, onF
       </div>
 
       <GroupedBarChart
-        key={chartKey}
         data={chartData}
-        categoryKey={"name"}
-        barKeys={[{
-          key: "avg_yield_t_per_ha",
-          name: "Yield (t/ha)",
-          color: "var(--color-humay)",
-        }]}
+        categoryKey="name"
+        barKeys={[
+          {
+            key: "avg_yield_t_per_ha",
+            name: "Yield (t/ha)",
+            color: "var(--color-humay)",
+          },
+        ]}
         header={
-          selectedMunicipality
+          locationFilter.municipality
             ? {
-              title: `Barangay Yields for ${selectedMunicipality}, ${selectedProvince}`,
+              title: `Barangay Yields for ${locationFilter.municipality}, ${locationFilter.province}`,
               description: "Average yield per barangay (t/ha)",
             }
-            : selectedProvince
+            : locationFilter.province
               ? {
-                title: `Municipality Yields for ${selectedProvince}`,
+                title: `Municipality Yields for ${locationFilter.province}`,
                 description: "Average yield per municipality (t/ha)",
               }
               : {
@@ -247,7 +175,7 @@ export const ProvinceYieldsBarChart = memo(({ seasonId, variety, fertilizer, onF
               }
         }
         isEmpty={isEmpty}
-        activeBar={selectedBarangay}
+        activeBar={locationFilter.barangay}
         onBarClick={handleBarClick}
         onBarHover={handleBarHover}
         layout="horizontal"
@@ -262,11 +190,11 @@ export const ProvinceYieldsBarChart = memo(({ seasonId, variety, fertilizer, onF
           },
           Y: {
             tickFormatter: (value: number) => `${value} t/ha`,
-            domain: selectedProvince ? undefined : domain,
+            domain: locationFilter.province ? undefined : domain,
           },
         }}
       />
     </div>
   );
-}
+},
 );

@@ -5,8 +5,11 @@ import { format } from "date-fns";
 import { capitalizeFirst } from "@/core/utils/string";
 import { StatusWithRetakeCell } from "@/core/components/cells/StatusWithRetakeCell";
 import { CollectionStatusCell } from "@/core/components/cells/VerificationStatusCell";
+import { SeasonCell } from "@/core/components/cells/SeasonCell";
 
-export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
+type CollectionColumnDef = ColumnDef<CollectionTask> & { seasonal?: boolean };
+
+export const collectionTableColumns: CollectionColumnDef[] = [
   {
     accessorKey: "activity_type",
     header: "Form",
@@ -72,6 +75,13 @@ export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
     }
   },
   {
+    accessorKey: "season_id",
+    header: "Season",
+    cell: ({ row }) => <SeasonCell seasonId={row.original.season_id} />,
+    meta: { size: "sm" },
+    seasonal: true
+  },
+  {
     accessorKey: "mfid",
     header: "MFID",
     meta: { size: '2xs' }
@@ -108,3 +118,7 @@ export const collectionTableColumns: ColumnDef<CollectionTask>[] = [
     }
   },
 ]
+
+export function getCollectionTableColumns(showSeasonColumn: boolean): ColumnDef<CollectionTask>[] {
+  return collectionTableColumns.filter(col => !col.seasonal || showSeasonColumn);
+}

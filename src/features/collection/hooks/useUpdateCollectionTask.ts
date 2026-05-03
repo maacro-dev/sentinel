@@ -14,8 +14,7 @@ export function useUpdateCollectionTask() {
   const { notifyLoading, notifySuccess, notifyError } = useToast();
 
   return useMutation({
-    mutationFn: ({ id, ...input }: { id: number } & Partial<CollectionTaskInput>) =>
-      Collection.update(id, input),
+    mutationFn: ({ id, ...input }: { id: number } & Partial<CollectionTaskInput>) => Collection.update(id, input),
     onMutate: () => notifyLoading(UpdateToasts.updating),
     onSuccess: (_, variables, toastId) => {
       notifySuccess({ id: toastId, ...UpdateToasts.updated });

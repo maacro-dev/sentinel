@@ -1,65 +1,25 @@
-import { AlertCircle, CalendarClock, CheckCircle2, ChevronRight, Circle, Clock, Edit, Eye, RotateCcw, Trash2, XCircle } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/core/components/ui/table";
-import { Badge } from "@/core/components/ui/badge";
-import { format } from "date-fns";
 import { getActivityTypeLabel } from "@/features/forms/utils";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { CollectionFormDialog } from "./CollectionFormDialog";
 import { useCreateCollectionTask } from "../hooks/useCreateCollectionTask";
 import { useCollectionTasksByMfid } from "../hooks/useCollectionTaskByMfid";
-import { capitalizeFirst } from "@/core/utils/string";
-import { ActivityType, CORE_METADATA_TYPES, CoreMetadataType } from "@/features/forms/schemas/forms";
-import { Button } from "@/core/components/ui/button";
+import { ActivityType, CoreMetadataType } from "@/features/forms/schemas/forms";
 import { CollectionTask } from "../schemas/collection.schema";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/core/components/ui/tooltip";
-import { PREREQUISITE_ORDER } from "./PrerequisiteTracker";
-import React from "react";
-import { cn } from "@/core/utils/style";
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateCollectionTask } from "../hooks/useUpdateCollectionTask";
 import { useDeleteCollectionTask } from "../hooks/useDeleteCollectionTask";
 import { CollectionFormDeleteDialog } from "./CollectionFormDeleteDialog";
-import { Collection } from "../services/Collection";
+import { useUpdateFieldDataWithCascade } from "../hooks/useUpdateFieldDataWithCascade";
+import { SeasonCell } from "@/core/components/cells/SeasonCell";
+import { CORE_GROUPS } from "../services/config";
+import { CollectionTasksTable } from "./CollectionTasksTable/CollectionTasksTable";
+import { useScheduleCore } from "../hooks/useScheduleCore";
 
-export const useScheduleFieldDataAndCore = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: Collection.scheduleFieldDataAndCore,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collection-tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["mfids"] });
-    },
-  });
-};
-
-export const useBatchScheduleFieldData = (seasonId: number, selectedMfids: Array<string>) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: Collection.batchScheduleFieldData,
-    onSettled: () => {
-      selectedMfids.map(mfid => {
-        queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid, seasonId] });
-      })
-      queryClient.invalidateQueries({ queryKey: ["mfids"] });
-    }
-  });
-};
-
-const CORE_GROUPS: CoreMetadataType[][] = [
-  ['field-data'],
-  ['cultural-management'],
-  ['nutrient-management', 'production'],
-];
 
 interface MfidCollectionTasksProps {
   mfid: string;
-  seasonId?: number;
+  seasonId?: number | null;
 }
 
 export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps) {
@@ -75,184 +35,80 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<CollectionTask | null>(null);
 
+  const [selectedSeasonId, setSelectedSeasonId] = useState<number | null>(null);
+
   const { mutate: createTask, isPending: isCreating } = useCreateCollectionTask();
 
   const { mutate: updateTask, isPending: isUpdating } = useUpdateCollectionTask();
 
+  const { mutate: updateFieldDataAndCascade } = useUpdateFieldDataWithCascade();
+
   const { mutate: deleteTask } = useDeleteCollectionTask();
 
-  const { mutate: scheduleAll, isPending: isSchedulingAll, } = useScheduleFieldDataAndCore();
+  const { mutate: scheduleAll, isPending: isSchedulingAll } = useScheduleCore();
 
-  const handleDeleteTask = (task: CollectionTask) => {
+  const handleDeleteTask = useCallback((task: CollectionTask) => {
     setTaskToDelete(task);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const confirmDelete = () => {
+  const confirmDelete = useCallback(() => {
     if (taskToDelete) {
       deleteTask(taskToDelete.id, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
-        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] }),
       });
       setTaskToDelete(null);
     }
-  };
+  }, [taskToDelete, deleteTask, mfid, queryClient]);
 
-  const handleCreateTask = (formType: ActivityType) => {
+  const handleCreateTask = useCallback((formType: ActivityType, seasonId: number) => {
     setSelectedFormType(formType);
     setRetakeOriginalTask(undefined);
     setEditingTask(undefined);
+    setSelectedSeasonId(seasonId);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleRetakeTask = (task: CollectionTask) => {
+  const handleRetakeTask = useCallback((task: CollectionTask) => {
     setRetakeOriginalTask(task);
     setSelectedFormType(undefined);
     setEditingTask(undefined);
+    setSelectedSeasonId(task.season_id);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleEditTask = (task: CollectionTask) => {
+  const handleEditTask = useCallback((task: CollectionTask) => {
     setEditingTask(task);
     setSelectedFormType(undefined);
     setRetakeOriginalTask(undefined);
+    setSelectedSeasonId(task.season_id);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleViewForm = (task: CollectionTask) => {
+  const handleViewForm = useCallback((task: CollectionTask) => {
     if (task.activity_id) {
       navigate({
         to: '/forms/$formType/$id',
         params: { formType: task.activity_type, id: task.activity_id },
       });
     }
-  };
+  }, [navigate]);
 
-  const handleCreate = (input: any) => {
-    if (selectedFormType === 'field-data') {
-      scheduleAll(input, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
-          setDialogOpen(false);
-          setSelectedFormType(undefined);
-          setRetakeOriginalTask(undefined);
-          setEditingTask(undefined);
-        },
-        onError: (error) => {
-          console.log("error: handleCreate -", error);
-        },
-      });
-      return;
-    }
+  const effectiveSeasonForDialog = selectedSeasonId ?? seasonId ?? undefined;
 
-    createTask(input, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
-        setDialogOpen(false);
-        setSelectedFormType(undefined);
-        setRetakeOriginalTask(undefined);
-        setEditingTask(undefined);
-      },
-    });
-  };
-
-  const handleUpdate = (input: any) => {
-    if (!editingTask) return;
-    updateTask({ id: editingTask.id, ...input }, {
-      onSuccess: () => {
-        setDialogOpen(false);
-        setEditingTask(undefined);
-      },
-    });
-  };
-
-
-  const tasks = useMemo(() => {
+  const dialogTasks = useMemo(() => {
     if (!allTasks) return [];
-    if (seasonId) {
-      return allTasks.filter((task) => task.season_id === seasonId);
+    const sid = effectiveSeasonForDialog;
+    if (sid != null) {
+      return allTasks.filter(t => t.season_id === sid);
     }
     return allTasks;
-  }, [allTasks, seasonId]);
-
-  const groupedTasks = useMemo(() => {
-    const groups: Record<CoreMetadataType, CollectionTask[]> = {} as any;
-    CORE_METADATA_TYPES.forEach(type => (groups[type] = []));
-    tasks.forEach((task) => {
-      if (CORE_METADATA_TYPES.includes(task.activity_type as any)) {
-        groups[task.activity_type as CoreMetadataType].push(task);
-      }
-    });
-    for (const type of CORE_METADATA_TYPES) {
-      groups[type].sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime());
-    }
-    return groups;
-  }, [tasks]);
-
-  const retakeMap = useMemo(() => {
-    const map = new Map<number, CollectionTask>();
-    tasks.forEach((task) => {
-      if (task.retake_of) map.set(task.retake_of, task);
-    });
-    return map;
-  }, [tasks]);
-
-  const isPrerequisiteCompleted = (formType: CoreMetadataType): boolean => {
-    const latest = groupedTasks[formType]?.[0];
-    if (!latest) return false;
-
-    return latest.status === "completed" && (latest.verification_status === "approved" || latest.verification_status === "unknown");
-  };
-
-  const getSchedulability = (formType: CoreMetadataType): { allowed: boolean; reason?: string } => {
-    if (formType === "damage-assessment") {
-      if (!isPrerequisiteCompleted("field-data")) {
-        return {
-          allowed: false,
-          reason: "Must complete collection and approval of Field Data first",
-        };
-      }
-      return { allowed: true };
-    }
-
-    const idx = PREREQUISITE_ORDER.indexOf(formType);
-    if (idx === -1) return { allowed: false, reason: "Unknown form type" };
-    for (let i = 0; i < idx; i++) {
-      const prereq = PREREQUISITE_ORDER[i];
-      if (!isPrerequisiteCompleted(prereq)) {
-        return {
-          allowed: false,
-          reason: `Must complete collection and approval of "${getActivityTypeLabel(prereq)}" first`,
-        };
-      }
-    }
-    return { allowed: true };
-  };
-
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const toggleGroup = (type: string) => {
-    setExpandedGroups(prev => {
-      const next = new Set(prev);
-      if (next.has(type)) next.delete(type);
-      else next.add(type);
-      return next;
-    });
-  };
-
-  const tasksMapForTracker = useMemo(() => {
-    const entries = CORE_METADATA_TYPES
-      .map(type => {
-        const task = groupedTasks[type]?.[0];
-        return task ? [type, task] as const : null;
-      })
-      .filter((entry): entry is readonly [CoreMetadataType, CollectionTask] => entry !== null);
-    return new Map(entries);
-  }, [groupedTasks]);
+  }, [allTasks, effectiveSeasonForDialog]);
 
   const dateConstraints = useMemo(() => {
     const result: Record<string, { minStart?: Date; maxEnd?: Date }> = {};
     const excludeId = editingTask?.id;
+    const tasksForSeason = dialogTasks.filter(t => t.id !== excludeId);
 
     for (let gIdx = 0; gIdx < CORE_GROUPS.length; gIdx++) {
       const group = CORE_GROUPS[gIdx];
@@ -260,8 +116,8 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
       let minStart: Date | undefined;
       if (gIdx > 0) {
         const prevGroupTypes = CORE_GROUPS[gIdx - 1];
-        const prevTasks = tasks.filter(
-          t => prevGroupTypes.includes(t.activity_type as CoreMetadataType) && t.id !== excludeId
+        const prevTasks = tasksForSeason.filter(
+          t => prevGroupTypes.includes(t.activity_type as CoreMetadataType)
         );
         if (prevTasks.length > 0) {
           const latestEnd = prevTasks.reduce((latest, t) => {
@@ -276,8 +132,8 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
       let maxEnd: Date | undefined;
       if (gIdx < CORE_GROUPS.length - 1) {
         const nextGroupTypes = CORE_GROUPS[gIdx + 1];
-        const nextTasks = tasks.filter(
-          t => nextGroupTypes.includes(t.activity_type as CoreMetadataType) && t.id !== excludeId
+        const nextTasks = tasksForSeason.filter(
+          t => nextGroupTypes.includes(t.activity_type as CoreMetadataType)
         );
         if (nextTasks.length > 0) {
           const earliestStart = nextTasks.reduce((earliest, t) => {
@@ -295,83 +151,81 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
     }
 
     return result;
-  }, [tasks, editingTask?.id]);
+  }, [dialogTasks, editingTask?.id]);
 
   const currentActivityType = editingTask
     ? (editingTask.activity_type as CoreMetadataType)
     : selectedFormType as CoreMetadataType | undefined;
 
-  const constraints = currentActivityType
-    ? dateConstraints[currentActivityType] ?? {}
-    : {};
+  const constraints = currentActivityType ? dateConstraints[currentActivityType] ?? {} : {};
   const minStartDate = constraints.minStart;
   const maxEndDate = constraints.maxEnd;
 
-  const getStatusForFormType = (formType: CoreMetadataType): {
-    icon: React.ReactNode;
-    label: string;
-    color: string;
-  } => {
-    const task = tasksMapForTracker.get(formType);
-    if (!task) {
-      return {
-        icon: <Circle className="size-4 text-muted-foreground" />,
-        label: "Not started",
-        color: "text-muted-foreground",
-      };
+  const handleCreate = useCallback((input: any) => {
+    if (selectedFormType === 'field-data') {
+      scheduleAll(input, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
+          setDialogOpen(false);
+          closeDialog();
+        },
+        onError: (error) => console.log(error),
+      });
+      return;
     }
+    createTask(input, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["collection-tasks", mfid] });
+        setDialogOpen(false);
+        closeDialog();
+      },
+    });
+  }, [selectedFormType, scheduleAll, createTask, mfid, queryClient]);
 
-    const isApproved = task.status === "completed" && (task.verification_status === "approved" || task.verification_status === "unknown");
-    const isRejected = task.verification_status === "rejected";
-    const hasRetakeScheduled = isRejected && retakeMap.has(task.id) && retakeMap.get(task.id)!.status === "pending";
-    const isPendingVerification = task.status === "completed" && task.verification_status === "pending";
-    const isInProgress = !isApproved && !isRejected && !isPendingVerification;
+  const handleUpdate = useCallback((input: any) => {
+    if (!editingTask) return;
+    if (editingTask.activity_type === 'field-data') {
+      updateFieldDataAndCascade(
+        { id: editingTask.id, mfid: editingTask.mfid, ...input },
+        {
+          onSuccess: () => {
+            setDialogOpen(false);
+            setEditingTask(undefined);
+          },
+        }
+      );
+      return;
+    }
+    updateTask(
+      { id: editingTask.id, mfid: editingTask.mfid, ...input },
+      {
+        onSuccess: () => {
+          setDialogOpen(false);
+          setEditingTask(undefined);
+        },
+      }
+    );
+  }, [editingTask, updateFieldDataAndCascade, updateTask]);
 
-    if (isApproved) {
-      return {
-        icon: <CheckCircle2 className="size-4 text-green-600" />,
-        label: "Approved",
-        color: "text-green-700",
-      };
-    }
-    if (hasRetakeScheduled) {
-      return {
-        icon: <CalendarClock className="size-4 text-amber-500" />,
-        label: "Retake Scheduled",
-        color: "text-amber-600",
-      };
-    }
-    if (isRejected) {
-      return {
-        icon: <XCircle className="size-4 text-red-600" />,
-        label: "Rejected",
-        color: "text-red-600",
-      };
-    }
-    if (isPendingVerification) {
-      return {
-        icon: <Clock className="size-4 text-amber-500" />,
-        label: "Pending Approval",
-        color: "text-amber-600",
-      };
-    }
-    if (isInProgress) {
-      return {
-        icon: <AlertCircle className="size-4 text-amber-500" />,
-        label: "In Progress",
-        color: "text-amber-600",
-      };
-    }
-    return {
-      icon: <Circle className="size-4 text-muted-foreground" />,
-      label: "Not started",
-      color: "text-muted-foreground",
-    };
+  const closeDialog = () => {
+    setSelectedFormType(undefined);
+    setRetakeOriginalTask(undefined);
+    setEditingTask(undefined);
+    setSelectedSeasonId(null);
   };
 
-  if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading tasks...</div>;
-  }
+  const tasksBySeason = useMemo(() => {
+    if (!allTasks || seasonId != null) return null;
+    const map = new Map<number, CollectionTask[]>();
+    allTasks.forEach(task => {
+      const existing = map.get(task.season_id) || [];
+      existing.push(task);
+      map.set(task.season_id, existing);
+    });
+    return Array.from(map.entries()).sort(([a], [b]) => a - b);
+  }, [allTasks, seasonId]);
+
+  if (isLoading) return <div className="text-sm text-muted-foreground">Loading tasks...</div>;
 
   return (
     <div>
@@ -380,90 +234,53 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
           open={dialogOpen}
           onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) {
-              setSelectedFormType(undefined);
-              setRetakeOriginalTask(undefined);
-              setEditingTask(undefined);
-            }
+            if (!open) closeDialog();
           }}
           onSubmit={editingTask ? handleUpdate : handleCreate}
           disabled={isCreating || isUpdating || isSchedulingAll}
           mfid={mfid}
-          seasonId={seasonId}
+          seasonId={effectiveSeasonForDialog}
           activityType={selectedFormType}
           originalTask={retakeOriginalTask}
           editingTask={editingTask}
           hideTrigger={true}
           minStartDate={minStartDate}
+          maxStartDateOverride={editingTask?.activity_type === 'field-data' ? null : undefined}
           maxEndDate={maxEndDate}
         />
       </div>
 
-      <div className="border rounded-container overflow-x-auto mt-6">
-        <Table>
-          <TableHeader className="text-3xs">
-            <TableRow>
-              <TableHead className="w-2"></TableHead>
-              <TableHead>Verification Status</TableHead>
-              <TableHead>Form</TableHead>
-              <TableHead>Collector</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="text-xs">
-            {CORE_METADATA_TYPES.map((formType) => {
-              const tasksForType = groupedTasks[formType];
-              const hasTasks = tasksForType && tasksForType.length > 0;
-              const latestTask = hasTasks ? tasksForType[0] : undefined;
-              const previousTasks = hasTasks ? tasksForType.slice(1) : [];
-              const isExpanded = expandedGroups.has(formType);
-              const { allowed, reason } = getSchedulability(formType);
-              const status = getStatusForFormType(formType);
+      {seasonId != null ? (
+        <CollectionTasksTable
+          seasonId={seasonId as number}
+          tasks={allTasks?.filter(t => t.season_id === seasonId) ?? []}
+          onCreate={handleCreateTask}
+          onRetake={handleRetakeTask}
+          onEdit={handleEditTask}
+          onView={handleViewForm}
+          onDelete={handleDeleteTask}
+        />
+      ) : (
+        tasksBySeason!.map(([sid, tasks]) => (
+          <div key={sid}>
+            <div className="flex items-center gap-2 mt-6 first:mt-0">
+              <h3 className="text-lg font-semibold">
+                <SeasonCell seasonId={sid} />
+              </h3>
+            </div>
+            <CollectionTasksTable
+              seasonId={sid}
+              tasks={tasks}
+              onCreate={handleCreateTask}
+              onRetake={handleRetakeTask}
+              onEdit={handleEditTask}
+              onView={handleViewForm}
+              onDelete={handleDeleteTask}
+            />
+          </div>
+        ))
+      )}
 
-              if (!hasTasks) {
-                return (
-                  <UnscheduledRow
-                    key={formType}
-                    formType={formType}
-                    allowed={allowed}
-                    reason={reason}
-                    onSchedule={() => handleCreateTask(formType)}
-                    status={status}
-                  />
-                );
-              }
-
-              return (
-                <React.Fragment key={formType}>
-                  <MainTaskRow
-                    task={latestTask!}
-                    previousCount={previousTasks.length}
-                    isExpanded={isExpanded}
-                    onToggle={() => toggleGroup(formType)}
-                    retakeMap={retakeMap}
-                    onRetake={() => handleRetakeTask(latestTask!)}
-                    onEdit={() => handleEditTask(latestTask!)}
-                    status={status}
-                    onViewForm={() => handleViewForm(latestTask!)}
-                    onDelete={() => handleDeleteTask(latestTask!)}
-                  />
-                  {isExpanded &&
-                    previousTasks.map((task) => (
-                      <PreviousTaskRow
-                        key={task.id}
-                        task={task}
-                        onViewForm={handleViewForm}
-                      />
-                    ))}
-                </React.Fragment>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
       <CollectionFormDeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
@@ -476,282 +293,4 @@ export function MfidCollectionTasks({ mfid, seasonId }: MfidCollectionTasksProps
 }
 
 
-interface UnscheduledRowProps {
-  formType: CoreMetadataType;
-  allowed: boolean;
-  reason?: string;
-  onSchedule: () => void;
-  status: { icon: React.ReactNode; label: string; color: string };
-}
 
-function UnscheduledRow({ formType, allowed, reason, onSchedule, status }: UnscheduledRowProps) {
-  const button = (
-    <Button className="w-24 py-1 text-xs" variant="outline" size="sm" onClick={onSchedule} disabled={!allowed}>
-      Schedule
-    </Button>
-  );
-
-  return (
-    <TableRow className="last:border-b-0 text-muted-foreground">
-      <TableCell></TableCell>
-      <TableCell>
-        <div className="flex flex-col items-center gap-1">
-          {status.icon}
-          <span className={`text-xs ${status.color}`}>{status.label}</span>
-        </div>
-      </TableCell>
-      <TableCell>{getActivityTypeLabel(formType)}</TableCell>
-      <TableCell colSpan={2}>—</TableCell>
-      <TableCell>—</TableCell>
-      <TableCell>
-        <div className="flex flex-col gap-1">
-          {allowed ? (
-            button
-          ) : (
-            <TooltipProvider>
-              <Tooltip delayDuration={300}>
-                <TooltipTrigger asChild>{button}</TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">{reason}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      </TableCell>
-      <TableCell></TableCell>
-    </TableRow>
-  );
-}
-
-
-interface MainTaskRowProps {
-  task: CollectionTask;
-  previousCount: number;
-  isExpanded: boolean;
-  onToggle: () => void;
-  retakeMap: Map<number, CollectionTask>;
-  onRetake: () => void;
-  onEdit: () => void;
-  status: { icon: React.ReactNode; label: string; color: string };
-  onViewForm: () => void;
-  onDelete: () => void;
-}
-
-function MainTaskRow({ task, previousCount, isExpanded, onToggle, retakeMap, onRetake, onEdit, status, onViewForm, onDelete }: MainTaskRowProps) {
-  const isRejected = task.verification_status === "rejected";
-  const retakeTask = isRejected ? retakeMap.get(task.id) : undefined;
-  const hasPendingRetake = retakeTask && retakeTask.status === "pending";
-  const statusText = task.is_overdue ? "Overdue" : capitalizeFirst(task.status);
-  const badgeVariant = task.is_overdue
-    ? "destructive"
-    : task.status === "completed"
-      ? "default"
-      : "warning";
-  const isRetake = !!task.retake_of;
-
-  const canEdit = task.status !== "completed";
-
-  return (
-    <TableRow
-      className={cn(
-        "last:border-b-0 transition-colors",
-        previousCount > 0 && "cursor-pointer hover:bg-muted/50"
-      )}
-      onClick={() => previousCount > 0 && onToggle()}
-    >
-      <TableCell className="max-w-6">
-        {previousCount > 0 && (
-          <span className="inline-flex transition-transform duration-200 ease-out">
-            <ChevronRight
-              className={cn(
-                "size-4 text-muted-foreground transition-transform duration-200",
-                isExpanded && "rotate-90"
-              )}
-            />
-          </span>
-        )}
-      </TableCell>
-      <TableCell className="w-32">
-        <div className="flex flex-col items-center gap-1">
-          {status.icon}
-          <span className={`text-xs ${status.color}`}>{status.label}</span>
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <span>{getActivityTypeLabel(task.activity_type)}</span>
-          {isRetake && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800">Retake</Badge>
-                </TooltipTrigger>
-                <TooltipContent>This task is a retake of a previously rejected form.</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      </TableCell>
-      <TableCell>{task.collector_name ?? "Unassigned"}</TableCell>
-      <TableCell>{format(new Date(task.start_date), "MMM d, yyyy")}</TableCell>
-      <TableCell>{format(new Date(task.end_date), "MMM d, yyyy")}</TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2 flex-wrap">
-          {isRejected && <Badge variant="destructive" className="w-24 py-1 bg-red-600">Rejected</Badge>}
-          {hasPendingRetake && (
-            <Badge variant="secondary" className="bg-amber-100 text-amber-800">Retake Scheduled</Badge>
-          )}
-          {!isRejected && !hasPendingRetake && (
-            <Badge className="w-24 py-1" variant={badgeVariant}>{statusText}</Badge>
-          )}
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex gap-1">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onViewForm();
-                  }}
-                  disabled={!task.activity_id}
-                >
-                  <Eye className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {task.activity_id ? "View submitted form data" : "Form not yet submitted"}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          {canEdit && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit();
-                    }}
-                  >
-                    <Edit className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Edit task details (dates, collector, etc.)</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-
-          {canEdit && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 text-red-600 hover:text-red-700"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete();
-                    }}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Delete this task</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-
-          {isRejected && !hasPendingRetake && (
-            <TooltipProvider>
-              <Tooltip delayDuration={300}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 gap-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRetake();
-                    }}
-                  >
-                    <RotateCcw className="size-3" />
-                    Retake
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>This form was rejected. Click to schedule a retake.</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-        {/* Retake scheduled message (unchanged) */}
-      </TableCell>
-    </TableRow >
-  );
-}
-
-
-interface PreviousTaskRowProps {
-  task: CollectionTask;
-  onViewForm: (task: CollectionTask) => void;
-  isExpanded?: boolean;
-}
-
-function PreviousTaskRow({ task, onViewForm }: PreviousTaskRowProps) {
-  return (
-    <TableRow className="bg-muted/10 last:border-b-0 group hover:bg-muted/20 transition-colors">
-      <TableCell></TableCell>
-      <TableCell></TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2 pl-6 text-muted-foreground border-l-2 border-muted-foreground/20 ml-2">
-          <span className="text-xs">↳</span>
-          <span className="text-xs">Previous</span>
-        </div>
-      </TableCell>
-      <TableCell className="text-xs text-muted-foreground">
-        {task.collector_name ?? "Unassigned"}
-      </TableCell>
-      <TableCell className="text-xs text-muted-foreground">
-        {format(new Date(task.start_date), "MMM d, yyyy")}
-      </TableCell>
-      <TableCell className="text-xs text-muted-foreground">
-        {format(new Date(task.end_date), "MMM d, yyyy")}
-      </TableCell>
-      <TableCell></TableCell>
-      <TableCell>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onViewForm(task);
-                }}
-                disabled={!task.activity_id}
-                className="h-7 px-2 text-xs"
-              >
-                View
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {task.activity_id ? "View submitted form data" : "Form not yet submitted"}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </TableCell>
-    </TableRow>
-  );
-}

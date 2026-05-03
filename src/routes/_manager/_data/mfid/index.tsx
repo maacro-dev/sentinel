@@ -14,6 +14,7 @@ export const Route = createFileRoute('/_manager/_data/mfid/')({
 function RouteComponent() {
   const { navigate, preloadRoute } = useRouter()
   const { seasonId } = Route.useSearch()
+  const effectiveSeasonId = seasonId === "all" ? null : seasonId;
 
   const handleRowClick = useCallback((row: { mfid: string }) => {
     navigate({
@@ -29,11 +30,6 @@ function RouteComponent() {
     });
   }, [preloadRoute]);
 
-  if (seasonId == null) {
-    throw new Error("season id should not be null in this case.")
-    return
-  }
-
   return (
     <PageContainer>
       <div className="bg-muted/50 border rounded-container p-3 flex items-center gap-3 text-sm text-muted-foreground">
@@ -44,7 +40,7 @@ function RouteComponent() {
         </span>
       </div>
       <MfidTable
-        seasonId={seasonId}
+        seasonId={effectiveSeasonId}
         onRowClick={handleRowClick}
         onRowIntent={handleOnRowIntent}
       />

@@ -1,12 +1,10 @@
 import { memo, useState, useCallback, useMemo } from "react";
 import { cn } from "@/core/utils/style";
 import { getFormLabel } from "@/features/forms/utils";
-import { ChartConfig } from "@/core/components/ui/chart";
 import { TickProps } from "../types";
-import { BarChart } from "./BarChart";
 import { DefaultTicks } from "./DefaultTicks";
 import { Sanitizer } from "@/core/utils/sanitizer";
-import { FormCounts } from "../schemas/summary/formCount";
+import { GroupedBarChart } from "./GroupedBarChart/GroupedBarChart";
 
 const dbKeyToConfigKey: Record<string, string> = {
   'field-data': 'field_plannings',
@@ -24,49 +22,26 @@ const configKeyOrder = [
   'damage_assessments',
 ];
 
-const baseConfig = {
-  field_plannings: { label: getFormLabel("field_plannings") },
-  crop_establishments: { label: getFormLabel("crop_establishments") },
-  fertilization_records: { label: getFormLabel("fertilization_records") },
-  harvest_records: { label: getFormLabel("harvest_records") },
-  damage_assessments: { label: getFormLabel("damage_assessments") },
-  count: { label: "Form Count" },
-} satisfies ChartConfig;
-
-const statusConfig: ChartConfig = {
-  approved: { label: "Approved" },
-  rejected: { label: "Rejected" },
-  pending: { label: "Pending" },
-  unknown: { label: "Imported" },
-  count: { label: "Count" },
-};
-
 const header = {
   title: "Form Count Summary",
   description: "Number of forms collected for each type",
 };
 
-export const FormCountBarChart = memo(({ data }: { data: FormCounts }) => {
+export const FormCountBarChart = memo(({ data }: { data: any }) => {
   const [selectedForm, setSelectedForm] = useState<string | null>(null);
 
   const summaryData = useMemo(() => {
-    return configKeyOrder
-      .map(configKey => {
-        const dbKey = Object.keys(dbKeyToConfigKey).find(key => dbKeyToConfigKey[key] === configKey);
-        if (!dbKey || !(dbKey in data)) {
-          return {
-            form: configKey,
-            configKey,
-            count: 0,
-          };
-        }
-        const counts = data[dbKey];
-        return {
-          form: configKey,
-          configKey,
-          count: counts.approved + counts.rejected + counts.pending + counts.unknown,
-        };
-      });
+    return configKeyOrder.map(configKey => {
+      const dbKey = Object.keys(dbKeyToConfigKey).find(key => dbKeyToConfigKey[key] === configKey);
+      if (!dbKey || !(dbKey in data)) {
+        return { form: configKey, count: 0 };
+      }
+      const counts = data[dbKey];
+      return {
+        form: configKey,
+        count: counts.approved + counts.rejected + counts.pending + counts.unknown,
+      };
+    });
   }, [data]);
 
   const selectedFormData = useMemo(() => {
@@ -88,15 +63,14 @@ export const FormCountBarChart = memo(({ data }: { data: FormCounts }) => {
     return summaryData;
   }, [selectedFormData, summaryData]);
 
-  const currentConfig = useMemo(() => {
-    return selectedFormData ? statusConfig : baseConfig;
-  }, [selectedFormData]);
-
-  const axisKeys = useMemo(() => {
-    return selectedFormData
-      ? { X: "status", Y: "count" } as const
-      : { X: "form", Y: "count" } as const;
-  }, [selectedFormData]);
+  const categoryKey = selectedFormData ? "status" : "form";
+  const barKeys = [
+    {
+      key: "count",
+      name: selectedFormData ? "Count" : "Form Count",
+      color: "var(--color-humay)",
+    },
+  ];
 
   const handleBarClick = useCallback((item: any) => {
     if (selectedForm) {
@@ -108,6 +82,19 @@ export const FormCountBarChart = memo(({ data }: { data: FormCounts }) => {
       setSelectedForm(configKey);
     }
   }, [selectedForm]);
+
+  const xAxisTick = useCallback(
+    ({ x, y, payload }: TickProps) => {
+      const value = payload.value;
+      const formatted = selectedFormData
+        ? Sanitizer.key(value)
+        : getFormLabel(value);
+      return <DefaultTicks x={x} y={y} payload={{ ...payload, value: formatted }} />;
+    },
+    [selectedFormData]
+  );
+
+  const isEmpty = chartData.every(d => d.count === 0);
 
   return (
     <div className="flex flex-col gap-4 relative min-h-120">
@@ -125,9 +112,10 @@ export const FormCountBarChart = memo(({ data }: { data: FormCounts }) => {
         </span>
       </div>
 
-      <BarChart
-        data={chartData}
-        config={currentConfig}
+      <GroupedBarChart
+        data={chartData as any[]}
+        categoryKey={categoryKey as any}
+        barKeys={barKeys as any}
         header={
           selectedFormData
             ? {
@@ -136,22 +124,25 @@ export const FormCountBarChart = memo(({ data }: { data: FormCounts }) => {
             }
             : header
         }
-        axisKeys={axisKeys}
-        isEmpty={chartData.every(d => d.count === 0)}
+        isEmpty={isEmpty}
+        layout="horizontal"
+        cardClass="min-h-120"
+        getBarSize={() => 56}
         onBarClick={handleBarClick}
+        labelFormatter={(value: any) => {
+          if (value === 0 || value === "0") return "N/A";
+          const num = typeof value === "number" ? value : parseFloat(value);
+          if (!isNaN(num) && num !== 0) return Math.round(num).toString();
+          return value;
+        }}
         axisOptions={{
           X: {
             interval: 0,
-            tick: ({ x, y, payload }: TickProps) => {
-              const value = payload.value;
-              const formatted = selectedFormData
-                ? (statusConfig[value]?.label ?? Sanitizer.key(value))
-                : getFormLabel(value);
-              return <DefaultTicks x={x} y={y} payload={{ ...payload, value: formatted }} />;
-            },
+            tick: xAxisTick,
           },
           Y: {
-            tickFormatter: (value: number) => value.toString(),
+            tickFormatter: (value: number) => Math.round(value).toString(),
+            allowDecimals: false,
           },
         }}
       />

@@ -24,8 +24,8 @@ export const SeasonPicker = memo(({ values = [], onChange, disabled }: SeasonPic
   const { selected: currentSeason, isLoading: loadingCurrent } = useCurrentSeason();
 
   const seasonOptions = useMemo(() => {
-    if (!seasonOptionsData || !currentSeason) return [];
-    if (currentSeason.id !== undefined && currentSeason.id !== null) {
+    if (!seasonOptionsData) return [];
+    if (currentSeason?.id != null) {
       return seasonOptionsData.filter(opt => Number(opt.value) !== Number(currentSeason.id));
     }
     return seasonOptionsData;

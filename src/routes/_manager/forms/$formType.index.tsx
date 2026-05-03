@@ -17,10 +17,12 @@ export const Route = createFileRoute('/_manager/forms/$formType/')({
 function RouteComponent() {
   const { formType } = Route.useParams();
   const { seasonId } = Route.useSearch()
+  const effectiveSeasonId = seasonId === "all" ? null : seasonId;
+  const showSeasonColumn = seasonId === "all";
+
   const { navigate, preloadRoute } = useRouter()
 
   const handleOnRowClick = useCallback((row: { activity: { id: number } }) => {
-    console.log("row clicked =", row.activity.id);
     navigate({
       to: "/forms/$formType/$id",
       params: { formType: formType as string, id: row.activity.id },
@@ -37,7 +39,8 @@ function RouteComponent() {
   return (
     <PageContainer>
       <FormDataTable
-        seasonId={seasonId}
+        seasonId={effectiveSeasonId}
+        showSeasonColumn={showSeasonColumn}
         formType={formType as FormType}
         onRowClick={handleOnRowClick}
         onRowIntent={handleOnRowIntent}

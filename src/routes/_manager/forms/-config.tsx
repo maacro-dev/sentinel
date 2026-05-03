@@ -52,16 +52,6 @@ export const formGroupConfig = createRouteConfig({
         tableColumns: productionColumns,
       },
     }),
-    // createRouteConfig("monitoring-visit", {
-    //   role: "data_manager",
-    //   label: "Monitoring Visit",
-    //   path: "/forms/$formType",
-    //   params: { formType: "monitoring-visit" },
-    //   icon: Activity,
-    //   meta: {
-    //     tableColumns: monitoringVisitColumns,
-    //   }
-    // }),
     createRouteConfig("damage-assessment", {
       role: "data_manager",
       label: "Damage Assessment",
@@ -74,3 +64,18 @@ export const formGroupConfig = createRouteConfig({
     }),
   ]
 });
+
+
+
+
+
+// createRouteConfig("monitoring-visit", {
+//   role: "data_manager",
+//   label: "Monitoring Visit",
+//   path: "/forms/$formType",
+//   params: { formType: "monitoring-visit" },
+//   icon: Activity,
+//   meta: {
+//     tableColumns: monitoringVisitColumns,
+//   }
+// }),

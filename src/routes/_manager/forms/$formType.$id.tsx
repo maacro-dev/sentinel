@@ -22,12 +22,11 @@ export const Route = createFileRoute('/_manager/forms/$formType/$id')({
   component: RouteComponent,
   params: { parse: (params) => ({ id: Number(params.id) }) },
   loaderDeps: ({ search: { seasonId } }) => ({ seasonId }),
-  loader: ({ params, context: { queryClient }, deps: { seasonId } }) => {
+  loader: ({ params, context: { queryClient } }) => {
     queryClient.ensureQueryData(
       formDataByIdOptions({
         formType: params.formType as FormType,
         id: params.id,
-        seasonId: seasonId
       })
     )
     // should change to mfid
@@ -38,13 +37,11 @@ export const Route = createFileRoute('/_manager/forms/$formType/$id')({
 
 function RouteComponent() {
   const { formType, id } = Route.useParams()
-  const { seasonId } = Route.useSearch()
+  const { data, isLoading } = useFormEntry({ formType: formType as FormType, id })
 
-  const { data, isLoading } = useFormEntry({ formType: formType as FormType, id, seasonId: seasonId })
+  const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, String(id));
 
-  const { hasNext, hasPrev, goNext, goPrev, loading: navLoading, } = useFormDetailNavigator(formType as FormType, String(id), seasonId);
-
-  const verifyMutation = useVerification(formType, id, seasonId);
+  const verifyMutation = useVerification(formType, id);
 
   const handleVerify = (params: { status: 'approved' | 'rejected'; remarks?: string }) => {
     verifyMutation.mutate({
@@ -129,7 +126,7 @@ function GeneralSection({ data }: { data: FormDataEntry }) {
     verifiedBy: data.collection.verifiedBy
       ? `${data.collection.verifiedBy.first_name} ${data.collection.verifiedBy.last_name}`
       : null,
-  } ;
+  };
 
 
   return (

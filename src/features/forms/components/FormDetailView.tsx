@@ -19,7 +19,7 @@ export interface FormDetailViewProps {
 }
 
 export function FormDetailView({ formType, id, seasonId, onBack }: FormDetailViewProps) {
-  const { data, isLoading } = useFormEntry({ formType: formType as any, id, seasonId });
+  const { data, isLoading } = useFormEntry({ formType: formType as any, id });
   const verifyMutation = useVerification(formType, id, seasonId);
   const [remarks, setRemarks] = useState('');
 

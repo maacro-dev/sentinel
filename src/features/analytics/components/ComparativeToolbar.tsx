@@ -41,13 +41,9 @@ interface ComparativeToolbarProps {
   isLoadingMunicipalities?: boolean;
   isLoadingBarangays?: boolean;
 
-  prefetchLocationData: (province?: string, municipality?: string, barangay?: string) => void;
-  prefetchMoreFilterData?: (method?: string, variety?: string) => void;
-
   compareSeasonIds: number[];
   onCompareSeasonIdsChange: (ids: number[]) => void;
   onClearComparison: () => void;
-
 }
 
 export function ComparativeToolbar({
@@ -58,15 +54,13 @@ export function ComparativeToolbar({
   onLocationChange,
   provinces,
   municipalities,
-  barangays,
+  // barangays,
   moreFilters,
   onMoreFiltersChange,
   onResetAll,
   isLoadingProvinces = false,
   isLoadingMunicipalities = false,
-  isLoadingBarangays = false,
-  prefetchLocationData,
-  prefetchMoreFilterData,
+  // isLoadingBarangays = false,
   compareSeasonIds,
   onCompareSeasonIdsChange,
   onClearComparison,
@@ -187,7 +181,6 @@ export function ComparativeToolbar({
                     key={p.value}
                     className="rounded-lg text-3xs lt:text-2xs hd:text-xs"
                     value={p.value}
-                    onMouseEnter={() => prefetchLocationData(p.value, undefined, undefined)}
                   >
                     {p.label}
                   </SelectItem>
@@ -215,7 +208,6 @@ export function ComparativeToolbar({
                   <SelectItem
                     key={m.value}
                     value={m.value}
-                    onMouseEnter={() => prefetchLocationData(location.province, m.value, undefined)}
                   >
                     {m.label}
                   </SelectItem>
@@ -225,7 +217,7 @@ export function ComparativeToolbar({
           </Select>
         </div>
 
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">Barangay</Label>
           <Select
             value={location.barangay}
@@ -251,7 +243,7 @@ export function ComparativeToolbar({
               </SelectGroup>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
 
         <div className='flex gap-2'>
           <DropdownMenu>
@@ -271,7 +263,6 @@ export function ComparativeToolbar({
                     key={v}
                     checked={moreFilters.variety.includes(v)}
                     onCheckedChange={() => handleVarietyToggle(v)}
-                    onMouseEnter={() => prefetchMoreFilterData?.(undefined, v)}
                   >
                     {v}
                   </DropdownMenuCheckboxItem>
@@ -285,7 +276,6 @@ export function ComparativeToolbar({
                     checked={moreFilters.method.includes(m)}
                     onCheckedChange={() => handleMethodToggle(m)}
                     className="capitalize"
-                    onMouseEnter={() => prefetchMoreFilterData?.(m, undefined)}
                   >
                     {m.replace('-', ' ')}
                   </DropdownMenuCheckboxItem>

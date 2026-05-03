@@ -42,7 +42,9 @@ begin
                    when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
                    else true
                end)
-          and (p_method_name is null or ce.actual_crop_establishment_method = p_method_name)
+          and (p_method_name is null or
+               (p_method_name = 'Direct-seeded' and ce.actual_crop_establishment_method ilike '%direct%seed%') or
+               (p_method_name = 'Transplanted' and ce.actual_crop_establishment_method ilike '%transplant%'))
           and (p_fertilizer_type is null or exists (
               select 1
               from public.field_activities fa_nm
