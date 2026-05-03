@@ -299,7 +299,7 @@ export const StatCardSparkline = memo(({
         <div className="flex items-end gap-1.5">
           {delta != null && (
             <span className={cn("text-xs font-medium shrink-0", deltaColor)}>
-              {isUp ? "▲" : isDown ? "▼" : "–"} {Math.abs(delta).toFixed(2)}
+              {isUp ? "▲" : isDown ? "▼" : "–"} {Math.abs(delta).toFixed(2)}%
             </span>
           )}
           {trend.length > 1 && (

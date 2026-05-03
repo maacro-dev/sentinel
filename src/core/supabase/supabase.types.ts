@@ -237,6 +237,13 @@ export type Database = {
             referencedRelation: "seasons_with_data"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_yield_data"
+            referencedColumns: ["id"]
+          },
         ]
       }
       crop_establishments: {
@@ -678,6 +685,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_yield_data"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "field_activities_verified_by_fkey"
             columns: ["verified_by"]
             isOneToOne: false
@@ -1059,6 +1073,13 @@ export type Database = {
             referencedRelation: "seasons_with_data"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "predicted_yields_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_yield_data"
+            referencedColumns: ["id"]
+          },
         ]
       }
       provinces: {
@@ -1313,6 +1334,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "collection_tasks_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_yield_data"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "field_activities_collected_by_fkey"
             columns: ["collected_by"]
             isOneToOne: false
@@ -1433,6 +1461,13 @@ export type Database = {
             columns: ["season_id"]
             isOneToOne: false
             referencedRelation: "seasons_with_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_yield_data"
             referencedColumns: ["id"]
           },
         ]
@@ -1574,6 +1609,13 @@ export type Database = {
             referencedRelation: "seasons_with_data"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "field_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons_with_yield_data"
+            referencedColumns: ["id"]
+          },
         ]
       }
       latest_season: {
@@ -1605,6 +1647,16 @@ export type Database = {
         Relationships: []
       }
       seasons_with_data: {
+        Row: {
+          end_date: string | null
+          id: number | null
+          season_year: string | null
+          semester: Database["public"]["Enums"]["semester"] | null
+          start_date: string | null
+        }
+        Relationships: []
+      }
+      seasons_with_yield_data: {
         Row: {
           end_date: string | null
           id: number | null

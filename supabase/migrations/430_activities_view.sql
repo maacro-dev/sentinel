@@ -230,13 +230,14 @@ as $$
       and cd.season_id = cs.season_id
   ),
   completed_tasks as (
-    select * from all_tasks where status = 'completed'
+    select *
+    from all_tasks
+    where status = 'completed'
   ),
   pending_tasks as (
     select *
     from all_tasks
     where status in ('pending', 'in_progress')
-      and start_date <= p_today
   ),
   prereq_met as (
     select
@@ -245,7 +246,8 @@ as $$
         when t.activity_type = 'field-data' then true
         when t.activity_type = 'cultural-management' then
           exists (
-            select 1 from all_tasks p      -- ← now looks at ALL tasks
+            select 1
+            from all_tasks p
             where p.mfid_id = t.mfid_id
               and p.activity_type = 'field-data'
               and p.status = 'completed'
@@ -253,7 +255,8 @@ as $$
           )
         when t.activity_type in ('nutrient-management', 'production') then
           exists (
-            select 1 from all_tasks p
+            select 1
+            from all_tasks p
             where p.mfid_id = t.mfid_id
               and p.activity_type = 'cultural-management'
               and p.status = 'completed'
@@ -279,7 +282,7 @@ as $$
     from eligible_pending et
     join per_mfid_earliest_date ed
       on ed.mfid_id = et.mfid_id
-      and et.start_date = ed.earliest_start
+     and et.start_date = ed.earliest_start
   )
   select * from completed_tasks
   union all
@@ -318,6 +321,13 @@ create or replace view seasons_with_data
     select distinct s.*
     from seasons s
     join field_activities fa on fa.season_id = s.id;
+
+
+create or replace view seasons_with_yield_data as
+  select distinct s.*
+  from seasons s
+  join field_activities fa on fa.season_id = s.id
+  join harvest_records hr on hr.id = fa.id;
 
 
 create or replace function public.has_new_forms(

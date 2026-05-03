@@ -1,5 +1,5 @@
 import { memo, useState, useMemo } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, AlertTriangle } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import {
   CommandDialog,
@@ -11,6 +11,8 @@ import {
 } from "@/core/components/ui/command";
 import { cn } from "@/core/utils/style";
 import { useCurrentSeason, useSeasonsForSelector } from "@/features/fields/hooks/useSeasons";
+import { useQuery } from "@tanstack/react-query";
+import { Seasons } from "@/features/fields/services/Seasons";
 
 interface SeasonPickerProps {
   values?: number[];
@@ -22,6 +24,22 @@ export const SeasonPicker = memo(({ values = [], onChange, disabled }: SeasonPic
   const [open, setOpen] = useState(false);
   const { options: seasonOptionsData, isLoading: loadingOptions } = useSeasonsForSelector(false);
   const { selected: currentSeason, isLoading: loadingCurrent } = useCurrentSeason();
+
+  const { data: seasonsWithYield } = useQuery({
+    queryKey: ["seasons-with-yield-data"],
+    queryFn: () => Seasons.getSeasonsWithYieldData(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const yieldSeasonIds = useMemo(
+    () => new Set(seasonsWithYield?.map(s => s.id) ?? []),
+    [seasonsWithYield]
+  );
+
+  const seasonsWithoutYield = useMemo(
+    () => values.filter(id => !yieldSeasonIds.has(id)),
+    [values, yieldSeasonIds]
+  );
 
   const seasonOptions = useMemo(() => {
     if (!seasonOptionsData) return [];
@@ -47,7 +65,6 @@ export const SeasonPicker = memo(({ values = [], onChange, disabled }: SeasonPic
     }
   };
 
-
   const isLoading = loadingOptions || loadingCurrent;
 
   const triggerLabel = selectedSeasons.length === 0
@@ -55,18 +72,29 @@ export const SeasonPicker = memo(({ values = [], onChange, disabled }: SeasonPic
     : `${selectedSeasons.length} season${selectedSeasons.length > 1 ? "s" : ""} selected`;
 
   return (
-    <>
-      <div className="flex flex-col gap-1.5">
-        <Button
-          variant="outline"
-          className="shadow-none min-w-45 py-2! rounded-sm h-9 text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90 justify-start gap-2"
-          onClick={() => setOpen(true)}
-          disabled={disabled || isLoading}
-        >
-          <Calendar className="size-3 shrink-0" />
-          <span className="truncate">{triggerLabel}</span>
-        </Button>
-      </div>
+    <div className="flex flex-col gap-1.5">
+      <Button
+        variant="outline"
+        className="shadow-none min-w-45 py-2! rounded-sm h-9 text-3xs lt:text-5xs dt:text-4xs hd:text-3xs text-primary/90 justify-start gap-2"
+        onClick={() => setOpen(true)}
+        disabled={disabled || isLoading}
+      >
+        <Calendar className="size-3 shrink-0" />
+        <span className="truncate">{triggerLabel}</span>
+      </Button>
+
+      {seasonsWithoutYield.length > 0 && (
+        <div className="flex items-start gap-1.5 text-amber-600 text-2xs leading-tight">
+          <AlertTriangle className="size-3 shrink-0 mt-0.5" />
+          <span>
+            {seasonsWithoutYield.length === 1
+              ? "The selected season has no yield data."
+              : `${seasonsWithoutYield.length} selected seasons have no yield data.`}
+            {" "}Charts may show zeros.
+          </span>
+        </div>
+      )}
+
       <CommandDialog open={open} onOpenChange={setOpen} className="w-lg max-w-full">
         <CommandInput placeholder="Search seasons..." />
         <CommandList>
@@ -75,15 +103,22 @@ export const SeasonPicker = memo(({ values = [], onChange, disabled }: SeasonPic
             <div className={cn("grid gap-2", seasonOptions.length > 4 ? "grid-cols-2" : "grid-cols-1")}>
               {seasonOptions.map((opt) => {
                 const isSelected = values.includes(Number(opt.value));
+                const hasYield = yieldSeasonIds.has(Number(opt.value));
                 return (
                   <CommandItem
                     key={opt.value}
                     value={opt.value}
                     onSelect={() => handleToggle(opt.value)}
-                    className="flex items-center justify-between cursor-pointer rounded-sm text-2xs"
+                    className={cn(
+                      "flex items-center justify-between cursor-pointer rounded-sm text-2xs",
+                      !hasYield && "text-muted-foreground/60"
+                    )}
                   >
                     <div className="flex items-center gap-2">
                       <span className="truncate">{opt.label}</span>
+                      {!hasYield && (
+                        <span className="text-2xs text-amber-600">(No Yield Data)</span>
+                      )}
                     </div>
                     {isSelected && (
                       <span className="text-xs text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded shrink-0">
@@ -97,6 +132,6 @@ export const SeasonPicker = memo(({ values = [], onChange, disabled }: SeasonPic
           </CommandGroup>
         </CommandList>
       </CommandDialog>
-    </>
+    </div>
   );
 });

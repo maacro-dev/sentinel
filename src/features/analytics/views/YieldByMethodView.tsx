@@ -62,7 +62,7 @@ export function YieldByMethodView({
   );
 
   const { rows: lineRows, locationKeys } = useMemo(
-    () => buildLineRows(formattedRanking, currentLabel, normalizedCmpDataItems, hasComparison ? cmpLabels : [], !isAllSeasons),
+    () => buildLineRows(formattedRanking, currentLabel, normalizedCmpDataItems, hasComparison ? cmpLabels : [], !isAllSeasons, true),
     [formattedRanking, currentLabel, normalizedCmpDataItems, hasComparison, cmpLabels, isAllSeasons],
   );
 

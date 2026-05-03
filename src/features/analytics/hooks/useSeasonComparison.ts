@@ -1,4 +1,4 @@
-import { useSeasonLabel } from "@/features/fields/hooks/useSeasons";
+import { useCurrentSeasonId, useSeasonLabel } from "@/features/fields/hooks/useSeasons";
 import { Seasons } from "@/features/fields/services/Seasons";
 import { QueryClient } from "@tanstack/react-query";
 import { UseNavigateResult } from "@tanstack/react-router";
@@ -13,6 +13,8 @@ export function useSeasonComparison(
   queryClient: QueryClient,
   navigate: UseNavigateResult<"/comparative">
 ) {
+
+  const { data: currentSeasonId } = useCurrentSeasonId();
 
   const sortedCompareIds = useMemo(
     () => [...compareSeasonIds].sort((a, b) => a - b),
@@ -57,11 +59,13 @@ export function useSeasonComparison(
     if (compareSeasonIds.length > 0) return;
 
     (async () => {
-      const all = await Seasons.getSeasonsWithData();
+      const all = await Seasons.getSeasonsWithYieldData();
       const ids = all.map(s => s.id);
+
       if (ids.length) setCompareIds(ids);
     })();
-  }, [seasonId, compareSeasonIds, setCompareIds]);
+  }, [seasonId, compareSeasonIds, setCompareIds, currentSeasonId]);
+
 
   return {
     sortedCompareIds,
@@ -73,7 +77,6 @@ export function useSeasonComparison(
     clearCompare,
   };
 }
-
 
 
 function buildComparisonMap(

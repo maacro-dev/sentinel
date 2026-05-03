@@ -116,7 +116,8 @@ export function buildLineRows(
   currentLabel: string,
   cmpDataItems: any[],
   cmpLabels: string[],
-  includePrimary: boolean = true
+  includePrimary: boolean = true,
+  skipZero: boolean = false,
 ) {
   const allLocations = new Set<string>();
   primaryRanking.forEach(r => allLocations.add(r.location));
@@ -141,7 +142,11 @@ export function buildLineRows(
       const sk = locationKeys[j];
       if (!Array.isArray(items)) { row[sk] = null; return; }
       const found = items.find((item: any) => item.location === loc);
-      row[sk] = found ? Number((found.compare ?? found.yield ?? 0).toFixed(2)) : null;
+      if (!found) { row[sk] = null; return; }
+
+      const raw = found.compare ?? found.yield ?? 0;
+      const val = Number((raw as number).toFixed(2));
+      row[sk] = skipZero && val === 0 ? null : val;
     });
     rows.push(row);
   });
@@ -151,7 +156,10 @@ export function buildLineRows(
     originalLocations.forEach((loc, j) => {
       const sk = locationKeys[j];
       const found = primaryRanking.find(r => r.location === loc);
-      currentRow[sk] = found ? Number(found.yield.toFixed(2)) : null;
+      if (!found) { currentRow[sk] = null; return; }
+
+      const val = Number(found.yield.toFixed(2));
+      currentRow[sk] = skipZero && val === 0 ? null : val;
     });
     rows.push(currentRow);
   }

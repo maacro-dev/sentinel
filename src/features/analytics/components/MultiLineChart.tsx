@@ -13,6 +13,8 @@ import { cn } from "@/core/utils/style";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import React from "react";
 import { Spinner } from "@/core/components/ui/spinner";
+import { Button } from "@/core/components/ui/button";
+import { Eye, EyeOff, Info } from "lucide-react";
 
 type ZoomState = {
   left: number | string;
@@ -28,7 +30,6 @@ const initialZoom: ZoomState = {
   top: "dataMax",
 };
 
-
 interface MultiLineChartProps {
   data: Record<string, any>[];
   categoryKey: string;
@@ -41,6 +42,7 @@ interface MultiLineChartProps {
   onLineClick?: (key: string, event: MouseEvent) => void;
   onLineHover?: (key: string) => void;
   isLoading?: boolean;
+  minDataPoints?: number;
 }
 
 export function MultiLineChart({
@@ -54,44 +56,74 @@ export function MultiLineChart({
   colors,
   onLineClick,
   onLineHover,
-  isLoading = false
+  isLoading = false,
+  minDataPoints = 2,
 }: MultiLineChartProps) {
-
   const [hoveredLine, setHoveredLine] = useState<string | null>(null);
   const [zoom, setZoom] = useState<ZoomState>(initialZoom);
+  const [showAll, setShowAll] = useState(false);
 
   const prefetchedRef = useRef<Set<string>>(new Set());
   const dataRef = useRef({ data, categoryKey, lineKeys });
   const refAreaStartRef = useRef<string | undefined>(undefined);
   const refAreaEndRef = useRef<string | undefined>(undefined);
   const isDraggingRef = useRef(false);
-
   const [selectionBox, setSelectionBox] = useState<{ left: string; right: string } | null>(null);
 
-  const lineKeysKey = lineKeys.join(',');
+  // Count valid data points per line and identify sparse ones
+  const dataPointCount = useMemo(() => {
+    const counts: Record<string, number> = {};
+    lineKeys.forEach(key => {
+      counts[key] = data.filter(d => d[key] != null && !isNaN(Number(d[key]))).length;
+    });
+    return counts;
+  }, [data, lineKeys]);
 
-  useEffect(() => { dataRef.current = { data, categoryKey, lineKeys }; }, [data, categoryKey, lineKeys]);
+  const sparseLineKeys = useMemo(
+    () => lineKeys.filter(key => (dataPointCount[key] ?? 0) < minDataPoints),
+    [lineKeys, dataPointCount, minDataPoints]
+  );
 
-  useEffect(() => { prefetchedRef.current.clear(); }, [lineKeys.join(',')]);
+  const filteredLineKeys = useMemo(() => {
+    if (showAll) return lineKeys;
+    return lineKeys.filter(key => (dataPointCount[key] ?? 0) >= minDataPoints);
+  }, [lineKeys, showAll, dataPointCount, minDataPoints]);
 
-  useEffect(() => {
-    setZoom(initialZoom);
-    setHoveredLine(null);
-  }, [lineKeysKey]);
+  const hiddenLineCount = lineKeys.length - filteredLineKeys.length;
 
-  const palette = useMemo(() => colors && colors.length >= lineKeys.length
-    ? colors
-    : lineKeys.map((_, i) => `var(--chart-${(i % 5) + 1})`),
+  // Stable color map
+  const fullPalette = useMemo(() =>
+    colors && colors.length >= lineKeys.length
+      ? colors
+      : lineKeys.map((_, i) => `var(--chart-${(i % 5) + 1})`),
     [colors, lineKeys]
+  );
+
+  const colorMap = useMemo(() =>
+    Object.fromEntries(lineKeys.map((key, i) => [key, fullPalette[i]])),
+    [lineKeys, fullPalette]
+  );
+
+  const filteredColors = useMemo(
+    () => filteredLineKeys.map(key => colorMap[key]),
+    [filteredLineKeys, colorMap]
   );
 
   const chartConfig = useMemo(() =>
     Object.fromEntries(
-      lineKeys.map((key, i) => [key, { label: key, color: palette[i] }])
+      filteredLineKeys.map(key => [key, { label: key, color: colorMap[key] }])
     ) as ChartConfig,
-    [lineKeys, palette]
+    [filteredLineKeys, colorMap]
   );
 
+  const lineKeysKey = filteredLineKeys.join(',');
+
+  useEffect(() => { dataRef.current = { data, categoryKey, lineKeys: filteredLineKeys }; }, [data, categoryKey, filteredLineKeys]);
+  useEffect(() => { prefetchedRef.current.clear(); }, [filteredLineKeys.join(',')]);
+  useEffect(() => {
+    setZoom(initialZoom);
+    setHoveredLine(null);
+  }, [lineKeysKey]);
 
   const handleMouseDown = useCallback((e: any) => {
     if (!e?.activeLabel) return;
@@ -113,7 +145,6 @@ export function MultiLineChart({
     const wasDragging = isDraggingRef.current;
     const start = refAreaStartRef.current;
     const end = refAreaEndRef.current;
-
     refAreaStartRef.current = undefined;
     refAreaEndRef.current = undefined;
     isDraggingRef.current = false;
@@ -122,7 +153,6 @@ export function MultiLineChart({
     if (!wasDragging || !start || !end) return;
 
     const { data, categoryKey, lineKeys } = dataRef.current;
-
     const leftIdx = data.findIndex(d => String(d[categoryKey]) === start);
     const rightIdx = data.findIndex(d => String(d[categoryKey]) === end);
     const [lo, hi] = leftIdx <= rightIdx ? [leftIdx, rightIdx] : [rightIdx, leftIdx];
@@ -135,17 +165,15 @@ export function MultiLineChart({
     }));
 
     const pad = (max - min) * 0.1 || 0.5;
-
     setZoom({
       left: data[lo][categoryKey],
       right: data[hi][categoryKey],
       bottom: Math.max(0, min - pad),
       top: max + pad,
     });
-  }, [data, categoryKey, lineKeys]);
+  }, []);
 
   const zoomOut = useCallback(() => setZoom(initialZoom), []);
-
   const isZoomed = zoom.left !== "dataMin" || zoom.right !== "dataMax";
 
   const { visibleData, yDomain } = useMemo(() => {
@@ -154,10 +182,9 @@ export function MultiLineChart({
     const slice = (lo === -1 || hi === -1) ? data : data.slice(Math.min(lo, hi), Math.max(lo, hi) + 1);
 
     let min = Infinity, max = -Infinity;
-
     const visibleData = slice.map(row => {
       const extra: Record<string, any> = {};
-      lineKeys.forEach(key => {
+      filteredLineKeys.forEach(key => {
         extra[`${key}__hit`] = row[key];
         const v = Number(row[key]);
         if (!isNaN(v)) { if (v < min) min = v; if (v > max) max = v; }
@@ -171,11 +198,11 @@ export function MultiLineChart({
     const yDomain: [number, number] = [Math.max(0, niceMin), niceMax];
 
     return { visibleData, yDomain };
-  }, [data, categoryKey, lineKeys, isZoomed, zoom.left, zoom.right]);
+  }, [data, categoryKey, filteredLineKeys, isZoomed, zoom.left, zoom.right]);
 
   const lineHandlers = useMemo(() =>
     Object.fromEntries(
-      lineKeys.map(key => {
+      filteredLineKeys.map(key => {
         const handleMouseEnter = () => {
           setHoveredLine(key);
           if (onLineHover && !prefetchedRef.current.has(key)) {
@@ -192,10 +219,9 @@ export function MultiLineChart({
           },
         ];
       })
-    ), [lineKeys, onLineClick, onLineHover]);
+    ), [filteredLineKeys, onLineClick, onLineHover]);
 
   const LegendContent = useCallback(({ payload }: any) => <ChartLegendContent payload={payload} className="mt-8" />, []);
-
   const tooltipFilter = useCallback((item: any) => {
     return !item.dataKey?.toString().endsWith('__hit') && (hoveredLine === null || item.dataKey === hoveredLine)
   }, [hoveredLine]);
@@ -208,6 +234,39 @@ export function MultiLineChart({
             <Spinner className="size-4 text-muted-foreground" />
           </div>
         )}
+
+        {/* Info banner + toggle */}
+        {(hiddenLineCount > 0 || showAll) && (
+          <div className="flex items-center justify-between px-4 pt-2 gap-2">
+            <div className="flex items-center gap-1.5 text-2xs text-muted-foreground">
+              <Info className="size-3 shrink-0" />
+              {showAll ? (
+                <span>Showing all locations, including {hiddenLineCount} with data in fewer than {minDataPoints} seasons.</span>
+              ) : (
+                <span>Showing only locations with data in {minDataPoints}+ seasons. {hiddenLineCount} hidden.</span>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs gap-1.5 shrink-0"
+              onClick={() => setShowAll(!showAll)}
+            >
+              {showAll ? (
+                <>
+                  <EyeOff className="size-3.5" />
+                  Hide sparse
+                </>
+              ) : (
+                <>
+                  <Eye className="size-3.5" />
+                  Show all
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
         {isZoomed && (
           <div className="flex justify-end px-4 pt-2">
             <button
@@ -218,6 +277,7 @@ export function MultiLineChart({
             </button>
           </div>
         )}
+
         <ChartContainer config={chartConfig} className={cn(containerClass, "w-full")}
           style={{ userSelect: "none", cursor: selectionBox ? "crosshair" : "default" }}
         >
@@ -242,37 +302,40 @@ export function MultiLineChart({
                 return `${isNaN(num) ? value : num.toFixed(2)}${valueUnit ? ` ${valueUnit}` : ''}`;
               }}
             />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent filter={tooltipFilter} />
-              }
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent filter={tooltipFilter} />} />
             <ChartLegend content={LegendContent} />
-            {lineKeys.map((key, i) => (
-              <React.Fragment key={key}>
-                <Line
-                  {...lineHandlers[key]}
-                  dataKey={`${key}__hit`}
-                  type="monotone"
-                  stroke="transparent"
-                  strokeWidth={20}
-                  dot={false} activeDot={false}
-                  legendType="none" tooltipType="none"
-                  connectNulls={false} isAnimationActive={false}
-                />
-                <Line
-                  {...lineHandlers[key]}
-                  dataKey={key}
-                  type="monotone"
-                  stroke={palette[i]}
-                  strokeWidth={hoveredLine === key ? 3 : 2}
-                  strokeOpacity={hoveredLine === null || hoveredLine === key ? 1 : 0.2}
-                  dot={false} connectNulls={false}
-                  isAnimationActive={true} animationDuration={800}
-                />
-              </React.Fragment>
-            ))}
+            {filteredLineKeys.map((key, i) => {
+              const isSparse = sparseLineKeys.includes(key);
+              const showDots = showAll && isSparse;
+              return (
+                <React.Fragment key={key}>
+                  {/* Invisible hit area */}
+                  <Line
+                    {...lineHandlers[key]}
+                    dataKey={`${key}__hit`}
+                    type="monotone"
+                    stroke="transparent"
+                    strokeWidth={20}
+                    dot={false} activeDot={false}
+                    legendType="none" tooltipType="none"
+                    connectNulls={false} isAnimationActive={false}
+                  />
+                  {/* Visible line */}
+                  <Line
+                    {...lineHandlers[key]}
+                    dataKey={key}
+                    type="monotone"
+                    stroke={filteredColors[i]}
+                    strokeWidth={hoveredLine === key ? 3 : 2}
+                    strokeOpacity={hoveredLine === null || hoveredLine === key ? 1 : 0.2}
+                    dot={showDots ? { r: 4, strokeWidth: 2, fill: filteredColors[i], stroke: 'white' } : false}
+                    activeDot={showDots ? { r: 6, strokeWidth: 2 } : false}
+                    connectNulls={false}
+                    isAnimationActive={true} animationDuration={800}
+                  />
+                </React.Fragment>
+              );
+            })}
             {selectionBox && (
               <ReferenceArea
                 x1={selectionBox.left}

@@ -56,7 +56,8 @@ export function YieldByLocationView({
   const ranking = data.ranking;
 
   const { rows: lineRows, locationKeys, locationMap } = useMemo(
-    () => buildLineRows(ranking, currentLabel, hasComparison ? cmpDataItems : [], hasComparison ? cmpLabels : [], !isAllSeasons),
+    () => buildLineRows(ranking, currentLabel, hasComparison ? cmpDataItems : [], hasComparison ? cmpLabels : [], !isAllSeasons, true),
+
     [ranking, currentLabel, hasComparison, cmpDataItems, cmpLabels, isAllSeasons],
   );
 
