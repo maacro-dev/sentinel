@@ -93,20 +93,25 @@ export const DAMAGE_BASE = 'oklch(50% 0.15 25)';
 
 export function generateShades(base: string, count: number): string[] {
   const match = base.match(/oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)\s*\)/);
+
   if (!match) return Array(count).fill(base);
 
-  const [, , C, H] = match.map(Number);
-  const shades: string[] = [];
+  const [, L, C, H] = match.map(Number);
 
-  const startL = 40;
-  const endL = 75;
-  const step = (endL - startL) / (count - 1 || 1);
+  const colors: string[] = [];
 
   for (let i = 0; i < count; i++) {
-    const L = startL + step * i;
-    shades.push(`oklch(${L.toFixed(1)}% ${C} ${H})`);
+    const newH = (H + (360 / count) * i) % 360;
+
+    const newL = Math.max(35, Math.min(80, L + Math.sin(i) * 8));
+    const newC = Math.max(0.08, C + Math.cos(i) * 0.03);
+
+    colors.push(
+      `oklch(${newL.toFixed(1)}% ${newC.toFixed(3)} ${newH.toFixed(1)})`
+    );
   }
-  return shades;
+
+  return colors;
 }
 
 

@@ -1,10 +1,10 @@
 import { StatCardSparkline } from '../components/StatCard';
 import { MultiLineChart } from '../components/MultiLineChart';
-import { ComparisonPieChart } from '../components/ComparisonPieChart';
 import { YieldByMethodData } from '../schemas/comparative/yield-method';
 import { buildLineRows, generateShades, HUMAY_BASE, normaliseCompareProps } from '../utils';
 import { useMemo } from 'react';
 import { useTrendData } from '../hooks/useTrendData';
+import { ComparisonBarChart } from '../components/ComparisonBarChart';
 
 
 interface YieldByMethodViewProps {
@@ -67,7 +67,7 @@ export function YieldByMethodView({
   );
 
   const locationShades = useMemo(
-    () => generateShades('oklch(62.7% 0.194 149.214)', locationKeys.length),
+    () => generateShades(HUMAY_BASE, locationKeys.length),
     [locationKeys.length],
   );
 
@@ -191,7 +191,7 @@ export function YieldByMethodView({
           {STAT_METRICS.map(({ key, title, subtitle, unit }) => {
             const { data: pieData, insight } = pieDataByMetric[key];
             return (
-              <ComparisonPieChart
+              <ComparisonBarChart
                 key={key}
                 data={pieData}
                 title={title}

@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { ComparativeDataParams, LocationFilters, MoreFilters } from "../types";
+import { ComparativeDataParams, MoreFilters, MultiLocationFilters } from "../types";
 
 export function useComparativeFilters(
   effectiveSeasonId: number | null | undefined,
-  location: LocationFilters
+  location: MultiLocationFilters
 ) {
   const [moreFilters, setMoreFilters] = useState<MoreFilters>({
     variety: [],
@@ -20,17 +20,11 @@ export function useComparativeFilters(
 
   const sharedFilters = useMemo<ComparativeDataParams>(() => ({
     seasonId: effectiveSeasonId,
-    province: location.province || undefined,
-    municipality: location.municipality || undefined,
-    barangay: location.barangay || undefined,
-    method:
-      moreFilters.method.length === 1
-        ? moreFilters.method[0]
-        : undefined,
-    variety:
-      moreFilters.variety.length === 1
-        ? moreFilters.variety[0]
-        : undefined,
+    provinces: location.provinces.length > 0 ? location.provinces : undefined,
+    municipalities: location.municipalities.length > 0 ? location.municipalities : undefined,
+    barangays: location.barangays.length > 0 ? location.barangays : undefined,
+    method: moreFilters.method.length === 1 ? moreFilters.method[0] : undefined,
+    variety: moreFilters.variety.length === 1 ? moreFilters.variety[0] : undefined,
   }), [effectiveSeasonId, location, moreFilters]);
 
   return {

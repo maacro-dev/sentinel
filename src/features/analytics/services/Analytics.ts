@@ -1,4 +1,4 @@
-import { DashboardData, DescriptiveFilters } from "../types";
+import { ComparativeDataParams, DashboardData, DescriptiveFilters } from "../types";
 import { getSupabase } from "@/core/supabase";
 import { parseDataCollectionTrend } from "../schemas/trends/dataCollectionTrend";
 import { parseBarangayYieldRanking } from "../schemas/barangayYield";
@@ -165,23 +165,14 @@ export class Analytics {
     return parseHierarchicalYields(data);
   }
 
-  public static async getYieldByLocation(
-    filters: {
-      seasonId?: number | null;   // changed
-      province?: string;
-      municipality?: string;
-      barangay?: string;
-      method?: string;
-      variety?: string;
-    }
-  ): Promise<YieldByLocationData> {
+  public static async getYieldByLocation(filters: ComparativeDataParams): Promise<YieldByLocationData> {
     const client = await this._client;
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('yield_by_location', {
       p_season_id: sid ?? undefined,
-      p_province: filters.province,
-      p_municipality: filters.municipality,
-      p_barangay: filters.barangay,
+      p_province: filters.provinces?.join(','),
+      p_municipality: filters.municipalities?.join(','),
+      p_barangay: filters.barangays?.join(','),
       p_method: filters.method,
       p_variety: filters.variety,
     });
@@ -189,23 +180,14 @@ export class Analytics {
     return parseYieldByLocationData(data);
   }
 
-  public static async getYieldByMethod(
-    filters: {
-      seasonId?: number | null;
-      province?: string;
-      municipality?: string;
-      barangay?: string;
-      method?: string;
-      variety?: string;
-    }
-  ): Promise<YieldByMethodData> {
+  public static async getYieldByMethod(filters: ComparativeDataParams): Promise<YieldByMethodData> {
     const client = await this._client;
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('yield_by_method', {
       p_season_id: sid ?? undefined,
-      p_province: filters.province,
-      p_municipality: filters.municipality,
-      p_barangay: filters.barangay,
+      p_province: filters.provinces?.join(','),
+      p_municipality: filters.municipalities?.join(','),
+      p_barangay: filters.barangays?.join(','),
       p_method: filters.method,
       p_variety: filters.variety,
     });
@@ -213,23 +195,14 @@ export class Analytics {
     return parseYieldByMethodData(data);
   }
 
-  public static async getYieldByVariety(
-    filters: {
-      seasonId?: number | null;   // changed
-      province?: string;
-      municipality?: string;
-      barangay?: string;
-      method?: string;
-      variety?: string;
-    }
-  ): Promise<YieldByVarietyData> {
+  public static async getYieldByVariety(filters: ComparativeDataParams): Promise<YieldByVarietyData> {
     const client = await this._client;
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('yield_by_variety', {
       p_season_id: sid ?? undefined,
-      p_province: filters.province,
-      p_municipality: filters.municipality,
-      p_barangay: filters.barangay,
+      p_province: filters.provinces?.join(','),
+      p_municipality: filters.municipalities?.join(','),
+      p_barangay: filters.barangays?.join(','),
       p_method: filters.method,
       p_variety: filters.variety,
     });
@@ -239,10 +212,10 @@ export class Analytics {
 
   public static async getDamageByLocation(
     filters: {
-      seasonId?: number | null;   // changed
-      province?: string;
-      municipality?: string;
-      barangay?: string;
+      seasonId?: number | null;
+      provinces?: string[];
+      municipalities?: string[];
+      barangays?: string[];
       cause?: string;
     }
   ): Promise<DamageByLocationData> {
@@ -250,32 +223,23 @@ export class Analytics {
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('damage_by_location', {
       p_season_id: sid ?? undefined,
-      p_province: filters.province,
-      p_municipality: filters.municipality,
-      p_barangay: filters.barangay,
+      p_province: filters.provinces?.join(','),
+      p_municipality: filters.municipalities?.join(','),
+      p_barangay: filters.barangays?.join(','),
       p_cause: filters.cause,
     });
     if (error) throw new Error(`Failed to fetch damage by location: ${error.message}`);
     return parseDamageByLocationData(data);
   }
 
-  public static async getDamageByCause(
-    filters: {
-      seasonId?: number | null;   // changed
-      province?: string;
-      municipality?: string;
-      barangay?: string;
-      method?: string;
-      variety?: string;
-    }
-  ): Promise<DamageByCauseData> {
+  public static async getDamageByCause(filters: ComparativeDataParams): Promise<DamageByCauseData> {
     const client = await this._client;
     const sid = filters.seasonId === undefined ? await Seasons.getCurrent() : filters.seasonId;
     const { data, error } = await client.rpc('damage_by_cause', {
       p_season_id: sid ?? undefined,
-      p_province: filters.province,
-      p_municipality: filters.municipality,
-      p_barangay: filters.barangay,
+      p_province: filters.provinces?.join(','),
+      p_municipality: filters.municipalities?.join(','),
+      p_barangay: filters.barangays?.join(','),
       p_method: filters.method,
       p_variety: filters.variety,
     });

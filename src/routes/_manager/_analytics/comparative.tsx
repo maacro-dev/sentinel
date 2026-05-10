@@ -86,7 +86,7 @@ function RouteComponent() {
     resetMoreFilters,
   } = useComparativeFilters(effectiveSeasonId, location);
 
-  const prefetchLineData = useComparativePrefetch(sharedFilters, level);
+  const { prefetchLocation, prefetchOption } = useComparativePrefetch(sharedFilters, level);
 
   const {
     sortedCompareIds,
@@ -109,8 +109,8 @@ function RouteComponent() {
     resetMoreFilters();
   };
 
-  const handleProvinceClear = () => handleLocationChange('province', '');
-  const handleMunicipalityClear = () => handleLocationChange('municipality', '');
+  const handleProvinceClear = () => handleLocationChange('provinces', []);
+  const handleMunicipalityClear = () => handleLocationChange('municipalities', []);
 
   if (showInitialLoader) return <PendingComponent />;
 
@@ -133,6 +133,8 @@ function RouteComponent() {
         compareSeasonIds={sortedCompareIds}
         onCompareSeasonIdsChange={setCompareIds}
         onClearComparison={clearCompare}
+        onPrefetchProvince={(v) => prefetchOption('provinces', v)}
+        onPrefetchMunicipality={(v) => prefetchOption('municipalities', v)}
       />
 
       {view === 'yield-location' && (
@@ -143,7 +145,7 @@ function RouteComponent() {
           currentSeasonLabel={currentSeasonLabel}
           compareSeasonLabels={compareSeasonLabels}
           comparisonStats={comparisonMap[view]?.stats}
-          onYieldLineHover={prefetchLineData}
+          onYieldLineHover={prefetchLocation}
           onProvinceSelect={handleProvinceSelect}
           onProvinceClear={handleProvinceClear}
           onMunicipalityClear={handleMunicipalityClear}

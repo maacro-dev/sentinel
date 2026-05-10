@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react';
 
 export function useComparativeLocation(effectiveSeasonId?: number | null) {
 
-  const { location, setProvince, setMunicipality, setBarangay, resetLocation } = useLocationHierarchy();
+  const { location, setProvinces, setMunicipalities, setBarangays, resetLocation } = useLocationHierarchy();
 
   const { data: availableLocations, isLoading } = useAvailableLocations(effectiveSeasonId);
 
@@ -21,50 +21,43 @@ export function useComparativeLocation(effectiveSeasonId?: number | null) {
   const municipalityOptions = useMemo(() => {
     if (!availableLocations) return [];
     let filtered = availableLocations.municipalities;
-
-    if (location.province) {
-      filtered = filtered.filter(m => m.province === location.province);
+    if (location.provinces.length > 0) {
+      filtered = filtered.filter(m => location.provinces.includes(m.province));
     }
-
     return filtered.map(m => ({ value: m.name, label: m.name }));
-  }, [availableLocations, location.province]);
+  }, [availableLocations, location.provinces]);
 
   const barangayOptions = useMemo(() => {
     if (!availableLocations) return [];
     let filtered = availableLocations.barangays;
-
-    if (location.municipality) {
-      filtered = filtered.filter(
-        b => b.municipality === location.municipality
-      );
+    if (location.municipalities.length > 0) {
+      filtered = filtered.filter(b => location.municipalities.includes(b.municipality));
     }
-
     return filtered.map(b => ({ value: b.name, label: b.name }));
-  }, [availableLocations, location.municipality]);
+  }, [availableLocations, location.municipalities]);
 
   const handleProvinceSelect = useCallback((province: string) => {
-    setProvince(province);
-    setMunicipality('');
-    setBarangay('');
+    setProvinces([province]);
+    setMunicipalities([]);
+    setBarangays([]);
   }, []);
 
   const handleMunicipalitySelect = useCallback((municipality: string) => {
-    setMunicipality(municipality);
-    setBarangay('');
+    setMunicipalities([municipality]);
+    setBarangays([]);
   }, []);
-
   const handleLocationChange = useCallback(
-    (key: keyof typeof location, value: string) => {
-      if (key === 'province') setProvince(value);
-      else if (key === 'municipality') setMunicipality(value);
-      else if (key === 'barangay') setBarangay(value);
+    (key: keyof typeof location, value: string[]) => {
+      if (key === 'provinces') setProvinces(value);
+      else if (key === 'municipalities') setMunicipalities(value);
+      else if (key === 'barangays') setBarangays(value);
     },
     []
   );
 
   const level = useMemo(() => {
-    if (location.municipality) return 'barangay' as const;
-    if (location.province) return 'municipality' as const;
+    if (location.municipalities.length > 0) return 'barangay' as const;
+    if (location.provinces.length > 0) return 'municipality' as const;
     return 'province' as const;
   }, [location]);
 

@@ -116,3 +116,47 @@ create trigger trigger_notify_form_submitted
     after insert on field_activities
     for each row
     execute function notify_form_submitted();
+
+
+create or replace function notify_overdue_tasks()
+returns void
+language plpgsql
+security definer
+as $$
+declare
+  overdue_task record;
+begin
+  for overdue_task in
+    select t.id, t.mfid_id, t.activity_type, t.end_date
+    from collection_tasks t
+    where t.end_date < current_date
+      and t.status != 'completed'
+      and not exists (                  -- no existing notification for this task
+        select 1 from public.notifications n
+        where n.related_entity_id = t.id::text
+          and n.type = 'task_overdue'
+      )
+  loop
+    insert into public.notifications (
+      target_role, title, message, type, related_entity_id
+    ) values (
+      'data_manager',
+      'Overdue Collection Task',
+      format(
+        'Task %s for MFID %s is overdue (end date: %s).',
+        overdue_task.activity_type,
+        (select m.mfid from mfids m where m.id = overdue_task.mfid_id),
+        overdue_task.end_date
+      ),
+      'task_overdue',
+      overdue_task.id::text
+    );
+  end loop;
+end;
+$$;
+
+select cron.schedule(
+  'check-overdue-tasks',
+  '0 9 * * *',
+  'select notify_overdue_tasks();'
+);

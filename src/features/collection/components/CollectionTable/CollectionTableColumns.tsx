@@ -95,7 +95,11 @@ export const collectionTableColumns: CollectionColumnDef[] = [
     accessorKey: "collector_name",
     header: "Data Collector",
     cell: ({ row }) => row.original.collector_name ?? "Unassigned",
-    meta: { size: 'sm' }
+    filterFn: 'includesString',
+    meta: {
+      size: 'sm',
+      filterVariant: "options-search"
+    }
   },
   {
     accessorKey: "start_date",

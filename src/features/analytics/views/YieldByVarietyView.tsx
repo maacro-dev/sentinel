@@ -1,6 +1,5 @@
 import { memo, useMemo, useState, useCallback } from 'react';
 import { StatCardMinimal, StatCardSparkline } from '../components/StatCard';
-import { ComparisonPieChart } from '../components/ComparisonPieChart';
 import { GroupedBarChart } from '../components/GroupedBarChart/GroupedBarChart';
 import { Search } from 'lucide-react';
 import { YieldByVarietyData } from '../schemas/comparative/yield-variety';
@@ -9,6 +8,7 @@ import { useTrendData } from '../hooks/useTrendData';
 import { SortMode, VarietyLimit } from '../types';
 import { VarietyToolbar } from './VarietyToolbar';
 import { VARIETY_LIMIT_OPTIONS } from '../config';
+import { ComparisonBarChart } from '../components/ComparisonBarChart';
 
 const DEFAULT_LIMIT: VarietyLimit = 8;
 
@@ -320,7 +320,7 @@ export const YieldByVarietyView = memo(function YieldByVarietyView({
               ? (primaryStats?.highestVariety ?? highestVariety?.variety ?? 'N/A')
               : subtitle;
             return (
-              <ComparisonPieChart
+              <ComparisonBarChart
                 key={key}
                 data={pieData}
                 title={title}

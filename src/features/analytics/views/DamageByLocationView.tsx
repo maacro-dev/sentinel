@@ -2,10 +2,10 @@
 import { DamageByLocationData } from '../schemas/comparative/damage-location';
 import { StatCardMinimal, StatCardSparkline } from '../components/StatCard';
 import { MultiLineChart } from '../components/MultiLineChart';
-import { ComparisonPieChart } from '../components/ComparisonPieChart';
 import { buildLineRows, DAMAGE_BASE, generateShades, normaliseCompareProps } from '../utils';
 import { useMemo } from 'react';
 import { useTrendData } from '../hooks/useTrendData';
+import { ComparisonBarChart } from '../components/ComparisonBarChart';
 
 interface DamageByLocationViewProps {
   data: DamageByLocationData;
@@ -191,7 +191,7 @@ export function DamageByLocationView({
             const { data: pieData, insight } = pieDataByMetric[key];
             console.debug(`pieData - ${title}`, JSON.stringify(pieData))
             return (
-              <ComparisonPieChart
+              <ComparisonBarChart
                 key={key}
                 data={pieData}
                 title={title}

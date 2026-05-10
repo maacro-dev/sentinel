@@ -1,10 +1,10 @@
 import { DamageByCauseData } from '../schemas/comparative/damage-cause';
 import { StatCardMinimal, StatCardSparkline } from '../components/StatCard';
 import { MultiLineChart } from '../components/MultiLineChart';
-import { ComparisonPieChart } from '../components/ComparisonPieChart';
 import { buildLineRows, DAMAGE_BASE, generateShades, normaliseCompareProps } from '../utils';
 import { useMemo } from 'react';
 import { useTrendData } from '../hooks/useTrendData';
+import { ComparisonBarChart } from '../components/ComparisonBarChart';
 
 interface DamageByCauseViewProps {
   data: DamageByCauseData;
@@ -196,7 +196,7 @@ export function DamageByCauseView({
           {STAT_METRICS.map(({ key, title, subtitle, unit }) => {
             const { data: pieData, insight } = pieDataByMetric[key];
             return (
-              <ComparisonPieChart
+              <ComparisonBarChart
                 key={key}
                 data={pieData}
                 title={title}

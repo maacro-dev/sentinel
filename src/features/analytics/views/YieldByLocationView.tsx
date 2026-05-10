@@ -3,9 +3,9 @@ import { StatCardSparkline } from '../components/StatCard';
 import { buildLineRows, generateShades, HUMAY_BASE, normaliseCompareProps } from '../utils';
 import { MultiLineChart } from '../components/MultiLineChart';
 import { useCallback, useMemo } from 'react';
-import { ComparisonPieChart } from '../components/ComparisonPieChart';
 import { cn } from '@/core/utils/style';
 import { useTrendData } from '../hooks/useTrendData';
+import { ComparisonBarChart } from '../components/ComparisonBarChart';
 
 interface YieldByLocationViewProps {
   data: YieldByLocationData;
@@ -62,7 +62,7 @@ export function YieldByLocationView({
   );
 
   const locationShades = useMemo(
-    () => generateShades('oklch(62.7% 0.194 149.214)', locationKeys.length),
+    () => generateShades(HUMAY_BASE, locationKeys.length),
     [locationKeys.length],
   );
 
@@ -136,11 +136,11 @@ export function YieldByLocationView({
       {hasComparison && (
         <div className="grid auto-rows-min gap-4 grid-cols-4 transition-opacity duration-200">
           {STAT_METRICS.map(({ key, title, subtitle, unit }) => {
-            const { data: pieData, insight } = pieDataByMetric[key];
+            const { data: barData, insight } = pieDataByMetric[key];
             return (
-              <ComparisonPieChart
+              <ComparisonBarChart
                 key={key}
-                data={pieData}
+                data={barData}
                 title={title}
                 description={subtitle}
                 valueUnit={unit}

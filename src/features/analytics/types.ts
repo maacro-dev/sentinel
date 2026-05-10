@@ -86,7 +86,7 @@ export type ComparativeViewProps = {
 
 export type ComparativeViewComponent = React.ComponentType<ComparativeViewProps>
 
-export interface ComparativeDataParams extends Partial<LocationFilters>{
+export interface ComparativeDataParams extends Partial<MultiLocationFilters>{
   seasonId?: number | null,
   method?: string,
   variety?: string,
@@ -120,6 +120,12 @@ export interface LocationFilters {
   province: string;
   municipality: string;
   barangay: string;
+}
+
+export interface MultiLocationFilters{
+  provinces: string[];
+  municipalities: string[];
+  barangays: string[];
 }
 
 

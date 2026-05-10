@@ -8,13 +8,17 @@ import leven from "leven";
 import { MfidFormInput } from "../components/MfidFormDialog";
 
 export function useLocationHierarchy() {
-  const [location, setLocation] = useState({ province: '', municipality: '', barangay: '', });
+  const [location, setLocation] = useState({
+    provinces: [] as string[],
+    municipalities: [] as string[],
+    barangays: [] as string[],
+  });
 
   const { data: provinces = [], isLoading: loadingProvinces } = useProvinces();
 
   const selectedProvince = useMemo(
-    () => provinces.find(p => p.name === location.province),
-    [provinces, location.province]
+    () => provinces.find(p => location.provinces.includes(p.name)),
+    [provinces, location.provinces]
   );
   const provinceId = selectedProvince?.id;
 
@@ -24,8 +28,8 @@ export function useLocationHierarchy() {
   });
 
   const selectedMunicipality = useMemo(
-    () => municipalities.find(m => m.name === location.municipality),
-    [municipalities, location.municipality]
+    () => municipalities.find(m => location.municipalities.includes(m.name)),
+    [municipalities, location.municipalities]
   );
   const municipalityId = selectedMunicipality?.id;
 
@@ -34,28 +38,20 @@ export function useLocationHierarchy() {
     enabled: !!municipalityId,
   });
 
-  const setProvince = (province: string) => {
-    setLocation({
-      province,
-      municipality: '',
-      barangay: '',
-    });
+  const setProvinces = (provinces: string[]) => {
+    setLocation({ provinces, municipalities: [], barangays: [] });
   };
 
-  const setMunicipality = (municipality: string) => {
-    setLocation(prev => ({
-      ...prev,
-      municipality,
-      barangay: '',
-    }));
+  const setMunicipalities = (municipalities: string[]) => {
+    setLocation(prev => ({ ...prev, municipalities, barangays: [] }));
   };
 
-  const setBarangay = (barangay: string) => {
-    setLocation(prev => ({ ...prev, barangay }));
+  const setBarangays = (barangays: string[]) => {
+    setLocation(prev => ({ ...prev, barangays }));
   };
 
   const resetLocation = () => {
-    setLocation({ province: '', municipality: '', barangay: '' });
+    setLocation({ provinces: [], municipalities: [], barangays: [] });
   };
 
   const provinceOptions = provinces.map(p => ({ value: p.name, label: p.name }));
@@ -65,9 +61,9 @@ export function useLocationHierarchy() {
   return {
     location,
 
-    setProvince,
-    setMunicipality,
-    setBarangay,
+    setProvinces,
+    setMunicipalities,
+    setBarangays,
     resetLocation,
 
     provinces,

@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/features/toast";
-import { mfidsQueryOptions } from "../queries/options";
 import { Mfid } from "../services/Mfid";
 
 const ToastMessages = {
@@ -13,7 +12,7 @@ export const useCreateMfid = () => {
   const { notifyLoading, notifySuccess, notifyError } = useToast()
   const queryClient = useQueryClient();
   const { mutateAsync: createMfid, isPending: isLoading } = useMutation({
-    mutationKey: ['createMfid'] as const,
+    mutationKey: ['create-mfid'] as const,
     mutationFn: Mfid.create,
     onMutate: () => notifyLoading(ToastMessages.creating),
     onSuccess: (newMfid, _v, id) => notifySuccess({
@@ -22,7 +21,10 @@ export const useCreateMfid = () => {
       description: `The mfid (${newMfid}) has been created successfully.`
     }),
     onError: (_d, _v, id) => notifyError({ id, ...ToastMessages.createFailed }),
-    onSettled: () => queryClient.invalidateQueries(mfidsQueryOptions()),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["mfids"] });
+      queryClient.invalidateQueries({ queryKey: ["collection-tasks"] });
+    }
   })
 
   return { createMfid, isLoading };

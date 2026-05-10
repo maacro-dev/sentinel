@@ -146,27 +146,34 @@ export function CollectionFormDialog({
     form.reset();
   };
 
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
   const startDateValue = form.watch("start_date");
   const endDateValue = form.watch("end_date");
 
   const minEndDate = useMemo(() => {
-    if (!startDateValue) return undefined;
-    return new Date(startDateValue + "T12:00:00");
-  }, [startDateValue]);
+    const base = startDateValue
+      ? new Date(startDateValue + "T12:00:00")
+      : today;
+    return base > today ? base : today;
+  }, [startDateValue, today]);
 
-  const computedMaxStartDate = useMemo(() => {
-    if (!endDateValue) return undefined;
-    return new Date(endDateValue + "T12:00:00");
-  }, [endDateValue]);
 
   const effectiveMaxStartDate = maxStartDateOverride !== undefined
     ? (maxStartDateOverride === null ? undefined : maxStartDateOverride)
-    : computedMaxStartDate;
+    : undefined;
 
-  // const maxStartDate = useMemo(() => {
-  //   if (!endDateValue) return undefined;
-  //   return new Date(endDateValue + "T12:00:00");
-  // }, [endDateValue]);
+  useEffect(() => {
+    if (!startDateValue || !endDateValue) return;
+    if (startDateValue > endDateValue) {
+      form.setValue("end_date", startDateValue, { shouldValidate: true });
+    }
+  }, [startDateValue]);
+
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && !canOpen) return;
@@ -307,7 +314,7 @@ export function CollectionFormDialog({
                 <FormDatePicker
                   name="start_date"
                   label="Start Date"
-                  minDate={minStartDate}
+                  minDate={minStartDate ?? today}
                   maxDate={effectiveMaxStartDate}
                 />
                 <FormDatePicker

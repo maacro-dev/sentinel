@@ -7,7 +7,7 @@ import { FormSelect } from "@/core/components/forms/FormSelect";
 import { FormDatePicker } from "@/core/components/forms";
 import { useAvailableCollectors } from "@/features/users/hooks/useAvailableCollectors";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Alert, AlertTitle, AlertDescription } from "@/core/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 
@@ -60,6 +60,30 @@ export function BatchScheduleDialog({
       end_date: new Date().toISOString().slice(0, 10),
     },
   });
+
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const startDateValue = form.watch("start_date");
+  const endDateValue = form.watch("end_date");
+
+  useEffect(() => {
+    if (!startDateValue || !endDateValue) return;
+    if (startDateValue > endDateValue) {
+      form.setValue("end_date", startDateValue, { shouldValidate: true });
+    }
+  }, [startDateValue]);
+
+  const minEndDate = useMemo(() => {
+    const base = startDateValue
+      ? new Date(startDateValue + "T12:00:00")
+      : today;
+    return base > today ? base : today;
+  }, [startDateValue, today]);
+
 
   useEffect(() => {
     if (users && users.length > 0 && !form.getValues().collector_id) {
@@ -156,12 +180,12 @@ export function BatchScheduleDialog({
                   })) ?? []
                 }
               />
-              <FormDatePicker name="start_date" label="Start Date" />
-              <FormDatePicker name="end_date" label="End Date" />
+              <FormDatePicker name="start_date" label="Start Date" minDate={today} />
+              <FormDatePicker name="end_date" label="End Date" minDate={minEndDate} />
             </div>
             <DialogFooter>
               <Button type="submit" disabled={disabled}>
-                Schedule All
+                {mfidCount > 1 ? "Schedule All" : "Schedule"}
               </Button>
             </DialogFooter>
           </form>

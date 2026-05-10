@@ -343,6 +343,9 @@ begin
             end as location,
             avg(yield_t / area_harvested_ha) as avg_yield_t_ha
         from base
+        where (p_province is null or province_name = ANY(string_to_array(p_province, ',')))
+          and (p_municipality is null or municipality_name = ANY(string_to_array(p_municipality, ',')))
+          and (p_barangay is null or barangay_name = ANY(string_to_array(p_barangay, ',')))
         group by location
     ),
     all_locations as (
@@ -360,9 +363,9 @@ begin
         left join public.barangays b on
             (p_municipality is not null and b.city_municipality_id = cm.id) or
             (p_municipality is null)
-        where (p_province is null or p.name = p_province)
-          and (p_municipality is null or cm.name = p_municipality)
-          and (p_barangay is null or b.name = p_barangay)
+        where (p_province is null or p.name = ANY(string_to_array(p_province, ',')))
+          and (p_municipality is null or cm.name = ANY(string_to_array(p_municipality, ',')))
+          and (p_barangay is null or b.name = ANY(string_to_array(p_barangay, ',')))
     ),
     overall as (
         select avg(yield_t / area_harvested_ha) as overall_avg
@@ -451,9 +454,9 @@ begin
             limit 1
         )
         where (p_season_id is null or fa.season_id = p_season_id)
-          and (p_province is null or p.name = p_province)
-          and (p_municipality is null or cm.name = p_municipality)
-          and (p_barangay is null or b.name = p_barangay)
+          and (p_province is null or p.name = ANY(string_to_array(p_province, ',')))
+          and (p_municipality is null or cm.name = ANY(string_to_array(p_municipality, ',')))
+          and (p_barangay is null or b.name = ANY(string_to_array(p_barangay, ',')))
           and (p_method is null or ce.actual_crop_establishment_method ilike '%' || p_method || '%')
           and (p_variety is null or
                case p_variety
@@ -566,9 +569,9 @@ begin
             limit 1
         )
         where (p_season_id is null or fa.season_id = p_season_id)
-          and (p_province is null or p.name = p_province)
-          and (p_municipality is null or cm.name = p_municipality)
-          and (p_barangay is null or b.name = p_barangay)
+          and (p_province is null or p.name = ANY(string_to_array(p_province, ',')))
+          and (p_municipality is null or cm.name = ANY(string_to_array(p_municipality, ',')))
+          and (p_barangay is null or b.name = ANY(string_to_array(p_barangay, ',')))
           and (p_method is null or ce.actual_crop_establishment_method ilike '%' || p_method || '%')
           and (
                 p_variety is null
@@ -578,7 +581,7 @@ begin
              or (ce.rice_variety = p_variety)
           )
           and hr.area_harvested_ha > 0
-          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0   -- exclude zero yield
+          and (hr.bags_harvested * hr.avg_bag_weight_kg) > 0
     ),
     overall as (
         select avg(yield_t / area_harvested_ha) as overall_avg
@@ -653,12 +656,12 @@ begin
         left join public.field_activities fa on fa.field_id = f.id
         left join public.damage_assessments da on da.id = fa.id
         where (p_season_id is null or fa.season_id = p_season_id)
-          and (p_province is null or p.name = p_province)
-          and (p_municipality is null or cm.name = p_municipality)
-          and (p_barangay is null or b.name = p_barangay)
+          and (p_province is null or p.name = ANY(string_to_array(p_province, ',')))
+          and (p_municipality is null or cm.name = ANY(string_to_array(p_municipality, ',')))
+          and (p_barangay is null or b.name = ANY(string_to_array(p_barangay, ',')))
           and (p_cause is null or da.cause ilike '%' || p_cause || '%')
-          and da.affected_area_ha > 0                    -- exclude zero or null damage area
-          and da.cause is not null                       -- only valid damage records
+          and da.affected_area_ha > 0
+          and da.cause is not null
     ),
     totals as (
         select
@@ -767,9 +770,9 @@ begin
             limit 1
         )
         where (p_season_id is null or fa.season_id = p_season_id)
-          and (p_province is null or p.name = p_province)
-          and (p_municipality is null or cm.name = p_municipality)
-          and (p_barangay is null or b.name = p_barangay)
+          and (p_province is null or p.name = ANY(string_to_array(p_province, ',')))
+          and (p_municipality is null or cm.name = ANY(string_to_array(p_municipality, ',')))
+          and (p_barangay is null or b.name = ANY(string_to_array(p_barangay, ',')))
           and (p_method is null or ce.actual_crop_establishment_method ilike '%' || p_method || '%')
           and (p_variety is null or
                case p_variety
@@ -778,8 +781,8 @@ begin
                    when 'Others' then not (ce.rice_variety ilike '%nsic%' or ce.rice_variety ilike '%psb%')
                    else true
                end)
-          and da.affected_area_ha > 0        -- exclude zero or null affected area
-          and da.cause is not null           -- only valid causes
+          and da.affected_area_ha > 0
+          and da.cause is not null
     ),
     totals as (
         select

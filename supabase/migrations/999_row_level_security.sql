@@ -202,6 +202,8 @@ grant select on mfid_details to authenticated;
 
 grant select on field_activity_details to authenticated;
 
+grant select on seasons_with_yield_data to authenticated;
+
 grant select on users to authenticated;
 
 grant select on barangays to authenticated;
