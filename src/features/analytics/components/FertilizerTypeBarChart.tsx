@@ -69,7 +69,7 @@ export const FertilizerTypeBarChart = memo(
           }}
           isEmpty={isEmpty}
           layout="horizontal"
-          cardClass="h-full min-h-120"
+          cardClass="h-100"
           getBarSize={() => 56}
           activeBar={activeFertilizer}
           onBarClick={handleBarClick}

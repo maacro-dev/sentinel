@@ -12,6 +12,7 @@ import { BarChartDefaults } from "./BarChart/Defaults";
 import { useMemo } from "react";
 import { cn } from "@/core/utils/style";
 import { ChartCard } from "./ChartCard";
+import { D_RADIAL_INNER_RADIUS, D_RADIAL_MAX_HEIGHT, D_RADIAL_OUTER_RADIUS } from "../config";
 
 interface MethodPieChartProps {
   summary: CropMethodSummary;
@@ -103,20 +104,26 @@ export function MethodPieChart({
         description: "Most used method this season (includes fields without yield)",
       }}
       config={chartConfig}
-      className="flex flex-col min-h-80 [&>div:nth-child(2)]:justify-start"
+      className="flex flex-col [&>div:nth-child(2)]:justify-start"
     >
       {total === 0 ? (
         <span className="text-muted-foreground text-sm">No data</span>
       ) : (
         <>
-          <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-60 w-full">
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square w-full"
+            style={{
+              maxHeight: D_RADIAL_MAX_HEIGHT
+            }}
+          >
             <PieChart>
               <Pie
                 data={chartData}
                 dataKey="count"
                 nameKey="method"
-                innerRadius={60}
-                outerRadius={80}
+                innerRadius={D_RADIAL_INNER_RADIUS}
+                outerRadius={D_RADIAL_OUTER_RADIUS}
                 shape={renderSector}
                 onClick={handlePieClick}
                 cursor="pointer"

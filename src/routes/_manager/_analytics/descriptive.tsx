@@ -57,6 +57,28 @@ function RouteComponent() {
   return (
     <PageContainer>
       <ActiveDescriptiveFiltersBar filters={filter} onClear={clearFilter} onClearAll={clearAllFilters} />
+      <div className="flex gap-4">
+        <div className="w-[50%]">
+          <FertilizerTypeBarChart
+            data={fertilizerTypeSummary}
+            activeFertilizer={filter.fertilizer}
+            onFertilizerChange={(f) => setFilter(prev => ({ ...prev, fertilizer: f }))}
+            onBarHover={(item) => { if (item?.type) prefetch({ fertilizer: item.type }); }}
+          />
+        </div>
+        <MethodPieChart
+          summary={methodSummary}
+          activeMethod={filter.method}
+          onMethodChange={(m) => setFilter(prev => ({ ...prev, method: m }))}
+          onSliceHover={(method) => prefetch({ method })}
+        />
+        <VarietyPieChart
+          summary={riceVarietySummary}
+          activeVariety={filter.variety}
+          onVarietyChange={(v) => setFilter(prev => ({ ...prev, variety: v }))}
+          onSliceHover={(variety) => prefetch({ variety })}
+        />
+      </div>
       <ProvinceYieldsBarChart
         hierarchy={provinceYieldsHierarchy}
         locationFilter={{
@@ -67,30 +89,6 @@ function RouteComponent() {
         onLocationFilterChange={(geo) => setFilter(prev => ({ ...prev, ...geo }))}
         onBarHover={(locFilter) => prefetch(locFilter)}
       />
-      <div className="flex h-full gap-4">
-        <div className="h-full w-[60%]">
-          <FertilizerTypeBarChart
-            data={fertilizerTypeSummary}
-            activeFertilizer={filter.fertilizer}
-            onFertilizerChange={(f) => setFilter(prev => ({ ...prev, fertilizer: f }))}
-            onBarHover={(item) => { if (item?.type) prefetch({ fertilizer: item.type }); }}
-          />
-        </div>
-        <div className="flex flex-col gap-4 w-full">
-          <MethodPieChart
-            summary={methodSummary}
-            activeMethod={filter.method}
-            onMethodChange={(m) => setFilter(prev => ({ ...prev, method: m }))}
-            onSliceHover={(method) => prefetch({ method })}
-          />
-          <VarietyPieChart
-            summary={riceVarietySummary}
-            activeVariety={filter.variety}
-            onVarietyChange={(v) => setFilter(prev => ({ ...prev, variety: v }))}
-            onSliceHover={(variety) => prefetch({ variety })}
-          />
-        </div>
-      </div>
     </PageContainer>
   );
 }

@@ -101,3 +101,8 @@ export const FORM_PROGRESS_CONFIG: SummaryConfig = {
 
 
 export const VARIETY_LIMIT_OPTIONS = [5, 8, 12, 20] as const;
+
+
+export const D_RADIAL_INNER_RADIUS = 50;
+export const D_RADIAL_OUTER_RADIUS = 70;
+export const D_RADIAL_MAX_HEIGHT = 230;
