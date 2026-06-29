@@ -75,9 +75,12 @@ begin
     returning id into new_mfid_id;
 
     if v_barangay_name is not null then
-        select id into v_barangay_id
-        from public.barangays
-        where name = v_barangay_name
+        select a.barangay_id
+        into v_barangay_id
+        from public.addresses a
+        where a.barangay = v_barangay_name
+          and a.city_municipality = p_municity
+          and a.province = p_province
         limit 1;
 
         if v_barangay_id is null then

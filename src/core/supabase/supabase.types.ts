@@ -2030,6 +2030,7 @@ export type Database = {
         Args: { p_auto_create_mfid?: boolean; p_data: Json }
         Returns: Json
       }
+      notify_overdue_tasks: { Args: never; Returns: undefined }
       parse_date: { Args: { date_str: string }; Returns: string }
       parse_timestamptz: { Args: { timestamptz_str: string }; Returns: string }
       predicted_yield_forecast: {

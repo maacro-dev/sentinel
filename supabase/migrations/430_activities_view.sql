@@ -403,7 +403,7 @@ from public.mfids m
 left join public.fields f on f.mfid_id = m.id
 left join public.addresses a on f.barangay_id = a.barangay_id
 left join public.farmers fa on f.farmer_id = fa.id
-order by m.mfid;
+order by m.created_at desc;
 
 
 create or replace function get_mfid_details(p_season_id int default null)
@@ -455,7 +455,7 @@ as $$
   left join public.fields f on f.mfid_id = m.id
   left join public.addresses a on f.barangay_id = a.barangay_id
   left join public.farmers fa on f.farmer_id = fa.id
-  order by m.mfid;
+  order by m.created_at desc;
 $$;
 
 
